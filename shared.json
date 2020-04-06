@@ -36,13 +36,41 @@
     "variables": {},
     "resources": [
         {
-            "name": "[concat(parameters('NamePrefixExternal'), 'sa1')]",
             "type": "Microsoft.Storage/storageAccounts",
-            "apiVersion": "2015-06-15",
+            "apiVersion": "2019-06-01",
+            "name": "[concat(parameters('NamePrefixExternal'), 'sa1')]",
             "location": "[resourceGroup().location]",
-            "tags": {},
+            "sku": {
+                "name": "Standard_LRS",
+                "tier": "Standard"
+            },
+            "kind": "StorageV2",
             "properties": {
-                "accountType": "Standard_LRS"
+                "azureFilesIdentityBasedAuthentication": {
+                    "directoryServiceOptions": "None"
+                },
+                "largeFileSharesState": "Disabled",
+                "networkAcls": {
+                    "bypass": "AzureServices",
+                    "virtualNetworkRules": [],
+                    "ipRules": [],
+                    "defaultAction": "Allow"
+                },
+                "supportsHttpsTrafficOnly": true,
+                "encryption": {
+                    "services": {
+                        "file": {
+                            "keyType": "Account",
+                            "enabled": true
+                        },
+                        "blob": {
+                            "keyType": "Account",
+                            "enabled": true
+                        }
+                    },
+                    "keySource": "Microsoft.Storage"
+                },
+                "accessTier": "Hot"
             }
         },
         {

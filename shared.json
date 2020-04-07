@@ -161,6 +161,48 @@
                     "name": "Free"
                 }
             }
+        },
+                {
+            "type": "Microsoft.Network/publicIPAddresses",
+            "apiVersion": "2019-11-01",
+            "name": "[concat(parameters('NamePrefixInternal'), 'bastionpip1')]",
+            "location": "eastus",
+            "sku": {
+                "name": "Standard"
+            },
+            "properties": {
+                "ipAddress": "52.186.101.83",
+                "publicIPAddressVersion": "IPv4",
+                "publicIPAllocationMethod": "Static",
+                "idleTimeoutInMinutes": 4,
+                "ipTags": []
+            }
+        },
+        {
+            "type": "Microsoft.Network/bastionHosts",
+            "apiVersion": "2019-11-01",
+            "name": "[concat(parameters('NamePrefixInternal'), 'bastion1')]",
+            "location": "eastus",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/publicIPAddresses', concat(parameters('NamePrefixInternal'), 'bastionpip1'))]"
+            ],
+            "properties": {
+                "dnsName": "bst-f950cc0d-a432-4ee1-8d6f-ec4dd7876dbf.bastion.azure.com",
+                "ipConfigurations": [
+                    {
+                        "name": "IpConf",
+                        "properties": {
+                            "privateIPAllocationMethod": "Dynamic",
+                            "publicIPAddress": {
+                                "id": "[resourceId('Microsoft.Network/publicIPAddresses', concat(parameters('NamePrefixInternal'), 'bastionpip1'))]"
+                            },
+                            "subnet": {
+                                "id": "[concat(subscription().id, '/resourceGroups/network/providers/Microsoft.Network/virtualNetworks/ceastusvn1/subnets/AzureBastionSubnet')]"
+                            }
+                        }
+                    }
+                ]
+            }
         }
     ],
     "outputs": {},

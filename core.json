@@ -2,33 +2,47 @@
     "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
-        "NamePrefixInternal": {
-           "type": "string",
+        /*"AutomationKey": {
+           "type": "securestring",
            "metadata": {
+                "description": "Azure Automation Account Key of DSC registration"
+            }
+        },
+        "AutomationUrl": {
+           "type": "securestring",
+           "metadata": {
+                "description": "Azure Automation Account URL of DSC registration"
+            }
+        },*/
+        "NamePrefixInternal": {
+            "type": "string",
+            "metadata": {
                 "description": "Name prefix for private resources"
             }
         },
         "VmPassword": {
-           "type": "securestring",
-           "metadata": {
+            "type": "securestring",
+            "metadata": {
                 "description": "Local Admin Password for Virtual Machines"
-            }           
+            }
         },
         "VmUsername": {
-           "type": "securestring",
-           "metadata": {
+            "type": "securestring",
+            "metadata": {
                 "description": "Local Admin Username of Virtual Machines"
-            }           
-        }   
+            }
+        }
     },
-    "variables": {},
+    "variables": {
+    },
     "resources": [
-                {
+        {
             "name": "[concat(parameters('NamePrefixInternal'), 'dcnic')]",
             "type": "Microsoft.Network/networkInterfaces",
             "apiVersion": "2018-08-01",
             "location": "[resourceGroup().location]",
-            "tags": {},
+            "tags": {
+            },
             "properties": {
                 "ipConfigurations": [
                     {
@@ -85,8 +99,24 @@
                     "osDisk": {
                         "name": "[concat(parameters('NamePrefixInternal'), 'dcdisk0')]",
                         "caching": "None",
-                        "createOption": "FromImage"
-                    }
+                        "createOption": "FromImage",
+                        "managedDisk": {
+                            "storageAccountType": "Standard_LRS"
+                        }
+
+                    },
+                    "dataDisks": [
+                        {
+                            "lun": 0,
+                            "name": "[concat(parameters('NamePrefixInternal'), 'dcdisk1')]",
+                            "caching": "None",
+                            "createOption": "Empty",
+                            "diskSizeGB": 32,
+                            "managedDisk": {
+                                "storageAccountType": "Standard_LRS"
+                            }
+                        }
+                    ]
                 },
                 "networkProfile": {
                     "networkInterfaces": [
@@ -105,31 +135,58 @@
                 }
             },
             "resources": [
-                {
-                    "name": "DSC",
+                /*{
                     "type": "extensions",
-                    "apiVersion": "2018-06-01",
+                    "name": "DSC",
+                    "apiVersion": "2018-10-01",
                     "location": "[resourceGroup().location]",
-                    "tags": {},
                     "properties": {
                         "publisher": "Microsoft.Powershell",
                         "type": "DSC",
-                        "typeHandlerVersion": "2.9",
+                        "typeHandlerVersion": "2.77",
                         "autoUpgradeMinorVersion": true,
                         "settings": {
-                            "modulesUrl": "[concat('artifactsLocation', '/DSCModules/dsc.zip')]",
-                            "sasToken": "artifactsLocationSasToken",
-                            "configurationFunction": "Configure",
-                            "properties": {
-                                "nodeName": "windowsVM1"
+                            "wmfVersion": "latest",
+                            "configuration": {
+                                "url": "[reference(resourceId())]",
+                                "script": "ConfigurationScript.ps1",
+                                "function": "ConfigurationFunction"
+                            },
+                            "configurationArguments": {
+                                "argument1": "Value1",
+                                "argument2": "Value2"
+                            },
+                            "configurationData": {
+                                "url": "https://foo.psd1"
+                            },
+                            "privacy": {
+                                "dataCollection": "enable"
+                            },
+                            "advancedOptions": {
+                                "forcePullAndApply": true
                             }
                         },
-                        "protectedSettings": {}
+                        "protectedSettings": {
+                            "configurationArguments": {
+                                "parameterOfTypePSCredential1": {
+                                    "userName": "UsernameValue1",
+                                    "password": "PasswordValue1"
+                                },
+                                "parameterOfTypePSCredential2": {
+                                    "userName": "UsernameValue2",
+                                    "password": "PasswordValue2"
+                                }
+                            },
+                            "configurationUrlSasToken": "?g!bber1sht0k3n",
+                            "configurationDataUrlSasToken": "?dataAcC355T0k3N"
+                        }
                     }
-                }
+                }*/
             ]
         }
     ],
-    "outputs": {},
-    "functions": []
+    "outputs": {
+    },
+    "functions": [
+    ]
 }

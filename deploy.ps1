@@ -83,6 +83,14 @@ catch
 #############################################################
 foreach($Group in $ResourceGroups)
 {
+    if($Group -eq 'core')
+    {
+        <#
+        $CoreParams.Add("AutomationUrl", $(Read-Host -Prompt 'Enter Azure Automation URL' -AsSecureString)) # Secure Strings must use Add Method for proper deserialization
+        $CoreParams.Add("AutomationKey", $(Read-Host -Prompt 'Enter Azure Automation Key' -AsSecureString)) # Secure Strings must use Add Method for proper deserialization
+        #>
+    }
+
     try 
     {
         New-AzResourceGroupDeployment `

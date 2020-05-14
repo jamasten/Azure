@@ -1,4 +1,5 @@
 {
+    "kind": "policyAssignment",
     "properties": {
         "displayName": "Restrict VM network interfaces to a subnet",
         "description": "This policy restricts VM network interfaces to a subnet based on the resource group",

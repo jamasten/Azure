@@ -135,6 +135,20 @@
                 }
             },
             "resources": [
+                {
+                    "type": "extensions",
+                    "apiVersion": "2017-03-30",
+                    "name": "AzureNetworkWatcherExtension",
+                    "location": "[resourceGroup().location]",
+                    "properties": {
+                        "publisher": "Microsoft.Azure.NetworkWatcher",
+                        "type": "NetworkWatcherAgentWindows",
+                        "typeHandlerVersion": "1.4",
+                        "autoUpgradeMinorVersion": true,
+                        "settings": {
+                        }
+                    }
+                }
                 /*{
                     "type": "extensions",
                     "name": "DSC",

@@ -3,52 +3,35 @@
         "description": "This blueprint sets tag policy and role assignment on the subscription, creates a ResourceGroup, and deploys a resource template and role assignment to that ResourceGroup.",
         "targetScope": "subscription",
         "parameters": {
-            "storageAccountType": {
-                "type": "string",
-                "defaultValue": "Standard_LRS",
-                "allowedValues": [
-                    "Standard_LRS",
-                    "Standard_GRS",
-                    "Standard_ZRS",
-                    "Premium_LRS"
-                ],
-                "metadata": {
-                    "displayName": "storage account type.",
-                    "description": null
-                }
-            },
-            "tagName": {
+            "NamePrefixExternal": {
                 "type": "string",
                 "metadata": {
-                    "displayName": "The name of the tag to provide the policy assignment.",
-                    "description": null
-                }
-            },
-            "tagValue": {
+                     "description": "Name prefix for public resources (i.e. storage accounts)"
+                 }
+             },
+             "NamePrefixInternal": {
                 "type": "string",
                 "metadata": {
-                    "displayName": "The value of the tag to provide the policy assignment.",
-                    "description": null
-                }
-            },
-            "contributors": {
-                "type": "array",
+                     "description": "Name prefix for private resources"
+                 }
+             },
+             "UserObjectId": {
+                "type": "string",
                 "metadata": {
-                    "description": "List of AAD object IDs that is assigned Contributor role at the subscription",
-                    "strongType": "PrincipalId"
-                }
-            },
-            "owners": {
-                "type": "array",
-                "metadata": {
-                    "description": "List of AAD object IDs that is assigned Owner role at the resource group",
-                    "strongType": "PrincipalId"
-                }
-            }
+                     "description": "ID is required to set Key Vault Access Policy"
+                 }
+             }
         },
         "resourceGroups": {
-            "storageRG": {
-                "description": "Contains the resource template deployment and a role assignment."
+            "services": {
+                "description": "Contains the supporting, shared Azure resources for the subscription.",
+                "location": "East US",
+                "name": "services"                
+            },
+            "network": {
+                "description": "Contains the network infrastructure and controls for the subscription.",
+                "location": "East US",
+                "name": "network"
             }
         }
     }

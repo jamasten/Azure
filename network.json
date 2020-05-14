@@ -23,32 +23,56 @@
                         "10.0.0.0/16"
                     ]
                 },
+                "dhcpOptions": {
+                    "dnsServers": [
+                        "10.0.2.5"
+                    ]
+                },                
                 "subnets": [
                     {
                         "name": "Gateway",
                         "properties": {
-                            "addressPrefix": "10.0.0.0/29"
+                            "addressPrefix": "10.0.0.0/29",
+                            "serviceEndpoints": [],
+                            "delegations": [],
+                            "privateEndpointNetworkPolicies": "Enabled",
+                            "privateLinkServiceNetworkPolicies": "Enabled"
                         }
                     },
                     {
                         "name": "AzureBastionSubnet",
                         "properties": {
-                            "addressPrefix": "10.0.1.0/27"
+                            "addressPrefix": "10.0.1.0/27",
+                            "serviceEndpoints": [],
+                            "delegations": [],
+                            "privateEndpointNetworkPolicies": "Enabled",
+                            "privateLinkServiceNetworkPolicies": "Enabled"
                         }
                     },
                     {
                         "name": "Shared",
                         "properties": {
-                            "addressPrefix": "10.0.2.0/23"
+                            "addressPrefix": "10.0.2.0/23",
+                            "serviceEndpoints": [],
+                            "delegations": [],
+                            "privateEndpointNetworkPolicies": "Enabled",
+                            "privateLinkServiceNetworkPolicies": "Enabled"
                         }
                     },
                     {
                         "name": "WVD",
                         "properties": {
-                            "addressPrefix": "10.0.4.0/23"
+                            "addressPrefix": "10.0.4.0/23",
+                            "serviceEndpoints": [],
+                            "delegations": [],
+                            "privateEndpointNetworkPolicies": "Enabled",
+                            "privateLinkServiceNetworkPolicies": "Enabled"
                         }
-                    }                   
-                ]
+                    }
+                ],
+                "virtualNetworkPeerings": [],
+                "enableDdosProtection": false,
+                "enableVmProtection": false
             }
         }
     ],

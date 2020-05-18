@@ -25,7 +25,7 @@
                 },
                 "dhcpOptions": {
                     "dnsServers": [
-                        "10.0.2.5"
+                        "10.0.1.5"
                     ]
                 },                
                 "subnets": [
@@ -40,7 +40,7 @@
                         }
                     },
                     {
-                        "name": "Shared",
+                        "name": "Services",
                         "properties": {
                             "addressPrefix": "10.0.1.0/23",
                             "serviceEndpoints": [],

@@ -59,15 +59,20 @@
                 "targetScope": "subscription",
                 "description": "This blueprint stamps out new subscriptions for app teams with their resource groups and baseline infrastructure.  This includes policies on the resource groups.",
                 "resourceGroups": {
+                    "network": {
+                        "description": "Contains the network infrastructure and controls for the subscription.",
+                        "location": "East US",
+                        "name": "network"
+                    },
                     "services": {
                         "description": "Contains the supporting, shared Azure resources for the subscription.",
                         "location": "East US",
                         "name": "services"
                     },
-                    "network": {
-                        "description": "Contains the network infrastructure and controls for the subscription.",
+                    "wvd": {
+                        "description": "Contains the resources supporting Windows Virtual Desktop.",
                         "location": "East US",
-                        "name": "network"
+                        "name": "wvd"
                     }
                 },
                 "parameters": {
@@ -90,24 +95,43 @@
                         }
                     }
                 }
-            }
-        },
-        {
-            "type": "Microsoft.Blueprint/blueprints/artifacts",
-            "name": "[concat(parameters('blueprintName'), '/policyArtifact')]",
-            "apiVersion": "2018-11-01-preview",
-            "kind": "policyAssignment",
-            "dependsOn": [
-                "[parameters('blueprintName')]"
-            ],
-            "properties": {
-                "displayName": "Restrict VM network interfaces to the Services subnet",
-                "description": "This policy restricts VM network interfaces to the Services subnet based on the Services resource group",
-                "policyDefinitionId": "[resourceId('Microsoft.Authorization/policyDefinitions', 'RestrictVirtualMachineNetworkInterfaces')]",
-                "parameters": {},
-                "dependsOn": [],
-                "resourceGroup": "Services"
-            }
+            },
+            "resources": [
+                {
+                    "type": "artifacts",
+                    "name": "policyArtifact_RestrictVirtualMachineNetworkInterfaces_services",
+                    "apiVersion": "2018-11-01-preview",
+                    "kind": "policyAssignment",
+                    "dependsOn": [
+                        "[parameters('blueprintName')]"
+                    ],
+                    "properties": {
+                        "displayName": "Restrict VM network interfaces to the Services subnet",
+                        "description": "This policy restricts VM network interfaces to the Services subnet based on the Services resource group",
+                        "policyDefinitionId": "[resourceId('Microsoft.Authorization/policyDefinitions', 'RestrictVirtualMachineNetworkInterfaces')]",
+                        "parameters": {},
+                        "dependsOn": [],
+                        "resourceGroup": "services"
+                    }
+                },
+                {
+                    "type": "artifacts",
+                    "name": "policyArtifact_RestrictVirtualMachineNetworkInterfaces_wvd",
+                    "apiVersion": "2018-11-01-preview",
+                    "kind": "policyAssignment",
+                    "dependsOn": [
+                        "[parameters('blueprintName')]"
+                    ],
+                    "properties": {
+                        "displayName": "Restrict VM network interfaces to the WVD subnet",
+                        "description": "This policy restricts VM network interfaces to the Services subnet based on the Services resource group",
+                        "policyDefinitionId": "[resourceId('Microsoft.Authorization/policyDefinitions', 'RestrictVirtualMachineNetworkInterfaces')]",
+                        "parameters": {},
+                        "dependsOn": [],
+                        "resourceGroup": "wvd"
+                    }
+                }
+            ]
         }
     ],
     "outputs": {

@@ -1,0 +1,115 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "blueprintName": {
+            "type": "string",
+            "defaultValue": "jamasten_blues",
+            "metadata": {
+                "description": "Name of the Blueprint"
+            }
+        }
+    },
+    "functions": [
+    ],
+    "variables": {
+    },
+    "resources": [
+        {
+            "type": "Microsoft.Authorization/policyDefinitions",
+            "name": "RestrictVirtualMachineNetworkInterfaces",
+            "apiVersion": "2019-06-01",
+            "properties": {
+                "displayName": "Restrict VM network interfaces to a subnet",
+                "description": "This policy restricts VM network interfaces to a subnet based on the resource group",
+                "policyType": "Custom",
+                "parameters": {
+                    "SubnetId": {
+                        "type": "String",
+                        "metadata": {
+                            "description": "Resource Id for Subnet",
+                            "displayName": "Subnet Id"
+                        }
+                    }
+                },
+                "policyRule": {
+                    "if": {
+                        "allOf": [
+                            {
+                                "field": "type",
+                                "equals": "Microsoft.Network/networkInterfaces"
+                            },
+                            {
+                                "field": "Microsoft.Network/networkInterfaces/ipconfigurations[*].subnet.id",
+                                "notEquals": "[parameters('SubnetId')]"
+                            }
+                        ]
+                    },
+                    "then": {
+                        "effect": "deny"
+                    }
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Blueprint/blueprints",
+            "name": "[parameters('blueprintName')]",
+            "apiVersion": "2018-11-01-preview",
+            "properties": {
+                "targetScope": "subscription",
+                "description": "This blueprint stamps out new subscriptions for app teams with their resource groups and baseline infrastructure.  This includes policies on the resource groups.",
+                "resourceGroups": {
+                    "services": {
+                        "description": "Contains the supporting, shared Azure resources for the subscription.",
+                        "location": "East US",
+                        "name": "services"
+                    },
+                    "network": {
+                        "description": "Contains the network infrastructure and controls for the subscription.",
+                        "location": "East US",
+                        "name": "network"
+                    }
+                },
+                "parameters": {
+                    "NamePrefixExternal": {
+                        "type": "string",
+                        "metadata": {
+                            "description": "Name prefix for public resources (i.e. storage accounts or key vaults)"
+                        }
+                    },
+                    "NamePrefixInternal": {
+                        "type": "string",
+                        "metadata": {
+                            "description": "Name prefix for private resources"
+                        }
+                    },
+                    "UserObjectId": {
+                        "type": "string",
+                        "metadata": {
+                            "description": "The Azure UPN or email address of the user assigned to the Key Vault Access Policy."
+                        }
+                    }
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Blueprint/blueprints/artifacts",
+            "name": "[concat(parameters('blueprintName'), '/policyArtifact')]",
+            "apiVersion": "2018-11-01-preview",
+            "kind": "policyAssignment",
+            "dependsOn": [
+                "[parameters('blueprintName')]"
+            ],
+            "properties": {
+                "displayName": "Restrict VM network interfaces to the Services subnet",
+                "description": "This policy restricts VM network interfaces to the Services subnet based on the Services resource group",
+                "policyDefinitionId": "[resourceId('Microsoft.Authorization/policyDefinitions', 'RestrictVirtualMachineNetworkInterfaces')]",
+                "parameters": {},
+                "dependsOn": [],
+                "resourceGroup": "Services"
+            }
+        }
+    ],
+    "outputs": {
+    }
+}

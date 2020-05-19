@@ -8,6 +8,24 @@
             "metadata": {
                 "description": "Name of the Blueprint"
             }
+        },
+        "NamePrefixExternal": {
+            "type": "string",
+            "metadata": {
+                "description": "Name prefix for external resources"
+            }
+        },
+        "NamePrefixInternal": {
+            "type": "string",
+            "metadata": {
+                "description": "Name prefix for internal resources"
+            }
+        },
+        "UserObjectId": {
+            "type": "string",
+            "metadata": {
+                "description": "Email Address or UPN to add to Key Vault Access Policy"
+            }
         }
     },
     "functions": [
@@ -50,11 +68,14 @@
                     }
                 }
             }
-        },
+        }/*,
         {
             "type": "Microsoft.Blueprint/blueprints",
             "name": "[parameters('blueprintName')]",
             "apiVersion": "2018-11-01-preview",
+            "dependsOn": [
+                "RestrictVirtualMachineNetworkInterfaces"
+            ],
             "properties": {
                 "targetScope": "subscription",
                 "description": "This blueprint stamps out new subscriptions for app teams with their resource groups and baseline infrastructure.  This includes policies on the resource groups.",
@@ -99,6 +120,180 @@
             "resources": [
                 {
                     "type": "artifacts",
+                    "name": "templateArtifact_network",
+                    "apiVersion": "2018-11-01-preview",
+                    "kind": "template",
+                    "dependsOn": [
+                        "[parameters('blueprintName')]"
+                    ],
+                    "properties": {
+                        "displayName": "DeployNetworkInfrastructure",
+                        "description": "This template deploys the network infrastructure for the subscription",
+                        "parameters": {
+                        },
+                        "dependsOn": [
+                        ],
+                        "resourceGroup": "network",
+                        "template": {
+
+                        }
+                    }
+                },
+                {
+                    "type": "artifacts",
+                    "name": "templateArtifact_services",
+                    "apiVersion": "2018-11-01-preview",
+                    "kind": "template",
+                    "dependsOn": [
+                        "[parameters('blueprintName')]"
+                    ],
+                    "properties": {
+                        "displayName": "DeployCommonServices",
+                        "description": "This template deploys the common services needed for each subscription",
+                        "parameters": {
+                        },
+                        "dependsOn": [
+                        ],
+                        "resourceGroup": "services",
+                        "template": {
+                            "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                            "contentVersion": "1.0.0.0",
+                            "parameters": {
+                                "NamePrefixExternal": {
+                                    "type": "string",
+                                    "metadata": {
+                                        "description": "Name prefix for public resources (i.e. storage accounts)"
+                                    }
+                                },
+                                "NamePrefixInternal": {
+                                    "type": "string",
+                                    "metadata": {
+                                        "description": "Name prefix for private resources"
+                                    }
+                                },
+                                "UserObjectId": {
+                                    "type": "string",
+                                    "metadata": {
+                                        "description": "ID is required to set Key Vault Access Policy"
+                                    }
+                                }
+                            },
+                            "variables": {
+                            },
+                            "resources": [
+                                {
+                                    "type": "Microsoft.Storage/storageAccounts",
+                                    "apiVersion": "2019-06-01",
+                                    "name": "[concat(parameters('NamePrefixExternal'), 'sa1')]",
+                                    "location": "[resourceGroup().location]",
+                                    "sku": {
+                                        "name": "Standard_LRS",
+                                        "tier": "Standard"
+                                    },
+                                    "kind": "StorageV2",
+                                    "properties": {
+                                        "azureFilesIdentityBasedAuthentication": {
+                                            "directoryServiceOptions": "None"
+                                        },
+                                        "largeFileSharesState": "Disabled",
+                                        "networkAcls": {
+                                            "bypass": "AzureServices",
+                                            "virtualNetworkRules": [
+                                            ],
+                                            "ipRules": [
+                                            ],
+                                            "defaultAction": "Allow"
+                                        },
+                                        "supportsHttpsTrafficOnly": true,
+                                        "encryption": {
+                                            "services": {
+                                                "file": {
+                                                    "keyType": "Account",
+                                                    "enabled": true
+                                                },
+                                                "blob": {
+                                                    "keyType": "Account",
+                                                    "enabled": true
+                                                }
+                                            },
+                                            "keySource": "Microsoft.Storage"
+                                        },
+                                        "accessTier": "Hot"
+                                    }
+                                },
+                                {
+                                    "type": "Microsoft.KeyVault/vaults",
+                                    "apiVersion": "2018-02-14",
+                                    "name": "[concat(parameters('NamePrefixExternal'), 'kv1')]",
+                                    "location": "[resourceGroup().location]",
+                                    "tags": {
+                                    },
+                                    "properties": {
+                                        "enabledForDeployment": true,
+                                        "enabledForTemplateDeployment": true,
+                                        "enabledForDiskEncryption": true,
+                                        "tenantId": "[subscription().tenantId]",
+                                        "accessPolicies": [
+                                            {
+                                                "tenantId": "[subscription().tenantId]",
+                                                "objectId": "[parameters('UserObjectId')]",
+                                                "permissions": {
+                                                    "keys": [
+                                                        "encrypt",
+                                                        "decrypt",
+                                                        "wrapKey",
+                                                        "unwrapKey",
+                                                        "sign",
+                                                        "verify",
+                                                        "get",
+                                                        "list",
+                                                        "create",
+                                                        "update",
+                                                        "import",
+                                                        "delete",
+                                                        "backup",
+                                                        "restore",
+                                                        "recover",
+                                                        "purge"
+                                                    ],
+                                                    "secrets": [
+                                                        "get",
+                                                        "list",
+                                                        "set",
+                                                        "delete",
+                                                        "backup",
+                                                        "restore",
+                                                        "recover",
+                                                        "purge"
+                                                    ]
+                                                }
+                                            }
+                                        ],
+                                        "sku": {
+                                            "name": "standard",
+                                            "family": "A"
+                                        }
+                                    }
+                                },
+                                {
+                                    "name": "[concat(parameters('NamePrefixInternal'),'aa1')]",
+                                    "type": "Microsoft.Automation/automationAccounts",
+                                    "apiVersion": "2015-10-31",
+                                    "location": "[resourceGroup().location]",
+                                    "tags": {
+                                    },
+                                    "properties": {
+                                        "sku": {
+                                            "name": "Free"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                },
+                {
+                    "type": "artifacts",
                     "name": "policyArtifact_RestrictVirtualMachineNetworkInterfaces_services",
                     "apiVersion": "2018-11-01-preview",
                     "kind": "policyAssignment",
@@ -109,8 +304,10 @@
                         "displayName": "Restrict VM network interfaces to the Services subnet",
                         "description": "This policy restricts VM network interfaces to the Services subnet based on the Services resource group",
                         "policyDefinitionId": "[resourceId('Microsoft.Authorization/policyDefinitions', 'RestrictVirtualMachineNetworkInterfaces')]",
-                        "parameters": {},
-                        "dependsOn": [],
+                        "parameters": {
+                        },
+                        "dependsOn": [
+                        ],
                         "resourceGroup": "services"
                     }
                 },
@@ -126,13 +323,15 @@
                         "displayName": "Restrict VM network interfaces to the WVD subnet",
                         "description": "This policy restricts VM network interfaces to the Services subnet based on the Services resource group",
                         "policyDefinitionId": "[resourceId('Microsoft.Authorization/policyDefinitions', 'RestrictVirtualMachineNetworkInterfaces')]",
-                        "parameters": {},
-                        "dependsOn": [],
+                        "parameters": {
+                        },
+                        "dependsOn": [
+                        ],
                         "resourceGroup": "wvd"
                     }
                 }
             ]
-        }
+        }*/
     ],
     "outputs": {
     }

@@ -1,9 +1,11 @@
-$User = (Get-AzContext).Account.Id.Split('@')[0]
+$User = (Get-AzContext).Account.Id
 $TimeStamp = Get-Date -F 'yyyyMMddhhmmss'
-$Name =  $User + '_' + $TimeStamp
+$Name =  $User.Split('@')[0] + '_' + $TimeStamp
 
 New-AzSubscriptionDeployment `
   -Name $Name `
   -Location eastus `
-  -TemplateParameterFile '.\subscription.parameter.json' `
-  -TemplateFile '.\subscription.json'
+  -TemplateFile '.\subscription.json' `
+  -NamePrefixExternal 'jamasten' `
+  -NamePrefixInternal 'ceastus' `
+  -UserObjectId $User

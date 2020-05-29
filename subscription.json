@@ -2,11 +2,17 @@
     "$schema": "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
-        "blueprintName": {
+        "blueprintPrefix": {
             "type": "string",
-            "defaultValue": "jamasten_blues",
+            "defaultValue": "jamasten",
             "metadata": {
                 "description": "Name of the Blueprint"
+            }
+        },
+        "Location": {
+            "type": "string",
+            "metadata": {
+                "description": "Resource Group & Resource locations"
             }
         },
         "NamePrefixExternal": {
@@ -21,16 +27,29 @@
                 "description": "Name prefix for internal resources"
             }
         },
+        "SubnetId": {
+            "type": "string",
+            "metadata": {
+                "description": "Policy definition rule parameter"
+            }
+        },
         "UserObjectId": {
             "type": "string",
             "metadata": {
-                "description": "Email Address or UPN to add to Key Vault Access Policy"
+                "description": "The Azure AD Object ID of the Security Principal"
+            }
+        },
+        "VersionNumber": {
+            "type": "string",
+            "metadata": {
+                "description": "Blueprint version number"
             }
         }
     },
     "functions": [
     ],
     "variables": {
+        "blueprintDefinition": "[concat(parameters('blueprintPrefix'), '_definition')]"
     },
     "resources": [
         {
@@ -68,10 +87,10 @@
                     }
                 }
             }
-        }/*,
+        },
         {
             "type": "Microsoft.Blueprint/blueprints",
-            "name": "[parameters('blueprintName')]",
+            "name": "[variables('blueprintDefinition')]",
             "apiVersion": "2018-11-01-preview",
             "dependsOn": [
                 "RestrictVirtualMachineNetworkInterfaces"
@@ -82,39 +101,21 @@
                 "resourceGroups": {
                     "network": {
                         "description": "Contains the network infrastructure and controls for the subscription.",
-                        "location": "East US",
+                        "location": "[parameters('Location')]",
                         "name": "network"
                     },
                     "services": {
                         "description": "Contains the supporting, shared Azure resources for the subscription.",
-                        "location": "East US",
+                        "location": "[parameters('Location')]",
                         "name": "services"
                     },
                     "wvd": {
                         "description": "Contains the resources supporting Windows Virtual Desktop.",
-                        "location": "East US",
+                        "location": "[parameters('Location')]",
                         "name": "wvd"
                     }
                 },
                 "parameters": {
-                    "NamePrefixExternal": {
-                        "type": "string",
-                        "metadata": {
-                            "description": "Name prefix for public resources (i.e. storage accounts or key vaults)"
-                        }
-                    },
-                    "NamePrefixInternal": {
-                        "type": "string",
-                        "metadata": {
-                            "description": "Name prefix for private resources"
-                        }
-                    },
-                    "UserObjectId": {
-                        "type": "string",
-                        "metadata": {
-                            "description": "The Azure UPN or email address of the user assigned to the Key Vault Access Policy."
-                        }
-                    }
                 }
             },
             "resources": [
@@ -124,18 +125,105 @@
                     "apiVersion": "2018-11-01-preview",
                     "kind": "template",
                     "dependsOn": [
-                        "[parameters('blueprintName')]"
+                        "[variables('blueprintDefinition')]"
                     ],
                     "properties": {
                         "displayName": "DeployNetworkInfrastructure",
                         "description": "This template deploys the network infrastructure for the subscription",
                         "parameters": {
+                            "Location": {
+                                "value": "[parameters('Location')]"
+                            },
+                            "NamePrefixInternal": {
+                                "value": "[parameters('NamePrefixInternal')]"
+                            }
                         },
                         "dependsOn": [
                         ],
                         "resourceGroup": "network",
                         "template": {
-
+                            "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                            "contentVersion": "1.0.0.0",
+                            "parameters": {
+                                "Location": {
+                                    "type": "string",
+                                    "metadata": {
+                                        "description": "description"
+                                    }
+                                },
+                                "NamePrefixInternal": {
+                                    "type": "string",
+                                    "metadata": {
+                                        "description": "Name prefix for private resources"
+                                    }
+                                }
+                            },
+                            "variables": {
+                            },
+                            "resources": [
+                                {
+                                    "name": "[concat(parameters('NamePrefixInternal'), 'vn1')]",
+                                    "type": "Microsoft.Network/virtualNetworks",
+                                    "apiVersion": "2018-08-01",
+                                    "location": "[parameters('Location')]",
+                                    "tags": {
+                                    },
+                                    "properties": {
+                                        "addressSpace": {
+                                            "addressPrefixes": [
+                                                "10.0.0.0/16"
+                                            ]
+                                        },
+                                        "dhcpOptions": {
+                                            "dnsServers": [
+                                                "10.0.1.5"
+                                            ]
+                                        },
+                                        "subnets": [
+                                            {
+                                                "name": "Gateway",
+                                                "properties": {
+                                                    "addressPrefix": "10.0.0.0/29",
+                                                    "serviceEndpoints": [
+                                                    ],
+                                                    "delegations": [
+                                                    ],
+                                                    "privateEndpointNetworkPolicies": "Enabled",
+                                                    "privateLinkServiceNetworkPolicies": "Enabled"
+                                                }
+                                            },
+                                            {
+                                                "name": "Services",
+                                                "properties": {
+                                                    "addressPrefix": "10.0.1.0/24",
+                                                    "serviceEndpoints": [
+                                                    ],
+                                                    "delegations": [
+                                                    ],
+                                                    "privateEndpointNetworkPolicies": "Enabled",
+                                                    "privateLinkServiceNetworkPolicies": "Enabled"
+                                                }
+                                            },
+                                            {
+                                                "name": "WVD",
+                                                "properties": {
+                                                    "addressPrefix": "10.0.2.0/24",
+                                                    "serviceEndpoints": [
+                                                    ],
+                                                    "delegations": [
+                                                    ],
+                                                    "privateEndpointNetworkPolicies": "Enabled",
+                                                    "privateLinkServiceNetworkPolicies": "Enabled"
+                                                }
+                                            }
+                                        ],
+                                        "virtualNetworkPeerings": [
+                                        ],
+                                        "enableDdosProtection": false,
+                                        "enableVmProtection": false
+                                    }
+                                }
+                            ]
                         }
                     }
                 },
@@ -145,12 +233,24 @@
                     "apiVersion": "2018-11-01-preview",
                     "kind": "template",
                     "dependsOn": [
-                        "[parameters('blueprintName')]"
+                        "[variables('blueprintDefinition')]"
                     ],
                     "properties": {
                         "displayName": "DeployCommonServices",
                         "description": "This template deploys the common services needed for each subscription",
                         "parameters": {
+                            "Location": {
+                                "value": "[parameters('Location')]"
+                            },
+                            "NamePrefixExternal": {
+                                "value": "[parameters('NamePrefixExternal')]"
+                            },
+                            "NamePrefixInternal": {
+                                "value": "[parameters('NamePrefixInternal')]"
+                            },
+                            "UserObjectId": {
+                                "value": "[parameters('UserObjectId')]"
+                            }
                         },
                         "dependsOn": [
                         ],
@@ -159,6 +259,12 @@
                             "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
                             "contentVersion": "1.0.0.0",
                             "parameters": {
+                                "Location": {
+                                    "type": "string",
+                                    "metadata": {
+                                        "description": "description"
+                                    }
+                                },
                                 "NamePrefixExternal": {
                                     "type": "string",
                                     "metadata": {
@@ -185,17 +291,13 @@
                                     "type": "Microsoft.Storage/storageAccounts",
                                     "apiVersion": "2019-06-01",
                                     "name": "[concat(parameters('NamePrefixExternal'), 'sa1')]",
-                                    "location": "[resourceGroup().location]",
+                                    "location": "[parameters('Location')]",
                                     "sku": {
                                         "name": "Standard_LRS",
                                         "tier": "Standard"
                                     },
                                     "kind": "StorageV2",
                                     "properties": {
-                                        "azureFilesIdentityBasedAuthentication": {
-                                            "directoryServiceOptions": "None"
-                                        },
-                                        "largeFileSharesState": "Disabled",
                                         "networkAcls": {
                                             "bypass": "AzureServices",
                                             "virtualNetworkRules": [
@@ -223,9 +325,9 @@
                                 },
                                 {
                                     "type": "Microsoft.KeyVault/vaults",
-                                    "apiVersion": "2018-02-14",
                                     "name": "[concat(parameters('NamePrefixExternal'), 'kv1')]",
-                                    "location": "[resourceGroup().location]",
+                                    "apiVersion": "2019-09-01",
+                                    "location": "[parameters('Location')]",
                                     "tags": {
                                     },
                                     "properties": {
@@ -279,7 +381,7 @@
                                     "name": "[concat(parameters('NamePrefixInternal'),'aa1')]",
                                     "type": "Microsoft.Automation/automationAccounts",
                                     "apiVersion": "2015-10-31",
-                                    "location": "[resourceGroup().location]",
+                                    "location": "[parameters('Location')]",
                                     "tags": {
                                     },
                                     "properties": {
@@ -294,17 +396,21 @@
                 },
                 {
                     "type": "artifacts",
-                    "name": "policyArtifact_RestrictVirtualMachineNetworkInterfaces_services",
-                    "apiVersion": "2018-11-01-preview",
                     "kind": "policyAssignment",
+                    "name": "RestrictVmNics_Services",
+                    "apiVersion": "2018-11-01-preview",
                     "dependsOn": [
-                        "[parameters('blueprintName')]"
+                        "[variables('blueprintDefinition')]",
+                        "templateArtifact_network"
                     ],
                     "properties": {
                         "displayName": "Restrict VM network interfaces to the Services subnet",
                         "description": "This policy restricts VM network interfaces to the Services subnet based on the Services resource group",
                         "policyDefinitionId": "[resourceId('Microsoft.Authorization/policyDefinitions', 'RestrictVirtualMachineNetworkInterfaces')]",
                         "parameters": {
+                            "SubnetId": {
+                                "value": "[concat(subscription().id, '/resourceGroups/services/providers/Microsoft.Network/virtualNetworks/', parameters('NamePrefixInternal'), 'vn1/subnets/Services')]"
+                            }
                         },
                         "dependsOn": [
                         ],
@@ -313,25 +419,82 @@
                 },
                 {
                     "type": "artifacts",
-                    "name": "policyArtifact_RestrictVirtualMachineNetworkInterfaces_wvd",
-                    "apiVersion": "2018-11-01-preview",
                     "kind": "policyAssignment",
+                    "name": "RestrictVmNics_Wvd",
+                    "apiVersion": "2018-11-01-preview",
                     "dependsOn": [
-                        "[parameters('blueprintName')]"
+                        "[variables('blueprintDefinition')]",
+                        "templateArtifact_network"
                     ],
                     "properties": {
                         "displayName": "Restrict VM network interfaces to the WVD subnet",
                         "description": "This policy restricts VM network interfaces to the Services subnet based on the Services resource group",
                         "policyDefinitionId": "[resourceId('Microsoft.Authorization/policyDefinitions', 'RestrictVirtualMachineNetworkInterfaces')]",
                         "parameters": {
+                            "SubnetId": {
+                                "value": "[concat(subscription().id, '/resourceGroups/wvd/providers/Microsoft.Network/virtualNetworks/', parameters('NamePrefixInternal'), 'vn1/subnets/WVD')]"
+                            }
                         },
                         "dependsOn": [
                         ],
                         "resourceGroup": "wvd"
                     }
+                },
+                {
+                    "type": "versions",
+                    "name": "[parameters('VersionNumber')]",
+                    "apiVersion": "2018-11-01-preview",
+                    "dependsOn": [
+                        "[variables('blueprintDefinition')]",
+                        "templateArtifact_network",
+                        "templateArtifact_services",
+                        "RestrictVmNics_Services",
+                        "RestrictVmNics_Wvd"
+                    ],
+                    "properties": {
+                        "displayName": "[concat(parameters('blueprintPrefix'), '_blueprint')]",
+                        "description": "The base infrastructure for a subscription",
+                        "targetScope": "subscription",
+                        "parameters": {
+                        },
+                        "resourceGroups": {
+                        },
+                        "blueprintName": "[concat(parameters('blueprintPrefix'), '_blueprint')]",
+                        "changeNotes": "test"
+                    }
                 }
             ]
-        }*/
+        },
+        {
+            "type": "Microsoft.Blueprint/blueprintAssignments",
+            "name": "[concat(parameters('blueprintPrefix'), '_assignment')]",
+            "apiVersion": "2018-11-01-preview",
+            "location": "[parameters('Location')]",
+            "dependsOn": [
+                "[concat(subscription().id, '/providers/Microsoft.Blueprint/blueprints/', variables('blueprintDefinition'), '/versions/', parameters('VersionNumber'))]"
+            ],
+            "identity": {
+                "type": "SystemAssigned",
+                "tenantId": "[subscription().tenantId]"
+            },
+            "properties": {
+                "displayName": "[concat(parameters('blueprintPrefix'), '_assignment')]",
+                "description": "This blueprint provides the base infrastructure for a subscription",
+                "blueprintId": "[concat(subscription().id, '/providers/Microsoft.Blueprint/blueprints/', variables('blueprintDefinition'))]",
+                "scope": "[subscription().id]",
+                "parameters": {
+                },
+                "resourceGroups": {
+                },
+                "locks": {
+                    "mode": "AllResourcesDoNotDelete",
+                    "excludedPrincipals": [
+                    ],
+                    "excludedActions": [
+                    ]
+                }
+            }
+        }
     ],
     "outputs": {
     }

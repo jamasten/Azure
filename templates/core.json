@@ -1,0 +1,138 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "NamePrefixInternal": {
+            "type": "string",
+            "metadata": {
+                "description": "Name prefix for private resources"
+            }
+        },
+        "VmPassword": {
+            "type": "securestring",
+            "metadata": {
+                "description": "Local Admin Password for Virtual Machines"
+            }
+        },
+        "VmUsername": {
+            "type": "securestring",
+            "metadata": {
+                "description": "Local Admin Username of Virtual Machines"
+            }
+        }
+    },
+    "variables": {
+    },
+    "resources": [
+        {
+            "name": "[concat(parameters('NamePrefixInternal'), 'dcnic')]",
+            "type": "Microsoft.Network/networkInterfaces",
+            "apiVersion": "2018-08-01",
+            "location": "[resourceGroup().location]",
+            "tags": {
+            },
+            "properties": {
+                "ipConfigurations": [
+                    {
+                        "name": "ipConfig0",
+                        "properties": {
+                            "privateIPAllocationMethod": "Static",
+                            "privateIPAddress": "10.0.2.4",
+                            "subnet": {
+                                "id": "[resourceId('network','Microsoft.Network/virtualNetworks/subnets', concat(parameters('NamePrefixInternal'), 'vn1'), 'Shared')]"
+                            }
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "name": "[concat(parameters('NamePrefixInternal'), 'dcas0')]",
+            "type": "Microsoft.Compute/availabilitySets",
+            "apiVersion": "2019-07-01",
+            "location": "[resourceGroup().location]",
+            "properties": {
+                "platformFaultDomainCount": 2,
+                "platformUpdateDomainCount": 2
+            },
+            "sku": {
+                "name": "Aligned"
+            }
+        },
+        {
+            "name": "[concat(parameters('NamePrefixInternal'), 'dcvm')]",
+            "type": "Microsoft.Compute/virtualMachines",
+            "apiVersion": "2017-03-30",
+            "location": "[resourceGroup().location]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/networkInterfaces', concat(parameters('NamePrefixInternal'), 'dcnic'))]",
+                "[resourceId('Microsoft.Compute/availabilitySets', concat(parameters('NamePrefixInternal'), 'dcas0'))]"
+            ],
+            "properties": {
+                "hardwareProfile": {
+                    "vmSize": "Standard_A1_v2"
+                },
+                "osProfile": {
+                    "computerName": "[concat(parameters('NamePrefixInternal'), 'dcvm')]",
+                    "adminUsername": "[parameters('VmUsername')]",
+                    "adminPassword": "[parameters('VmPassword')]"
+                },
+                "storageProfile": {
+                    "imageReference": {
+                        "publisher": "MicrosoftWindowsServer",
+                        "offer": "WindowsServer",
+                        "sku": "2016-Datacenter",
+                        "version": "latest"
+                    },
+                    "osDisk": {
+                        "name": "[concat(parameters('NamePrefixInternal'), 'dcdisk0')]",
+                        "caching": "None",
+                        "createOption": "FromImage",
+                        "managedDisk": {
+                            "storageAccountType": "Standard_LRS"
+                        }
+
+                    }
+                },
+                "networkProfile": {
+                    "networkInterfaces": [
+                        {
+                            "id": "[resourceId('Microsoft.Network/networkInterfaces', concat(parameters('NamePrefixInternal'), 'dcnic'))]"
+                        }
+                    ]
+                },
+                "diagnosticsProfile": {
+                    "bootDiagnostics": {
+                        "enabled": false
+                    }
+                },
+                "availabilitySet": {
+                    "id": "[resourceId('Microsoft.Compute/availabilitySets', concat(parameters('NamePrefixInternal'), 'dcas0'))]"
+                }
+            },
+            "resources": [
+                {
+                    "type": "extensions",
+                    "apiVersion": "2017-03-30",
+                    "name": "AzureNetworkWatcherExtension",
+                    "location": "[resourceGroup().location]",
+                    "dependsOn": [
+                        "[concat(parameters('NamePrefixInternal'), 'dcvm')]"
+                    ],
+                    "properties": {
+                        "publisher": "Microsoft.Azure.NetworkWatcher",
+                        "type": "NetworkWatcherAgentWindows",
+                        "typeHandlerVersion": "1.4",
+                        "autoUpgradeMinorVersion": true,
+                        "settings": {
+                        }
+                    }
+                }
+            ]
+        }
+    ],
+    "outputs": {
+    },
+    "functions": [
+    ]
+}

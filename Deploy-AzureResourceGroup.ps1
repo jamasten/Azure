@@ -16,45 +16,34 @@ Set-AzContext -Subscription $Subscription
 # Deployment Variables
 #############################################################
 $User = (Get-AzContext).Account.Id.Split('@')[0]
-$EmailDomain = (Get-AzContext).Account.Id.Split('@')[1]
 $TimeStamp = Get-Date -F 'yyyyMMddhhmmss'
 $Name =  $User + '_' + $TimeStamp
-$UserObjectId = (Get-AzADUser | Where-Object {$_.UserPrincipalName -eq (Get-AzContext).Account.Id -or $_.UserPrincipalName -eq $($User + '_' + $EmailDomain + '#EXT#@' + $User + $($EmailDomain.Split('.')[0]) + '.onmicrosoft.com')}).Id
 $Location = 'eastus'
-$NamePrefixExternal = 'mastonia'
 $NamePrefixInternal = 'c' + $Location
-$NetworkParams = @{
-    NamePrefixInternal = $NamePrefixInternal
-}
 $VmUsername = Read-Host -Prompt 'Enter Virtual Machine Username' -AsSecureString
 $VmPassword = Read-Host -Prompt 'Enter virtual Machine Password' -AsSecureString
-$SharedParams = @{
-    NamePrefixExternal = $NamePrefixExternal;
+$CoreParams = @{
     NamePrefixInternal = $NamePrefixInternal;
-    UserObjectId = $UserObjectId;
 }
-$SharedParams.Add("VmPassword", $VmPassword) # Secure Strings must use Add Method for proper deserialization
-$SharedParams.Add("VmUsername", $VmUsername) # Secure Strings must use Add Method for proper deserialization
+$CoreParams.Add("VmPassword", $VmPassword) # Secure Strings must use Add Method for proper deserialization
+$CoreParams.Add("VmUsername", $VmUsername) # Secure Strings must use Add Method for proper deserialization
 
 
 #############################################################
 # Deploy Resources
 #############################################################
-foreach($Group in $ResourceGroups)
+try 
 {
-    try 
-    {
-        New-AzResourceGroupDeployment `
-            -Name $Name `
-            -ResourceGroupName $Group.Name `
-            -Mode 'Incremental' `
-            -TemplateFile $('.\' + $Group.Name + '.json') `
-            -TemplateParameterObject $Group.Params `
-            -ErrorAction Stop
-    }
-    catch 
-    {
-        Write-Host "Deployment Failed: $($Name + '_' + $Group.Name)"
-        $_ | Select-Object *
-    }
+    New-AzResourceGroupDeployment `
+        -Name $Name `
+        -ResourceGroupName 'core' `
+        -Mode 'Incremental' `
+        -TemplateFile $('.\templates\core.json') `
+        -TemplateParameterObject $CoreParams `
+        -ErrorAction Stop
+}
+catch 
+{
+    Write-Host "Deployment Failed: $($Name + '_core')"
+    $_ | Select-Object *
 }

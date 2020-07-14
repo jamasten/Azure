@@ -4,7 +4,7 @@
 | Component | Description | Example |
 | ----------- | ----------- | ----------- |
 | BusinessUnit | Top-level division of your company that owns the subscription or workload the resource belongs to. In smaller organizations, this may represent a single corporate top-level organizational element. | fin, mktg, product, it, corp |
-| SubscriptionType | Summary description of the purpose of the subscription containing the resource. Often broken down by deployment environment type or specific workloads. | prod, dev, shared, client |
+| SubscriptionType | Summary description of the purpose of the subscription containing the resource. Often broken down by deployment environment type or specific workloads. | prod, dev, sandbox, shared, client |
 | App/ServiceName | Name of the application, workload, or service associated with the resource. | navigator, emissions, sharepoint, hadoop |
 | Environment | The stage of the workload's development lifecycle that the resource is supporting. | prod, dev, qa, stage, test |
 | Region | Azure region where the resource is deployed. | westus, eastus, usgovva, usgovtx, usgovaz |
@@ -55,4 +55,4 @@
 ## Convention
 | Type | Scope | Format | Example |
 | ----------- | ----------- | ----------- | ----------- |
-| Resource Groups | Subscription | rg-<App / Service name>-<Location>-<Subscription type>-<Ordinal> | rg-core |
+| Resource Groups | Subscription | rg-(App/ServiceName)-(SubscriptionType)-(Location) | rg-shared-dev-eastus |

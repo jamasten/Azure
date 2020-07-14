@@ -2,7 +2,7 @@
 
 ## Components
 | Component | Description | Example |
-| ----------- | ----------- |
+| ----------- | ----------- | ----------- |
 | BusinessUnit | Top-level division of your company that owns the subscription or workload the resource belongs to. In smaller organizations, this may represent a single corporate top-level organizational element. | fin, mktg, product, it, corp |
 | SubscriptionType | Summary description of the purpose of the subscription containing the resource. Often broken down by deployment environment type or specific workloads. | prod, dev, shared, client |
 | App/ServiceName | Name of the application, workload, or service associated with the resource. | navigator, emissions, sharepoint, hadoop |
@@ -54,5 +54,5 @@
 
 ## Convention
 | Type | Scope | Format | Example |
-| ----------- | ----------- |
+| ----------- | ----------- | ----------- | ----------- |
 | Resource Groups | Subscription | rg-<App / Service name>-<Location>-<Subscription type>-<Ordinal> | rg-core |

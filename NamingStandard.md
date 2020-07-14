@@ -2,6 +2,7 @@
 
 ## Components
 | Component | Description | Example |
+| ----------- | ----------- |
 | BusinessUnit | Top-level division of your company that owns the subscription or workload the resource belongs to. In smaller organizations, this may represent a single corporate top-level organizational element. | fin, mktg, product, it, corp |
 | SubscriptionType | Summary description of the purpose of the subscription containing the resource. Often broken down by deployment environment type or specific workloads. | prod, dev, shared, client |
 | App/ServiceName | Name of the application, workload, or service associated with the resource. | navigator, emissions, sharepoint, hadoop |
@@ -9,6 +10,8 @@
 | Region | Azure region where the resource is deployed. | westus, eastus, usgovva, usgovtx, usgovaz |
 
 ## Resource Type Prefixes
+| Resource | Prefix |
+| ----------- | ----------- |
 | App Services | azapp- |
 | Azure Cosmos DB (Document Database) | cosdb- |
 | Azure Cache for Redis | redis- |
@@ -36,7 +39,6 @@
 | NSG |	nsg- |
 | Power BI Embedded | pbiemb- |
 | Public IP |	pip- |
-| Resource | Prefix |
 | Resource Group | rg- |
 | Service Bus |	sb- |
 | Service Bus Queues | sbq- |
@@ -52,4 +54,5 @@
 
 ## Convention
 | Type | Scope | Format | Example |
-| Resource Groups | Subscription | rg-<App / Service name>-<Location>-<Subscription type>-<Ordinal> | rg-core
+| ----------- | ----------- |
+| Resource Groups | Subscription | rg-<App / Service name>-<Location>-<Subscription type>-<Ordinal> | rg-core |

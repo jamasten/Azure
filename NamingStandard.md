@@ -7,7 +7,7 @@
 | Application Name | Name of the application, workload, or service associated with the resource. | navigator, emissions, sharepoint, hadoop |
 | Environment | The stage of the workload's development lifecycle that the resource is supporting. | prod, dev, qa, stage, test, sandbox, shared |
 | Region | Azure region where the resource is deployed. | westus, eastus, usgovva, usgovtx, usgovaz |
-| Performance Type | (p)remium, (s)tandard |
+| Performance Type | Azure Storage Accout Skus: (p)remium, (s)tandard | p, s |
 
 ## Resource Type Prefixes
 | Resource | Prefix |

@@ -56,7 +56,7 @@
 | Type | Scope | Format | Example |
 | ----------- | ----------- | ----------- | ----------- |
 | App Service | Global | app-(ApplicationName)-(Environment)-(Region)-(Ordinal).azurewebsites.net | app-jasonmasten-dev-eastus-0.azurewebsites.net |
-| Availability Set | Resource Group | as-vm(ApplicationName)(Environment)(Region)(VM Ordinal) | as-vmdcdeveastus0 |
+| Availability Set | Resource Group | as-vm(ApplicationName)(Environment)(Region) | as-vmdcdeveastus |
 | Azure Cache For Redis | Global | redis-(ApplicationName)-(Environment)-(Region) | redis-jasonmasten-dev-eastus |
 | Azure Cosmos DB (Document Database) | Global | cosdb-(ApplicationName)-(Environment)-(Region) | cosdb-jasonmasten-dev-eastus |
 | Azure Data Factory | Global | adf-(ApplicationName)-(Environment)-(Region) | adf-jasonmasten-dev-eastus |

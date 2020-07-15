@@ -55,7 +55,7 @@
 ## Convention
 | Type | Scope | Format | Example |
 | ----------- | ----------- | ----------- | ----------- |
-| App Service | Global | app-(ApplicationName)-(Environment)-(Region)-(Ordinal).azurewebsites.net | app-jasonmasten-dev-eastus-01.azurewebsites.net |
+| App Service | Global | app-(ApplicationName)-(Environment)-(Region)-(Ordinal).azurewebsites.net | app-jasonmasten-dev-eastus-0.azurewebsites.net |
 | Azure Cache For Redis | Global | redis-(ApplicationName)-(Environment)-(Region) | redis-jasonmasten-dev-eastus |
 | Azure Cosmos DB (Document Database) | Global | cosdb-(ApplicationName)-(Environment)-(Region) | cosdb-jasonmasten-dev-eastus |
 | Azure Data Factory | Global | adf-(ApplicationName)-(Environment)-(Region) | adf-jasonmasten-dev-eastus |
@@ -67,34 +67,34 @@
 | Azure Search | Global | srch-(ApplicationName)-(Environment)-(Region) | srch-jasonmasten-dev-eastus |
 | Azure SQL Database | Global | sqldb-(ApplicationName)-(Environment)-(Region) | sqldb-jasonmasten-dev-eastus |
 | Azure Stream Analytics on Iot Edge | Resource Group | asa-(ApplicationName)-(Environment)-(Region) | asa-jasonmasten-dev-eastus |
-| Cloud Services | Global | cldsvc-(ApplicationName)-(Environment)-(Region)-(Ordinal).cloudapp.net | cldsvc-jasonmasten-dev-eastus-01.azurewebsites.net |
+| Cloud Services | Global | cldsvc-(ApplicationName)-(Environment)-(Region)-(Ordinal).cloudapp.net | cldsvc-jasonmasten-dev-eastus-0.azurewebsites.net |
 | Cognitive Services | Resource Group | cogsvc-(ApplicationName)-(Environment)-(Region) | cogsvc-jasonmasten-dev-eastus |
-| Disk | Resource Group | disk-vm(ApplicationName)(Environment)(Region)(VM Ordinal)-(Ordinal) | disk-vmdcdeveastus01-01 |
-| DNS Label | Global | vm(ApplicationName)(Environment)(Region)(VM Ordinal).(Region).cloudapp.azure.com | vmdcdeveastus01.eastus.cloudapp.azure.com |
+| Disk | Resource Group | disk-vm(ApplicationName)(Environment)(Region)(VM Ordinal)-(Ordinal) | disk-vmdcdeveastus0-0 |
+| DNS Label | Global | vm(ApplicationName)(Environment)(Region)(VM Ordinal).(Region).cloudapp.azure.com | vmdcdeveastus0.eastus.cloudapp.azure.com |
 | Event Hub | Global | eh-(ApplicationName)-(Environment)-(Region) | eh-jasonmasten-dev-eastus |
-| Function App | Global | func-(ApplicatonName)-(Environment)-(Region)-(Ordinal).azurewebsites.net | func-jasonmasten-dev-eastus-01.azurewebsites.net |
+| Function App | Global | func-(ApplicatonName)-(Environment)-(Region)-(Ordinal).azurewebsites.net | func-jasonmasten-dev-eastus-0.azurewebsites.net |
 | Hdinsight - Hadoop | Global | hdihd-(ApplicationName)-(Environment)-(Region) | hdihd-jasonmasten-dev-eastus |
 | Hdinsight - Hbase | Global | hdihb-(ApplicationName)-(Environment)-(Region) | hdihb-jasonmasten-dev-eastus |
 | Hdinsight - R Server | Global | hdir-(ApplicationName)-(Environment)-(Region) | hdir-jasonmasten-dev-eastus |
 | Hdinsight - Spark | Global | hdis-(ApplicationName)-(Environment)-(Region) | hdis-jasonmasten-dev-eastus |
-| Load Balancer | Resource Group | lb-(ApplicationName)-(Environment)-(Region)-(Ordinal) | lb-jasonmasten-dev-eastus-01 |
-| Network Interface Card | Resource Group | nic-vm(ApplicationName)(Environment)(Region)(VM Ordinal)-(Ordinal) | nic-vmdcdeveastus01-01 |
-| Network Security Group | Subnet Or NIC | nsg-(Subnet or VM Name)-(SubscriptionType)-(Region) | nsg-shared-eastus |
+| Load Balancer | Resource Group | lb-(ApplicationName)-(Environment)-(Region)-(Ordinal) | lb-jasonmasten-dev-eastus-0 |
+| Network Interface Card | Resource Group | nic-vm(ApplicationName)(Environment)(Region)(VM Ordinal)-(Ordinal) | nic-vmdcdeveastus0-0 |
+| Network Security Group | Subnet Or NIC | nsg-(Subnet or VM Name)-(SubscriptionType)-(Region) | nsg-shared-eastus or nsg-vmdcdeveastus0 |
 | Notification Hub | Resource Group | nh-(ApplicationName)-(Environment)-(Region) | nh-jasonmasten-dev-eastus |
 | Notification Hub Namespace | Global | nhns-(ApplicationName)-(Environment)-(Region) | nhns-jasonmasten-dev-eastus |
 | Power BI Embedded | Global | pbiemb-(ApplicationName)-(Environment)-(Region) | pbiem-jasonmasten-dev-eastus |   
-| Public IP | Resource Group | pip-(ApplicationName)(Environment)(Region)(Ordinal)-(Ordinal) | pip-dcdeveastus01-01 |
+| Public IP | Resource Group | pip-(ApplicationName)(Environment)(Region)(Ordinal)-(Ordinal) | pip-dcdeveastus0-0 |
 | Resource Groups | Subscription | rg-(ApplicationName)-(SubscriptionType)-(Region) | rg-shared-dev-eastus |
 | Service Bus | Global | sb-(ApplicationName)-(Environment)-(Region).servicebus.windows.net | sb-jasonmasten-dev-eastus |
 | Service Bus Queues | Service Bus | sbq-(Query Descriptor) | sbq-messagequery |
 | Site-To-Site Connections | Resource Group | cn-(Local Gateway Name)-to-(Virtual Gateway Name) | cn-lgw-shared-eastus-to-vgw-shared-eastus |
 | SQL Data Warehouse | Global | sqldw-(ApplicationName)-(Environment)-(Region) | sqldw-jasonmasten-dev-eastus |
 | SQL Server Stretch Database | Azure SQL Database | sqlstrdb-(ApplicationName)-(Environment)-(Region) | sqlstrdb-jasonmasten-dev-eastus |
-| Storage Account | Global | stor(PerformanceType)(ApplicationName or Usage)(Environment)(Region)(Ordinal) | storpwvddeveastus01 |
-| Storsimple | Global | storsimp(ApplicationName)(Environment)(Region) | storsimpjasonmastendev |  
-| Subnet | Virtual Network | snet-(Environment)-(Region)-(Usage) | snet-shared-eastus-wvd |
-| Virtual Machine | Resource Group | vm(ApplicationName)(Environment)(Region)(Ordinal) | vmdcdeveastus01 |
-| Virtual Network | Resource Group | vnet-(Environment)-(Region) | vnet-shared-eastus |
-| Virtual Network Connections | Resource Group | cn-(Environment)-(Region1)-to-(Environment)-(Region2) | cn-shared-eastus-to-shared-westus |
-| Virtual Network Local Gateway | Virtual Gateway | vnetlgw-(Environment)-(Region) | vnetlgw-shared-eastus |
-| Virtual Network Virtual Gateway | Virtual Network | vnetvgw-(Environment)-(Region) | vnetvgw-shared-eastus |
+| Storage Account | Global | stor(PerformanceType)(ApplicationName or Usage)(Environment)(Region)(Ordinal) | storsjasonmastendeveastus or storpwvddeveastus  |
+| Storsimple | Global | storsimp(ApplicationName)(Environment)(Region) | storsimpjasonmastendeveastus |  
+| Subnet | Virtual Network | snet-(Usage)-(Environment)-(Region) | snet-wvd-dev-eastus |
+| Virtual Machine | Resource Group | vm(ApplicationName)(Environment)(Region)(Ordinal) | vmdcdeveastus0 |
+| Virtual Network | Resource Group | vnet-(Environment)-(Region) | vnet-dev-eastus |
+| Virtual Network Connections | Resource Group | cn-(Environment)-(Region1)-to-(Environment)-(Region2) | cn-dev-eastus-to-dev-westus |
+| Virtual Network Local Gateway | Virtual Gateway | vnetlgw-(Environment)-(Region) | vnetlgw-dev-eastus |
+| Virtual Network Virtual Gateway | Virtual Network | vnetvgw-(Environment)-(Region) | vnetvgw-dev-eastus |

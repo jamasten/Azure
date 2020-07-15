@@ -78,6 +78,7 @@
 | Hdinsight - Hbase | Global | hdihb-(ApplicationName)-(Environment)-(Region) | hdihb-jasonmasten-dev-eastus |
 | Hdinsight - R Server | Global | hdir-(ApplicationName)-(Environment)-(Region) | hdir-jasonmasten-dev-eastus |
 | Hdinsight - Spark | Global | hdis-(ApplicationName)-(Environment)-(Region) | hdis-jasonmasten-dev-eastus |
+| Key Vault | Resource Group | kv(ApplicationName or Usage)(Environment)(Region) | kvjasonmastendeveastus or kvdiskencdeveastus |
 | Load Balancer | Resource Group | lb-(ApplicationName)-(Environment)-(Region)-(Ordinal) | lb-jasonmasten-dev-eastus-0 |
 | Network Interface Card | Resource Group | nic-vm(ApplicationName)(Environment)(Region)(VM Ordinal)-(Ordinal) | nic-vmdcdeveastus0-0 |
 | Network Security Group | Subnet Or NIC | nsg-(Subnet or VM Name)-(SubscriptionType)-(Region) | nsg-shared-eastus or nsg-vmdcdeveastus0 |

@@ -4,7 +4,7 @@
 | Component | Description | Example |
 | ----------- | ----------- | ----------- |
 | BusinessUnit | Top-level division of your company that owns the subscription or workload the resource belongs to. In smaller organizations, this may represent a single corporate top-level organizational element. | fin, mktg, product, it, corp |
-| App/ServiceName | Name of the application, workload, or service associated with the resource. | navigator, emissions, sharepoint, hadoop |
+| Application Name | Name of the application, workload, or service associated with the resource. | navigator, emissions, sharepoint, hadoop |
 | Environment | The stage of the workload's development lifecycle that the resource is supporting. | prod, dev, qa, stage, test, sandbox, shared |
 | Region | Azure region where the resource is deployed. | westus, eastus, usgovva, usgovtx, usgovaz |
 | Performance Type | (p)remium, (s)tandard |

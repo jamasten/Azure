@@ -69,7 +69,8 @@
 | Azure Stream Analytics on Iot Edge | Resource Group | asa-(ApplicationName)-(Environment)-(Region) | asa-jasonmasten-dev-eastus |
 | Cloud Services | Global | cldsvc-(ApplicationName)-(Environment)-(Region)-(Ordinal).cloudapp.net | cldsvc-jasonmasten-dev-eastus-01.azurewebsites.net |
 | Cognitive Services | Resource Group | cogsvc-(ApplicationName)-(Environment)-(Region) | cogsvc-jasonmasten-dev-eastus |
-| DNS Label | Global | (VM Name).(Region).cloudapp.azure.com | vmdcdeveastus01.eastus.cloudapp.azure.com |
+| Disk | Resource Group | disk-vm(ApplicationName)(Environment)(Region)(VM Ordinal)-(Ordinal) | disk-vmdcdeveastus01-01 |
+| DNS Label | Global | vm(ApplicationName)(Environment)(Region)(VM Ordinal).(Region).cloudapp.azure.com | vmdcdeveastus01.eastus.cloudapp.azure.com |
 | Event Hub | Global | eh-(ApplicationName)-(Environment)-(Region) | eh-jasonmasten-dev-eastus |
 | Function App | Global | func-(ApplicatonName)-(Environment)-(Region)-(Ordinal).azurewebsites.net | func-jasonmasten-dev-eastus-01.azurewebsites.net |
 | Hdinsight - Hadoop | Global | hdihd-(ApplicationName)-(Environment)-(Region) | hdihd-jasonmasten-dev-eastus |
@@ -77,23 +78,23 @@
 | Hdinsight - R Server | Global | hdir-(ApplicationName)-(Environment)-(Region) | hdir-jasonmasten-dev-eastus |
 | Hdinsight - Spark | Global | hdis-(ApplicationName)-(Environment)-(Region) | hdis-jasonmasten-dev-eastus |
 | Load Balancer | Resource Group | lb-(ApplicationName)-(Environment)-(Region)-(Ordinal) | lb-jasonmasten-dev-eastus-01 |
-| Network Interface Card | Resource Group | nic-(VM Name)-(Ordinal) | nic-vmdcdeveastus01-01 |
+| Network Interface Card | Resource Group | nic-vm(ApplicationName)(Environment)(Region)(VM Ordinal)-(Ordinal) | nic-vmdcdeveastus01-01 |
 | Network Security Group | Subnet Or NIC | nsg-(Subnet or VM Name)-(SubscriptionType)-(Region) | nsg-shared-eastus |
 | Notification Hub | Resource Group | nh-(ApplicationName)-(Environment)-(Region) | nh-jasonmasten-dev-eastus |
 | Notification Hub Namespace | Global | nhns-(ApplicationName)-(Environment)-(Region) | nhns-jasonmasten-dev-eastus |
 | Power BI Embedded | Global | pbiemb-(ApplicationName)-(Environment)-(Region) | pbiem-jasonmasten-dev-eastus |   
 | Public IP | Resource Group | pip-(ApplicationName)(Environment)(Region)(Ordinal)-(Ordinal) | pip-dcdeveastus01-01 |
-| Resource Groups | Subscription | rg-(App/ServiceName)-(SubscriptionType)-(Region) | rg-shared-dev-eastus |
+| Resource Groups | Subscription | rg-(ApplicationName)-(SubscriptionType)-(Region) | rg-shared-dev-eastus |
 | Service Bus | Global | sb-(ApplicationName)-(Environment)-(Region).servicebus.windows.net | sb-jasonmasten-dev-eastus |
 | Service Bus Queues | Service Bus | sbq-(Query Descriptor) | sbq-messagequery |
 | Site-To-Site Connections | Resource Group | cn-(Local Gateway Name)-to-(Virtual Gateway Name) | cn-lgw-shared-eastus-to-vgw-shared-eastus |
 | SQL Data Warehouse | Global | sqldw-(ApplicationName)-(Environment)-(Region) | sqldw-jasonmasten-dev-eastus |
 | SQL Server Stretch Database | Azure SQL Database | sqlstrdb-(ApplicationName)-(Environment)-(Region) | sqlstrdb-jasonmasten-dev-eastus |
-| Storage Account | Global | stor(PerformanceType)(ApplicationName or Purpose)(Environment)(Region)(Ordinal) | storpwvddeveastus01 |
+| Storage Account | Global | stor(PerformanceType)(ApplicationName or Usage)(Environment)(Region)(Ordinal) | storpwvddeveastus01 |
 | Storsimple | Global | storsimp(ApplicationName)(Environment)(Region) | storsimpjasonmastendev |  
-| Subnet | Virtual Network | snet-(SubscriptionType)-(Region) | snet-shared-eastus |
+| Subnet | Virtual Network | snet-(Environment)-(Region)-(Usage) | snet-shared-eastus-wvd |
 | Virtual Machine | Resource Group | vm(ApplicationName)(Environment)(Region)(Ordinal) | vmdcdeveastus01 |
-| Virtual Network | Resource Group | vnet-(SubscriptionType)-(Region) | vnet-shared-eastus |
-| Virtual Network Connections | Resource Group | cn-(SubscriptionType1)-(Region1)-to-(SubscriptionType2)-(Region2) | cn-shared-eastus-to-shared-westus |
-| Virtual Network Local Gateway | Virtual Gateway | vnetlgw-(Subscriptiontype)-(Region) | vnetlgw-shared-eastus |
-| Virtual Network Virtual Gateway | Virtual Network | vnetvgw-(SubscriptionType)-(Region) | vnetvgw-shared-eastus |
+| Virtual Network | Resource Group | vnet-(Environment)-(Region) | vnet-shared-eastus |
+| Virtual Network Connections | Resource Group | cn-(Environment)-(Region1)-to-(Environment)-(Region2) | cn-shared-eastus-to-shared-westus |
+| Virtual Network Local Gateway | Virtual Gateway | vnetlgw-(Environment)-(Region) | vnetlgw-shared-eastus |
+| Virtual Network Virtual Gateway | Virtual Network | vnetvgw-(Environment)-(Region) | vnetvgw-shared-eastus |

@@ -56,6 +56,7 @@
 | Type | Scope | Format | Example |
 | ----------- | ----------- | ----------- | ----------- |
 | App Service | Global | app-(ApplicationName)-(Environment)-(Region)-(Ordinal).azurewebsites.net | app-jasonmasten-dev-eastus-0.azurewebsites.net |
+| Automation Account | Global | aa(DomainPrefix)(ApplicationName or Usage)(Environment)(Region) | kvjasonmastenwikideveastus or kvjasonmastenupdatedeveastus |
 | Availability Set | Resource Group | as-vm(ApplicationName)(Environment)(Region) | as-vmdcdeveastus |
 | Azure Cache For Redis | Global | redis-(ApplicationName)-(Environment)-(Region) | redis-jasonmasten-dev-eastus |
 | Azure Cosmos DB (Document Database) | Global | cosdb-(ApplicationName)-(Environment)-(Region) | cosdb-jasonmasten-dev-eastus |
@@ -78,7 +79,7 @@
 | Hdinsight - Hbase | Global | hdihb-(ApplicationName)-(Environment)-(Region) | hdihb-jasonmasten-dev-eastus |
 | Hdinsight - R Server | Global | hdir-(ApplicationName)-(Environment)-(Region) | hdir-jasonmasten-dev-eastus |
 | Hdinsight - Spark | Global | hdis-(ApplicationName)-(Environment)-(Region) | hdis-jasonmasten-dev-eastus |
-| Key Vault | Resource Group | kv(ApplicationName or Usage)(Environment)(Region) | kvjasonmastendeveastus or kvdiskencdeveastus |
+| Key Vault | Resource Group | kv(DomainPrefix)(ApplicationName or Usage)(Environment)(Region) | kvjasonmastenwikideveastus or kvjasonmastenencdeveastus |
 | Load Balancer | Resource Group | lb-(ApplicationName)-(Environment)-(Region)-(Ordinal) | lb-jasonmasten-dev-eastus-0 |
 | Network Interface Card | Resource Group | nic-vm(ApplicationName)(Environment)(Region)(VM Ordinal)-(Ordinal) | nic-vmdcdeveastus0-0 |
 | Network Security Group | Subnet Or NIC | nsg-(Subnet or VM Name)-(SubscriptionType)-(Region) | nsg-shared-eastus or nsg-vmdcdeveastus0 |
@@ -92,7 +93,7 @@
 | Site-To-Site Connections | Resource Group | cn-(Local Gateway Name)-to-(Virtual Gateway Name) | cn-lgw-shared-eastus-to-vgw-shared-eastus |
 | SQL Data Warehouse | Global | sqldw-(ApplicationName)-(Environment)-(Region) | sqldw-jasonmasten-dev-eastus |
 | SQL Server Stretch Database | Azure SQL Database | sqlstrdb-(ApplicationName)-(Environment)-(Region) | sqlstrdb-jasonmasten-dev-eastus |
-| Storage Account | Global | stor(PerformanceType)(ApplicationName or Usage)(Environment)(Region)(Ordinal) | storsjasonmastendeveastus or storpwvddeveastus  |
+| Storage Account | Global | stor(PerformanceType)(DomainPrefix)(ApplicationName or Usage)(Environment)(Region)(Ordinal) | storsjasonmastenwikideveastus or storpjasonmastenwvddeveastus  |
 | Storsimple | Global | storsimp(ApplicationName)(Environment)(Region) | storsimpjasonmastendeveastus |  
 | Subnet | Virtual Network | snet-(Usage)-(Environment)-(Region) | snet-wvd-dev-eastus |
 | Virtual Machine | Resource Group | vm(ApplicationName)(Environment)(Region)(Ordinal) | vmdcdeveastus0 |

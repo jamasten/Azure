@@ -9,6 +9,15 @@
                 "description": "Name of the Blueprint"
             }
         },
+        "DcCount": {
+            "type": "int",
+            "defaultValue": 1,
+            "minValue": 1,
+            "maxValue": 2,
+            "metadata": {
+                "description": "Count of Domain Controllers"
+            }
+        },
         "DomainPrefix": {
             "type": "string",
             "metadata": {
@@ -63,6 +72,18 @@
             "type": "string",
             "metadata": {
                 "description": "Blueprint version number"
+            }
+        },
+        "VmPassword": {
+            "type": "securestring",
+            "metadata": {
+                "description": "Local Admin Password for Virtual Machines"
+            }
+        },
+        "VmUsername": {
+            "type": "securestring",
+            "metadata": {
+                "description": "Local Admin Username of Virtual Machines"
             }
         }
     },
@@ -324,7 +345,7 @@
                 },
                 {
                     "type": "artifacts",
-                    "name": "[concat('templateArtifact_shared', parameters('Locations')[0])]",
+                    "name": "[concat('templateArtifact_shared_', parameters('Locations')[0])]",
                     "apiVersion": "2018-11-01-preview",
                     "kind": "template",
                     "dependsOn": [
@@ -468,6 +489,168 @@
                                             "name": "Free"
                                         }
                                     }
+                                }
+                            ]
+                        }
+                    }
+                },
+                {
+                    "type": "artifacts",
+                    "name": "[concat('templateArtifact_identity_', parameters('Locations')[0])]",
+                    "apiVersion": "2018-11-01-preview",
+                    "kind": "template",
+                    "dependsOn": [
+                        "[variables('blueprintDefinition')]"
+                    ],
+                    "properties": {
+                        "displayName": "[concat('DeploySharedServices', parameters('Locations')[0])]",
+                        "description": "This template deploys the common services needed for each subscription",
+                        "parameters": {
+                            "DcCount": {
+                                "value": "[parameters('DcCount')]"
+                            },
+                            "Environment": {
+                                "value": "[parameters('Environment')]"
+                            },
+                            "VmPassword": {
+                                "value": "[parameters('VmPassword')]"
+                            },
+                            "VmUsername": {
+                                "value": "[parameters('VmUsername')]"
+                            }
+                        },
+                        "resourceGroup": "[concat('rg-identity-', parameters('Environment'),'-', parameters('Locations')[0])]",
+                        "template": {
+                            "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                            "contentVersion": "1.0.0.0",
+                            "parameters": {
+                                "DcCount": {
+                                    "type": "int"
+                                },
+                                "Environment": {
+                                    "type": "string"
+                                },
+                                "VmPassword": {
+                                    "type": "securestring"
+                                },
+                                "VmUsername": {
+                                    "type": "securestring"
+                                }
+                            },
+                            "resources": [
+                                {
+                                    "name": "[concat('as-vmdc', parameters('Environment'), parameters('Locations')[0])]",
+                                    "type": "Microsoft.Compute/availabilitySets",
+                                    "apiVersion": "2019-07-01",
+                                    "location": "[parameters('Locations')[0]]",
+                                    "properties": {
+                                        "platformFaultDomainCount": 2,
+                                        "platformUpdateDomainCount": 2
+                                    },
+                                    "sku": {
+                                        "name": "Aligned"
+                                    }
+                                },
+                                {
+                                    "name": "[concat('nic-vmdc', parameters('Environment'), parameters('Locations')[0], copyIndex(), '-0')]",
+                                    "type": "Microsoft.Network/networkInterfaces",
+                                    "apiVersion": "2018-08-01",
+                                    "location": "[parameters('Locations')[0]]",
+                                    "tags": {
+                                    },
+                                    "copy": {
+                                        "name": "nicLoop",
+                                        "count": "[parameters('DcCount')]"
+                                    },
+                                    "properties": {
+                                        "ipConfigurations": [
+                                            {
+                                                "name": "ipConfig0",
+                                                "properties": {
+                                                    "privateIPAllocationMethod": "Static",
+                                                    "privateIPAddress": "[concat('10.0.1.', copyIndex(4))]",
+                                                    "subnet": {
+                                                        "id": "[resourceId('network','Microsoft.Network/virtualNetworks/subnets', concat('vnet-', parameters('Environment'), parameters('Locations')[0]), concat('snet-shared-', parameters('Locations')[0], '-servers'))]"
+                                                    }
+                                                }
+                                            }
+                                        ]
+                                    }
+                                },
+                                {
+                                    "name": "[concat('vmdc', parameters('Environment'), parameters('Locations')[0], copyIndex())]",
+                                    "type": "Microsoft.Compute/virtualMachines",
+                                    "apiVersion": "2017-03-30",
+                                    "location": "[parameters('Locations')[0]]",
+                                    "copy": {
+                                        "name": "vmLoop",
+                                        "count": "[parameters('DcCount')]"
+                                    },
+                                    "dependsOn": [
+                                        "[resourceId('Microsoft.Network/networkInterfaces', concat('nic-vmdc', parameters('Environment'), parameters('Locations')[0], copyIndex(), '-0'))]",
+                                        "[resourceId('Microsoft.Compute/availabilitySets', concat('as-vmdc', parameters('Environment'), parameters('Locations')[0]))]"
+                                    ],
+                                    "properties": {
+                                        "hardwareProfile": {
+                                            "vmSize": "Standard_A1_v2"
+                                        },
+                                        "osProfile": {
+                                            "computerName": "[concat('vmdc', parameters('Environment'), parameters('Locations')[0], copyIndex())]",
+                                            "adminUsername": "[parameters('VmUsername')]",
+                                            "adminPassword": "[parameters('VmPassword')]"
+                                        },
+                                        "storageProfile": {
+                                            "imageReference": {
+                                                "publisher": "MicrosoftWindowsServer",
+                                                "offer": "WindowsServer",
+                                                "sku": "2016-Datacenter",
+                                                "version": "latest"
+                                            },
+                                            "osDisk": {
+                                                "name": "[concat('disk-vmdc', parameters('Environment'), parameters('Locations')[0], copyIndex(), '-0')]",
+                                                "caching": "None",
+                                                "createOption": "FromImage",
+                                                "managedDisk": {
+                                                    "storageAccountType": "Standard_LRS"
+                                                }
+
+                                            }
+                                        },
+                                        "networkProfile": {
+                                            "networkInterfaces": [
+                                                {
+                                                    "id": "[resourceId('Microsoft.Network/networkInterfaces', concat('nic-vmdc', parameters('Environment'), parameters('Locations')[0], copyIndex(), '-0'))]"
+                                                }
+                                            ]
+                                        },
+                                        "diagnosticsProfile": {
+                                            "bootDiagnostics": {
+                                                "enabled": false
+                                            }
+                                        },
+                                        "availabilitySet": {
+                                            "id": "[resourceId('Microsoft.Compute/availabilitySets', concat('as-vmdc', parameters('Environment'), parameters('Locations')[0]))]"
+                                        }
+                                    },
+                                    "resources": [
+                                        {
+                                            "type": "extensions",
+                                            "apiVersion": "2017-03-30",
+                                            "name": "AzureNetworkWatcherExtension",
+                                            "location": "[parameters('Locations')[0]]",
+                                            "dependsOn": [
+                                                "[concat('vmdc', parameters('Environment'), parameters('Locations')[0], copyIndex())]"
+                                            ],
+                                            "properties": {
+                                                "publisher": "Microsoft.Azure.NetworkWatcher",
+                                                "type": "NetworkWatcherAgentWindows",
+                                                "typeHandlerVersion": "1.4",
+                                                "autoUpgradeMinorVersion": true,
+                                                "settings": {
+                                                }
+                                            }
+                                        }
+                                    ]
                                 }
                             ]
                         }

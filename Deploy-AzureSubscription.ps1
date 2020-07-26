@@ -33,7 +33,6 @@ try
     -Location 'eastus' `
     -TemplateFile '.\subscription.json' `
     -UserObjectId $UserObjectId `
-    -SubnetId "[parameters('SubnetId')]" `
     -LocationFromTemplate 'eastus' `
     -VmUsername $VmUsername `
     -VmPassword $VmPassword `

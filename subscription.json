@@ -662,9 +662,10 @@
                     "apiVersion": "2018-11-01-preview",
                     "dependsOn": [
                         "[variables('blueprintDefinition')]",
+                        "[concat('templateArtifact_identity_', parameters('Locations')[0])]",
                         "[concat('templateArtifact_network_', parameters('Locations')[0])]",
                         "[concat('templateArtifact_network_', parameters('Locations')[1])]",
-                        "[concat('templateArtifact_shared', parameters('Locations')[0])]"
+                        "[concat('templateArtifact_shared_', parameters('Locations')[0])]"
                     ],
                     "properties": {
                         "displayName": "[concat(parameters('blueprintPrefix'), '_blueprint')]",

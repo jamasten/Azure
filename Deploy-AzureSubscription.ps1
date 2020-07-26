@@ -31,7 +31,7 @@ try
   New-AzSubscriptionDeployment `
     -Name $Name `
     -Location 'eastus' `
-    -Locations @('eastus','westus')
+    -Locations @('eastus','westus') `
     -TemplateFile '.\subscription.json' `
     -UserObjectId $UserObjectId `
     -VmUsername $VmUsername `

@@ -15,10 +15,10 @@ Set-AzContext -Subscription $Subscription
 #############################################################
 # Deployment Variables
 #############################################################
-$User = (Get-AzContext).Account.Id
+$User = (Get-AzContext).Account.Id.Split('@')[0]
 $TimeStamp = Get-Date -F 'yyyyMMddhhmmss'
-$Name =  $User.Split('@')[0] + '_' + $TimeStamp
-$UserObjectId = (Get-AzADUser -UserPrincipalName $User).Id
+$Name =  $User + '_' + $TimeStamp
+$UserObjectId = (Get-AzADUser | Where-Object {$_.UserPrincipalName -like "$User*"}).Id
 $VmUsername = Read-Host -Prompt 'Enter Virtual Machine Username' -AsSecureString
 $VmPassword = Read-Host -Prompt 'Enter virtual Machine Password' -AsSecureString
 

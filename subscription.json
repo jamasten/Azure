@@ -157,8 +157,8 @@
                             "Environment": {
                                 "value": "[parameters('Environment')]"
                             },
-                            "Location": {
-                                "value": "[parameters('Locations')[0]]"
+                            "Locations": {
+                                "value": "[parameters('Locations')]"
                             }
                         },
                         "dependsOn": [
@@ -258,8 +258,8 @@
                             "Environment": {
                                 "value": "[parameters('Environment')]"
                             },
-                            "Location": {
-                                "value": "[parameters('Locations')[1]]"
+                            "Locations": {
+                                "value": "[parameters('Locations')]"
                             }
                         },
                         "dependsOn": [
@@ -358,8 +358,8 @@
                             "DomainPrefix": {
                                 "value": "[parameters('DomainPrefix')]"
                             },
-                            "Location": {
-                                "value": "[parameters('Locations')[0]]"
+                            "Locations": {
+                                "value": "[parameters('Locations')]"
                             },
                             "PerformanceType": {
                                 "value": "[parameters('PerformanceType')]"
@@ -377,7 +377,7 @@
                                     "type": "string"
                                 },
                                 "Locations": {
-                                    "type": "string"
+                                    "type": "array"
                                 },
                                 "PerformanceType": {
                                     "type": "string"
@@ -512,6 +512,9 @@
                             "Environment": {
                                 "value": "[parameters('Environment')]"
                             },
+                            "Locations": {
+                                "value": "[parameters('Locations')]"
+                            },
                             "VmPassword": {
                                 "value": "[parameters('VmPassword')]"
                             },
@@ -529,6 +532,9 @@
                                 },
                                 "Environment": {
                                     "type": "string"
+                                },
+                                "Locations": {
+                                    "type": "array"
                                 },
                                 "VmPassword": {
                                     "type": "securestring"
@@ -552,7 +558,7 @@
                                     }
                                 },
                                 {
-                                    "name": "[concat('nic-vmdc', parameters('Environment'), parameters('Locations')[0], copyIndex(), '-0')]",
+                                    "name": "[concat('nic-vmdc', parameters('Environment'), parameters('Locations')[0], copyIndex())]",
                                     "type": "Microsoft.Network/networkInterfaces",
                                     "apiVersion": "2018-08-01",
                                     "location": "[parameters('Locations')[0]]",
@@ -587,7 +593,7 @@
                                         "count": "[parameters('DcCount')]"
                                     },
                                     "dependsOn": [
-                                        "[resourceId('Microsoft.Network/networkInterfaces', concat('nic-vmdc', parameters('Environment'), parameters('Locations')[0], copyIndex(), '-0'))]",
+                                        "nicLoop",
                                         "[resourceId('Microsoft.Compute/availabilitySets', concat('as-vmdc', parameters('Environment'), parameters('Locations')[0]))]"
                                     ],
                                     "properties": {
@@ -619,7 +625,7 @@
                                         "networkProfile": {
                                             "networkInterfaces": [
                                                 {
-                                                    "id": "[resourceId('Microsoft.Network/networkInterfaces', concat('nic-vmdc', parameters('Environment'), parameters('Locations')[0], copyIndex(), '-0'))]"
+                                                    "id": "[resourceId('Microsoft.Network/networkInterfaces', concat('nic-vmdc', parameters('Environment'), parameters('Locations')[0], copyIndex()))]"
                                                 }
                                             ]
                                         },

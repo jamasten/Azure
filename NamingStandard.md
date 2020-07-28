@@ -1,6 +1,7 @@
 # Naming Standard
 
 ## Components
+
 | Component | Description | Example |
 | ----------- | ----------- | ----------- |
 | BusinessUnit | Top-level division of your company that owns the subscription or workload the resource belongs to. In smaller organizations, this may represent a single corporate top-level organizational element. | fin, mktg, product, it, corp |
@@ -10,6 +11,7 @@
 | Performance Type | Azure Storage Accout Skus: (p)remium, (s)tandard | p, s |
 
 ## Resource Type Prefixes
+
 | Resource | Prefix |
 | ----------- | ----------- |
 | App Services | azapp- |
@@ -26,33 +28,34 @@
 | Cognitive Services | cs-
 | Data Factory | df- |
 | Event Hub | evh- |
-| Function Apps |	azfun- |
-| Gateway connection |	vnetgwcn- |
+| Function Apps | azfun- |
+| Gateway connection | vnetgwcn- |
 | HDInsight - Spark | hdis- |
 | HDInsight - Hadoop | hdihd- |
 | HDInsight - R server| hdir- |
 | HDInsight - HBase | hdihb- |
-| Load Balancer |	lb- |
-| NIC |	nic- |
+| Load Balancer | lb- |
+| NIC | nic- |
 | Notification Hub | anh- |
 | Notification Hub Namespace | anhns- |
-| NSG |	nsg- |
+| NSG | nsg- |
 | Power BI Embedded | pbiemb |
-| Public IP |	pip- |
+| Public IP | pip- |
 | Resource Group | rg- |
-| Service Bus |	sb- |
+| Service Bus | sb- |
 | Service Bus Queues | sbq- |
 | SQL Data Warehouse | sqldw- |
 | SQL Server Stretch Database | sqlstrdb- |
-| Storage Account |	stor |
+| Storage Account | stor |
 | StorSimple | ssimp |
 | Stream analytics | asa- |
 | Subnet | snet- |
 | Virtual Machines | vm- |
-| Virtual Network |	vnet- |
-| Virtual Network Gateway |	vnetgw- |
+| Virtual Network | vnet- |
+| Virtual Network Gateway | vnetgw- |
 
 ## Convention
+
 | Type | Scope | Format | Example |
 | ----------- | ----------- | ----------- | ----------- |
 | App Service | Global | app-(ApplicationName)-(Environment)-(Region)-(Ordinal).azurewebsites.net | app-jmasten-dev-eastus-0.azurewebsites.net |

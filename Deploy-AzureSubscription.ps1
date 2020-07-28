@@ -1,5 +1,5 @@
 #############################################################
-# Authenticate to Azure
+# Authentication
 #############################################################
 $Subscription = 'Visual Studio Enterprise Subscription'
 Import-Module -Name Az
@@ -13,29 +13,38 @@ Set-AzContext -Subscription $Subscription
 
 
 #############################################################
-# Deployment Variables
+# Variables
 #############################################################
 $User = (Get-AzContext).Account.Id.Split('@')[0]
 $TimeStamp = Get-Date -F 'yyyyMMddhhmmss'
 $Name =  $User + '_' + $TimeStamp
-$UserObjectId = (Get-AzADUser | Where-Object {$_.UserPrincipalName -like "$User*"}).Id
 $VmUsername = Read-Host -Prompt 'Enter Virtual Machine Username' -AsSecureString
 $VmPassword = Read-Host -Prompt 'Enter virtual Machine Password' -AsSecureString
+$VSE = @{
+    DomainPrefixAbbreviation = 'jmasten';
+    Environment = 'dev';
+    Locations = @('eastus','westus');
+    PerformanceType = 'p';
+    ResourceGroups = @('identity','network','shared','wvd');
+    UserObjectId = 'b3b8d141-7e06-4505-a140-a6fde63b6934'
+}
+$VSE.Add("VmPassword", $VmPassword) # Secure Strings must use Add Method for proper deserialization
+$VSE.Add("VmUsername", $VmUsername) # Secure Strings must use Add Method for proper deserialization
 
 
 #############################################################
-# Deploy Resources
+# Deployment
 #############################################################
 try 
 {
   New-AzSubscriptionDeployment `
     -Name $Name `
     -Location 'eastus' `
-    -Locations @('eastus','westus') `
     -TemplateFile '.\subscription.json' `
-    -UserObjectId $UserObjectId `
-    -VmUsername $VmUsername `
-    -VmPassword $VmPassword `
+    -TemplateParameterObject $VSE `
+    -ErrorAction Stop `
+    -Verbose `
+    -DeploymentDebugLogLevel All
 }
 catch 
 {

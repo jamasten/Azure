@@ -55,46 +55,48 @@
 ## Convention
 | Type | Scope | Format | Example |
 | ----------- | ----------- | ----------- | ----------- |
-| App Service | Global | app-(ApplicationName)-(Environment)-(Region)-(Ordinal).azurewebsites.net | app-jasonmasten-dev-eastus-0.azurewebsites.net |
-| Automation Account | Global | aa(DomainPrefix)(ApplicationName or Usage)(Environment)(Region) | kvjasonmastenwikideveastus or kvjasonmastenupdatedeveastus |
+| App Service | Global | app-(ApplicationName)-(Environment)-(Region)-(Ordinal).azurewebsites.net | app-jmasten-dev-eastus-0.azurewebsites.net |
+| Automation Account | Global | aa(DomainPrefix)(ApplicationName or Usage)(Environment)(Region) | kvjmastenwikideveastus or kvjmastenupdatedeveastus |
 | Availability Set | Resource Group | as-vm(ApplicationName)(Environment)(Region) | as-vmdcdeveastus |
-| Azure Cache For Redis | Global | redis-(ApplicationName)-(Environment)-(Region) | redis-jasonmasten-dev-eastus |
-| Azure Cosmos DB (Document Database) | Global | cosdb-(ApplicationName)-(Environment)-(Region) | cosdb-jasonmasten-dev-eastus |
-| Azure Data Factory | Global | adf-(ApplicationName)-(Environment)-(Region) | adf-jasonmasten-dev-eastus |
-| Azure Data Lake Analytics | Global | adla(ApplicationName)(Environment)(Region) | adlajasonmastendeveastus |
-| Azure Data Lake Storage | Global | adls(ApplicationName)(Environment)(Region) | adlsjasonmastendeveastus |
-| Azure Database For MySQL | Global | mysql-(ApplicationName)-(Environment)-(Region) | mysql-jasonmasten-dev-eastus |
-| Azure Iot Hub | Global | aih-(ApplicationName)-(Environment)-(Region) | aih-jasonmasten-dev-eastus |
-| Azure Machine Learning Workspace | Resource Group | aml-(ApplicationName)-(Environment)-(Region) | aml-jasonmasten-dev-eastus | 
-| Azure Search | Global | srch-(ApplicationName)-(Environment)-(Region) | srch-jasonmasten-dev-eastus |
-| Azure SQL Database | Global | sqldb-(ApplicationName)-(Environment)-(Region) | sqldb-jasonmasten-dev-eastus |
-| Azure Stream Analytics on Iot Edge | Resource Group | asa-(ApplicationName)-(Environment)-(Region) | asa-jasonmasten-dev-eastus |
-| Cloud Services | Global | cldsvc-(ApplicationName)-(Environment)-(Region)-(Ordinal).cloudapp.net | cldsvc-jasonmasten-dev-eastus-0.azurewebsites.net |
-| Cognitive Services | Resource Group | cogsvc-(ApplicationName)-(Environment)-(Region) | cogsvc-jasonmasten-dev-eastus |
+| Azure Cache For Redis | Global | redis-(ApplicationName)-(Environment)-(Region) | redis-jmasten-dev-eastus |
+| Azure Cosmos DB (Document Database) | Global | cosdb-(ApplicationName)-(Environment)-(Region) | cosdb-jmasten-dev-eastus |
+| Azure Data Factory | Global | adf-(ApplicationName)-(Environment)-(Region) | adf-jmasten-dev-eastus |
+| Azure Data Lake Analytics | Global | adla(ApplicationName)(Environment)(Region) | adlajmastendeveastus |
+| Azure Data Lake Storage | Global | adls(ApplicationName)(Environment)(Region) | adlsjmastendeveastus |
+| Azure Database For MySQL | Global | mysql-(ApplicationName)-(Environment)-(Region) | mysql-jmasten-dev-eastus |
+| Azure Iot Hub | Global | aih-(ApplicationName)-(Environment)-(Region) | aih-jmasten-dev-eastus |
+| Azure Machine Learning Workspace | Resource Group | aml-(ApplicationName)-(Environment)-(Region) | aml-jmasten-dev-eastus |
+| Azure Search | Global | srch-(ApplicationName)-(Environment)-(Region) | srch-jmasten-dev-eastus |
+| Azure SQL Database | Global | sqldb-(ApplicationName)-(Environment)-(Region) | sqldb-jmasten-dev-eastus |
+| Azure Stream Analytics on Iot Edge | Resource Group | asa-(ApplicationName)-(Environment)-(Region) | asa-jmasten-dev-eastus |
+| Cloud Services | Global | cldsvc-(ApplicationName)-(Environment)-(Region)-(Ordinal).cloudapp.net | cldsvc-jmasten-dev-eastus-0.azurewebsites.net |
+| Cognitive Services | Resource Group | cogsvc-(ApplicationName)-(Environment)-(Region) | cogsvc-jmasten-dev-eastus |
 | Disk | Resource Group | disk-vm(ApplicationName)(Environment)(Region)(VM Ordinal)-(Ordinal) | disk-vmdcdeveastus0-0 |
 | DNS Label | Global | vm(ApplicationName)(Environment)(Region)(VM Ordinal).(Region).cloudapp.azure.com | vmdcdeveastus0.eastus.cloudapp.azure.com |
-| Event Hub | Global | eh-(ApplicationName)-(Environment)-(Region) | eh-jasonmasten-dev-eastus |
-| Function App | Global | func-(ApplicatonName)-(Environment)-(Region)-(Ordinal).azurewebsites.net | func-jasonmasten-dev-eastus-0.azurewebsites.net |
-| Hdinsight - Hadoop | Global | hdihd-(ApplicationName)-(Environment)-(Region) | hdihd-jasonmasten-dev-eastus |
-| Hdinsight - Hbase | Global | hdihb-(ApplicationName)-(Environment)-(Region) | hdihb-jasonmasten-dev-eastus |
-| Hdinsight - R Server | Global | hdir-(ApplicationName)-(Environment)-(Region) | hdir-jasonmasten-dev-eastus |
-| Hdinsight - Spark | Global | hdis-(ApplicationName)-(Environment)-(Region) | hdis-jasonmasten-dev-eastus |
-| Key Vault | Resource Group | kv(DomainPrefix)(ApplicationName or Usage)(Environment)(Region) | kvjasonmastenwikideveastus or kvjasonmastenencdeveastus |
-| Load Balancer | Resource Group | lb-(ApplicationName)-(Environment)-(Region)-(Ordinal) | lb-jasonmasten-dev-eastus-0 |
+| Event Hub | Global | eh-(ApplicationName)-(Environment)-(Region) | eh-jmasten-dev-eastus |
+| Function App | Global | func-(ApplicatonName)-(Environment)-(Region)-(Ordinal).azurewebsites.net | func-jmasten-dev-eastus-0.azurewebsites.net |
+| Hdinsight - Hadoop | Global | hdihd-(ApplicationName)-(Environment)-(Region) | hdihd-jmasten-dev-eastus |
+| Hdinsight - Hbase | Global | hdihb-(ApplicationName)-(Environment)-(Region) | hdihb-jmasten-dev-eastus |
+| Hdinsight - R Server | Global | hdir-(ApplicationName)-(Environment)-(Region) | hdir-jmasten-dev-eastus |
+| Hdinsight - Spark | Global | hdis-(ApplicationName)-(Environment)-(Region) | hdis-jmasten-dev-eastus |
+| Key Vault | Resource Group | kv(DomainPrefix)(ApplicationName or Usage)(Environment)(Region) | kvjmastenwikideveastus or kvjmastenencdeveastus |
+| Load Balancer | Resource Group | lb-(ApplicationName)-(Environment)-(Region)-(Ordinal) | lb-jmasten-dev-eastus-0 |
+| Log Analytics Workspace | Resource Group | law-(ApplicationName)-(Environment)-(Region)-(Ordinal) | law-dev-eastus |
 | Network Interface Card | Resource Group | nic-vm(ApplicationName)(Environment)(Region)(VM Ordinal)-(Ordinal) | nic-vmdcdeveastus0-0 |
 | Network Security Group | Subnet Or NIC | nsg-(Subnet or VM Name)-(SubscriptionType)-(Region) | nsg-shared-eastus or nsg-vmdcdeveastus0 |
-| Notification Hub | Resource Group | nh-(ApplicationName)-(Environment)-(Region) | nh-jasonmasten-dev-eastus |
-| Notification Hub Namespace | Global | nhns-(ApplicationName)-(Environment)-(Region) | nhns-jasonmasten-dev-eastus |
-| Power BI Embedded | Global | pbiemb-(ApplicationName)-(Environment)-(Region) | pbiem-jasonmasten-dev-eastus |   
+| Network Watcher | Resource Group | nw-(Environment)-(Region) | nw-dev-eastus |
+| Notification Hub | Resource Group | nh-(ApplicationName)-(Environment)-(Region) | nh-jmasten-dev-eastus |
+| Notification Hub Namespace | Global | nhns-(ApplicationName)-(Environment)-(Region) | nhns-jmasten-dev-eastus |
+| Power BI Embedded | Global | pbiemb-(ApplicationName)-(Environment)-(Region) | pbiem-jmasten-dev-eastus |
 | Public IP | Resource Group | pip-(ApplicationName)(Environment)(Region)(Ordinal)-(Ordinal) | pip-dcdeveastus0-0 |
 | Resource Groups | Subscription | rg-(ApplicationName)-(SubscriptionType)-(Region) | rg-shared-dev-eastus |
-| Service Bus | Global | sb-(ApplicationName)-(Environment)-(Region).servicebus.windows.net | sb-jasonmasten-dev-eastus |
+| Service Bus | Global | sb-(ApplicationName)-(Environment)-(Region).servicebus.windows.net | sb-jmasten-dev-eastus |
 | Service Bus Queues | Service Bus | sbq-(Query Descriptor) | sbq-messagequery |
 | Site-To-Site Connections | Resource Group | cn-(Local Gateway Name)-to-(Virtual Gateway Name) | cn-lgw-shared-eastus-to-vgw-shared-eastus |
-| SQL Data Warehouse | Global | sqldw-(ApplicationName)-(Environment)-(Region) | sqldw-jasonmasten-dev-eastus |
-| SQL Server Stretch Database | Azure SQL Database | sqlstrdb-(ApplicationName)-(Environment)-(Region) | sqlstrdb-jasonmasten-dev-eastus |
-| Storage Account | Global | stor(PerformanceType)(DomainPrefix)(ApplicationName or Usage)(Environment)(Region)(Ordinal) | storsjasonmastenwikideveastus or storpjasonmastenwvddeveastus  |
-| Storsimple | Global | storsimp(ApplicationName)(Environment)(Region) | storsimpjasonmastendeveastus |  
+| SQL Data Warehouse | Global | sqldw-(ApplicationName)-(Environment)-(Region) | sqldw-jmasten-dev-eastus |
+| SQL Server Stretch Database | Azure SQL Database | sqlstrdb-(ApplicationName)-(Environment)-(Region) | sqlstrdb-jmasten-dev-eastus |
+| Storage Account | Global | stor(PerformanceType)(DomainPrefix)(ApplicationName or Usage)(Environment)(Region)(Ordinal) | storsjmastenwikideveastus or storpjmastenwvddeveastus  |
+| Storsimple | Global | storsimp(ApplicationName)(Environment)(Region) | storsimpjmastendeveastus |  
 | Subnet | Virtual Network | snet-(Usage)-(Environment)-(Region) | snet-wvd-dev-eastus |
 | Virtual Machine | Resource Group | vm(ApplicationName)(Environment)(Region)(Ordinal) | vmdcdeveastus0 |
 | Virtual Network | Resource Group | vnet-(Environment)-(Region) | vnet-dev-eastus |

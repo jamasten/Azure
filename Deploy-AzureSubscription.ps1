@@ -43,8 +43,7 @@ try
     -TemplateFile '.\subscription.json' `
     -TemplateParameterObject $VSE `
     -ErrorAction Stop `
-    -Verbose `
-    -DeploymentDebugLogLevel All
+    -Verbose
 }
 catch 
 {

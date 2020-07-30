@@ -51,6 +51,16 @@
                 "description": "The primary resource groups types for the subscription"
             }
         },
+        "Timestamp": {
+            "type": "string",
+            "defaultValue": "[utcNow()]"
+        },
+        "User": {
+            "type": "string",
+            "metadata": {
+                "description": "The username of the user principal that triggered the deployment"
+            }
+        },
         "UserObjectId": {
             "type": "string",
             "metadata": {
@@ -102,9 +112,9 @@
             }
         },
         {
-            "comments": "---------- NESTED DEPLOYMENT > NETWORK > PRIMARY REGION ----------",
+            "comments": "---------- LINKED DEPLOYMENT > NETWORK > PRIMARY REGION ----------",
             "type": "Microsoft.Resources/deployments",
-            "name": "NestedDeployment_Network",
+            "name": "[concat('Network_', parameters('User'), '_', parameters('Timestamp'))]",
             "apiVersion": "2019-10-01",
             "dependsOn": [
                 "rgPrimaryLoop"
@@ -130,9 +140,9 @@
             }
         },
         {
-            "comments": "---------- NESTED DEPLOYMENT > SHARED > PRIMARY REGION ----------",
+            "comments": "---------- LINKED DEPLOYMENT > SHARED > PRIMARY REGION ----------",
             "type": "Microsoft.Resources/deployments",
-            "name": "NestedDeployment_Shared",
+            "name": "[concat('Shared_', parameters('User'), '_', parameters('Timestamp'))]",
             "apiVersion": "2019-10-01",
             "dependsOn": [
                 "rgPrimaryLoop"
@@ -167,13 +177,39 @@
             }
         },
         {
-            "comments": "---------- NESTED DEPLOYMENT > IDENTITY > PRIMARY REGION ----------",
+            "comments": "---------- LINKED DEPLOYMENT > SECURITY CENTER ----------",
             "type": "Microsoft.Resources/deployments",
-            "name": "NestedDeployment_Identity",
+            "name": "[concat('SecurityCenter_', parameters('User'), '_', parameters('Timestamp'))]",
             "apiVersion": "2019-10-01",
             "dependsOn": [
                 "rgPrimaryLoop",
-                "NestedDeployment_Network"
+                "[concat('Network_', parameters('User'), '_', parameters('Timestamp'))]",
+                "[concat('rg-shared-', parameters('Environment'),'-', parameters('Locations')[0])]"
+            ],
+            "resourceGroup": "[concat('rg-shared-', parameters('Environment'),'-', parameters('Locations')[0])]",
+            "properties": {
+                "expressionEvaluationOptions": {
+                    "scope": "inner"
+                },
+                "mode": "Incremental",
+                "parameters": {
+                    "Location": {
+                        "value": "[parameters('Locations')[0]]"
+                    }
+                },
+                "templateLink": {
+                    "uri": "https://raw.githubusercontent.com/jamasten/AzureBaseInfra/master/templates/securitycenter.json"
+                }
+            }
+        },
+        {
+            "comments": "---------- LINKED DEPLOYMENT > IDENTITY > PRIMARY REGION ----------",
+            "type": "Microsoft.Resources/deployments",
+            "name": "[concat('Identity_', parameters('User'), '_', parameters('Timestamp'))]",
+            "apiVersion": "2019-10-01",
+            "dependsOn": [
+                "rgPrimaryLoop",
+                "[concat('Network_', parameters('User'), '_', parameters('Timestamp'))]"
             ],
             "resourceGroup": "[concat('rg-identity-', parameters('Environment'),'-', parameters('Locations')[0])]",
             "properties": {
@@ -182,7 +218,6 @@
                 },
                 "mode": "Incremental",
                 "parameters": {
-
                     "Environment": {
                         "value": "[parameters('Environment')]"
                     },

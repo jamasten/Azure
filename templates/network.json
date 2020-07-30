@@ -5,7 +5,7 @@
         "Environment": {
             "type": "string"
         },
-        "Locations": {
+        "Subnets": {
             "type": "array"
         }
     },
@@ -14,16 +14,16 @@
             "comments": "---------- NETWORK WATCHER ----------",
             "type": "Microsoft.Network/networkWatchers",
             "apiVersion": "2020-04-01",
-            "name": "[concat('nw-', parameters('Environment'), '-', parameters('Locations')[0])]",
-            "location": "[parameters('Locations')[0]]",
+            "name": "[concat('nw-', parameters('Environment'), '-', resourceGroup().location)]",
+            "location": "[resourceGroup().location]",
             "properties": {}
         },
         {
             "comments": "---------- VIRTUAL NETWORK ----------",
-            "name": "[concat('vnet-', parameters('Environment'), parameters('Locations')[0])]",
+            "name": "[concat('vnet-', parameters('Environment'), '-', resourceGroup().location)]",
             "type": "Microsoft.Network/virtualNetworks",
             "apiVersion": "2018-08-01",
-            "location": "[parameters('Locations')[0]]",
+            "location": "[resourceGroup().location]",
             "tags": {},
             "properties": {
                 "addressSpace": {
@@ -36,41 +36,20 @@
                         "10.0.1.4"
                     ]
                 },
-                "subnets": [
+                "copy": [
                     {
-                        "name": "[concat('snet-shared-', parameters('Environment'), '-', parameters('Locations')[0])]",
-                        "properties": {
-                            "addressPrefix": "10.0.0.0/24",
-                            "serviceEndpoints": [
-                            ],
-                            "delegations": [
-                            ],
-                            "privateEndpointNetworkPolicies": "Enabled",
-                            "privateLinkServiceNetworkPolicies": "Enabled"
-                        }
-                    },
-                    {
-                        "name": "[concat('snet-servers-', parameters('Environment'), '-', parameters('Locations')[0])]",
-                        "properties": {
-                            "addressPrefix": "10.0.1.0/24",
-                            "serviceEndpoints": [
-                            ],
-                            "delegations": [
-                            ],
-                            "privateEndpointNetworkPolicies": "Enabled",
-                            "privateLinkServiceNetworkPolicies": "Enabled"
-                        }
-                    },
-                    {
-                        "name": "[concat('snet-wvd-', parameters('Environment'), '-', parameters('Locations')[0])]",
-                        "properties": {
-                            "addressPrefix": "10.0.2.0/24",
-                            "serviceEndpoints": [
-                            ],
-                            "delegations": [
-                            ],
-                            "privateEndpointNetworkPolicies": "Enabled",
-                            "privateLinkServiceNetworkPolicies": "Enabled"
+                        "name": "subnets",
+                        "count": "[length(parameters('Subnets'))]",
+                        "mode": "Serial",
+                        "batchSize": 1,
+                        "input": {
+                            "name": "[concat('snet-', parameters('Subnets')[copyIndex('subnets')].Name,'-', parameters('Environment'), '-', resourceGroup().location)]",
+                            "properties": {
+                                "addressPrefix": "[parameters('Subnets')[copyindex('subnets')].AddressPrefix]",
+                                "delegations": [],
+                                "privateEndpointNetworkPolicies": "Enabled",
+                                "privateLinkServiceNetworkPolicies": "Enabled"
+                            }
                         }
                     }
                 ],
@@ -83,60 +62,15 @@
         {
             "comments": "---------- NETWORK SECURITY GROUPS ----------",
             "type": "Microsoft.Network/networkSecurityGroups",
-            "name": "string",
+            "name": "[concat('nsg-', parameters('Subnets')[copyIndex()], '-', parameters('Environment'), '-', resourceGroup().location)]",
             "apiVersion": "2020-04-01",
-            "location": "string",
+            "location": "[resourceGroup().location]",
             "tags": {},
             "copy": {
-                "name": "",
-                "count": ""
+                "name": "nsgLoop",
+                "count": "[length(parameters('Subnets'))]"
             },
             "properties": {
-                "securityRules": [
-                    {
-                        "id": "string",
-                        "properties": {
-                            "description": "string",
-                            "protocol": "string",
-                            "sourcePortRange": "string",
-                            "destinationPortRange": "string",
-                            "sourceAddressPrefix": "string",
-                            "sourceAddressPrefixes": [
-                                "string"
-                            ],
-                            "sourceApplicationSecurityGroups": [
-                                {
-                                    "id": "string",
-                                    "location": "string",
-                                    "tags": {},
-                                    "properties": {}
-                                }
-                            ],
-                            "destinationAddressPrefix": "string",
-                            "destinationAddressPrefixes": [
-                                "string"
-                            ],
-                            "destinationApplicationSecurityGroups": [
-                                {
-                                    "id": "string",
-                                    "location": "string",
-                                    "tags": {},
-                                    "properties": {}
-                                }
-                            ],
-                            "sourcePortRanges": [
-                                "string"
-                            ],
-                            "destinationPortRanges": [
-                                "string"
-                            ],
-                            "access": "string",
-                            "priority": "integer",
-                            "direction": "string"
-                        },
-                        "name": "string"
-                    }
-                ]
             },
             "resources": []
         }

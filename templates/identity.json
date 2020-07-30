@@ -2,11 +2,11 @@
     "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
-        "Environment": {
+        "DomainPrefixAbbreviation": {
             "type": "string"
         },
-        "Locations": {
-            "type": "array"
+        "Environment": {
+            "type": "string"
         },
         "VmPassword": {
             "type": "securestring"
@@ -15,13 +15,19 @@
             "type": "securestring"
         }
     },
+    "variables": {
+        "KeyVaultResourceGroup": "[concat()]",
+        "KeyVaultName": "[concat('kv', parameters('DomainPrefixAbbreviation'), parameters('Environment'), resourceGroup().location)]",
+        "KeyVaultResourceID": "[resourceId(variables('KeyVaultResourceGroup'), 'Microsoft.KeyVault/vaults/', variables('KeyVaultName'))]",
+        "LogAnalyticsWorkspace": "[concat('law-', parameters('Environment'), '-', resourceGroup().location)]"
+    },
     "resources": [
         {
             "comments": "---------- AVAILABILITY SET ----------",
-            "name": "[concat('as-vmdc', parameters('Environment'), parameters('Locations')[0])]",
+            "name": "[concat('as-vmdc', parameters('Environment'), resourceGroup().location)]",
             "type": "Microsoft.Compute/availabilitySets",
             "apiVersion": "2019-07-01",
-            "location": "[parameters('Locations')[0]]",
+            "location": "[resourceGroup().location]",
             "properties": {
                 "platformFaultDomainCount": 2,
                 "platformUpdateDomainCount": 2
@@ -32,10 +38,10 @@
         },
         {
             "comments": "---------- NETWORK INTERFACE ----------",
-            "name": "[concat('nic-vmdc', parameters('Environment'), parameters('Locations')[0], '0')]",
+            "name": "[concat('nic-vmdc', parameters('Environment'), resourceGroup().location, '0')]",
             "type": "Microsoft.Network/networkInterfaces",
             "apiVersion": "2018-08-01",
-            "location": "[parameters('Locations')[0]]",
+            "location": "[resourceGroup().location]",
             "tags": {
             },
             "properties": {
@@ -46,7 +52,7 @@
                             "privateIPAllocationMethod": "Static",
                             "privateIPAddress": "10.0.1.4",
                             "subnet": {
-                                "id": "[resourceId(subscription().subscriptionId, concat('rg-network-', parameters('Environment'),'-', parameters('Locations')[0]), 'Microsoft.Network/virtualNetworks/subnets', concat('vnet-', parameters('Environment'), parameters('Locations')[0]), concat('snet-servers-', parameters('Environment'), '-',parameters('Locations')[0]))]"
+                                "id": "[resourceId(subscription().subscriptionId, concat('rg-network-', parameters('Environment'),'-', resourceGroup().location), 'Microsoft.Network/virtualNetworks/subnets', concat('vnet-', parameters('Environment'), resourceGroup().location), concat('snet-servers-', parameters('Environment'), '-',resourceGroup().location))]"
                             }
                         }
                     }
@@ -55,20 +61,20 @@
         },
         {
             "comments": "---------- VIRTUAL MACHINE ----------",
-            "name": "[concat('vmdc', parameters('Environment'), parameters('Locations')[0], '0')]",
+            "name": "[concat('vmdc', parameters('Environment'), resourceGroup().location, '0')]",
             "type": "Microsoft.Compute/virtualMachines",
             "apiVersion": "2017-03-30",
-            "location": "[parameters('Locations')[0]]",
+            "location": "[resourceGroup().location]",
             "dependsOn": [
-                "[resourceId('Microsoft.Network/networkInterfaces', concat('nic-vmdc', parameters('Environment'), parameters('Locations')[0], '0'))]",
-                "[resourceId('Microsoft.Compute/availabilitySets', concat('as-vmdc', parameters('Environment'), parameters('Locations')[0]))]"
+                "[resourceId('Microsoft.Network/networkInterfaces', concat('nic-vmdc', parameters('Environment'), resourceGroup().location, '0'))]",
+                "[resourceId('Microsoft.Compute/availabilitySets', concat('as-vmdc', parameters('Environment'), resourceGroup().location))]"
             ],
             "properties": {
                 "hardwareProfile": {
                     "vmSize": "Standard_A1_v2"
                 },
                 "osProfile": {
-                    "computerName": "[concat('vmdc', parameters('Environment'), parameters('Locations')[0], '0')]",
+                    "computerName": "[concat('vmdc', parameters('Environment'), resourceGroup().location, '0')]",
                     "adminUsername": "[parameters('VmUsername')]",
                     "adminPassword": "[parameters('VmPassword')]"
                 },
@@ -80,7 +86,7 @@
                         "version": "latest"
                     },
                     "osDisk": {
-                        "name": "[concat('disk-vmdc', parameters('Environment'), parameters('Locations')[0], '0-0')]",
+                        "name": "[concat('disk-vmdc', parameters('Environment'), resourceGroup().location, '0-0')]",
                         "caching": "None",
                         "createOption": "FromImage",
                         "managedDisk": {
@@ -92,7 +98,7 @@
                 "networkProfile": {
                     "networkInterfaces": [
                         {
-                            "id": "[resourceId('Microsoft.Network/networkInterfaces', concat('nic-vmdc', parameters('Environment'), parameters('Locations')[0], '0'))]"
+                            "id": "[resourceId('Microsoft.Network/networkInterfaces', concat('nic-vmdc', parameters('Environment'), resourceGroup().location, '0'))]"
                         }
                     ]
                 },
@@ -102,27 +108,96 @@
                     }
                 },
                 "availabilitySet": {
-                    "id": "[resourceId('Microsoft.Compute/availabilitySets', concat('as-vmdc', parameters('Environment'), parameters('Locations')[0]))]"
+                    "id": "[resourceId('Microsoft.Compute/availabilitySets', concat('as-vmdc', parameters('Environment'), resourceGroup().location))]"
                 }
-            }
-        },
-        {
-            "comments": "---------- NETWORK WATCHER EXTENSION ----------",
-            "type": "Microsoft.Compute/virtualMachines/extensions",
-            "apiVersion": "2017-03-30",
-            "name": "[concat('vmdc', parameters('Environment'), parameters('Locations')[0], '0/AzureNetworkWatcherExtension')]",
-            "location": "[parameters('Locations')[0]]",
-            "dependsOn": [
-                "[concat('vmdc', parameters('Environment'), parameters('Locations')[0], '0')]"
-            ],
-            "properties": {
-                "publisher": "Microsoft.Azure.NetworkWatcher",
-                "type": "NetworkWatcherAgentWindows",
-                "typeHandlerVersion": "1.4",
-                "autoUpgradeMinorVersion": true,
-                "settings": {
+            },
+            "resources": [
+                {
+                    "comments": "---------- MICROSOFT MONITORING AGENT ----------",
+                    "type": "extensions",
+                    "name": "MicrosoftMonitoringAgent",
+                    "apiVersion": "2017-03-30",
+                    "location": "[resourceGroup().location]",
+                    "dependsOn": [
+                        "[concat('vmdc', parameters('Environment'), resourceGroup().location, '0')]"
+                    ],
+                    "properties": {
+                        "publisher": "Microsoft.EnterpriseCloud.Monitoring",
+                        "type": "MicrosoftMonitoringAgent",
+                        "typeHandlerVersion": "1.0",
+                        "autoUpgradeMinorVersion": true,
+                        "settings": {
+                            "workspaceId": "[reference(resourceId('Microsoft.OperationalInsights/workspaces/', variables('LogAnalyticsWorkspace')), '2015-03-20').customerId]"
+                        },
+                        "protectedSettings": {
+                            "workspaceKey": "[listKeys(resourceId('Microsoft.OperationalInsights/workspaces/', variables('LogAnalyticsWorkspace')), '2015-03-20').primarySharedKey]"
+                        }
+                    }
+                },
+                {
+                    "comments": "---------- NETWORK WATCHER EXTENSION ----------",
+                    "type": "extensions",
+                    "apiVersion": "2017-03-30",
+                    "name": "NetworkWatcherAgentWindows",
+                    "location": "[resourceGroup().location]",
+                    "dependsOn": [
+                        "[concat('vmdc', parameters('Environment'), resourceGroup().location, '0')]"
+                    ],
+                    "properties": {
+                        "publisher": "Microsoft.Azure.NetworkWatcher",
+                        "type": "NetworkWatcherAgentWindows",
+                        "typeHandlerVersion": "1.4",
+                        "autoUpgradeMinorVersion": true,
+                        "settings": {
+                        }
+                    }
+                },
+                {
+                    "comments": "---------- DEPENDENCY AGENT FOR AZURE MONITOR ----------",
+                    "type": "Microsoft.Compute/virtualMachines/extensions",
+                    "apiVersion": "2017-03-30",
+                    "name": "DependencyAgentWindows",
+                    "location": "[resourceGroup().location]",
+                    "dependsOn": [
+                    ],
+                    "properties": {
+                        "publisher": "Microsoft.Azure.Monitoring.DependencyAgent",
+                        "type": "DependencyAgentWindows",
+                        "typeHandlerVersion": "9.5",
+                        "autoUpgradeMinorVersion": true
+                    }
+                },
+                {
+                    "comments": "---------- AZURE DISK ENCRYPTION EXTENSION ----------",
+                    "type": "extensions",
+                    "name": "AzureDiskEncryption",
+                    "location": "[resourceGroup().location]",
+                    "apiVersion": "2017-03-30",
+                    "dependsOn": [
+                        "[concat('vmdc', parameters('Environment'), resourceGroup().location, '0')]",
+                        "MicrosoftMonitoringAgent",
+                        "NetworkWatcherAgentWindows",
+                        "DependencyAgentWindows"
+                    ],
+                    "properties": {
+                        "publisher": "Microsoft.Azure.Security",
+                        "type": "AzureDiskEncryption",
+                        "typeHandlerVersion": "2.2",
+                        "autoUpgradeMinorVersion": true,
+                        "forceUpdateTag": "[guid(deployment().name)]",
+                        "settings": {
+                            "EncryptionOperation": "EnableEncryption",
+                            "KeyVaultURL": "[reference(variables('KeyVaultResourceId'),'2016-10-01').vaultUri]",
+                            "KeyVaultResourceId": "[variables('KeyVaultResourceID')]",
+                            "KeyEncryptionKeyURL": "",
+                            "KekVaultResourceId": "",
+                            "KeyEncryptionAlgorithm": "RSA-OAEP",
+                            "VolumeType": "All",
+                            "ResizeOSDisk": false
+                        }
+                    }
                 }
-            }
+            ]
         }
     ]
 }

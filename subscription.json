@@ -29,6 +29,12 @@
                 "description": "Locations for Resource Groups & Resources. The first index is primary location and the second index is the secondary location for business continuity and disaster recovery "
             }
         },
+        "Subnets": {
+            "type": "array",
+            "metadata": {
+                "description": "The unique component in each subnet name"
+            }
+        },
         "PerformanceType": {
             "type": "string",
             "allowedValues": [
@@ -114,11 +120,13 @@
                     "Environment": {
                         "value": "[parameters('Environment')]"
                     },
-                    "Locations": {
-                        "value": "[parameters('Locations')]"
+                    "Subnets": {
+                        "value": "[parameters('Subnets')]"
                     }
                 },
-                "templateLink": ""
+                "templateLink": {
+                    "uri": "https://raw.githubusercontent.com/jamasten/AzureBaseInfra/master/templates/network.json"
+                }
             }
         },
         {
@@ -153,7 +161,9 @@
                         "value": "[parameters('UserObjectId')]"
                     }
                 },
-                "templateLink": ""
+                "templateLink": {
+                    "uri": "https://raw.githubusercontent.com/jamasten/AzureBaseInfra/master/templates/shared.json"
+                }
             }
         },
         {
@@ -186,7 +196,9 @@
                         "value": "[parameters('VmUsername')]"
                     }
                 },
-                "templateLink": ""
+                "templateLink": {
+                    "uri": "https://raw.githubusercontent.com/jamasten/AzureBaseInfra/master/templates/identity.json"
+                }
             }
         }
     ],

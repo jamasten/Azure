@@ -1,0 +1,144 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "Environment": {
+            "type": "string"
+        },
+        "Locations": {
+            "type": "array"
+        }
+    },
+    "resources": [
+        {
+            "comments": "---------- NETWORK WATCHER ----------",
+            "type": "Microsoft.Network/networkWatchers",
+            "apiVersion": "2020-04-01",
+            "name": "[concat('nw-', parameters('Environment'), '-', parameters('Locations')[0])]",
+            "location": "[parameters('Locations')[0]]",
+            "properties": {}
+        },
+        {
+            "comments": "---------- VIRTUAL NETWORK ----------",
+            "name": "[concat('vnet-', parameters('Environment'), parameters('Locations')[0])]",
+            "type": "Microsoft.Network/virtualNetworks",
+            "apiVersion": "2018-08-01",
+            "location": "[parameters('Locations')[0]]",
+            "tags": {},
+            "properties": {
+                "addressSpace": {
+                    "addressPrefixes": [
+                        "10.0.0.0/21"
+                    ]
+                },
+                "dhcpOptions": {
+                    "dnsServers": [
+                        "10.0.1.4"
+                    ]
+                },
+                "subnets": [
+                    {
+                        "name": "[concat('snet-shared-', parameters('Environment'), '-', parameters('Locations')[0])]",
+                        "properties": {
+                            "addressPrefix": "10.0.0.0/24",
+                            "serviceEndpoints": [
+                            ],
+                            "delegations": [
+                            ],
+                            "privateEndpointNetworkPolicies": "Enabled",
+                            "privateLinkServiceNetworkPolicies": "Enabled"
+                        }
+                    },
+                    {
+                        "name": "[concat('snet-servers-', parameters('Environment'), '-', parameters('Locations')[0])]",
+                        "properties": {
+                            "addressPrefix": "10.0.1.0/24",
+                            "serviceEndpoints": [
+                            ],
+                            "delegations": [
+                            ],
+                            "privateEndpointNetworkPolicies": "Enabled",
+                            "privateLinkServiceNetworkPolicies": "Enabled"
+                        }
+                    },
+                    {
+                        "name": "[concat('snet-wvd-', parameters('Environment'), '-', parameters('Locations')[0])]",
+                        "properties": {
+                            "addressPrefix": "10.0.2.0/24",
+                            "serviceEndpoints": [
+                            ],
+                            "delegations": [
+                            ],
+                            "privateEndpointNetworkPolicies": "Enabled",
+                            "privateLinkServiceNetworkPolicies": "Enabled"
+                        }
+                    }
+                ],
+                "virtualNetworkPeerings": [
+                ],
+                "enableDdosProtection": false,
+                "enableVmProtection": false
+            }
+        },
+        {
+            "comments": "---------- NETWORK SECURITY GROUPS ----------",
+            "type": "Microsoft.Network/networkSecurityGroups",
+            "name": "string",
+            "apiVersion": "2020-04-01",
+            "location": "string",
+            "tags": {},
+            "copy": {
+                "name": "",
+                "count": ""
+            },
+            "properties": {
+                "securityRules": [
+                    {
+                        "id": "string",
+                        "properties": {
+                            "description": "string",
+                            "protocol": "string",
+                            "sourcePortRange": "string",
+                            "destinationPortRange": "string",
+                            "sourceAddressPrefix": "string",
+                            "sourceAddressPrefixes": [
+                                "string"
+                            ],
+                            "sourceApplicationSecurityGroups": [
+                                {
+                                    "id": "string",
+                                    "location": "string",
+                                    "tags": {},
+                                    "properties": {}
+                                }
+                            ],
+                            "destinationAddressPrefix": "string",
+                            "destinationAddressPrefixes": [
+                                "string"
+                            ],
+                            "destinationApplicationSecurityGroups": [
+                                {
+                                    "id": "string",
+                                    "location": "string",
+                                    "tags": {},
+                                    "properties": {}
+                                }
+                            ],
+                            "sourcePortRanges": [
+                                "string"
+                            ],
+                            "destinationPortRanges": [
+                                "string"
+                            ],
+                            "access": "string",
+                            "priority": "integer",
+                            "direction": "string"
+                        },
+                        "name": "string"
+                    }
+                ]
+            },
+            "resources": []
+        }
+    ]
+}

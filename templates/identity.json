@@ -1,0 +1,128 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "Environment": {
+            "type": "string"
+        },
+        "Locations": {
+            "type": "array"
+        },
+        "VmPassword": {
+            "type": "securestring"
+        },
+        "VmUsername": {
+            "type": "securestring"
+        }
+    },
+    "resources": [
+        {
+            "comments": "---------- AVAILABILITY SET ----------",
+            "name": "[concat('as-vmdc', parameters('Environment'), parameters('Locations')[0])]",
+            "type": "Microsoft.Compute/availabilitySets",
+            "apiVersion": "2019-07-01",
+            "location": "[parameters('Locations')[0]]",
+            "properties": {
+                "platformFaultDomainCount": 2,
+                "platformUpdateDomainCount": 2
+            },
+            "sku": {
+                "name": "Aligned"
+            }
+        },
+        {
+            "comments": "---------- NETWORK INTERFACE ----------",
+            "name": "[concat('nic-vmdc', parameters('Environment'), parameters('Locations')[0], '0')]",
+            "type": "Microsoft.Network/networkInterfaces",
+            "apiVersion": "2018-08-01",
+            "location": "[parameters('Locations')[0]]",
+            "tags": {
+            },
+            "properties": {
+                "ipConfigurations": [
+                    {
+                        "name": "ipConfig0",
+                        "properties": {
+                            "privateIPAllocationMethod": "Static",
+                            "privateIPAddress": "10.0.1.4",
+                            "subnet": {
+                                "id": "[resourceId(subscription().subscriptionId, concat('rg-network-', parameters('Environment'),'-', parameters('Locations')[0]), 'Microsoft.Network/virtualNetworks/subnets', concat('vnet-', parameters('Environment'), parameters('Locations')[0]), concat('snet-servers-', parameters('Environment'), '-',parameters('Locations')[0]))]"
+                            }
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "comments": "---------- VIRTUAL MACHINE ----------",
+            "name": "[concat('vmdc', parameters('Environment'), parameters('Locations')[0], '0')]",
+            "type": "Microsoft.Compute/virtualMachines",
+            "apiVersion": "2017-03-30",
+            "location": "[parameters('Locations')[0]]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/networkInterfaces', concat('nic-vmdc', parameters('Environment'), parameters('Locations')[0], '0'))]",
+                "[resourceId('Microsoft.Compute/availabilitySets', concat('as-vmdc', parameters('Environment'), parameters('Locations')[0]))]"
+            ],
+            "properties": {
+                "hardwareProfile": {
+                    "vmSize": "Standard_A1_v2"
+                },
+                "osProfile": {
+                    "computerName": "[concat('vmdc', parameters('Environment'), parameters('Locations')[0], '0')]",
+                    "adminUsername": "[parameters('VmUsername')]",
+                    "adminPassword": "[parameters('VmPassword')]"
+                },
+                "storageProfile": {
+                    "imageReference": {
+                        "publisher": "MicrosoftWindowsServer",
+                        "offer": "WindowsServer",
+                        "sku": "2016-Datacenter",
+                        "version": "latest"
+                    },
+                    "osDisk": {
+                        "name": "[concat('disk-vmdc', parameters('Environment'), parameters('Locations')[0], '0-0')]",
+                        "caching": "None",
+                        "createOption": "FromImage",
+                        "managedDisk": {
+                            "storageAccountType": "Standard_LRS"
+                        }
+
+                    }
+                },
+                "networkProfile": {
+                    "networkInterfaces": [
+                        {
+                            "id": "[resourceId('Microsoft.Network/networkInterfaces', concat('nic-vmdc', parameters('Environment'), parameters('Locations')[0], '0'))]"
+                        }
+                    ]
+                },
+                "diagnosticsProfile": {
+                    "bootDiagnostics": {
+                        "enabled": false
+                    }
+                },
+                "availabilitySet": {
+                    "id": "[resourceId('Microsoft.Compute/availabilitySets', concat('as-vmdc', parameters('Environment'), parameters('Locations')[0]))]"
+                }
+            }
+        },
+        {
+            "comments": "---------- NETWORK WATCHER EXTENSION ----------",
+            "type": "Microsoft.Compute/virtualMachines/extensions",
+            "apiVersion": "2017-03-30",
+            "name": "[concat('vmdc', parameters('Environment'), parameters('Locations')[0], '0/AzureNetworkWatcherExtension')]",
+            "location": "[parameters('Locations')[0]]",
+            "dependsOn": [
+                "[concat('vmdc', parameters('Environment'), parameters('Locations')[0], '0')]"
+            ],
+            "properties": {
+                "publisher": "Microsoft.Azure.NetworkWatcher",
+                "type": "NetworkWatcherAgentWindows",
+                "typeHandlerVersion": "1.4",
+                "autoUpgradeMinorVersion": true,
+                "settings": {
+                }
+            }
+        }
+    ]
+}

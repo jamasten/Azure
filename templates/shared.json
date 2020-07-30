@@ -1,0 +1,147 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "DomainPrefixAbbreviation": {
+            "type": "string"
+        },
+        "Environment": {
+            "type": "string"
+        },
+        "Locations": {
+            "type": "array"
+        },
+        "PerformanceType": {
+            "type": "string"
+        },
+        "UserObjectId": {
+            "type": "string"
+        }
+    },
+    "resources": [
+        {
+            "comments": "---------- STORAGE ACCOUNT ----------",
+            "type": "Microsoft.Storage/storageAccounts",
+            "apiVersion": "2019-06-01",
+            "name": "[concat('stor', parameters('PerformanceType'), parameters('DomainPrefixAbbreviation'), parameters('Environment'), parameters('Locations')[0])]",
+            "location": "[parameters('Locations')[0]]",
+            "sku": {
+                "name": "Standard_LRS",
+                "tier": "Standard"
+            },
+            "kind": "StorageV2",
+            "properties": {
+                "networkAcls": {
+                    "bypass": "AzureServices",
+                    "virtualNetworkRules": [
+                    ],
+                    "ipRules": [
+                    ],
+                    "defaultAction": "Allow"
+                },
+                "supportsHttpsTrafficOnly": true,
+                "encryption": {
+                    "services": {
+                        "file": {
+                            "keyType": "Account",
+                            "enabled": true
+                        },
+                        "blob": {
+                            "keyType": "Account",
+                            "enabled": true
+                        }
+                    },
+                    "keySource": "Microsoft.Storage"
+                },
+                "accessTier": "Hot"
+            }
+        },
+        {
+            "comments": "---------- KEY VAULT ----------",
+            "type": "Microsoft.KeyVault/vaults",
+            "name": "[concat('kv', parameters('DomainPrefixAbbreviation'), parameters('Environment'), parameters('Locations')[0])]",
+            "apiVersion": "2016-10-01",
+            "location": "[parameters('Locations')[0]]",
+            "tags": {},
+            "properties": {
+                "tenantId": "[subscription().tenantId]",
+                "sku": {
+                    "family": "A",
+                    "name": "Standard"
+                },
+                "accessPolicies": [
+                    {
+                        "tenantId": "[subscription().tenantId]",
+                        "objectId": "[parameters('UserObjectId')]",
+                        "permissions": {
+                            "keys": [
+                                "encrypt",
+                                "decrypt",
+                                "wrapKey",
+                                "unwrapKey",
+                                "sign",
+                                "verify",
+                                "get",
+                                "list",
+                                "create",
+                                "update",
+                                "import",
+                                "delete",
+                                "backup",
+                                "restore",
+                                "recover",
+                                "purge"
+                            ],
+                            "secrets": [
+                                "get",
+                                "list",
+                                "set",
+                                "delete",
+                                "backup",
+                                "restore",
+                                "recover",
+                                "purge"
+                            ]
+                        }
+                    }
+                ],
+                "enabledForDeployment": true,
+                "enabledForTemplateDeployment": true,
+                "enabledForDiskEncryption": true
+            }
+        },
+        {
+            "comments": "---------- AUTOMATION ACCOUNT ----------",
+            "name": "[concat('aa', parameters('DomainPrefixAbbreviation'), parameters('Environment'), parameters('Locations')[0])]",
+            "type": "Microsoft.Automation/automationAccounts",
+            "apiVersion": "2015-10-31",
+            "location": "[parameters('Locations')[0]]",
+            "tags": {
+            },
+            "properties": {
+                "sku": {
+                    "name": "Free"
+                }
+            }
+        },
+        {
+            "comments": "---------- LOG ANALYTICS ----------",
+            "type": "Microsoft.OperationalInsights/workspaces",
+            "apiVersion": "2020-03-01-preview",
+            "name": "[concat('law-', parameters('Environment'), '-', parameters('Locations')[0])]",
+            "location": "[parameters('Locations')[0]]",
+            "tags": {},
+            "properties": {
+                "sku": {
+                    "name": "pergb2018"
+                },
+                "retentionInDays": 30,
+                "workspaceCapping": {
+                    "dailyQuotaGb": -1
+                },
+                "publicNetworkAccessForIngestion": "Enabled",
+                "publicNetworkAccessForQuery": "Enabled"
+            }
+        }
+    ]
+}

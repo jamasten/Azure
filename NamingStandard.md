@@ -86,7 +86,7 @@
 | Load Balancer | Resource Group | lb-(ApplicationName)-(Environment)-(Region)-(Ordinal) | lb-jmasten-dev-eastus-0 |
 | Log Analytics Workspace | Resource Group | law-(ApplicationName)-(Environment)-(Region)-(Ordinal) | law-dev-eastus |
 | Network Interface Card | Resource Group | nic-vm(ApplicationName)(Environment)(Region)(VM Ordinal)-(Ordinal) | nic-vmdcdeveastus0-0 |
-| Network Security Group | Subnet Or NIC | nsg-(Subnet or VM Name)-(SubscriptionType)-(Region) | nsg-shared-eastus or nsg-vmdcdeveastus0 |
+| Network Security Group | Subnet Or NIC | nsg-(Subnet)-(Environment)-(Region) OR nsg-(VM Name)  | nsg-shared-dev-eastus or nsg-vmdcdeveastus0 |
 | Network Watcher | Resource Group | nw-(Environment)-(Region) | nw-dev-eastus |
 | Notification Hub | Resource Group | nh-(ApplicationName)-(Environment)-(Region) | nh-jmasten-dev-eastus |
 | Notification Hub Namespace | Global | nhns-(ApplicationName)-(Environment)-(Region) | nhns-jmasten-dev-eastus |

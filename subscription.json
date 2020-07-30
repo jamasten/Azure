@@ -218,6 +218,9 @@
                 },
                 "mode": "Incremental",
                 "parameters": {
+                    "DomainPrefixAbbreviation": {
+                        "value": "[parameters('DomainPrefixAbbreviation')]"
+                    },
                     "Environment": {
                         "value": "[parameters('Environment')]"
                     },

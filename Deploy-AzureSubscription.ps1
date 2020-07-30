@@ -18,6 +18,20 @@ Set-AzContext -Subscription $Subscription
 $User = (Get-AzContext).Account.Id.Split('@')[0]
 $TimeStamp = Get-Date -F 'yyyyMMddhhmmss'
 $Name =  $User + '_' + $TimeStamp
+$Subnets = @(
+    @{
+        "Name" = "shared";
+        "AddressPrefix" = "10.0.0.0/24";
+    },
+    @{
+        "Name" = "servers";
+        "AddressPrefix" = "10.0.1.0/24";
+    },
+    @{
+        "Name" = "wvd";
+        "AddressPrefix" = "10.0.2.0/24";
+    }
+)
 $VmUsername = Read-Host -Prompt 'Enter Virtual Machine Username' -AsSecureString
 $VmPassword = Read-Host -Prompt 'Enter virtual Machine Password' -AsSecureString
 $VSE = @{
@@ -26,6 +40,7 @@ $VSE = @{
     Locations = @('eastus','westus');
     PerformanceType = 'p';
     ResourceGroups = @('identity','network','shared','wvd');
+    Subnets = $Subnets
     UserObjectId = 'b3b8d141-7e06-4505-a140-a6fde63b6934'
 }
 $VSE.Add("VmPassword", $VmPassword) # Secure Strings must use Add Method for proper deserialization

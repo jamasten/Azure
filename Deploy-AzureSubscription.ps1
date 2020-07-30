@@ -41,6 +41,7 @@ $VSE = @{
     PerformanceType = 'p';
     ResourceGroups = @('identity','network','shared','wvd');
     Subnets = $Subnets
+    User = $User
     UserObjectId = 'b3b8d141-7e06-4505-a140-a6fde63b6934'
 }
 $VSE.Add("VmPassword", $VmPassword) # Secure Strings must use Add Method for proper deserialization

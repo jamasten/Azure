@@ -1,3 +1,3 @@
 # Azure Base Infrastructure
 
-This repository uses Azure Blueprints to stamp out a new subscription for testing Azure resources and services.
+This repository provides the ARM templates used to build the foundational resources for networking, identity, and security.

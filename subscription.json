@@ -61,12 +61,6 @@
                 "description": "The username of the user principal that triggered the deployment"
             }
         },
-        "UserObjectId": {
-            "type": "string",
-            "metadata": {
-                "description": "The Azure AD Object ID of the Security Principal"
-            }
-        },
         "VmPassword": {
             "type": "securestring",
             "metadata": {
@@ -127,20 +121,8 @@
                     "Environment": {
                         "value": "[parameters('Environment')]"
                     },
-                    "Locations": {
-                        "value": "[parameters('Locations')]"
-                    },
                     "PerformanceType": {
                         "value": "[parameters('PerformanceType')]"
-                    },
-                    "UserObjectId": {
-                        "value": "[parameters('UserObjectId')]"
-                    },
-                    "VmPassword": {
-                        "value": "[parameters('VmPassword')]"
-                    },
-                    "VmUsername": {
-                        "value": "[parameters('VmUsername')]"
                     }
                 },
                 "templateLink": {

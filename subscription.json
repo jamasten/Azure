@@ -23,6 +23,12 @@
                 "description": "The operating environment of the resources"
             }
         },
+        "KeyEncryptionKeyURL": {
+            "type": "string",
+            "metadata": {
+                "description": "The KEK URL used for Azure Disk Encrytion"
+            }
+        },
         "Locations": {
             "type": "array",
             "metadata": {
@@ -43,12 +49,6 @@
             ],
             "metadata": {
                 "description": "The storage account sku"
-            }
-        },
-        "ResourceGroups": {
-            "type": "array",
-            "metadata": {
-                "description": "The primary resource groups types for the subscription"
             }
         },
         "Timestamp": {
@@ -84,41 +84,10 @@
     },
     "resources": [
         {
-            "comments": "---------- RESOURCE GROUPS > PRIMARY REGION ----------",
-            "name": "[concat('rg-', parameters('ResourceGroups')[copyIndex()],'-', parameters('Environment'),'-', parameters('Locations')[0])]",
-            "type": "Microsoft.Resources/resourceGroups",
-            "apiVersion": "2019-10-01",
-            "location": "[parameters('Locations')[0]]",
-            "tags": {},
-            "copy": {
-                "name": "rgPrimaryLoop",
-                "count": "[length(parameters('ResourceGroups'))]"
-            },
-            "properties": {
-            }
-        },
-        {
-            "comments": "---------- RESOURCE GROUPS > SECONDARY REGION ----------",
-            "name": "[concat('rg-', parameters('ResourceGroups')[copyIndex()],'-', parameters('Environment'),'-', parameters('Locations')[1])]",
-            "type": "Microsoft.Resources/resourceGroups",
-            "apiVersion": "2019-10-01",
-            "location": "[parameters('Locations')[1]]",
-            "tags": {},
-            "copy": {
-                "name": "rgSecondaryLoop",
-                "count": "[length(parameters('ResourceGroups'))]"
-            },
-            "properties": {
-            }
-        },
-        {
             "comments": "---------- LINKED DEPLOYMENT > NETWORK > PRIMARY REGION ----------",
             "type": "Microsoft.Resources/deployments",
             "name": "[concat('Network_', parameters('User'), '_', parameters('Timestamp'))]",
             "apiVersion": "2019-10-01",
-            "dependsOn": [
-                "rgPrimaryLoop"
-            ],
             "tags": {},
             "resourceGroup": "[concat('rg-network-', parameters('Environment'),'-', parameters('Locations')[0])]",
             "properties": {
@@ -144,9 +113,6 @@
             "type": "Microsoft.Resources/deployments",
             "name": "[concat('Shared_', parameters('User'), '_', parameters('Timestamp'))]",
             "apiVersion": "2019-10-01",
-            "dependsOn": [
-                "rgPrimaryLoop"
-            ],
             "tags": {},
             "resourceGroup": "[concat('rg-shared-', parameters('Environment'),'-', parameters('Locations')[0])]",
             "properties": {
@@ -169,6 +135,12 @@
                     },
                     "UserObjectId": {
                         "value": "[parameters('UserObjectId')]"
+                    },
+                    "VmPassword": {
+                        "value": "[parameters('VmPassword')]"
+                    },
+                    "VmUsername": {
+                        "value": "[parameters('VmUsername')]"
                     }
                 },
                 "templateLink": {
@@ -182,9 +154,7 @@
             "name": "[concat('SecurityCenter_', parameters('User'), '_', parameters('Timestamp'))]",
             "apiVersion": "2019-10-01",
             "dependsOn": [
-                "rgPrimaryLoop",
-                "[concat('Network_', parameters('User'), '_', parameters('Timestamp'))]",
-                "[concat('rg-shared-', parameters('Environment'),'-', parameters('Locations')[0])]"
+                "[concat('Network_', parameters('User'), '_', parameters('Timestamp'))]"
             ],
             "resourceGroup": "[concat('rg-shared-', parameters('Environment'),'-', parameters('Locations')[0])]",
             "properties": {
@@ -208,7 +178,6 @@
             "name": "[concat('Identity_', parameters('User'), '_', parameters('Timestamp'))]",
             "apiVersion": "2019-10-01",
             "dependsOn": [
-                "rgPrimaryLoop",
                 "[concat('Network_', parameters('User'), '_', parameters('Timestamp'))]"
             ],
             "resourceGroup": "[concat('rg-identity-', parameters('Environment'),'-', parameters('Locations')[0])]",
@@ -224,8 +193,8 @@
                     "Environment": {
                         "value": "[parameters('Environment')]"
                     },
-                    "Locations": {
-                        "value": "[parameters('Locations')]"
+                    "KeyEncryptionKeyURL": {
+                        "value": "[parameters('KeyEncryptionKeyURL')]"
                     },
                     "VmPassword": {
                         "value": "[parameters('VmPassword')]"

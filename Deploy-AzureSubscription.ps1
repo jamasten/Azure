@@ -2,7 +2,6 @@
 # Authentication
 #############################################################
 $Subscription = 'Visual Studio Enterprise Subscription'
-Import-Module -Name Az
 if(!(Get-AzSubscription | Where-Object {$_.Name -eq $Subscription}))
 {
     Connect-AzAccount `
@@ -18,6 +17,8 @@ Set-AzContext -Subscription $Subscription
 $User = (Get-AzContext).Account.Id.Split('@')[0]
 $TimeStamp = Get-Date -F 'yyyyMMddhhmmss'
 $Name =  $User + '_' + $TimeStamp
+$UserObjectId = 'b3b8d141-7e06-4505-a140-a6fde63b6934'
+$ResourceGroups = @('identity','network','shared','wvd');
 $Subnets = @(
     @{
         "Name" = "shared";
@@ -39,13 +40,72 @@ $VSE = @{
     Environment = 'dev';
     Locations = @('eastus','westus');
     PerformanceType = 'p';
-    ResourceGroups = @('identity','network','shared','wvd');
     Subnets = $Subnets
     User = $User
-    UserObjectId = 'b3b8d141-7e06-4505-a140-a6fde63b6934'
 }
 $VSE.Add("VmPassword", $VmPassword) # Secure Strings must use Add Method for proper deserialization
 $VSE.Add("VmUsername", $VmUsername) # Secure Strings must use Add Method for proper deserialization
+
+
+#############################################################
+# Create Resource Groups
+#############################################################
+# Resource Groups must be created in PS b/c the KEK can only be created in PS
+foreach ($Location in $VSE.Locations) 
+{
+    foreach ($Group in $ResourceGroups) 
+    {
+        try 
+        {
+            New-AzResourceGroup `
+                -Name $('rg-' + $Group + '-' + $VSE.Environment + '-' + $Location) `
+                -Location $Location `
+                -Force `
+                -ErrorAction Stop | Out-Null    
+        }
+        catch 
+        {
+            $_ | Select-Object *
+        }
+    }
+}
+
+
+#############################################################
+# Create Key Vault & KEK
+#############################################################
+# KEK cannot be created via ARM template
+$KeyVault = $('kv' + $VSE.DomainPrefixAbbreviation + $VSE.Environment + $VSE.Locations[0])
+$KeyVaultResourceGroup = $('rg-shared-' + $VSE.Environment + '-' + $VSE.Locations[0])
+
+New-AzKeyvault `
+    -Name $KeyVault `
+    -ResourceGroupName $KeyVaultResourceGroup `
+    -Location $VSE.Locations[0] `
+    -EnabledForDiskEncryption `
+    -EnabledForDeployment `
+    -EnabledForTemplateDeployment `
+    -DisableSoftDelete `
+    -WarningAction SilentlyContinue
+
+Set-AzKeyVaultAccessPolicy `
+    -VaultName $KeyVault `
+    -ResourceGroupName $KeyVaultResourceGroup `
+    -ObjectId $UserObjectId `
+    -PermissionsToKeys encrypt,decrypt,wrapKey,unwrapKey,sign,verify,get,list,create,update,import,delete,backup,restore,recover,purge `
+    -PermissionsToSecrets get,list,set,delete,backup,restore,recover,purge
+
+Add-AzKeyVaultKey `
+    -Name "DiskEncryption" `
+    -VaultName $KeyVault `
+    -Destination "Software"
+
+$KeyEncryptionKeyURL = (Get-AzKeyVaultKey `
+    -VaultName $KeyVault `
+    -Name 'DiskEncryption' `
+    -IncludeVersions | Where-Object {$_.Enabled -eq $true}).Id
+
+$VSE.Add("KeyEncryptionKeyURL", $KeyEncryptionKeyURL)
 
 
 #############################################################
@@ -55,7 +115,7 @@ try
 {
   New-AzSubscriptionDeployment `
     -Name $Name `
-    -Location 'eastus' `
+    -Location $VSE.Locations[0] `
     -TemplateFile '.\subscription.json' `
     -TemplateParameterObject $VSE `
     -ErrorAction Stop `

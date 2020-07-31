@@ -8,6 +8,9 @@
         "Environment": {
             "type": "string"
         },
+        "KeyEncryptionKeyURL": {
+            "type": "string"
+        },
         "VmPassword": {
             "type": "securestring"
         },
@@ -189,8 +192,8 @@
                             "EncryptionOperation": "EnableEncryption",
                             "KeyVaultURL": "[reference(variables('KeyVaultResourceId'),'2016-10-01').vaultUri]",
                             "KeyVaultResourceId": "[variables('KeyVaultResourceID')]",
-                            "KeyEncryptionKeyURL": "",
-                            "KekVaultResourceId": "",
+                            "KeyEncryptionKeyURL": "[parameters('KeyEncryptionKeyURL')]",
+                            "KekVaultResourceId": "[variables('KeyVaultResourceID')]",
                             "KeyEncryptionAlgorithm": "RSA-OAEP",
                             "VolumeType": "All",
                             "ResizeOSDisk": false
@@ -200,4 +203,4 @@
             ]
         }
     ]
-}
+}   

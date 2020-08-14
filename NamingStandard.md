@@ -15,6 +15,7 @@
 | Resource | Prefix |
 | ----------- | ----------- |
 | App Services | azapp- |
+| Automation Account | aa- |
 | Azure Cosmos DB (Document Database) | cosdb- |
 | Azure Cache for Redis | redis- |
 | Azure Database for MySQL | mysql- |
@@ -59,7 +60,7 @@
 | Type | Scope | Format | Example |
 | ----------- | ----------- | ----------- | ----------- |
 | App Service | Global | app-(ApplicationName)-(Environment)-(Region)-(Ordinal).azurewebsites.net | app-jmasten-dev-eastus-0.azurewebsites.net |
-| Automation Account | Global | aa(DomainPrefix)(ApplicationName or Usage)(Environment)(Region) | kvjmastenwikideveastus or kvjmastenupdatedeveastus |
+| Automation Account | Global | aa(DomainPrefix)(ApplicationName or Usage)(Environment)(Region) | aajmastenwikideveastus or aajmastenupdatedeveastus |
 | Availability Set | Resource Group | as-vm(ApplicationName)(Environment)(Region) | as-vmdcdeveastus |
 | Azure Cache For Redis | Global | redis-(ApplicationName)-(Environment)-(Region) | redis-jmasten-dev-eastus |
 | Azure Cosmos DB (Document Database) | Global | cosdb-(ApplicationName)-(Environment)-(Region) | cosdb-jmasten-dev-eastus |

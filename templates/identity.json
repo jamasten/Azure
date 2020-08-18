@@ -157,7 +157,7 @@
                 },
                 {
                     "comments": "---------- DEPENDENCY AGENT FOR AZURE MONITOR ----------",
-                    "type": "Microsoft.Compute/virtualMachines/extensions",
+                    "type": "extensions",
                     "apiVersion": "2017-03-30",
                     "name": "DependencyAgentWindows",
                     "location": "[resourceGroup().location]",

@@ -35,6 +35,7 @@
 | HDInsight - Hadoop | hdihd- |
 | HDInsight - R server| hdir- |
 | HDInsight - HBase | hdihb- |
+| Host Pool | hp- |
 | Load Balancer | lb- |
 | NIC | nic- |
 | Notification Hub | anh- |
@@ -54,6 +55,7 @@
 | Virtual Machines | vm- |
 | Virtual Network | vnet- |
 | Virtual Network Gateway | vnetgw- |
+| Windows Virtual Destop Workspace | wvdws- |
 
 ## Convention
 
@@ -83,6 +85,7 @@
 | Hdinsight - Hbase | Global | hdihb-(ApplicationName)-(Environment)-(Region) | hdihb-jmasten-dev-eastus |
 | Hdinsight - R Server | Global | hdir-(ApplicationName)-(Environment)-(Region) | hdir-jmasten-dev-eastus |
 | Hdinsight - Spark | Global | hdis-(ApplicationName)-(Environment)-(Region) | hdis-jmasten-dev-eastus |
+| Host Pool (WVD) | hp-(Workload or Group Type)-(Environment)-(Region) | hp-vdi-dev-eastus |
 | Key Vault | Resource Group | kv(DomainPrefix)(ApplicationName or Usage)(Environment)(Region) | kvjmastenwikideveastus or kvjmastenencdeveastus |
 | Load Balancer | Resource Group | lb-(ApplicationName)-(Environment)-(Region)-(Ordinal) | lb-jmasten-dev-eastus-0 |
 | Log Analytics Workspace | Resource Group | law-(ApplicationName)-(Environment)-(Region)-(Ordinal) | law-dev-eastus |
@@ -107,3 +110,4 @@
 | Virtual Network Connections | Resource Group | cn-(Environment)-(Region1)-to-(Environment)-(Region2) | cn-dev-eastus-to-dev-westus |
 | Virtual Network Local Gateway | Virtual Gateway | vnetlgw-(Environment)-(Region) | vnetlgw-dev-eastus |
 | Virtual Network Virtual Gateway | Virtual Network | vnetvgw-(Environment)-(Region) | vnetvgw-dev-eastus |
+| Windows Virtual Desktop Workspace | wvdws-(Environment)-(Region)-(Ordinal) | wvdws-dev-eastus-01 |

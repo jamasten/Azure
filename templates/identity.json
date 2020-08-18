@@ -199,7 +199,7 @@
                             "ResizeOSDisk": false
                         }
                     }
-                },
+                }/*,
                 {
                     "comments": "---------- DSC EXTENSION ----------",
                     "type": "Microsoft.Compute/virtualMachines/extensions",
@@ -243,7 +243,7 @@
                             ]
                         }
                     }
-                }
+                }*/
             ]
         }
     ]

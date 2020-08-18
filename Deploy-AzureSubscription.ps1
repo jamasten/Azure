@@ -39,8 +39,8 @@ $VSE = @{
     DomainPrefixAbbreviation = 'jmasten';
     Environment = 'dev';
     Locations = @('eastus','westus');
-    PerformanceType = 'p';
-    Subnets = $Subnets
+    PerformanceType = 's';
+    Subnets = $Subnets;
     User = $User
 }
 $VSE.Add("VmPassword", $VmPassword) # Secure Strings must use Add Method for proper deserialization

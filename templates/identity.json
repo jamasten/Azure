@@ -115,7 +115,7 @@
                 }
             },
             "resources": [
-                {
+                /*{
                     "comments": "---------- MICROSOFT MONITORING AGENT ----------",
                     "type": "extensions",
                     "name": "MicrosoftMonitoringAgent",
@@ -199,7 +199,7 @@
                             "ResizeOSDisk": false
                         }
                     }
-                }/*,
+                },
                 {
                     "comments": "---------- DSC EXTENSION ----------",
                     "type": "Microsoft.Compute/virtualMachines/extensions",

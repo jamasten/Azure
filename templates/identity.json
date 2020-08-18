@@ -19,7 +19,7 @@
         }
     },
     "variables": {
-        "KeyVaultResourceGroup": "[concat()]",
+        "KeyVaultResourceGroup": "[concat('rg-shared-', parameters('Environment'), '-', resourceGroup().location)]",
         "KeyVaultName": "[concat('kv', parameters('DomainPrefixAbbreviation'), parameters('Environment'), resourceGroup().location)]",
         "KeyVaultResourceID": "[resourceId(variables('KeyVaultResourceGroup'), 'Microsoft.KeyVault/vaults/', variables('KeyVaultName'))]",
         "LogAnalyticsWorkspace": "[concat('law-', parameters('Environment'), '-', resourceGroup().location)]"

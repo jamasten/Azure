@@ -55,7 +55,7 @@
                             "privateIPAllocationMethod": "Static",
                             "privateIPAddress": "10.0.1.4",
                             "subnet": {
-                                "id": "[resourceId(subscription().subscriptionId, concat('rg-network-', parameters('Environment'),'-', resourceGroup().location), 'Microsoft.Network/virtualNetworks/subnets', concat('vnet-', parameters('Environment'), resourceGroup().location), concat('snet-servers-', parameters('Environment'), '-',resourceGroup().location))]"
+                                "id": "[resourceId(subscription().subscriptionId, concat('rg-network-', parameters('Environment'),'-', resourceGroup().location), 'Microsoft.Network/virtualNetworks/subnets', concat('vnet-', parameters('Environment'), '-', resourceGroup().location), concat('snet-servers-', parameters('Environment'), '-',resourceGroup().location))]"
                             }
                         }
                     }

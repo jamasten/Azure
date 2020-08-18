@@ -58,7 +58,7 @@
                 "enableDdosProtection": false,
                 "enableVmProtection": false
             }
-        },
+        }/*,
         {
             "comments": "---------- NETWORK SECURITY GROUPS ----------",
             "type": "Microsoft.Network/networkSecurityGroups",
@@ -70,9 +70,12 @@
                 "name": "nsgLoop",
                 "count": "[length(parameters('Subnets'))]"
             },
+            "dependsOn": [
+                "[concat('vnet-', parameters('Environment'), '-', resourceGroup().location)]"
+            ],
             "properties": {
             },
             "resources": []
-        }
+        }*/
     ]
 }

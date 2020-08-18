@@ -202,7 +202,7 @@
                 },
                 {
                     "comments": "---------- DSC EXTENSION ----------",
-                    "type": "Microsoft.Compute/virtualMachines/extensions",
+                    "type": "extensions",
                     "name": "DSC",
                     "apiVersion": "2018-06-30",
                     "location": "[resourceGroup().location]",

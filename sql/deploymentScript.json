@@ -1,0 +1,49 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "utcValue": {
+            "type": "string",
+            "defaultValue": "[utcNow('yyyyMMddHHmmss')]"
+        },
+        "vmName": {
+            "type": "string",
+            "defaultValue": "vmsqltest"
+        }
+    },
+    "functions": [],
+    "variables": {},
+    "resources": [
+        {
+            "name": "ds-removesqlext",
+            "type": "Microsoft.Resources/deploymentScripts",
+            "apiVersion": "2019-10-01-preview",
+            "identity": {
+                "type": "UserAssigned",
+                "userAssignedIdentities": {
+                    "/subscriptions/5edfe207-eefc-428f-b5fb-1c24bb7ff301/resourceGroups/test/providers/Microsoft.ManagedIdentity/userAssignedIdentities/id-sqtltest" : {}
+                }
+            },
+            "location": "[resourceGroup().location]",
+            "kind": "AzurePowerShell",
+            "tags": {},
+            "properties": {
+                "azPowerShellVersion": "3.0.0",
+                "cleanupPreference": "OnSuccess",
+                "scriptContent": "
+                    param(
+                        [string] [Parameter(Mandatory=$true)] $vmName
+                    )
+
+                    $Rg = (Get-AzResource -Name $vmName -ResourceType Microsoft.Compute/virtualMachines).ResourceGroupName
+                    Remove-AzVMExtension -ResourceGroupName $Rg -VMName $vmName -Name SqlIaasExtension -Force
+                ",
+                "arguments": "[format(' -vmName {0}', parameters('vmName'))]",
+                "forceUpdateTag": "[parameters('utcValue')]",
+                "retentionInterval": "P1D",
+                "timeout": "PT30M"
+            }
+        }
+    ],
+    "outputs": {}
+}

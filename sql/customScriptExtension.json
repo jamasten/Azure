@@ -1,0 +1,38 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "utcValue": {
+            "type": "string",
+            "defaultValue": "[utcNow('yyyyMMddHHmmss')]"
+        },
+        "vmName": {
+            "type": "string",
+            "defaultValue": "vmsqltest"
+        }
+    },
+    "functions": [],
+    "variables": {},
+    "resources": [
+        {
+            "apiVersion": "2018-06-01",
+            "type": "Microsoft.Compute/virtualMachines/extensions",
+            "name": "[concat(parameters('vmName'),'/CustomScriptExtension')]",
+            "location": "[resourceGroup().location]",
+            "dependsOn": [],
+            "tags": {},
+            "properties": {
+                "publisher": "Microsoft.Compute",
+                "type": "CustomScriptExtension",
+                "typeHandlerVersion": "1.10",
+                "autoUpgradeMinorVersion": true,
+                "settings": {
+                    "commandToExecute": "C:\\SQLServerFull\\setup.exe /ACTION=UNINSTALL /QUIET /FEATURES=SQL,AS,IS,MDS,Tools /INSTANCENAME=MSSQLSERVER",
+                    "timestamp": "[parameters('utcValue')]"
+                },
+                "protectedSettings": {}
+            }
+        }
+    ],
+    "outputs": {}
+}

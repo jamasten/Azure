@@ -1,0 +1,71 @@
+{
+    "Application": {
+        "type": "String",
+        "metadata": {
+            "description": "Use 1 - 5 characters for the application abbreviation",
+            "displayName": "Application Abbreviation"
+        }
+    },
+    "Environment": {
+        "type": "String",
+        "metadata": {
+            "description": "Use 1 character for the environment abbreviation",
+            "displayName": "Environment Abbreviation"
+        },
+        "allowedValues": [ 
+            "d",
+            "t",
+            "p"
+        ]
+    },
+    "Location1": {
+        "type": "String",
+        "metadata": {
+            "description": "Use 1 - 3 characters to abbreviate the Azure location (i.e. eus for East US or va for US Gov Virginia).",
+            "displayName": "Location 1 Abbreviation"
+        }
+    },
+    "Location2": {
+        "type": "String",
+        "metadata": {
+            "description": "Use 1 - 3 characters to abbreviate the Azure location (i.e. eus for East US or va for US Gov Virginia).",
+            "displayName": "Location 2 Abbreviation"
+        }
+    },
+    "Tier1": {
+        "type": "String",
+        "metadata": {
+            "description": "Use 1 - 3 characters to abbreviate the application tier.",
+            "displayName": "App Tier 1 Abbreviation"
+        },
+        "allowedValues": [ 
+            "web",
+            "bl",
+            "db"
+        ]
+    },
+    "Tier2": {
+        "type": "String",
+        "metadata": {
+            "description": "Use 1 - 3 characters to abbreviate the application tier.",
+            "displayName": "App Tier 2 Abbreviation"
+        },
+        "allowedValues": [ 
+            "web",
+            "bl",
+            "db"
+        ]
+    },
+    "Tier3": {
+        "type": "String",
+        "metadata": {
+            "description": "Use 1 - 3 characters to abbreviate the application tier.",
+            "displayName": "App Tier 3 Abbreviation"
+        },
+        "allowedValues": [ 
+            "web",
+            "bl",
+            "db"
+        ]
+    }
+}

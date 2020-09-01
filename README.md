@@ -1,3 +1,3 @@
-# Azure Base Infrastructure
+# Azure
 
-This repository provides the subscription based ARM template and linked ARM templates used to build the foundational resources for networking, identity, and security.
+This repository provides all the code to deploy my lab in Azure and utility scripts to manage those resources.

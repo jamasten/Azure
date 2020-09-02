@@ -1,5 +1,5 @@
 {
-    "$schema": "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#",
+    "$schema": "https://schema.management.azure.com/schemas/2018-05-01/$scriptionDeploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
         "DomainPrefixAbbreviation": {
@@ -19,26 +19,26 @@
                 "stage",
                 "test"
             ],
+            "defaultValue": "dev",
             "metadata": {
                 "description": "The operating environment of the resources"
             }
         },
-        "KeyEncryptionKeyURL": {
+        "DisasterRecovery": {
             "type": "string",
             "metadata": {
-                "description": "The KEK URL used for Azure Disk Encrytion"
-            }
+                "description": "Determines if a secondary region is provisioned for high availability."
+            },
+            "allowedValues": [
+                "yes",
+                "no"
+            ],
+            "defaultValue": "no"
         },
         "Locations": {
             "type": "array",
             "metadata": {
                 "description": "Locations for Resource Groups & Resources. The first index is primary location and the second index is the secondary location for business continuity and disaster recovery "
-            }
-        },
-        "Subnets": {
-            "type": "array",
-            "metadata": {
-                "description": "The unique component in each subnet name"
             }
         },
         "PerformanceType": {
@@ -50,6 +50,17 @@
             "metadata": {
                 "description": "The storage account sku"
             }
+        },
+        "ResourceGroups": {
+            "type": "array",
+            "metadata": {
+                "description": "Resource group identifier"
+            },
+            "defaultValue": [
+                "identity",
+                "network",
+                "shared"
+            ]
         },
         "Timestamp": {
             "type": "string",
@@ -78,11 +89,41 @@
     },
     "resources": [
         {
+            "comments": "---------- RESOURCE GROUPS > PRIMARY REGION ----------",
+            "name": "[concat('rg-', parameters('ResourceGroups')[copyIndex()],'-', parameters('Environment'),'-', parameters('Locations')[0])]",
+            "type": "Microsoft.Resources/resourceGroups",
+            "apiVersion": "2019-10-01",
+            "location": "[parameters('Locations')[0]]",
+            "tags": {},
+            "properties": {},
+            "copy": {
+                "name": "rgLoop1",
+                "count": "[length(parameters('ResourceGroups'))]"
+            }
+        },
+        {
+            "comments": "---------- RESOURCE GROUPS > SECONDARY REGION ----------",
+            "condition": "[equals(parameters('DisasterRecovery'),'yes')]",
+            "name": "[concat('rg-', parameters('ResourceGroups')[copyIndex()],'-', parameters('Environment'),'-', parameters('Locations')[1])]",
+            "type": "Microsoft.Resources/resourceGroups",
+            "apiVersion": "2019-10-01",
+            "location": "[parameters('Locations')[1]]",
+            "tags": {},
+            "properties": {},
+            "copy": {
+                "name": "rgLoop2",
+                "count": "[length(parameters('ResourceGroups'))]"
+            }
+        },
+        {
             "comments": "---------- LINKED DEPLOYMENT > NETWORK > PRIMARY REGION ----------",
             "type": "Microsoft.Resources/deployments",
             "name": "[concat('Network_', parameters('User'), '_', parameters('Timestamp'))]",
             "apiVersion": "2019-10-01",
             "tags": {},
+            "dependsOn": [
+                "rgLoop1"
+            ],
             "resourceGroup": "[concat('rg-network-', parameters('Environment'),'-', parameters('Locations')[0])]",
             "properties": {
                 "expressionEvaluationOptions": {
@@ -92,16 +133,13 @@
                 "parameters": {
                     "Environment": {
                         "value": "[parameters('Environment')]"
-                    },
-                    "Subnets": {
-                        "value": "[parameters('Subnets')]"
                     }
                 },
                 "templateLink": {
-                    "uri": "https://raw.githubusercontent.com/jamasten/AzureBaseInfra/master/templates/network.json"
+                    "uri": "https://raw.githubusercontent.com/jamasten/Azure/master/templates/network.json"
                 }
             }
-        },
+        }/*,
         {
             "comments": "---------- LINKED DEPLOYMENT > SHARED > PRIMARY REGION ----------",
             "type": "Microsoft.Resources/deployments",
@@ -123,10 +161,13 @@
                     },
                     "PerformanceType": {
                         "value": "[parameters('PerformanceType')]"
+                    },
+                    "Timestamp": {
+                        "value": "[parameters('Timestamp')]"
                     }
                 },
                 "templateLink": {
-                    "uri": "https://raw.githubusercontent.com/jamasten/AzureBaseInfra/master/templates/shared.json"
+                    "uri": "https://raw.githubusercontent.com/jamasten/Azure/master/templates/shared.json"
                 }
             }
         },
@@ -150,7 +191,7 @@
                     }
                 },
                 "templateLink": {
-                    "uri": "https://raw.githubusercontent.com/jamasten/AzureBaseInfra/master/templates/securitycenter.json"
+                    "uri": "https://raw.githubusercontent.com/jamasten/Azure/master/templates/securitycenter.json"
                 }
             }
         },
@@ -186,10 +227,10 @@
                     }
                 },
                 "templateLink": {
-                    "uri": "https://raw.githubusercontent.com/jamasten/AzureBaseInfra/master/templates/identity.json"
+                    "uri": "https://raw.githubusercontent.com/jamasten/Azure/master/templates/identity.json"
                 }
             }
-        }
+        }*/
     ],
     "outputs": {
     }

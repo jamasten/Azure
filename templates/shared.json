@@ -10,9 +10,144 @@
         },
         "PerformanceType": {
             "type": "string"
+        },
+        "Timestamp": {
+            "type": "string"
+        },
+        "UserObjectId": {
+            "type": "string"
         }
     },
     "resources": [
+        {
+            "type": "Microsoft.ManagedIdentity/userAssignedIdentities",
+            "name": "uami-deploykek",
+            "apiVersion": "2018-11-30",
+            "location": "[resourceGroup().location]"
+        },
+        {
+            "comments": "---------- KEY VAULT ----------",
+            "type": "Microsoft.KeyVault/vaults",
+            "name": "[concat('kv', parameters('DomainPrefixAbbreviation'), parameters('Environment'), resourceGroup().location)]",
+            "apiVersion": "2016-10-01",
+            "location": "[resourceGroup().location]",
+            "tags": {},
+            "dependsOn": [
+                "uami-deploykek"
+            ],
+            "properties": {
+                "tenantId": "[subscription().tenantId]",
+                "sku": {
+                    "family": "A",
+                    "name": "Standard"
+                },
+                "accessPolicies": [
+                    {
+                        "tenantId": "[subscription().tenantId]",
+                        "objectId": "[parameters('UserObjectId')]",
+                        "permissions": {
+                            "keys": [
+                                "encrypt",
+                                "decrypt",
+                                "wrapKey",
+                                "unwrapKey",
+                                "sign",
+                                "verify",
+                                "get",
+                                "list",
+                                "create",
+                                "update",
+                                "import",
+                                "delete",
+                                "backup",
+                                "restore",
+                                "recover",
+                                "purge"
+                            ],
+                            "secrets": [
+                                "get",
+                                "list",
+                                "set",
+                                "delete",
+                                "backup",
+                                "restore",
+                                "recover",
+                                "purge"
+                            ]
+                        }
+                    },
+                    {
+                        "tenantId": "[subscription().tenantId]",
+                        "objectId": "[reference('uami-deploykek')]",
+                        "permissions": {
+                            "keys": [
+                                "encrypt",
+                                "decrypt",
+                                "wrapKey",
+                                "unwrapKey",
+                                "sign",
+                                "verify",
+                                "get",
+                                "list",
+                                "create",
+                                "update",
+                                "import",
+                                "delete",
+                                "backup",
+                                "restore",
+                                "recover",
+                                "purge"
+                            ],
+                            "secrets": [
+                                "get",
+                                "list",
+                                "set",
+                                "delete",
+                                "backup",
+                                "restore",
+                                "recover",
+                                "purge"
+                            ]
+                        }
+                    }
+                ],
+                "enabledForDeployment": true,
+                "enabledForTemplateDeployment": true,
+                "enabledForDiskEncryption": true
+            }
+        },
+        {
+            "comments": "---------- KEY VAULT > KEY ENCRYPTION KEY ----------",
+            "name": "ds-diskencryptionkek",
+            "type": "Microsoft.Resources/deploymentScripts",
+            "apiVersion": "2019-10-01-preview",
+            "identity": {
+                "type": "UserAssigned",
+                "userAssignedIdentities": {
+                    "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities','uami-deploykek')]" : {}
+                }
+            },
+            "location": "[resourceGroup().location]",
+            "kind": "AzurePowerShell",
+            "tags": {},
+            "properties": {
+                "azPowerShellVersion": "3.0.0",
+                "cleanupPreference": "OnSuccess",
+                "scriptContent": "
+                    param(
+                        [string] [Parameter(Mandatory=$true)] $KeyVault
+                    )
+
+                    Add-AzKeyVaultKey -Name DiskEncryption -VaultName $KeyVault -Destination Software
+
+                    $KeyEncryptionKeyURL = (Get-AzKeyVaultKey -VaultName $KeyVault -Name 'DiskEncryption' -IncludeVersions | Where-Object {$_.Enabled -eq $true}).Id
+                ",
+                "arguments": "[format(' -KeyVault {0}', concat('kv', parameters('DomainPrefixAbbreviation'), parameters('Environment'), resourceGroup().location))]",
+                "forceUpdateTag": "[parameters('Timestamp')]",
+                "retentionInterval": "P1D",
+                "timeout": "PT30M"
+            }
+        },
         {
             "comments": "---------- STORAGE ACCOUNT ----------",
             "type": "Microsoft.Storage/storageAccounts",
@@ -83,5 +218,8 @@
                 "publicNetworkAccessForQuery": "Enabled"
             }
         }
-    ]
+    ],
+    "outputs": {
+        
+    }
 }

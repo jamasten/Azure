@@ -4,9 +4,6 @@
     "parameters": {
         "Environment": {
             "type": "string"
-        },
-        "Subnets": {
-            "type": "array"
         }
     },
     "resources": [
@@ -25,6 +22,9 @@
             "apiVersion": "2018-08-01",
             "location": "[resourceGroup().location]",
             "tags": {},
+            "dependsOn": [
+                "[concat('nw-', parameters('Environment'), '-', resourceGroup().location)]"
+            ],
             "properties": {
                 "addressSpace": {
                     "addressPrefixes": [
@@ -36,20 +36,32 @@
                         "10.0.1.4"
                     ]
                 },
-                "copy": [
+                "subnets": [
                     {
-                        "name": "subnets",
-                        "count": "[length(parameters('Subnets'))]",
-                        "mode": "Serial",
-                        "batchSize": 1,
-                        "input": {
-                            "name": "[concat('snet-', parameters('Subnets')[copyIndex('subnets')].Name,'-', parameters('Environment'), '-', resourceGroup().location)]",
-                            "properties": {
-                                "addressPrefix": "[parameters('Subnets')[copyindex('subnets')].AddressPrefix]",
-                                "delegations": [],
-                                "privateEndpointNetworkPolicies": "Enabled",
-                                "privateLinkServiceNetworkPolicies": "Enabled"
-                            }
+                        "name": "[concat('snet-shared-', parameters('Environment'), '-', resourceGroup().location)]",
+                        "properties": {
+                            "addressPrefix": "10.0.0.0/24",
+                            "delegations": [],
+                            "privateEndpointNetworkPolicies": "Enabled",
+                            "privateLinkServiceNetworkPolicies": "Enabled"
+                        }
+                    },
+                    {
+                        "name": "[concat('snet-servers-', parameters('Environment'), '-', resourceGroup().location)]",
+                        "properties": {
+                            "addressPrefix": "10.0.1.0/24",
+                            "delegations": [],
+                            "privateEndpointNetworkPolicies": "Enabled",
+                            "privateLinkServiceNetworkPolicies": "Enabled"
+                        }
+                    },
+                    {
+                        "name": "[concat('snet-wvd-', parameters('Environment'), '-', resourceGroup().location)]",
+                        "properties": {
+                            "addressPrefix": "10.0.2.0/24",
+                            "delegations": [],
+                            "privateEndpointNetworkPolicies": "Enabled",
+                            "privateLinkServiceNetworkPolicies": "Enabled"
                         }
                     }
                 ],
@@ -58,24 +70,6 @@
                 "enableDdosProtection": false,
                 "enableVmProtection": false
             }
-        }/*,
-        {
-            "comments": "---------- NETWORK SECURITY GROUPS ----------",
-            "type": "Microsoft.Network/networkSecurityGroups",
-            "name": "[concat('nsg-', parameters('Subnets')[copyIndex()], '-', parameters('Environment'), '-', resourceGroup().location)]",
-            "apiVersion": "2020-04-01",
-            "location": "[resourceGroup().location]",
-            "tags": {},
-            "copy": {
-                "name": "nsgLoop",
-                "count": "[length(parameters('Subnets'))]"
-            },
-            "dependsOn": [
-                "[concat('vnet-', parameters('Environment'), '-', resourceGroup().location)]"
-            ],
-            "properties": {
-            },
-            "resources": []
-        }*/
+        }
     ]
 }

@@ -116,14 +116,43 @@
             }
         },
         {
+            "comments": "---------- LINKED DEPLOYMENT > USER ASSIGNED MANAGED IDENTITY ----------",
+            "type": "Microsoft.Resources/deployments",
+            "name": "[concat('ManagedId_', parameters('User'), '_', parameters('Timestamp'))]",
+            "apiVersion": "2019-10-01",
+            "tags": {},
+            "dependsOn": ["rgLoop1"],
+            "resourceGroup": "[concat('rg-shared-', parameters('Environment'),'-', parameters('Locations')[0])]",
+            "properties": {
+                "expressionEvaluationOptions": {
+                    "scope": "inner"
+                },
+                "mode": "Incremental",
+                "parameters": {},
+                "templateLink": {
+                    "uri": "https://raw.githubusercontent.com/jamasten/Azure/master/templates/userassignedmanagedidentity.json"
+                }
+            }
+        },
+        {
+            "comments": "---------- ROLE ASSIGNMENT > USER ASSIGNED MANAGED IDENTITY > Sub Contributor ----------",
+            "type": "Microsoft.Authorization/roleAssignments",
+            "apiVersion": "2017-09-01",
+            "name": "6d4da268-fb61-412b-91d8-8e33227b4e5a",
+            "dependsOn": ["[concat('ManagedId_', parameters('User'), '_', parameters('Timestamp'))]"],
+            "properties": {
+                "roleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', 'b24988ac-6180-42a0-ab88-20f7382dd24c')]",
+                "principalId": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', 'uami-deploykek'), '2018-11-30', 'Full').properties.principalId]",
+                "scope": "[subscription().id]"
+            }
+        },
+        {
             "comments": "---------- LINKED DEPLOYMENT > NETWORK > PRIMARY REGION ----------",
             "type": "Microsoft.Resources/deployments",
             "name": "[concat('Network_', parameters('User'), '_', parameters('Timestamp'))]",
             "apiVersion": "2019-10-01",
             "tags": {},
-            "dependsOn": [
-                "rgLoop1"
-            ],
+            "dependsOn": ["rgLoop1","uami-deploykek","6d4da268-fb61-412b-91d8-8e33227b4e5a"],
             "resourceGroup": "[concat('rg-network-', parameters('Environment'),'-', parameters('Locations')[0])]",
             "properties": {
                 "expressionEvaluationOptions": {

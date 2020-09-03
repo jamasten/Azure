@@ -20,50 +20,13 @@
     },
     "resources": [
         {
-            "comments": "---------- USER ASSIGNED MANAGED IDENTITY ----------",
-            "type": "Microsoft.ManagedIdentity/userAssignedIdentities",
-            "name": "uami-deploykek",
-            "apiVersion": "2018-11-30",
-            "location": "[resourceGroup().location]"
-        },
-        {
-            "comments": "---------- ROLE ASSIGNMENT > USER ASSIGNED MANAGED IDENTITY > RG Reader ----------",
-            "type": "Microsoft.Authorization/roleAssignments",
-            "apiVersion": "2017-09-01",
-            "name": "a89e7c82-7fdc-449b-bf44-98de0f23e83c",
-            "dependsOn": [
-                "uami-deploykek"
-            ],
-            "properties": {
-                "roleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', 'acdd72a7-3385-48ef-bd42-f606fba81ae7')]",
-                "principalId": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', 'uami-deploykek'), '2018-11-30', 'Full').properties.principalId]",
-                "scope": "[resourceGroup().id]"
-            }
-        },
-        {
-            "comments": "---------- ROLE ASSIGNMENT > USER ASSIGNED MANAGED IDENTITY > Sub Contributor ----------",
-            "type": "Microsoft.Authorization/roleAssignments",
-            "apiVersion": "2017-09-01",
-            "name": "6d4da268-fb61-412b-91d8-8e33227b4e5a",
-            "dependsOn": [
-                "uami-deploykek"
-            ],
-            "properties": {
-                "roleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', 'b24988ac-6180-42a0-ab88-20f7382dd24c')]",
-                "principalId": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', 'uami-deploykek'), '2018-11-30', 'Full').properties.principalId]",
-                "scope": "[subscription().id]"
-            }
-        },
-        {
             "comments": "---------- KEY VAULT ----------",
             "type": "Microsoft.KeyVault/vaults",
             "name": "[concat('kv', parameters('DomainPrefixAbbreviation'), parameters('Environment'), resourceGroup().location)]",
             "apiVersion": "2016-10-01",
             "location": "[resourceGroup().location]",
             "tags": {},
-            "dependsOn": [
-                "uami-deploykek"
-            ],
+            "dependsOn": [],
             "properties": {
                 "tenantId": "[subscription().tenantId]",
                 "sku": {
@@ -160,7 +123,8 @@
             "kind": "AzurePowerShell",
             "tags": {},
             "dependsOn": [
-                "[concat('kv', parameters('DomainPrefixAbbreviation'), parameters('Environment'), resourceGroup().location)]"
+                "[concat('kv', parameters('DomainPrefixAbbreviation'), parameters('Environment'), resourceGroup().location)]",
+                
             ],
             "properties": {
                 "azPowerShellVersion": "3.0.0",

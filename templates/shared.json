@@ -78,7 +78,7 @@
                     },
                     {
                         "tenantId": "[subscription().tenantId]",
-                        "objectId": "[reference('uami-deploykek')]",
+                        "objectId": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', 'uami-deploykek'), '2018-11-30', 'Full').properties.principalId]",
                         "permissions": {
                             "keys": [
                                 "encrypt",
@@ -124,12 +124,15 @@
             "identity": {
                 "type": "UserAssigned",
                 "userAssignedIdentities": {
-                    "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities','uami-deploykek')]" : {}
+                    "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities','uami-deploykek')]": {}
                 }
             },
             "location": "[resourceGroup().location]",
             "kind": "AzurePowerShell",
             "tags": {},
+            "dependsOn": [
+                "[concat('kv', parameters('DomainPrefixAbbreviation'), parameters('Environment'), resourceGroup().location)]"
+            ],
             "properties": {
                 "azPowerShellVersion": "3.0.0",
                 "cleanupPreference": "OnSuccess",
@@ -141,11 +144,30 @@
                     Add-AzKeyVaultKey -Name DiskEncryption -VaultName $KeyVault -Destination Software
 
                     $KeyEncryptionKeyURL = (Get-AzKeyVaultKey -VaultName $KeyVault -Name 'DiskEncryption' -IncludeVersions | Where-Object {$_.Enabled -eq $true}).Id
+                
+                    Write-Output $KeyEncryptionKeyURL
+
+                    $DeploymentScriptOutputs = @{}
+            
+                    $DeploymentScriptOutputs['text'] = $KeyEncryptionKeyURL 
                 ",
                 "arguments": "[format(' -KeyVault {0}', concat('kv', parameters('DomainPrefixAbbreviation'), parameters('Environment'), resourceGroup().location))]",
                 "forceUpdateTag": "[parameters('Timestamp')]",
                 "retentionInterval": "P1D",
                 "timeout": "PT30M"
+            }
+        },
+        {
+            "comments": "---------- KEY VAULT > SECRET > KEK URL ----------",
+            "type": "Microsoft.KeyVault/vaults/secrets",
+            "apiVersion": "2016-10-01",
+            "name": "DiskEncryptionKekUrl",
+            "tags": {},
+            "dependsOn": [
+                "ds-diskencryptionkek"
+            ],
+            "properties": {
+                "value": "[reference('ds-diskencryptionkek').outputs.text]"
             }
         },
         {
@@ -220,6 +242,6 @@
         }
     ],
     "outputs": {
-        
+
     }
 }

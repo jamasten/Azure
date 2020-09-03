@@ -164,6 +164,9 @@
                     },
                     "Timestamp": {
                         "value": "[parameters('Timestamp')]"
+                    },
+                    "User": {
+                        "value": "[parameters('User')]"
                     }
                 },
                 "templateLink": {

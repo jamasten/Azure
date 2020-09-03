@@ -14,7 +14,7 @@
         "Timestamp": {
             "type": "string"
         },
-        "UserObjectId": {
+        "User": {
             "type": "string"
         }
     },
@@ -44,7 +44,7 @@
                 "accessPolicies": [
                     {
                         "tenantId": "[subscription().tenantId]",
-                        "objectId": "[parameters('UserObjectId')]",
+                        "objectId": "[parameters('User')]",
                         "permissions": {
                             "keys": [
                                 "encrypt",

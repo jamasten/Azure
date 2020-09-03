@@ -44,7 +44,7 @@
             "comments": "---------- ROLE ASSIGNMENT > USER ASSIGNED MANAGED IDENTITY > Sub Contributor ----------",
             "type": "Microsoft.Authorization/roleAssignments",
             "apiVersion": "2017-09-01",
-            "name": "a89e7c82-7fdc-449b-bf44-98de0f23e83c",
+            "name": "6d4da268-fb61-412b-91d8-8e33227b4e5a",
             "dependsOn": [
                 "uami-deploykek"
             ],

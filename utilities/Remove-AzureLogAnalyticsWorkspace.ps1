@@ -1,0 +1,1 @@
+﻿Remove-AzOperationalInsightsWorkspace -ResourceGroupName rg-shared-dev-eastus -Name law-dev-eastus -ForceDelete -Force

@@ -26,6 +26,16 @@
             "location": "[resourceGroup().location]"
         },
         {
+            "type": "Microsoft.Authorization/roleAssignments",
+            "apiVersion": "2017-09-01",
+            "name": "a89e7c82-7fdc-449b-bf44-98de0f23e83c",
+            "properties": {
+                "roleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', 'acdd72a7-3385-48ef-bd42-f606fba81ae7')]",
+                "principalId": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', 'uami-deploykek'), '2018-11-30', 'Full').properties.principalId]",
+                "scope": "[resourceGroup().id]"
+            }
+        },
+        {
             "comments": "---------- KEY VAULT ----------",
             "type": "Microsoft.KeyVault/vaults",
             "name": "[concat('kv', parameters('DomainPrefixAbbreviation'), parameters('Environment'), resourceGroup().location)]",
@@ -225,7 +235,7 @@
             "comments": "---------- LOG ANALYTICS ----------",
             "type": "Microsoft.OperationalInsights/workspaces",
             "apiVersion": "2020-03-01-preview",
-            "name": "[concat('law-', parameters('Environment'), '-', resourceGroup().location)]",
+            "name": "[concat('law-', parameters('Environment'), '-', resourceGroup().location, '-01')]",
             "location": "[resourceGroup().location]",
             "tags": {},
             "properties": {

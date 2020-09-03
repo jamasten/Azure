@@ -161,7 +161,7 @@
             "comments": "---------- KEY VAULT > SECRET > KEK URL ----------",
             "type": "Microsoft.KeyVault/vaults/secrets",
             "apiVersion": "2016-10-01",
-            "name": "DiskEncryptionKekUrl",
+            "name": "[concat('kv', parameters('DomainPrefixAbbreviation'), parameters('Environment'), resourceGroup().location, '/DiskEncryptionKekUrl')]",
             "tags": {},
             "dependsOn": [
                 "ds-diskencryptionkek"

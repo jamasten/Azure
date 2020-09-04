@@ -53,7 +53,7 @@
             "apiVersion": "2018-06-01",
             "name": "StorageAccounts",
             "dependsOn": [
-                "[concat('Microsoft.Security/pricings/SqlServerVirtualMachines')]"
+                "VirtualMachines"
             ],
             "properties": {
                 "pricingTier": "Standard"
@@ -64,7 +64,7 @@
             "apiVersion": "2018-06-01",
             "name": "KeyVaults",
             "dependsOn": [
-                "[concat('Microsoft.Security/pricings/ContainerRegistry')]"
+                "StorageAccounts"
             ],
             "properties": {
                 "pricingTier": "Standard"

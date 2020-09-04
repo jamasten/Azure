@@ -52,7 +52,10 @@ if(!(Get-AzContext | Where-Object {$_.Subscription.Id -eq $SubscriptionId}))
 #############################################################
 # Variables
 #############################################################
-$User = (Get-AzADUser | Where-Object {$_.UserPrincipalName -like "$((Get-AzContext).Account.Id.Split('@')[0])*"}).Id
+$UserObjectId = (Get-AzADUser | Where-Object {$_.UserPrincipalName -like "$((Get-AzContext).Account.Id.Split('@')[0])*"}).Id
+$Context = Get-AzContext
+$Username = $Context.Account.Id.Split('@')[0]
+$Email = $Context.Account.Id
 $TimeStamp = Get-Date -F 'yyyyMMddhhmmss'
 $Name =  $User + '_' + $TimeStamp
 $VmUsername = Read-Host -Prompt 'Enter Virtual Machine Username' -AsSecureString
@@ -62,7 +65,9 @@ $VSE = @{
     Environment = $Environment;
     Locations = @($LocationPrimary, $LocationSecondary);
     PerformanceType = $PerformanceType;
-    User = $User
+    SecurityDistributionGroup = $Email
+    UserObjectId = $UserObjectId
+    Username = $Username
 }
 $VSE.Add("VmPassword", $VmPassword) # Secure Strings must use Add Method for proper deserialization
 $VSE.Add("VmUsername", $VmUsername) # Secure Strings must use Add Method for proper deserialization

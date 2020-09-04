@@ -62,14 +62,26 @@
                 "shared"
             ]
         },
+        "SecurityDistributionGroup": {
+            "type": "string",
+            "metadata": {
+                "description": "Email address to recieve Security Center notifications"
+            }
+        },
         "Timestamp": {
             "type": "string",
             "defaultValue": "[utcNow()]"
         },
-        "User": {
+        "UserObjectId": {
             "type": "string",
             "metadata": {
-                "description": "The username of the user principal that triggered the deployment"
+                "description": "The Azure AD Object ID for the User Principal"
+            }
+        },
+        "Username": {
+            "type": "string",
+            "metadata": {
+                "description": "The username portion of the UPN for the principal deploying the script"
             }
         },
         "VmPassword": {
@@ -118,7 +130,7 @@
         {
             "comments": "---------- LINKED DEPLOYMENT > USER ASSIGNED MANAGED IDENTITY ----------",
             "type": "Microsoft.Resources/deployments",
-            "name": "[concat('ManagedId_', parameters('User'), '_', parameters('Timestamp'))]",
+            "name": "[concat('ManagedId_', parameters('Username'), '_', parameters('Timestamp'))]",
             "apiVersion": "2019-10-01",
             "tags": {},
             "dependsOn": ["rgLoop1"],
@@ -139,7 +151,7 @@
             "type": "Microsoft.Authorization/roleAssignments",
             "apiVersion": "2017-09-01",
             "name": "6d4da268-fb61-412b-91d8-8e33227b4e5a",
-            "dependsOn": ["[concat('ManagedId_', parameters('User'), '_', parameters('Timestamp'))]"],
+            "dependsOn": ["[concat('ManagedId_', parameters('Username'), '_', parameters('Timestamp'))]"],
             "properties": {
                 "roleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', 'b24988ac-6180-42a0-ab88-20f7382dd24c')]",
                 "principalId": "[reference(concat(subscription().id, '/resourceGroups/rg-shared-', parameters('Environment'), '-', parameters('Locations')[0], '/providers/Microsoft.ManagedIdentity/userAssignedIdentities/uami-deploykek'), '2018-11-30', 'Full').properties.principalId]",
@@ -149,7 +161,7 @@
         {
             "comments": "---------- LINKED DEPLOYMENT > NETWORK > PRIMARY REGION ----------",
             "type": "Microsoft.Resources/deployments",
-            "name": "[concat('Network_', parameters('User'), '_', parameters('Timestamp'))]",
+            "name": "[concat('Network_', parameters('Username'), '_', parameters('Timestamp'))]",
             "apiVersion": "2019-10-01",
             "tags": {},
             "dependsOn": ["rgLoop1"],
@@ -172,12 +184,12 @@
         {
             "comments": "---------- LINKED DEPLOYMENT > SHARED > PRIMARY REGION ----------",
             "type": "Microsoft.Resources/deployments",
-            "name": "[concat('Shared_', parameters('User'), '_', parameters('Timestamp'))]",
+            "name": "[concat('Shared_', parameters('Username'), '_', parameters('Timestamp'))]",
             "apiVersion": "2019-10-01",
             "tags": {},
             "dependsOn": [
                 "rgLoop1",
-                "[concat('ManagedId_', parameters('User'), '_', parameters('Timestamp'))]",
+                "[concat('ManagedId_', parameters('Username'), '_', parameters('Timestamp'))]",
                 "6d4da268-fb61-412b-91d8-8e33227b4e5a"
             ],
             "resourceGroup": "[concat('rg-shared-', parameters('Environment'),'-', parameters('Locations')[0])]",
@@ -199,8 +211,8 @@
                     "Timestamp": {
                         "value": "[parameters('Timestamp')]"
                     },
-                    "User": {
-                        "value": "[parameters('User')]"
+                    "UserObjectId": {
+                        "value": "[parameters('UserObjectId')]"
                     }
                 },
                 "templateLink": {
@@ -211,10 +223,10 @@
         {
             "comments": "---------- LINKED DEPLOYMENT > SECURITY CENTER ----------",
             "type": "Microsoft.Resources/deployments",
-            "name": "[concat('SecurityCenter_', parameters('User'), '_', parameters('Timestamp'))]",
+            "name": "[concat('SecurityCenter_', parameters('Username'), '_', parameters('Timestamp'))]",
             "apiVersion": "2019-10-01",
             "dependsOn": [
-                "[concat('Network_', parameters('User'), '_', parameters('Timestamp'))]"
+                "[concat('Network_', parameters('Username'), '_', parameters('Timestamp'))]"
             ],
             "resourceGroup": "[concat('rg-shared-', parameters('Environment'),'-', parameters('Locations')[0])]",
             "properties": {
@@ -223,8 +235,14 @@
                 },
                 "mode": "Incremental",
                 "parameters": {
+                    "Environment": {
+                        "value": "[parameters('Environment')]"
+                    },
                     "Location": {
                         "value": "[parameters('Locations')[0]]"
+                    },
+                    "SecurityDistributionGroup": {
+                        "value": "[parameters('SecurityDistributionGroup')]"
                     }
                 },
                 "templateLink": {
@@ -235,10 +253,10 @@
         {
             "comments": "---------- LINKED DEPLOYMENT > IDENTITY > PRIMARY REGION ----------",
             "type": "Microsoft.Resources/deployments",
-            "name": "[concat('Identity_', parameters('User'), '_', parameters('Timestamp'))]",
+            "name": "[concat('Identity_', parameters('Username'), '_', parameters('Timestamp'))]",
             "apiVersion": "2019-10-01",
             "dependsOn": [
-                "[concat('Network_', parameters('User'), '_', parameters('Timestamp'))]"
+                "[concat('Network_', parameters('Username'), '_', parameters('Timestamp'))]"
             ],
             "resourceGroup": "[concat('rg-identity-', parameters('Environment'),'-', parameters('Locations')[0])]",
             "properties": {

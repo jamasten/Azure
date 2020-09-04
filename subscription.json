@@ -207,7 +207,7 @@
                     "uri": "https://raw.githubusercontent.com/jamasten/Azure/master/templates/shared.json"
                 }
             }
-        }/*,
+        },
         {
             "comments": "---------- LINKED DEPLOYMENT > SECURITY CENTER ----------",
             "type": "Microsoft.Resources/deployments",
@@ -231,7 +231,7 @@
                     "uri": "https://raw.githubusercontent.com/jamasten/Azure/master/templates/securitycenter.json"
                 }
             }
-        },
+        }/*,
         {
             "comments": "---------- LINKED DEPLOYMENT > IDENTITY > PRIMARY REGION ----------",
             "type": "Microsoft.Resources/deployments",

@@ -152,7 +152,7 @@
             "name": "[concat('Network_', parameters('User'), '_', parameters('Timestamp'))]",
             "apiVersion": "2019-10-01",
             "tags": {},
-            "dependsOn": ["rgLoop1","uami-deploykek","6d4da268-fb61-412b-91d8-8e33227b4e5a"],
+            "dependsOn": ["rgLoop1"],
             "resourceGroup": "[concat('rg-network-', parameters('Environment'),'-', parameters('Locations')[0])]",
             "properties": {
                 "expressionEvaluationOptions": {
@@ -175,6 +175,7 @@
             "name": "[concat('Shared_', parameters('User'), '_', parameters('Timestamp'))]",
             "apiVersion": "2019-10-01",
             "tags": {},
+            "dependsOn": ["rgLoop1","uami-deploykek","6d4da268-fb61-412b-91d8-8e33227b4e5a"],
             "resourceGroup": "[concat('rg-shared-', parameters('Environment'),'-', parameters('Locations')[0])]",
             "properties": {
                 "expressionEvaluationOptions": {

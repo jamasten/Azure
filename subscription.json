@@ -226,7 +226,7 @@
             "name": "[concat('SecurityCenter_', parameters('Username'), '_', parameters('Timestamp'))]",
             "apiVersion": "2019-10-01",
             "dependsOn": [
-                "[concat('Network_', parameters('Username'), '_', parameters('Timestamp'))]"
+                "[concat('Shared_', parameters('Username'), '_', parameters('Timestamp'))]"
             ],
             "resourceGroup": "[concat('rg-shared-', parameters('Environment'),'-', parameters('Locations')[0])]",
             "properties": {

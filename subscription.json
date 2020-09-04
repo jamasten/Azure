@@ -142,7 +142,7 @@
             "dependsOn": ["[concat('ManagedId_', parameters('User'), '_', parameters('Timestamp'))]"],
             "properties": {
                 "roleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', 'b24988ac-6180-42a0-ab88-20f7382dd24c')]",
-                "principalId": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', 'uami-deploykek'), '2018-11-30', 'Full').properties.principalId]",
+                "principalId": "[reference(concat(subscription().id, 'resourceGroups/rg-shared-', parameters('Environment'), '-', parameters('Locations')[0], '/providers/Microsoft.ManagedIdentity/userAssignedIdentities/uami-deploykek'), '2018-11-30', 'Full').properties.principalId]",
                 "scope": "[subscription().id]"
             }
         },

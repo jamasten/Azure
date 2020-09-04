@@ -21,7 +21,7 @@
                 "scope": "[subscription().id]",
                 "workspaceId": "[concat(subscription().id,'/resourceGroups/', concat('rg-shared-', parameters('Environment'),'-', parameters('Location')), '/providers/Microsoft.OperationalInsights/workspaces/', concat('law-', parameters('Environment'), '-', parameters('Location')))]"
             }
-        },
+        }/*,
         {
             "type": "Microsoft.Security/autoProvisioningSettings",
             "apiVersion": "2017-08-01-preview",
@@ -79,7 +79,7 @@
             "name": "WDATP",
             "type": "Microsoft.Security/settings",
             "apiVersion": "2019-01-01"
-        }
+        }*/
     ],
     "outputs": {
     }

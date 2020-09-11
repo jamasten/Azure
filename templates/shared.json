@@ -8,6 +8,18 @@
         "Environment": {
             "type": "string"
         },
+        "Modules": {
+            "type": "array",
+            "metadata": {
+                "description": "Automation modules needed to support DSC configurations"
+            },
+            "defaultValue": [
+                "xActiveDirectory",
+                "xNetworking",
+                "xPendingReboot",
+                "xStorage"
+            ]
+        },
         "PerformanceType": {
             "type": "string"
         },
@@ -124,7 +136,7 @@
             "tags": {},
             "dependsOn": [
                 "[concat('kv', parameters('DomainAbbreviation'), parameters('Environment'), resourceGroup().location)]",
-                
+
             ],
             "properties": {
                 "azPowerShellVersion": "3.0.0",
@@ -215,7 +227,24 @@
                 "sku": {
                     "name": "Free"
                 }
-            }
+            },
+            "resources": [
+                {
+                    "type": "Microsoft.Automation/automationAccounts/modules",
+                    "apiVersion": "2015-10-31",
+                    "name": "[concat('aa', parameters('DomainAbbreviation'), parameters('Environment'), resourceGroup().location, '/', parameters('Modules')[copyIndex()])]",
+                    "dependsOn": [
+                        "[resourceId('Microsoft.Automation/automationAccounts', concat('aa', parameters('DomainAbbreviation'), parameters('Environment'), resourceGroup().location))]"
+                    ],
+                    "copy": {
+                        "name": "modulesLoop",
+                        "count": "[length(parameters('Modules'))]"
+                    },
+                    "properties": {
+                        "contentLink": {}
+                    }
+                }
+            ]
         },
         {
             "comments": "---------- LOG ANALYTICS ----------",

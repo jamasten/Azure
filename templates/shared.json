@@ -227,24 +227,22 @@
                 "sku": {
                     "name": "Free"
                 }
+            }
+        },
+        {
+            "type": "Microsoft.Automation/automationAccounts/modules",
+            "apiVersion": "2015-10-31",
+            "name": "[concat('aa', parameters('DomainAbbreviation'), parameters('Environment'), resourceGroup().location, '/', parameters('Modules')[copyIndex()])]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Automation/automationAccounts', concat('aa', parameters('DomainAbbreviation'), parameters('Environment'), resourceGroup().location))]"
+            ],
+            "copy": {
+                "name": "modulesLoop",
+                "count": "[length(parameters('Modules'))]"
             },
-            "resources": [
-                {
-                    "type": "Microsoft.Automation/automationAccounts/modules",
-                    "apiVersion": "2015-10-31",
-                    "name": "[concat('aa', parameters('DomainAbbreviation'), parameters('Environment'), resourceGroup().location, '/', parameters('Modules')[copyIndex()])]",
-                    "dependsOn": [
-                        "[resourceId('Microsoft.Automation/automationAccounts', concat('aa', parameters('DomainAbbreviation'), parameters('Environment'), resourceGroup().location))]"
-                    ],
-                    "copy": {
-                        "name": "modulesLoop",
-                        "count": "[length(parameters('Modules'))]"
-                    },
-                    "properties": {
-                        "contentLink": {}
-                    }
-                }
-            ]
+            "properties": {
+                "contentLink": {}
+            }
         },
         {
             "comments": "---------- LOG ANALYTICS ----------",

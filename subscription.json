@@ -97,8 +97,7 @@
             }
         }
     },
-    "variables": {
-    },
+    "variables": {},
     "resources": [
         {
             "comments": "---------- RESOURCE GROUPS > PRIMARY REGION ----------",
@@ -133,7 +132,9 @@
             "name": "[concat('ManagedId_', parameters('Username'), '_', parameters('Timestamp'))]",
             "apiVersion": "2019-10-01",
             "tags": {},
-            "dependsOn": ["rgLoop1"],
+            "dependsOn": [
+                "rgLoop1"
+            ],
             "resourceGroup": "[concat('rg-shared-', parameters('Environment'),'-', parameters('Locations')[0])]",
             "properties": {
                 "expressionEvaluationOptions": {
@@ -151,7 +152,9 @@
             "type": "Microsoft.Authorization/roleAssignments",
             "apiVersion": "2017-09-01",
             "name": "6d4da268-fb61-412b-91d8-8e33227b4e5a",
-            "dependsOn": ["[concat('ManagedId_', parameters('Username'), '_', parameters('Timestamp'))]"],
+            "dependsOn": [
+                "[concat('ManagedId_', parameters('Username'), '_', parameters('Timestamp'))]"
+            ],
             "properties": {
                 "roleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', 'b24988ac-6180-42a0-ab88-20f7382dd24c')]",
                 "principalId": "[reference(concat(subscription().id, '/resourceGroups/rg-shared-', parameters('Environment'), '-', parameters('Locations')[0], '/providers/Microsoft.ManagedIdentity/userAssignedIdentities/uami-deploykek'), '2018-11-30', 'Full').properties.principalId]",
@@ -164,7 +167,9 @@
             "name": "[concat('Network_', parameters('Username'), '_', parameters('Timestamp'))]",
             "apiVersion": "2019-10-01",
             "tags": {},
-            "dependsOn": ["rgLoop1"],
+            "dependsOn": [
+                "rgLoop1"
+            ],
             "resourceGroup": "[concat('rg-network-', parameters('Environment'),'-', parameters('Locations')[0])]",
             "properties": {
                 "expressionEvaluationOptions": {
@@ -219,7 +224,7 @@
                     "uri": "https://raw.githubusercontent.com/jamasten/Azure/master/templates/shared.json"
                 }
             }
-        },
+        }, /*
         {
             "comments": "---------- LINKED DEPLOYMENT > SECURITY CENTER ----------",
             "type": "Microsoft.Resources/deployments",
@@ -249,7 +254,7 @@
                     "uri": "https://raw.githubusercontent.com/jamasten/Azure/master/templates/securitycenter.json"
                 }
             }
-        }/*,
+        },*/
         {
             "comments": "---------- LINKED DEPLOYMENT > IDENTITY > PRIMARY REGION ----------",
             "type": "Microsoft.Resources/deployments",
@@ -272,7 +277,12 @@
                         "value": "[parameters('Environment')]"
                     },
                     "KeyEncryptionKeyURL": {
-                        "value": "[parameters('KeyEncryptionKeyURL')]"
+                        "reference": {
+                            "keyVault": {
+                                "id": "[concat(subscription().id, '/resourceGroups/', 'rg-shared-', parameters('Environment'),'-', parameters('Locations')[0],'/providers/Microsoft.KeyVault/vaults/', 'kv', parameters('DomainAbbreviation'), parameters('Environment'), parameters('Locations')[0])]"
+                            },
+                            "secretName": "DiskEncryptionKekUrl"
+                        }
                     },
                     "VmPassword": {
                         "value": "[parameters('VmPassword')]"
@@ -285,8 +295,7 @@
                     "uri": "https://raw.githubusercontent.com/jamasten/Azure/master/templates/identity.json"
                 }
             }
-        }*/
+        }
     ],
-    "outputs": {
-    }
+    "outputs": {}
 }

@@ -162,6 +162,7 @@
                     "name": "DependencyAgentWindows",
                     "location": "[resourceGroup().location]",
                     "dependsOn": [
+                        "[concat('vmdc', parameters('Environment'), resourceGroup().location, '0')]"
                     ],
                     "properties": {
                         "publisher": "Microsoft.Azure.Monitoring.DependencyAgent",

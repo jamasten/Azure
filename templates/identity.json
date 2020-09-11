@@ -130,10 +130,10 @@
                         "typeHandlerVersion": "1.0",
                         "autoUpgradeMinorVersion": true,
                         "settings": {
-                            "workspaceId": "[reference(resourceId('Microsoft.OperationalInsights/workspaces/', variables('LogAnalyticsWorkspace')), '2015-03-20').customerId]"
+                            "workspaceId": "[reference(resourceId(concat('rg-shared-', parameters('Environment'),'-', resourceGroup().location), 'Microsoft.OperationalInsights/workspaces/', variables('LogAnalyticsWorkspace')), '2015-03-20').customerId]"
                         },
                         "protectedSettings": {
-                            "workspaceKey": "[listKeys(resourceId('Microsoft.OperationalInsights/workspaces/', variables('LogAnalyticsWorkspace')), '2015-03-20').primarySharedKey]"
+                            "workspaceKey": "[listKeys(resourceId(concat('rg-shared-', parameters('Environment'),'-', resourceGroup().location), 'Microsoft.OperationalInsights/workspaces/', variables('LogAnalyticsWorkspace')), '2015-03-20').primarySharedKey]"
                         }
                     }
                 },

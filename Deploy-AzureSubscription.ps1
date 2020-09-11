@@ -52,14 +52,21 @@ if(!(Get-AzContext | Where-Object {$_.Subscription.Id -eq $SubscriptionId}))
 #############################################################
 # Variables
 #############################################################
+# Gets User Principal for Key Vault Access Policy
 $UserObjectId = (Get-AzADUser | Where-Object {$_.UserPrincipalName -like "$((Get-AzContext).Account.Id.Split('@')[0])*"}).Id
+
+# Sets user details for deployment name and Security Center contact
 $Context = Get-AzContext
 $Username = $Context.Account.Id.Split('@')[0]
 $Email = $Context.Account.Id
 $TimeStamp = Get-Date -F 'yyyyMMddhhmmss'
 $Name =  $Username + '_' + $TimeStamp
+
+# Gets credentials for the local admin account for Azure Virtual Machines
 $VmUsername = Read-Host -Prompt 'Enter Virtual Machine Username' -AsSecureString
 $VmPassword = Read-Host -Prompt 'Enter virtual Machine Password' -AsSecureString
+
+# Sets Template Parameter Object
 $VSE = @{
     DomainAbbreviation = $DomainAbbreviation;
     Environment = $Environment;

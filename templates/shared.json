@@ -135,8 +135,7 @@
             "kind": "AzurePowerShell",
             "tags": {},
             "dependsOn": [
-                "[concat('kv', parameters('DomainAbbreviation'), parameters('Environment'), resourceGroup().location)]",
-
+                "[concat('kv', parameters('DomainAbbreviation'), parameters('Environment'), resourceGroup().location)]"
             ],
             "properties": {
                 "azPowerShellVersion": "3.0.0",

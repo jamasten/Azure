@@ -3,7 +3,7 @@ Param(
     #An abbreviated version of the domain name
     #Used for naming external resources (i.e. key vault, storage account, automation account)
     [Parameter(Mandatory=$true)]
-    [string]$DomainPrefixAbbreviation,
+    [string]$DomainAbbreviation,
 
     [Parameter(Mandatory=$true)]
     [ValidateSet("dev", "prod", "qa", "sandbox", "shared", "stage", "test")]
@@ -61,7 +61,7 @@ $Name =  $Username + '_' + $TimeStamp
 $VmUsername = Read-Host -Prompt 'Enter Virtual Machine Username' -AsSecureString
 $VmPassword = Read-Host -Prompt 'Enter virtual Machine Password' -AsSecureString
 $VSE = @{
-    DomainPrefixAbbreviation = $DomainPrefixAbbreviation;
+    DomainAbbreviation = $DomainAbbreviation;
     Environment = $Environment;
     Locations = @($LocationPrimary, $LocationSecondary);
     PerformanceType = $PerformanceType;

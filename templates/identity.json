@@ -2,7 +2,7 @@
     "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
-        "DomainPrefixAbbreviation": {
+        "DomainAbbreviation": {
             "type": "string"
         },
         "Environment": {
@@ -20,7 +20,7 @@
     },
     "variables": {
         "KeyVaultResourceGroup": "[concat('rg-shared-', parameters('Environment'), '-', resourceGroup().location)]",
-        "KeyVaultName": "[concat('kv', parameters('DomainPrefixAbbreviation'), parameters('Environment'), resourceGroup().location)]",
+        "KeyVaultName": "[concat('kv', parameters('DomainAbbreviation'), parameters('Environment'), resourceGroup().location)]",
         "KeyVaultResourceID": "[resourceId(variables('KeyVaultResourceGroup'), 'Microsoft.KeyVault/vaults/', variables('KeyVaultName'))]",
         "LogAnalyticsWorkspace": "[concat('law-', parameters('Environment'), '-', resourceGroup().location)]"
     },
@@ -217,7 +217,7 @@
                         "autoUpgradeMinorVersion": true,
                         "protectedSettings": {
                             "Items": {
-                                "registrationKeyPrivate": "[listKeys(resourceId('Microsoft.Automation/automationAccounts/', concat('aa', parameters('DomainPrefixAbbreviation'), parameters('Environment'), resourceGroup().location)), '2018-06-30').Keys[0].value]"
+                                "registrationKeyPrivate": "[listKeys(resourceId('Microsoft.Automation/automationAccounts/', concat('aa', parameters('DomainAbbreviation'), parameters('Environment'), resourceGroup().location)), '2018-06-30').Keys[0].value]"
                             }
                         },
                         "settings": {
@@ -232,7 +232,7 @@
                                 },
                                 {
                                     "Name": "RegistrationUrl",
-                                    "Value": "[reference(concat('Microsoft.Automation/automationAccounts/', concat('aa', parameters('DomainPrefixAbbreviation'), parameters('Environment'), resourceGroup().location))).registrationUrl]",
+                                    "Value": "[reference(concat('Microsoft.Automation/automationAccounts/', concat('aa', parameters('DomainAbbreviation'), parameters('Environment'), resourceGroup().location))).registrationUrl]",
                                     "TypeName": "System.String"
                                 },
                                 {

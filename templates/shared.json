@@ -2,7 +2,7 @@
     "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
-        "DomainPrefixAbbreviation": {
+        "DomainAbbreviation": {
             "type": "string"
         },
         "Environment": {
@@ -22,7 +22,7 @@
         {
             "comments": "---------- KEY VAULT ----------",
             "type": "Microsoft.KeyVault/vaults",
-            "name": "[concat('kv', parameters('DomainPrefixAbbreviation'), parameters('Environment'), resourceGroup().location)]",
+            "name": "[concat('kv', parameters('DomainAbbreviation'), parameters('Environment'), resourceGroup().location)]",
             "apiVersion": "2016-10-01",
             "location": "[resourceGroup().location]",
             "tags": {},
@@ -123,7 +123,7 @@
             "kind": "AzurePowerShell",
             "tags": {},
             "dependsOn": [
-                "[concat('kv', parameters('DomainPrefixAbbreviation'), parameters('Environment'), resourceGroup().location)]",
+                "[concat('kv', parameters('DomainAbbreviation'), parameters('Environment'), resourceGroup().location)]",
                 
             ],
             "properties": {
@@ -147,7 +147,7 @@
             
                     $DeploymentScriptOutputs['text'] = $KeyEncryptionKeyURL 
                 ",
-                "arguments": "[format(' -KeyVault {0}', concat('kv', parameters('DomainPrefixAbbreviation'), parameters('Environment'), resourceGroup().location))]",
+                "arguments": "[format(' -KeyVault {0}', concat('kv', parameters('DomainAbbreviation'), parameters('Environment'), resourceGroup().location))]",
                 "forceUpdateTag": "[parameters('Timestamp')]",
                 "retentionInterval": "P1D",
                 "timeout": "PT30M"
@@ -157,7 +157,7 @@
             "comments": "---------- KEY VAULT > SECRET > KEK URL ----------",
             "type": "Microsoft.KeyVault/vaults/secrets",
             "apiVersion": "2016-10-01",
-            "name": "[concat('kv', parameters('DomainPrefixAbbreviation'), parameters('Environment'), resourceGroup().location, '/DiskEncryptionKekUrl')]",
+            "name": "[concat('kv', parameters('DomainAbbreviation'), parameters('Environment'), resourceGroup().location, '/DiskEncryptionKekUrl')]",
             "tags": {},
             "dependsOn": [
                 "ds-diskencryptionkek"
@@ -170,7 +170,7 @@
             "comments": "---------- STORAGE ACCOUNT ----------",
             "type": "Microsoft.Storage/storageAccounts",
             "apiVersion": "2019-06-01",
-            "name": "[concat('stor', parameters('PerformanceType'), parameters('DomainPrefixAbbreviation'), parameters('Environment'), resourceGroup().location)]",
+            "name": "[concat('stor', parameters('PerformanceType'), parameters('DomainAbbreviation'), parameters('Environment'), resourceGroup().location)]",
             "location": "[resourceGroup().location]",
             "sku": {
                 "name": "Standard_LRS",
@@ -205,7 +205,7 @@
         },
         {
             "comments": "---------- AUTOMATION ACCOUNT ----------",
-            "name": "[concat('aa', parameters('DomainPrefixAbbreviation'), parameters('Environment'), resourceGroup().location)]",
+            "name": "[concat('aa', parameters('DomainAbbreviation'), parameters('Environment'), resourceGroup().location)]",
             "type": "Microsoft.Automation/automationAccounts",
             "apiVersion": "2015-10-31",
             "location": "[resourceGroup().location]",

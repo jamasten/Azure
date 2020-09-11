@@ -2,7 +2,7 @@
     "$schema": "https://schema.management.azure.com/schemas/2018-05-01/$scriptionDeploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
-        "DomainPrefixAbbreviation": {
+        "DomainAbbreviation": {
             "type": "string",
             "metadata": {
                 "description": "The abbreviated value of the domain name before the root node, i.e. jasonmasten for jasonmasten.com"
@@ -199,8 +199,8 @@
                 },
                 "mode": "Incremental",
                 "parameters": {
-                    "DomainPrefixAbbreviation": {
-                        "value": "[parameters('DomainPrefixAbbreviation')]"
+                    "DomainAbbreviation": {
+                        "value": "[parameters('DomainAbbreviation')]"
                     },
                     "Environment": {
                         "value": "[parameters('Environment')]"
@@ -265,8 +265,8 @@
                 },
                 "mode": "Incremental",
                 "parameters": {
-                    "DomainPrefixAbbreviation": {
-                        "value": "[parameters('DomainPrefixAbbreviation')]"
+                    "DomainAbbreviation": {
+                        "value": "[parameters('DomainAbbreviation')]"
                     },
                     "Environment": {
                         "value": "[parameters('Environment')]"

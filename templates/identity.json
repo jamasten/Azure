@@ -200,7 +200,7 @@
                             "ResizeOSDisk": false
                         }
                     }
-                }/*,
+                },
                 {
                     "comments": "---------- DSC EXTENSION ----------",
                     "type": "extensions",
@@ -218,7 +218,7 @@
                         "autoUpgradeMinorVersion": true,
                         "protectedSettings": {
                             "Items": {
-                                "registrationKeyPrivate": "[listKeys(resourceId('Microsoft.Automation/automationAccounts/', concat('aa', parameters('DomainAbbreviation'), parameters('Environment'), resourceGroup().location)), '2018-06-30').Keys[0].value]"
+                                "registrationKeyPrivate": "[listKeys(resourceId(concat('rg-shared-', parameters('Environment'),'-', resourceGroup().location), 'Microsoft.Automation/automationAccounts/', concat('aa', parameters('DomainAbbreviation'), parameters('Environment'), resourceGroup().location)), '2018-06-30').Keys[0].value]"
                             }
                         },
                         "settings": {
@@ -233,7 +233,7 @@
                                 },
                                 {
                                     "Name": "RegistrationUrl",
-                                    "Value": "[reference(concat('Microsoft.Automation/automationAccounts/', concat('aa', parameters('DomainAbbreviation'), parameters('Environment'), resourceGroup().location))).registrationUrl]",
+                                    "Value": "[reference(resourceId(concat('rg-shared-', parameters('Environment'),'-', resourceGroup().location),'Microsoft.Automation/automationAccounts/', concat('aa', parameters('DomainAbbreviation'), parameters('Environment'), resourceGroup().location))).registrationUrl]",
                                     "TypeName": "System.String"
                                 },
                                 {
@@ -244,7 +244,7 @@
                             ]
                         }
                     }
-                }*/
+                }
             ]
         }
     ]

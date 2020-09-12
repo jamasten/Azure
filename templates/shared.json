@@ -270,6 +270,10 @@
             "name": "[concat('aa', parameters('DomainAbbreviation'), parameters('Environment'), resourceGroup().location, '/ActiveDirectoryForest')]",
             "apiVersion": "2015-10-31",
             "location": "[resourceGroup().location]",
+            "dependsOn": [
+                "[concat('aa', parameters('DomainAbbreviation'), parameters('Environment'), resourceGroup().location)]",
+                "modulesLoop"
+            ],
             "properties": {
                 "source": {
                     "type": "uri",
@@ -284,6 +288,31 @@
                     }
                 },
                 "description": "Configures the primary domain controller to setup the forest"
+            }
+        },
+        {
+            "comments": "---------- AUTOMATION ACCOUNT > COMPILATION JOBS ----------",
+            "type": "Microsoft.Automation/automationAccounts/compilationjobs",
+            "name": "[concat('aa', parameters('DomainAbbreviation'), parameters('Environment'), resourceGroup().location, '/ActiveDirectoryForestCompilation')]",
+            "apiVersion": "2015-10-31",
+            "location": "[resourceGroup().location]",
+            "dependsOn": [
+                "[concat('aa', parameters('DomainAbbreviation'), parameters('Environment'), resourceGroup().location)]",
+                "modulesLoop",
+                "[concat('aa', parameters('DomainAbbreviation'), parameters('Environment'), resourceGroup().location, '/ActiveDirectoryForest')]"
+            ],
+            "properties": {
+                "configuration": {
+                    "name": "ActiveDirectoryForest"
+                },
+                "parameters": {
+                    "Credential": {
+                        "value": "[parameters('Credential')]"
+                    },
+                    "DomainName": {
+                        "value": "[parameters('DomainName')]"
+                    }
+                }
             }
         },
         {

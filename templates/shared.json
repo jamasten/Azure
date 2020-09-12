@@ -2,7 +2,13 @@
     "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
+        "Credential": {
+            "type": "secureobject"
+        },
         "DomainAbbreviation": {
+            "type": "string"
+        },
+        "DomainName": {
             "type": "string"
         },
         "Environment": {
@@ -260,7 +266,7 @@
         },
         {
             "comments": "---------- AUTOMATION ACCOUNT > CONFIGURATION ----------",
-            "type": "Microsoft.Automation/automationAccounts/configurations",            
+            "type": "Microsoft.Automation/automationAccounts/configurations",
             "name": "[concat('aa', parameters('DomainAbbreviation'), parameters('Environment'), resourceGroup().location, '/ActiveDirectoryForest')]",
             "apiVersion": "2015-10-31",
             "location": "[resourceGroup().location]",
@@ -276,7 +282,14 @@
                     "value": "https://raw.githubusercontent.com/jamasten/Azure/master/dsc/New-ActiveDirectoryForest.ps1",
                     "version": "1"
                 },
-                "parameters": {},
+                "parameters": {
+                    "Credential": {
+                        "value": "[parameters('Credential')]"
+                    },
+                    "DomainName": {
+                        "value": "[parameters('DomainName')]"
+                    }
+                },
                 "description": "Configures the primary domain controller to setup the forest"
             }
         },

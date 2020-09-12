@@ -1,5 +1,9 @@
 Param(
 
+    #The first node in the domain name (i.e. JASONMASTEN in jasonmasten.com)
+    [Parameter(Mandatory=$true)]
+    [string]$DomainName,
+
     #An abbreviated version of the domain name
     #Used for naming external resources (i.e. key vault, storage account, automation account)
     [Parameter(Mandatory=$true)]
@@ -65,9 +69,11 @@ $Name =  $Username + '_' + $TimeStamp
 # Gets credentials for the local admin account for Azure Virtual Machines
 $VmUsername = Read-Host -Prompt 'Enter Virtual Machine Username' -AsSecureString
 $VmPassword = Read-Host -Prompt 'Enter virtual Machine Password' -AsSecureString
+$Credential = New-Object System.Management.Automation.PSCredential -ArgumentList $VmUsername, $VmPassword
 
 # Sets Template Parameter Object
 $VSE = @{
+    DomainName = $DomainName
     DomainAbbreviation = $DomainAbbreviation;
     Environment = $Environment;
     Locations = @($LocationPrimary, $LocationSecondary);
@@ -78,6 +84,7 @@ $VSE = @{
 }
 $VSE.Add("VmPassword", $VmPassword) # Secure Strings must use Add Method for proper deserialization
 $VSE.Add("VmUsername", $VmUsername) # Secure Strings must use Add Method for proper deserialization
+$VSE.Add("Credential", $Credential) # Secure Strings must use Add Method for proper deserialization
 
 
 #############################################################

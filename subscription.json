@@ -2,11 +2,17 @@
     "$schema": "https://schema.management.azure.com/schemas/2018-05-01/$scriptionDeploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
+        "Crendential": {
+            "type": "secureobject"
+        },
         "DomainAbbreviation": {
             "type": "string",
             "metadata": {
                 "description": "The abbreviated value of the domain name before the root node, i.e. jasonmasten for jasonmasten.com"
             }
+        },
+        "DomainName": {
+            "type": "string"
         },
         "Environment": {
             "type": "string",
@@ -204,8 +210,14 @@
                 },
                 "mode": "Incremental",
                 "parameters": {
+                    "Credential": {
+                        "value": "[parameters('Credential')]"
+                    },
                     "DomainAbbreviation": {
                         "value": "[parameters('DomainAbbreviation')]"
+                    },
+                    "DomainName": {
+                        "value": "[parameters('DomainName')]"
                     },
                     "Environment": {
                         "value": "[parameters('Environment')]"

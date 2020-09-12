@@ -14,10 +14,22 @@
                 "description": "Automation modules needed to support DSC configurations"
             },
             "defaultValue": [
-                "xActiveDirectory",
-                "xNetworking",
-                "xPendingReboot",
-                "xStorage"
+                {
+                    "name": "xActiveDirectory",
+                    "uri": "https://github.com/jamasten/Azure/blob/master/dsc/xactivedirectory.3.0.0.nupkg?raw=true"
+                },
+                {
+                    "name": "xNetworking",
+                    "uri": "https://github.com/jamasten/Azure/blob/master/dsc/xnetworking.5.7.0.nupkg?raw=true"
+                },
+                {
+                    "name": "xPendingReboot",
+                    "uri": "https://github.com/jamasten/Azure/blob/master/dsc/xpendingreboot.0.4.0.nupkg?raw=true"
+                },
+                {
+                    "name": "xStorage",
+                    "uri": "https://github.com/jamasten/Azure/blob/master/dsc/xstorage.3.4.0.nupkg?raw=true"
+                }
             ]
         },
         "PerformanceType": {
@@ -232,7 +244,7 @@
             "comments": "---------- AUTOMATION ACCOUNT > MODULES ----------",
             "type": "Microsoft.Automation/automationAccounts/modules",
             "apiVersion": "2015-10-31",
-            "name": "[concat('aa', parameters('DomainAbbreviation'), parameters('Environment'), resourceGroup().location, '/', parameters('Modules')[copyIndex()])]",
+            "name": "[concat('aa', parameters('DomainAbbreviation'), parameters('Environment'), resourceGroup().location, '/', parameters('Modules')[copyIndex()].name)]",
             "dependsOn": [
                 "[concat('aa', parameters('DomainAbbreviation'), parameters('Environment'), resourceGroup().location)]"
             ],
@@ -241,7 +253,9 @@
                 "count": "[length(parameters('Modules'))]"
             },
             "properties": {
-                "contentLink": {}
+                "contentLink": {
+                    "uri": "[parameters('Modules')[copyIndex()].uri]"
+                }
             }
         },
         {

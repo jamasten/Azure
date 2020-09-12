@@ -297,9 +297,9 @@
             "apiVersion": "2015-10-31",
             "location": "[resourceGroup().location]",
             "dependsOn": [
-                "[concat('aa', parameters('DomainAbbreviation'), parameters('Environment'), resourceGroup().location)]",
+                "[concat('Microsoft.Automation/automationAccounts/', 'aa', parameters('DomainAbbreviation'), parameters('Environment'), resourceGroup().location)]",
                 "modulesLoop",
-                "[concat('aa', parameters('DomainAbbreviation'), parameters('Environment'), resourceGroup().location, '/ActiveDirectoryForest')]"
+                "[concat('Microsoft.Automation/automationAccounts/', 'aa', parameters('DomainAbbreviation'), parameters('Environment'), resourceGroup().location, '/Configurations/ActiveDirectoryForest')]"
             ],
             "properties": {
                 "configuration": {

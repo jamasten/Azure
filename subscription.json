@@ -224,7 +224,7 @@
                     "uri": "https://raw.githubusercontent.com/jamasten/Azure/master/templates/shared.json"
                 }
             }
-        }, /*
+        }/*,
         {
             "comments": "---------- LINKED DEPLOYMENT > SECURITY CENTER ----------",
             "type": "Microsoft.Resources/deployments",

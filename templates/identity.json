@@ -5,6 +5,12 @@
         "DomainAbbreviation": {
             "type": "string"
         },
+        "DscRegistrationKey": {
+            "type": "string"
+        },
+        "DscRegistrationUrl": {
+            "type": "string"
+        },
         "Environment": {
             "type": "string"
         },
@@ -218,7 +224,7 @@
                         "autoUpgradeMinorVersion": true,
                         "protectedSettings": {
                             "Items": {
-                                "registrationKeyPrivate": "[listKeys(resourceId(concat('rg-shared-', parameters('Environment'),'-', resourceGroup().location), 'Microsoft.Automation/automationAccounts/', concat('aa', parameters('DomainAbbreviation'), parameters('Environment'), resourceGroup().location)), '2018-06-30').Keys[0].value]"
+                                "registrationKeyPrivate": "[parameters('DscRegistrationKey')]"
                             }
                         },
                         "settings": {
@@ -233,7 +239,7 @@
                                 },
                                 {
                                     "Name": "RegistrationUrl",
-                                    "Value": "[reference(resourceId(concat('rg-shared-', parameters('Environment'),'-', resourceGroup().location),'Microsoft.Automation/automationAccounts/', concat('aa', parameters('DomainAbbreviation'), parameters('Environment'), resourceGroup().location))).registrationUrl]",
+                                    "Value": "[parameters('DscRegistrationUrl')]",
                                     "TypeName": "System.String"
                                 },
                                 {

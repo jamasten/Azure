@@ -273,7 +273,7 @@
                         "value": "string"
                     },
                     "type": "uri",
-                    "value": "https://raw.githubusercontent.com/jamasten/Azure/master/dsc/New-ActiveDirectoryForest",
+                    "value": "https://raw.githubusercontent.com/jamasten/Azure/master/dsc/New-ActiveDirectoryForest.ps1",
                     "version": "1"
                 },
                 "parameters": {},

@@ -234,7 +234,7 @@
             "apiVersion": "2015-10-31",
             "name": "[concat('aa', parameters('DomainAbbreviation'), parameters('Environment'), resourceGroup().location, '/', parameters('Modules')[copyIndex()])]",
             "dependsOn": [
-                "[resourceId('Microsoft.Automation/automationAccounts', concat('aa', parameters('DomainAbbreviation'), parameters('Environment'), resourceGroup().location))]"
+                "[concat('aa', parameters('DomainAbbreviation'), parameters('Environment'), resourceGroup().location)]"
             ],
             "copy": {
                 "name": "modulesLoop",

@@ -227,7 +227,7 @@
                     "name": "Free"
                 }
             }
-        },
+        },/*
         {
             "comments": "---------- AUTOMATION ACCOUNT > MODULES ----------",
             "type": "Microsoft.Automation/automationAccounts/modules",
@@ -243,7 +243,7 @@
             "properties": {
                 "contentLink": {}
             }
-        },
+        },*/
         {
             "comments": "---------- LOG ANALYTICS ----------",
             "type": "Microsoft.OperationalInsights/workspaces",

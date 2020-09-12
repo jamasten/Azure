@@ -227,7 +227,7 @@
                     "name": "Free"
                 }
             }
-        },/*
+        },
         {
             "comments": "---------- AUTOMATION ACCOUNT > MODULES ----------",
             "type": "Microsoft.Automation/automationAccounts/modules",
@@ -243,7 +243,29 @@
             "properties": {
                 "contentLink": {}
             }
-        },*/
+        },
+        {
+            "comments": "---------- AUTOMATION ACCOUNT > CONFIGURATION ----------",
+            "type": "Microsoft.Automation/automationAccounts/configurations",            
+            "name": "ActiveDirectoryForest",
+            "apiVersion": "2015-10-31",
+            "location": "[resourceGroup().location]",
+            "properties": {
+                "logVerbose": true,
+                "logProgress": true,
+                "source": {
+                    "hash": {
+                        "algorithm": "string",
+                        "value": "string"
+                    },
+                    "type": "uri",
+                    "value": "https://raw.githubusercontent.com/jamasten/Azure/master/dsc/New-ActiveDirectoryForest",
+                    "version": "1"
+                },
+                "parameters": {},
+                "description": "Configures the primary domain controller to setup the forest"
+            }
+        },
         {
             "comments": "---------- LOG ANALYTICS ----------",
             "type": "Microsoft.OperationalInsights/workspaces",

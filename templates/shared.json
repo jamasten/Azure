@@ -247,7 +247,7 @@
         {
             "comments": "---------- AUTOMATION ACCOUNT > CONFIGURATION ----------",
             "type": "Microsoft.Automation/automationAccounts/configurations",            
-            "name": "ActiveDirectoryForest",
+            "name": "[concat('aa', parameters('DomainAbbreviation'), parameters('Environment'), resourceGroup().location, '/ActiveDirectoryForest')]",
             "apiVersion": "2015-10-31",
             "location": "[resourceGroup().location]",
             "properties": {

@@ -199,9 +199,9 @@
             "apiVersion": "2019-10-01",
             "tags": {},
             "dependsOn": [
-                "rgLoop1",
+                /*"rgLoop1",
                 "[concat('ManagedId_', parameters('Username'), '_', parameters('Timestamp'))]",
-                "6d4da268-fb61-412b-91d8-8e33227b4e5a"
+                "6d4da268-fb61-412b-91d8-8e33227b4e5a"*/
             ],
             "resourceGroup": "[concat('rg-shared-', parameters('Environment'),'-', parameters('Locations')[0])]",
             "properties": {

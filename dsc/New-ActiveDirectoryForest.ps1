@@ -6,17 +6,17 @@ configuration ActiveDirectoryForest
         [String]$DomainName,
 
         [Parameter(Mandatory)]
-        [SecureString]$VmPassword,
+        [System.Security.SecureString]$VmPassword,
 
         [Parameter(Mandatory)]
-        [SecureString]$VmUsername,
+        [String]$VmUsername,
 
         [Int]$RetryCount=20,
         [Int]$RetryIntervalSec=30
     ) 
     
     Import-DscResource -ModuleName xActiveDirectory, xStorage, xNetworking, PSDesiredStateConfiguration, xPendingReboot
-    [System.Management.Automation.PSCredential]$DomainCreds = New-Object System.Management.Automation.PSCredential ("$DomainName + '\' + $VmUsername", $VmPassword)
+    [System.Management.Automation.PSCredential]$DomainCreds = New-Object System.Management.Automation.PSCredential ("${DomainName}\$($VmUsername)", $VmPassword)
     $Interface=Get-NetAdapter|Where Name -Like "Ethernet*"|Select-Object -First 1
     $InterfaceAlias=$($Interface.Name)
 

@@ -94,7 +94,7 @@
             }
         },
         "VmUsername": {
-            "type": "securestring",
+            "type": "string",
             "metadata": {
                 "description": "Azure VM username"
             }
@@ -230,7 +230,7 @@
                     },
                     "VmUsername": {
                         "value": "[parameters('VmUsername')]"
-                    },
+                    }
                 },
                 "templateLink": {
                     "uri": "https://raw.githubusercontent.com/jamasten/Azure/master/templates/shared.json"

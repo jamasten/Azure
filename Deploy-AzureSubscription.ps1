@@ -29,7 +29,13 @@ Param(
     [string]$PerformanceType, 
     
     [parameter(Mandatory=$true)]
-    [string]$SubscriptionId
+    [string]$SubscriptionId,
+
+    [Parameter(Mandatory)]
+    [String]$VmPassword,
+
+    [Parameter(Mandatory)]
+    [String]$VmUsername
 
 )
 
@@ -65,12 +71,12 @@ $Username = $Context.Account.Id.Split('@')[0]
 $Email = $Context.Account.Id
 $TimeStamp = Get-Date -F 'yyyyMMddhhmmss'
 $Name =  $Username + '_' + $TimeStamp
+$SecureVmPassword = ConvertTo-SecureString -String $VmPassword -AsPlainText -Force
 
-# Gets credentials for the local admin account for Azure Virtual Machines
-$VmUsername = Read-Host -Prompt 'Enter Virtual Machine Username' -AsSecureString
-$VmPassword = Read-Host -Prompt 'Enter virtual Machine Password' -AsSecureString
 
-# Sets Template Parameter Object
+#############################################################
+# Template Parameter Object
+#############################################################
 $VSE = @{
     DomainName = $DomainName
     DomainAbbreviation = $DomainAbbreviation;
@@ -81,7 +87,7 @@ $VSE = @{
     UserObjectId = $UserObjectId
     Username = $Username
 }
-$VSE.Add("VmPassword", $VmPassword) # Secure Strings must use Add Method for proper deserialization
+$VSE.Add("VmPassword", $SecureVmPassword) # Secure Strings must use Add Method for proper deserialization
 $VSE.Add("VmUsername", $VmUsername) # Secure Strings must use Add Method for proper deserialization
 
 

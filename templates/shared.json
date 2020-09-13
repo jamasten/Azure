@@ -294,7 +294,7 @@
             "comments": "---------- AUTOMATION ACCOUNT > COMPILATION JOBS ----------",
             "type": "Microsoft.Automation/automationAccounts/compilationjobs",
             "name": "[concat('aa', parameters('DomainAbbreviation'), parameters('Environment'), resourceGroup().location, '/', guid(deployment().name))]",
-            "apiVersion": "2015-10-31",
+            "apiVersion": "2018-01-15",
             "location": "[resourceGroup().location]",
             "dependsOn": [
                 /*"[concat('Microsoft.Automation/automationAccounts/', 'aa', parameters('DomainAbbreviation'), parameters('Environment'), resourceGroup().location)]",

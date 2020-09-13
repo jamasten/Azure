@@ -6,14 +6,17 @@ configuration ActiveDirectoryForest
         [String]$DomainName,
 
         [Parameter(Mandatory)]
-        [System.Management.Automation.PSCredential]$Credential,
+        [SecureString]$VmPassword
+
+        [Parameter(Mandatory)]
+        [SecureString]$VmUsername
 
         [Int]$RetryCount=20,
         [Int]$RetryIntervalSec=30
     ) 
     
     Import-DscResource -ModuleName xActiveDirectory, xStorage, xNetworking, PSDesiredStateConfiguration, xPendingReboot
-    [System.Management.Automation.PSCredential ]$DomainCreds = New-Object System.Management.Automation.PSCredential ("${DomainName}\$($Credential.UserName)", $Credential.Password)
+    [System.Management.Automation.PSCredential]$DomainCreds = New-Object System.Management.Automation.PSCredential ("$DomainName + '\' + $VmUsername", $VmPassword)
     $Interface=Get-NetAdapter|Where Name -Like "Ethernet*"|Select-Object -First 1
     $InterfaceAlias=$($Interface.Name)
 
@@ -85,7 +88,7 @@ configuration ActiveDirectoryForest
             DatabasePath = "C:\NTDS"
             LogPath = "C:\NTDS"
             SysvolPath = "C:\SYSVOL"
-	  	DependsOn = "[WindowsFeature]ADDSInstall"
+	  	    DependsOn = "[WindowsFeature]ADDSInstall"
         }
     }
 } 

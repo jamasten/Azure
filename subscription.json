@@ -2,9 +2,6 @@
     "$schema": "https://schema.management.azure.com/schemas/2018-05-01/$scriptionDeploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
-        "Credential": {
-            "type": "secureobject"
-        },
         "DomainAbbreviation": {
             "type": "string",
             "metadata": {
@@ -210,9 +207,6 @@
                 },
                 "mode": "Incremental",
                 "parameters": {
-                    "Credential": {
-                        "value": "[parameters('Credential')]"
-                    },
                     "DomainAbbreviation": {
                         "value": "[parameters('DomainAbbreviation')]"
                     },
@@ -230,7 +224,13 @@
                     },
                     "UserObjectId": {
                         "value": "[parameters('UserObjectId')]"
-                    }
+                    },
+                    "VmPassword": {
+                        "value": "[parameters('VmPassword')]"
+                    },
+                    "VmUsername": {
+                        "value": "[parameters('VmUsername')]"
+                    },
                 },
                 "templateLink": {
                     "uri": "https://raw.githubusercontent.com/jamasten/Azure/master/templates/shared.json"

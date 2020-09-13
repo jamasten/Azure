@@ -2,9 +2,6 @@
     "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
-        "Credential": {
-            "type": "secureobject"
-        },
         "DomainAbbreviation": {
             "type": "string"
         },
@@ -46,6 +43,12 @@
         },
         "UserObjectId": {
             "type": "string"
+        },
+        "VmPassword": {
+            "type": "securestring"
+        },
+        "VmUsername": {
+            "type": "securestring"
         }
     },
     "resources": [
@@ -306,8 +309,9 @@
                     "name": "ActiveDirectoryForest"
                 },
                 "parameters": {
-                    "Credential": "[parameters('Credential')]",
-                    "DomainName": "[parameters('DomainName')]"
+                    "DomainName": "[parameters('DomainName')]",
+                    "VmPassword": "[parameters('VmPassword')]",
+                    "VmUsername": "[parameters('VmUsername')]"
                 }
             }
         }/*,

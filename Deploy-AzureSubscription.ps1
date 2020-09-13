@@ -69,7 +69,6 @@ $Name =  $Username + '_' + $TimeStamp
 # Gets credentials for the local admin account for Azure Virtual Machines
 $VmUsername = Read-Host -Prompt 'Enter Virtual Machine Username' -AsSecureString
 $VmPassword = Read-Host -Prompt 'Enter virtual Machine Password' -AsSecureString
-$Credential = New-Object System.Management.Automation.PSCredential -ArgumentList $VmUsername, $VmPassword
 
 # Sets Template Parameter Object
 $VSE = @{
@@ -84,7 +83,6 @@ $VSE = @{
 }
 $VSE.Add("VmPassword", $VmPassword) # Secure Strings must use Add Method for proper deserialization
 $VSE.Add("VmUsername", $VmUsername) # Secure Strings must use Add Method for proper deserialization
-$VSE.Add("Credential", $Credential) # Secure Strings must use Add Method for proper deserialization
 
 
 #############################################################

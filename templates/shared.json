@@ -282,14 +282,7 @@
                     "type": "uri",
                     "value": "https://raw.githubusercontent.com/jamasten/Azure/master/dsc/New-ActiveDirectoryForest.ps1"
                 },
-                "parameters": {
-                    "Credential": {
-                        "value": "[parameters('Credential')]"
-                    },
-                    "DomainName": {
-                        "value": "[parameters('DomainName')]"
-                    }
-                },
+                "parameters": {},
                 "description": "Configures the primary domain controller to setup the forest"
             }
         },

@@ -266,7 +266,7 @@
                     "uri": "[parameters('Modules')[copyIndex()].uri]"
                 }
             }
-        },
+        },*/
         {
             "comments": "---------- AUTOMATION ACCOUNT > CONFIGURATION ----------",
             "type": "Microsoft.Automation/automationAccounts/configurations",
@@ -274,8 +274,8 @@
             "apiVersion": "2015-10-31",
             "location": "[resourceGroup().location]",
             "dependsOn": [
-                "[concat('aa', parameters('DomainAbbreviation'), parameters('Environment'), resourceGroup().location)]",
-                "modulesLoop"
+                /*"[concat('aa', parameters('DomainAbbreviation'), parameters('Environment'), resourceGroup().location)]",
+                "modulesLoop"*/
             ],
             "properties": {
                 "source": {
@@ -292,7 +292,7 @@
                 },
                 "description": "Configures the primary domain controller to setup the forest"
             }
-        },*/
+        },
         {
             "comments": "---------- AUTOMATION ACCOUNT > COMPILATION JOBS ----------",
             "type": "Microsoft.Automation/automationAccounts/compilationjobs",
@@ -301,8 +301,8 @@
             "location": "[resourceGroup().location]",
             "dependsOn": [
                 /*"[concat('Microsoft.Automation/automationAccounts/', 'aa', parameters('DomainAbbreviation'), parameters('Environment'), resourceGroup().location)]",
-                "modulesLoop",
-                "[concat('Microsoft.Automation/automationAccounts/', 'aa', parameters('DomainAbbreviation'), parameters('Environment'), resourceGroup().location, '/Configurations/ActiveDirectoryForest')]"*/
+                "modulesLoop",*/
+                "[concat('Microsoft.Automation/automationAccounts/', 'aa', parameters('DomainAbbreviation'), parameters('Environment'), resourceGroup().location, '/Configurations/ActiveDirectoryForest')]"
             ],
             "properties": {
                 "configuration": {

@@ -211,7 +211,7 @@
                     "comments": "---------- DSC EXTENSION ----------",
                     "type": "extensions",
                     "name": "DSC",
-                    "apiVersion": "2018-06-30",
+                    "apiVersion": "2018-06-01",
                     "location": "[resourceGroup().location]",
                     "dependsOn": [
                         "[concat('vmdc', parameters('Environment'), resourceGroup().location, '0')]",

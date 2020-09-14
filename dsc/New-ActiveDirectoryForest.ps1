@@ -6,16 +6,9 @@ configuration ActiveDirectoryForest
         [String]$DomainName
     ) 
     
-    Import-DscResource -ModuleName xActiveDirectory
-    Import-DscResource -ModuleName xNetworking
-    Import-DscResource -ModuleName xPendingReboot
-    Import-DscResource -ModuleName xStorage
-    Import-DscResource -ModuleName PSDscResources
-
+    Import-DscResource -ModuleName xActiveDirectory, xNetworking, xPendingReboot, xStorage, PSDscResources
 
     $DomainCreds = Get-AutomationPSCredential 'Administrator'
-    $Interface = Get-NetAdapter | Where-Object {$_.Name -like "Ethernet*"} | Select-Object -First 1
-    $InterfaceAlias = $($Interface.Name)
 
     Node localhost
     {
@@ -34,10 +27,43 @@ configuration ActiveDirectoryForest
         {
       	    SetScript = { 
 		        Set-DnsServerDiagnostics -All $true
-                Write-Verbose -Verbose "Enabling DNS client diagnostics" 
             }
-            GetScript =  { @{} }
-            TestScript = { $false }
+            GetScript =  { @{ Result = Get-DnsServerDiagnostics} }
+            TestScript = { 
+                $DnsSettings = Get-DnsServerDiagnostics
+                $Values = @()
+                $Values += $DnsSettings.SaveLogsToPersistentStorage
+                $Values += $DnsSettings.Queries
+                $Values += $DnsSettings.Answers
+                $Values += $DnsSettings.Notifications
+                $Values += $DnsSettings.Update
+                $Values += $DnsSettings.QuestionTransactions
+                $Values += $DnsSettings.UnmatchedResponse
+                $Values += $DnsSettings.SendPackets
+                $Values += $DnsSettings.ReceivePackets
+                $Values += $DnsSettings.TcpPackets
+                $Values += $DnsSettings.UdpPackets
+                $Values += $DnsSettings.FullPackets
+                $Values += $DnsSettings.EnableLogFileRollover
+                $Values += $DnsSettings.WriteThrough
+                $Values += $DnsSettings.EnableLoggingForLocalLookupEvent
+                $Values += $DnsSettings.EnableLoggingForPluginDllEvent
+                $Values += $DnsSettings.EnableLoggingForRecursiveLookupEvent
+                $Values += $DnsSettings.EnableLoggingForRemoteServerEvent
+                $Values += $DnsSettings.EnableLoggingForServerStartStopEvent
+                $Values += $DnsSettings.EnableLoggingForTombstoneEvent
+                $Values += $DnsSettings.EnableLoggingForZoneDataWriteEvent
+                $Values += $DnsSettings.EnableLoggingForZoneLoadingEvent
+
+                if($Values -contains $false)
+                {
+                    $false
+                }
+                else
+                {
+                    $true
+                }
+            }
 	        DependsOn = "[WindowsFeature]DNS"
         }
 
@@ -51,7 +77,7 @@ configuration ActiveDirectoryForest
         xDnsServerAddress DnsServerAddress 
         { 
             Address        = '127.0.0.1' 
-            InterfaceAlias = $InterfaceAlias
+            InterfaceAlias = 'Ethernet'
             AddressFamily  = 'IPv4'
 	        DependsOn = "[WindowsFeature]DNS"
         }
@@ -77,7 +103,7 @@ configuration ActiveDirectoryForest
             DependsOn = "[WindowsFeature]ADDSInstall"
         }
          
-        xADDomain FirstDS 
+        xADDomain FirstDomainController 
         {
             DomainName = $DomainName
             DomainAdministratorCredential = $DomainCreds
@@ -88,4 +114,4 @@ configuration ActiveDirectoryForest
 	  	    DependsOn = "[WindowsFeature]ADDSInstall"
         }
     }
-} 
+}

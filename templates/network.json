@@ -60,7 +60,8 @@
             "location": "[resourceGroup().location]",
             "tags": {},
             "dependsOn": [
-                "[concat('nw-', parameters('Environment'), '-', resourceGroup().location)]"
+                "[concat('nw-', parameters('Environment'), '-', resourceGroup().location)]",
+                "[concat('nsg-', parameters('Nsgs')[copyIndex()], '-', parameters('Environment'), '-', resourceGroup().location)]"
             ],
             "properties": {
                 "addressSpace": {

@@ -5,11 +5,11 @@ configuration ActiveDirectoryForest
         [Parameter(Mandatory)]
         [String]$DomainName,
 
-        [Parameter(Mandatory)]
-        [System.Security.SecureString]$VmPassword,
+        #[Parameter(Mandatory)]
+        #[System.Security.SecureString]$VmPassword,
 
-        [Parameter(Mandatory)]
-        [String]$VmUsername,
+        #[Parameter(Mandatory)]
+        #[String]$VmUsername,
 
         [Int]$RetryCount=20,
         [Int]$RetryIntervalSec=30

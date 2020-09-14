@@ -86,8 +86,8 @@ $VSE = @{
     SecurityDistributionGroup = $Email
     UserObjectId = $UserObjectId
     Username = $Username
-    VmPassword = $SecureVmPassword
 }
+$VSE.Add("VmPassword", $SecureVmPassword) # Secure Strings must use Add Method for proper deserialization
 $VSE.Add("VmUsername", $VmUsername) # Secure Strings must use Add Method for proper deserialization
 
 

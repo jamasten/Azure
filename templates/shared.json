@@ -51,6 +51,12 @@
             "type": "string"
         }
     },
+    "variables": {
+        "AdminCreds": {
+            "UserName": "[parameters('VmUsername')]",
+            "Password": "[parameters('VmPassword')]"
+        }
+    },
     "resources": [
         /*{
             "comments": "---------- KEY VAULT ----------",
@@ -303,11 +309,10 @@
                 },
                 "parameters": {
                     "DomainName": "[parameters('DomainName')]",
-                    "VmPassword": "[parameters('VmPassword')]",
-                    "VmUsername": "[parameters('VmUsername')]"
+                    "AdminCreds": "[variables('AdminCreds')]"
                 }
             }
-        }/*,
+        } /*,
         {
             "comments": "---------- LOG ANALYTICS ----------",
             "type": "Microsoft.OperationalInsights/workspaces",

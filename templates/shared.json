@@ -289,7 +289,7 @@
         },
         {
             "comments": "---------- AUTOMATION ACCOUNT > CREDENTIAL ----------",
-            "type": "Microsoft.Automation/automationAccounts/Credentials",
+            "type": "Microsoft.Automation/automationAccounts/credentials",
             "name": "[concat('aa', parameters('DomainAbbreviation'), parameters('Environment'), resourceGroup().location, '/Administrator')]",
             "apiVersion": "2015-10-31",
             "tags": {},
@@ -311,7 +311,7 @@
                 /*"[concat('Microsoft.Automation/automationAccounts/', 'aa', parameters('DomainAbbreviation'), parameters('Environment'), resourceGroup().location)]",
                 "modulesLoop",*/
                 "[concat('Microsoft.Automation/automationAccounts/', 'aa', parameters('DomainAbbreviation'), parameters('Environment'), resourceGroup().location, '/Configurations/ActiveDirectoryForest')]",
-                "[concat('Microsoft.Automation/automationAccounts/Credentials/', 'aa', parameters('DomainAbbreviation'), parameters('Environment'), resourceGroup().location, '/Administrator')]"
+                "[concat('Microsoft.Automation/automationAccounts/credentials/', 'aa', parameters('DomainAbbreviation'), parameters('Environment'), resourceGroup().location, '/Administrator')]"
             ],
             "properties": {
                 "configuration": {

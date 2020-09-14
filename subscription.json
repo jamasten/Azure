@@ -38,11 +38,28 @@
             ],
             "defaultValue": "no"
         },
+        "HomePip": {
+            "type": "string",
+            "metadata": {
+                "description": "The Public IP address for your home netowrk to allow RDP traffic to your DC"
+            }
+        },
         "Locations": {
             "type": "array",
             "metadata": {
                 "description": "Locations for Resource Groups & Resources. The first index is primary location and the second index is the secondary location for business continuity and disaster recovery "
             }
+        },
+        "Nsgs": {
+            "type": "array",
+            "metadata": {
+                "description": "Network security groups applied to the subnets"
+            },
+            "defaultValue": [
+                "shared",
+                "servers",
+                "wvd"
+            ]
         },
         "PerformanceType": {
             "type": "string",
@@ -182,6 +199,12 @@
                 "parameters": {
                     "Environment": {
                         "value": "[parameters('Environment')]"
+                    },
+                    "HomePip": {
+                        "value": "[parameters('HomePip')]"
+                    },
+                    "Nsgs": {
+                        "value": "[parameters('Nsgs')]"
                     }
                 },
                 "templateLink": {

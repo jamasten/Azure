@@ -10,7 +10,8 @@ configuration ActiveDirectoryForest
     Import-DscResource -ModuleName xNetworking
     Import-DscResource -ModuleName xPendingReboot
     Import-DscResource -ModuleName xStorage
-    Import-DscResource -ModuleName PSDesiredStateConfiguration
+    Import-DscResource -ModuleName PSDscResources
+
 
     $DomainCreds = Get-AutomationPSCredential 'Administrator'
     $Interface = Get-NetAdapter | Where-Object {$_.Name -like "Ethernet*"} | Select-Object -First 1

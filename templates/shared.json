@@ -310,8 +310,8 @@
             "dependsOn": [
                 /*"[concat('Microsoft.Automation/automationAccounts/', 'aa', parameters('DomainAbbreviation'), parameters('Environment'), resourceGroup().location)]",
                 "modulesLoop",*/
-                "[concat('aa', parameters('DomainAbbreviation'), parameters('Environment'), resourceGroup().location, '/Configurations/ActiveDirectoryForest')]",
-                "[concat('aa', parameters('DomainAbbreviation'), parameters('Environment'), resourceGroup().location, '/Administrator')]"
+                "[resourceId('Microsoft.Automation/automationAccounts/configurations', concat('aa', parameters('DomainAbbreviation'), parameters('Environment'), resourceGroup().location), 'ActiveDirectoryForest')]",
+                "[resourceId('Microsoft.Automation/automationAccounts/credentials', concat('aa', parameters('DomainAbbreviation'), parameters('Environment'), resourceGroup().location), 'Administrator')]"
             ],
             "properties": {
                 "configuration": {

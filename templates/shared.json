@@ -28,10 +28,6 @@
                 {
                     "name": "xPendingReboot",
                     "uri": "https://github.com/jamasten/Azure/blob/master/dsc/xpendingreboot.0.4.0.nupkg?raw=true"
-                },
-                {
-                    "name": "xStorage",
-                    "uri": "https://github.com/jamasten/Azure/blob/master/dsc/xstorage.3.4.0.nupkg?raw=true"
                 }
             ]
         },

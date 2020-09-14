@@ -51,12 +51,7 @@
             "type": "string"
         }
     },
-    "variables": {
-        "AdminCreds": {
-            "UserName": "[parameters('VmUsername')]",
-            "Password": "[parameters('VmPassword')]"
-        }
-    },
+    "variables": {},
     "resources": [
         /*{
             "comments": "---------- KEY VAULT ----------",
@@ -293,6 +288,20 @@
             }
         },
         {
+            "comments": "---------- AUTOMATION ACCOUNT > CREDENTIAL ----------",
+            "type": "Microsoft.Automation/automationAccounts/Credentials",
+            "name": "[concat('aa', parameters('DomainAbbreviation'), parameters('Environment'), resourceGroup().location, '/Administrator')]",
+            "apiVersion": "2015-10-31",
+            "tags": {},
+            "dependsOn": [
+                /*"[concat('aa', parameters('DomainAbbreviation'), parameters('Environment'), resourceGroup().location)]"*/
+            ],
+            "properties": {
+                "userName": "[parameters('VmUsername')]",
+                "password": "[parameters('VmPassword')]"
+            }
+        },
+        {
             "comments": "---------- AUTOMATION ACCOUNT > COMPILATION JOBS ----------",
             "type": "Microsoft.Automation/automationAccounts/compilationjobs",
             "name": "[concat('aa', parameters('DomainAbbreviation'), parameters('Environment'), resourceGroup().location, '/', guid(deployment().name))]",
@@ -301,15 +310,15 @@
             "dependsOn": [
                 /*"[concat('Microsoft.Automation/automationAccounts/', 'aa', parameters('DomainAbbreviation'), parameters('Environment'), resourceGroup().location)]",
                 "modulesLoop",*/
-                "[concat('Microsoft.Automation/automationAccounts/', 'aa', parameters('DomainAbbreviation'), parameters('Environment'), resourceGroup().location, '/Configurations/ActiveDirectoryForest')]"
+                "[concat('Microsoft.Automation/automationAccounts/', 'aa', parameters('DomainAbbreviation'), parameters('Environment'), resourceGroup().location, '/Configurations/ActiveDirectoryForest')]",
+                "[concat('Microsoft.Automation/automationAccounts/Credentials', 'aa', parameters('DomainAbbreviation'), parameters('Environment'), resourceGroup().location, '/Administrator')]"
             ],
             "properties": {
                 "configuration": {
                     "name": "ActiveDirectoryForest"
                 },
                 "parameters": {
-                    "DomainName": "[parameters('DomainName')]",
-                    "AdminCreds": "[variables('AdminCreds')]"
+                    "DomainName": "[parameters('DomainName')]"
                 }
             }
         } /*,

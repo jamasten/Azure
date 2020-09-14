@@ -14,8 +14,8 @@ configuration ActiveDirectoryForest
 
 
     $DomainCreds = Get-AutomationPSCredential 'Administrator'
-    #$Interface = Get-NetAdapter | Where-Object {$_.Name -like "Ethernet*"} | Select-Object -First 1
-    #$InterfaceAlias = $($Interface.Name)
+    $Interface = Get-NetAdapter | Where-Object {$_.Name -like "Ethernet*"} | Select-Object -First 1
+    $InterfaceAlias = $($Interface.Name)
 
     Node localhost
     {
@@ -48,13 +48,13 @@ configuration ActiveDirectoryForest
             DependsOn = "[WindowsFeature]DNS"
 	    }
 
-        <#xDnsServerAddress DnsServerAddress 
+        xDnsServerAddress DnsServerAddress 
         { 
             Address        = '127.0.0.1' 
             InterfaceAlias = $InterfaceAlias
             AddressFamily  = 'IPv4'
 	        DependsOn = "[WindowsFeature]DNS"
-        }#>
+        }
 
         WindowsFeature ADDSInstall 
         { 

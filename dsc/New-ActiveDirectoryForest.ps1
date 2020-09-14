@@ -3,17 +3,18 @@ configuration ActiveDirectoryForest
    param 
    ( 
         [Parameter(Mandatory)]
-        [String]$DomainName,
-
-        [Int]$RetryCount=20,
-        [Int]$RetryIntervalSec=30
+        [String]$DomainName
     ) 
     
-    Import-DscResource -ModuleName xActiveDirectory, xStorage, xNetworking, PSDesiredStateConfiguration, xPendingReboot
-    #[System.Management.Automation.PSCredential]$DomainCreds = New-Object System.Management.Automation.PSCredential ("${DomainName}\$($AdminCreds.UserName)", $AdminCreds.Password)
+    Import-DscResource -ModuleName xActiveDirectory
+    Import-DscResource -ModuleName xNetworking
+    Import-DscResource -ModuleName xPendingReboot
+    Import-DscResource -ModuleName xStorage
+    Import-DscResource -ModuleName PSDesiredStateConfiguration
+
     $DomainCreds = Get-AutomationPSCredential 'Administrator'
-    $Interface=Get-NetAdapter|Where Name -Like "Ethernet*"|Select-Object -First 1
-    $InterfaceAlias=$($Interface.Name)
+    $Interface = Get-NetAdapter | Where-Object {$_.Name -like "Ethernet*"} | Select-Object -First 1
+    $InterfaceAlias = $($Interface.Name)
 
     Node localhost
     {

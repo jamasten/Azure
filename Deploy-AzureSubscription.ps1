@@ -60,6 +60,12 @@ if(!(Get-AzContext | Where-Object {$_.Subscription.Id -eq $SubscriptionId}))
 
 
 #############################################################
+# Load functions
+#############################################################
+. .\utilities\functions.ps1
+
+
+#############################################################
 # Variables
 #############################################################
 # Gets User Principal for Key Vault Access Policy
@@ -72,6 +78,7 @@ $Email = $Context.Account.Id
 $TimeStamp = Get-Date -F 'yyyyMMddhhmmss'
 $Name =  $Username + '_' + $TimeStamp
 $SecureVmPassword = ConvertTo-SecureString -String $VmPassword -AsPlainText -Force
+$HomePip = Get-PublicIpAddress
 
 
 #############################################################
@@ -81,6 +88,7 @@ $VSE = @{
     DomainName = $DomainName
     DomainAbbreviation = $DomainAbbreviation;
     Environment = $Environment;
+    HomePip = $HomePip.Trim();
     Locations = @($LocationPrimary, $LocationSecondary);
     PerformanceType = $PerformanceType;
     SecurityDistributionGroup = $Email

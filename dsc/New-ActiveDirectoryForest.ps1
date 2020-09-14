@@ -6,7 +6,11 @@ configuration ActiveDirectoryForest
         [String]$DomainName
     ) 
     
-    Import-DscResource -ModuleName xActiveDirectory, xNetworking, xPendingReboot, xStorage, PSDscResources
+    Import-DscResource -ModuleName xActiveDirectory
+    Import-DscResource -ModuleName xNetworking
+    Import-DscResource -ModuleName xPendingReboot
+    Import-DscResource -ModuleName xStorage
+    Import-DscResource -ModuleName PSDscResources
 
     $DomainCreds = Get-AutomationPSCredential 'Administrator'
 

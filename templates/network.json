@@ -61,7 +61,7 @@
             "tags": {},
             "dependsOn": [
                 "[concat('nw-', parameters('Environment'), '-', resourceGroup().location)]",
-                "[concat('nsg-', parameters('Nsgs')[copyIndex()], '-', parameters('Environment'), '-', resourceGroup().location)]"
+                "nsgLoop"
             ],
             "properties": {
                 "addressSpace": {

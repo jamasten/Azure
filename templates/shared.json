@@ -53,7 +53,7 @@
     },
     "variables": {},
     "resources": [
-        /*{
+        {
             "comments": "---------- KEY VAULT ----------",
             "type": "Microsoft.KeyVault/vaults",
             "name": "[concat('kv', parameters('DomainAbbreviation'), parameters('Environment'), resourceGroup().location)]",
@@ -256,7 +256,7 @@
             "apiVersion": "2015-10-31",
             "name": "[concat('aa', parameters('DomainAbbreviation'), parameters('Environment'), resourceGroup().location, '/', parameters('Modules')[copyIndex()].name)]",
             "dependsOn": [
-                "[concat('aa', parameters('DomainAbbreviation'), parameters('Environment'), resourceGroup().location)]"
+                "[resourceId('Microsoft.Automation/automationAccounts', concat('aa', parameters('DomainAbbreviation'), parameters('Environment'), resourceGroup().location))]"
             ],
             "copy": {
                 "name": "modulesLoop",
@@ -267,7 +267,7 @@
                     "uri": "[parameters('Modules')[copyIndex()].uri]"
                 }
             }
-        },*/
+        },
         {
             "comments": "---------- AUTOMATION ACCOUNT > CONFIGURATION ----------",
             "type": "Microsoft.Automation/automationAccounts/configurations",
@@ -275,8 +275,7 @@
             "apiVersion": "2015-10-31",
             "location": "[resourceGroup().location]",
             "dependsOn": [
-                /*"[concat('aa', parameters('DomainAbbreviation'), parameters('Environment'), resourceGroup().location)]",
-                "modulesLoop"*/
+                "[resourceId('Microsoft.Automation/automationAccounts', 'aa', parameters('DomainAbbreviation'), parameters('Environment'), resourceGroup().location)]"
             ],
             "properties": {
                 "source": {
@@ -295,7 +294,7 @@
             "apiVersion": "2015-10-31",
             "tags": {},
             "dependsOn": [
-                /*"[concat('aa', parameters('DomainAbbreviation'), parameters('Environment'), resourceGroup().location)]"*/
+                "[resourceId('Microsoft.Automation/automationAccounts', concat('aa', parameters('DomainAbbreviation'), parameters('Environment'), resourceGroup().location))]"
             ],
             "properties": {
                 "userName": "[parameters('VmUsername')]",
@@ -309,8 +308,8 @@
             "apiVersion": "2018-01-15",
             "location": "[resourceGroup().location]",
             "dependsOn": [
-                /*"[concat('Microsoft.Automation/automationAccounts/', 'aa', parameters('DomainAbbreviation'), parameters('Environment'), resourceGroup().location)]",
-                "modulesLoop",*/
+                "[resourceId('Microsoft.Automation/automationAccounts', concat('aa', parameters('DomainAbbreviation'), parameters('Environment'), resourceGroup().location))]",
+                "modulesLoop",
                 "[resourceId('Microsoft.Automation/automationAccounts/configurations', concat('aa', parameters('DomainAbbreviation'), parameters('Environment'), resourceGroup().location), 'ActiveDirectoryForest')]",
                 "[resourceId('Microsoft.Automation/automationAccounts/credentials', concat('aa', parameters('DomainAbbreviation'), parameters('Environment'), resourceGroup().location), 'Administrator')]"
             ],
@@ -322,7 +321,7 @@
                     "DomainName": "[parameters('DomainName')]"
                 }
             }
-        } /*,
+        },
         {
             "comments": "---------- LOG ANALYTICS ----------",
             "type": "Microsoft.OperationalInsights/workspaces",
@@ -341,16 +340,16 @@
                 "publicNetworkAccessForIngestion": "Enabled",
                 "publicNetworkAccessForQuery": "Enabled"
             }
-        }*/
+        }
     ],
     "outputs": {
-        /*"DscRegistrationKey": {
+        "DscRegistrationKey": {
             "type": "string",
             "value": "[listKeys(resourceId(concat('rg-shared-', parameters('Environment'),'-', resourceGroup().location), 'Microsoft.Automation/automationAccounts/', concat('aa', parameters('DomainAbbreviation'), parameters('Environment'), resourceGroup().location)), '2018-06-30').Keys[0].value]"
         },
         "DscRegistrationUrl": {
             "type": "string",
             "value": "[reference(resourceId(concat('rg-shared-', parameters('Environment'),'-', resourceGroup().location),'Microsoft.Automation/automationAccounts/', concat('aa', parameters('DomainAbbreviation'), parameters('Environment'), resourceGroup().location))).registrationUrl]"
-        }*/
+        }
     }
 }

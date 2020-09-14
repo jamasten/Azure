@@ -102,7 +102,7 @@
     },
     "variables": {},
     "resources": [
-        /*{
+        {
             "comments": "---------- RESOURCE GROUPS > PRIMARY REGION ----------",
             "name": "[concat('rg-', parameters('ResourceGroups')[copyIndex()],'-', parameters('Environment'),'-', parameters('Locations')[0])]",
             "type": "Microsoft.Resources/resourceGroups",
@@ -188,7 +188,7 @@
                     "uri": "https://raw.githubusercontent.com/jamasten/Azure/master/templates/network.json"
                 }
             }
-        },*/
+        },
         {
             "comments": "---------- LINKED DEPLOYMENT > SHARED > PRIMARY REGION ----------",
             "type": "Microsoft.Resources/deployments",
@@ -196,9 +196,9 @@
             "apiVersion": "2019-10-01",
             "tags": {},
             "dependsOn": [
-                /*"rgLoop1",
+                "rgLoop1",
                 "[concat('ManagedId_', parameters('Username'), '_', parameters('Timestamp'))]",
-                "6d4da268-fb61-412b-91d8-8e33227b4e5a"*/
+                "6d4da268-fb61-412b-91d8-8e33227b4e5a"
             ],
             "resourceGroup": "[concat('rg-shared-', parameters('Environment'),'-', parameters('Locations')[0])]",
             "properties": {
@@ -236,8 +236,8 @@
                     "uri": "https://raw.githubusercontent.com/jamasten/Azure/master/templates/shared.json"
                 }
             }
-        }/*,
-        {
+        },
+        /*{
             "comments": "---------- LINKED DEPLOYMENT > SECURITY CENTER ----------",
             "type": "Microsoft.Resources/deployments",
             "name": "[concat('SecurityCenter_', parameters('Username'), '_', parameters('Timestamp'))]",
@@ -266,7 +266,7 @@
                     "uri": "https://raw.githubusercontent.com/jamasten/Azure/master/templates/securitycenter.json"
                 }
             }
-        },
+        },*/
         {
             "comments": "---------- LINKED DEPLOYMENT > IDENTITY > PRIMARY REGION ----------",
             "type": "Microsoft.Resources/deployments",
@@ -313,7 +313,7 @@
                     "uri": "https://raw.githubusercontent.com/jamasten/Azure/master/templates/identity.json"
                 }
             }
-        }*/
+        }
     ],
     "outputs": {}
 }

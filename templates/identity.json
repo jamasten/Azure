@@ -244,7 +244,7 @@
                                 },
                                 {
                                     "Name": "NodeConfigurationName",
-                                    "Value": "[parameters('NodeConfiguration')]",
+                                    "Value": "ActiveDirectoryForest",
                                     "TypeName": "System.String"
                                 }
                             ]

@@ -314,7 +314,8 @@
                     "name": "ActiveDirectoryForest"
                 },
                 "parameters": {
-                    "DomainName": "[parameters('DomainName')]"
+                    "DomainName": "[parameters('DomainName')]",
+                    "configurationData": "[concat('{\"AllNodes\":{\"nodename\":\"localhost\"}}')]"
                 }
             }
         },

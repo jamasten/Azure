@@ -108,7 +108,7 @@ configuration ActiveDirectoryForest
          
         xADDomain FirstDomainController 
         {
-            DomainName = $Domain
+            DomainName = 'jasonmasten.com'
             DomainAdministratorCredential = $DomainCreds
             SafemodeAdministratorPassword = $DomainCreds
             DatabasePath = "C:\NTDS"

@@ -39,7 +39,7 @@
                 "name": "Aligned"
             }
         },
-        {   
+        {
             "comments": "---------- PUBLIC IP ADDRESS ----------",
             "name": "[concat('pip-vmdc', parameters('Environment'), resourceGroup().location, '0')]",
             "type": "Microsoft.Network/publicIPAddresses",
@@ -237,32 +237,17 @@
                         "type": "DSC",
                         "typeHandlerVersion": "2.77",
                         "autoUpgradeMinorVersion": true,
-                        "protectedSettings": {
-                            "Items": {
-                                "registrationKeyPrivate": "[listKeys(resourceId(concat('rg-shared-', parameters('Environment'),'-', resourceGroup().location), 'Microsoft.Automation/automationAccounts/', concat('aa', parameters('DomainAbbreviation'), parameters('Environment'), resourceGroup().location)), '2018-06-30').Keys[0].value]"
-                            }
-                        },
                         "settings": {
-                            "Properties": [
-                                {
-                                    "Name": "RegistrationKey",
-                                    "Value": {
-                                        "UserName": "PLACEHOLDER_DONOTUSE",
-                                        "Password": "PrivateSettingsRef:registrationKeyPrivate"
-                                    },
-                                    "TypeName": "System.Management.Automation.PSCredential"
-                                },
-                                {
-                                    "Name": "RegistrationUrl",
-                                    "Value": "[reference(resourceId(concat('rg-shared-', parameters('Environment'),'-', resourceGroup().location), 'Microsoft.Automation/automationAccounts/', concat('aa', parameters('DomainAbbreviation'), parameters('Environment'), resourceGroup().location)), '2018-06-30').registrationUrl]",
-                                    "TypeName": "System.String"
-                                },
-                                {
-                                    "Name": "NodeConfigurationName",
-                                    "Value": "ActiveDirectoryForest",
-                                    "TypeName": "System.String"
+                            "RegistrationUrl": "[reference(resourceId(concat('rg-shared-', parameters('Environment'),'-', resourceGroup().location), 'Microsoft.Automation/automationAccounts/', concat('aa', parameters('DomainAbbreviation'), parameters('Environment'), resourceGroup().location)), '2018-06-30').registrationUrl]",
+                            "NodeConfigurationName": "ActiveDirectoryForest"
+                        },
+                        "protectedSettings": {
+                            "configurationArguments": {
+                                "RegistrationKey": {
+                                    "userName": "NOT_USED",
+                                    "Password": "[listKeys(resourceId(concat('rg-shared-', parameters('Environment'),'-', resourceGroup().location), 'Microsoft.Automation/automationAccounts/', concat('aa', parameters('DomainAbbreviation'), parameters('Environment'), resourceGroup().location)), '2018-06-30').Keys[0].value]"
                                 }
-                            ]
+                            }
                         }
                     }
                 }

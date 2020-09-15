@@ -257,7 +257,7 @@
                                 },
                                 {
                                     "Name": "RegistrationUrl",
-                                    "Value": "[parameters('DscRegistrationUrl')]",
+                                    "Value": "[reference(resourceId(concat('rg-shared-', parameters('Environment'),'-', resourceGroup().location), 'Microsoft.Automation/automationAccounts/', concat('aa', parameters('DomainAbbreviation'), parameters('Environment'), resourceGroup().location)), '2018-06-30').registrationUrl]",
                                     "TypeName": "System.String"
                                 },
                                 {

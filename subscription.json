@@ -308,9 +308,6 @@
                     "DomainAbbreviation": {
                         "value": "[parameters('DomainAbbreviation')]"
                     },
-                    "DscRegistrationUrl": {
-                        "value": "[reference(concat('Shared_', parameters('Username'), '_', parameters('Timestamp'))).outputs.DscRegistrationUrl.value]"
-                    },
                     "Environment": {
                         "value": "[parameters('Environment')]"
                     },

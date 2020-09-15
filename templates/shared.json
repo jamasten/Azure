@@ -338,10 +338,5 @@
             }
         }
     ],
-    "outputs": {
-        "DscRegistrationUrl": {
-            "type": "string",
-            "value": "[reference(resourceId(concat('rg-shared-', parameters('Environment'),'-', resourceGroup().location),'Microsoft.Automation/automationAccounts/', concat('aa', parameters('DomainAbbreviation'), parameters('Environment'), resourceGroup().location))).registrationUrl]"
-        }
-    }
+    "outputs": {}
 }

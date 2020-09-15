@@ -45,12 +45,30 @@
                 "name": "Aligned"
             }
         },
+        {   
+            "comments": "---------- PUBLIC IP ADDRESS ----------",
+            "name": "[concat('pip-vmdc', parameters('Environment'), resourceGroup().location, '0')]",
+            "type": "Microsoft.Network/publicIPAddresses",
+            "apiVersion": "2020-05-01",
+            "location": "[resourceGroup().location]",
+            "sku": {
+                "name": "Basic"
+            },
+            "properties": {
+                "publicIPAddressVersion": "IPv4",
+                "publicIPAllocationMethod": "Dynamic",
+                "idleTimeoutInMinutes": 4
+            }
+        },
         {
             "comments": "---------- NETWORK INTERFACE ----------",
             "name": "[concat('nic-vmdc', parameters('Environment'), resourceGroup().location, '0')]",
             "type": "Microsoft.Network/networkInterfaces",
             "apiVersion": "2018-08-01",
             "location": "[resourceGroup().location]",
+            "dependsOn": [
+                "[concat('pip-vmdc', parameters('Environment'), resourceGroup().location, '0')]"
+            ],
             "tags": {
             },
             "properties": {
@@ -62,6 +80,9 @@
                             "privateIPAddress": "10.0.1.4",
                             "subnet": {
                                 "id": "[resourceId(subscription().subscriptionId, concat('rg-network-', parameters('Environment'),'-', resourceGroup().location), 'Microsoft.Network/virtualNetworks/subnets', concat('vnet-', parameters('Environment'), '-', resourceGroup().location), concat('snet-servers-', parameters('Environment'), '-',resourceGroup().location))]"
+                            },
+                            "publicIPAddress": {
+                                "id": "[resourceId('Microsoft.Network/publicIPAddresses', concat('pip-vmdc', parameters('Environment'), resourceGroup().location, '0'))]"
                             }
                         }
                     }

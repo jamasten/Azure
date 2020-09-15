@@ -5,9 +5,6 @@
         "DomainAbbreviation": {
             "type": "string"
         },
-        "DscRegistrationUrl": {
-            "type": "string"
-        },
         "Environment": {
             "type": "string"
         },

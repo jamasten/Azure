@@ -2,7 +2,7 @@ Param(
 
     #The first node in the domain name (i.e. JASONMASTEN in jasonmasten.com)
     [Parameter(Mandatory=$true)]
-    [string]$DomainName,
+    [string]$Domain,
 
     #An abbreviated version of the domain name
     #Used for naming external resources (i.e. key vault, storage account, automation account)
@@ -85,7 +85,7 @@ $HomePip = Get-PublicIpAddress
 # Template Parameter Object
 #############################################################
 $VSE = @{
-    DomainName = $DomainName
+    Domain = $Domain
     DomainAbbreviation = $DomainAbbreviation;
     Environment = $Environment;
     HomePip = $HomePip.Trim();
@@ -105,12 +105,12 @@ $VSE.Add("VmUsername", $VmUsername) # Secure Strings must use Add Method for pro
 try 
 {
     New-AzSubscriptionDeployment `
-    -Name $Name `
-    -Location $VSE.Locations[0] `
-    -TemplateFile '.\subscription.json' `
-    -TemplateParameterObject $VSE `
-    -ErrorAction Stop `
-    -Verbose
+        -Name $Name `
+        -Location $VSE.Locations[0] `
+        -TemplateFile '.\subscription.json' `
+        -TemplateParameterObject $VSE `
+        -ErrorAction Stop `
+        -Verbose
 }
 catch 
 {

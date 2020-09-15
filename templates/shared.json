@@ -5,7 +5,7 @@
         "DomainAbbreviation": {
             "type": "string"
         },
-        "DomainName": {
+        "Domain": {
             "type": "string"
         },
         "Environment": {
@@ -314,7 +314,7 @@
                     "name": "ActiveDirectoryForest"
                 },
                 "parameters": {
-                    "DomainName": "[parameters('DomainName')]",
+                    "Domain": "[parameters('Domain')]",
                     "configurationData": "[concat('{\"AllNodes\":{\"nodename\":\"localhost\"}}')]"
                 }
             }

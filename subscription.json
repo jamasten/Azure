@@ -8,7 +8,7 @@
                 "description": "The abbreviated value of the domain name before the root node, i.e. jasonmasten for jasonmasten.com"
             }
         },
-        "DomainName": {
+        "Domain": {
             "type": "string"
         },
         "Environment": {
@@ -233,8 +233,8 @@
                     "DomainAbbreviation": {
                         "value": "[parameters('DomainAbbreviation')]"
                     },
-                    "DomainName": {
-                        "value": "[parameters('DomainName')]"
+                    "Domain": {
+                        "value": "[parameters('Domain')]"
                     },
                     "Environment": {
                         "value": "[parameters('Environment')]"

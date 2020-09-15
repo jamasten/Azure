@@ -1,6 +1,6 @@
 Param(
 
-    #The first node in the domain name (i.e. JASONMASTEN in jasonmasten.com)
+    #The first node in the domain name (i.e. jasonmasten.com)
     [Parameter(Mandatory=$true)]
     [string]$Domain,
 

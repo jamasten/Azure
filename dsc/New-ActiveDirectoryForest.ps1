@@ -3,7 +3,7 @@ configuration ActiveDirectoryForest
    param 
    ( 
         [Parameter(Mandatory)]
-        [String]$DomainName
+        [String]$Domain
     ) 
     
     Import-DscResource -ModuleName xActiveDirectory -ModuleVersion '3.0.0.0'
@@ -108,7 +108,7 @@ configuration ActiveDirectoryForest
          
         xADDomain FirstDomainController 
         {
-            DomainName = $DomainName
+            DomainName = $Domain
             DomainAdministratorCredential = $DomainCreds
             SafemodeAdministratorPassword = $DomainCreds
             DatabasePath = "C:\NTDS"

@@ -339,10 +339,6 @@
         }
     ],
     "outputs": {
-        "DscRegistrationKey": {
-            "type": "string",
-            "value": "[listKeys(resourceId(concat('rg-shared-', parameters('Environment'),'-', resourceGroup().location), 'Microsoft.Automation/automationAccounts/', concat('aa', parameters('DomainAbbreviation'), parameters('Environment'), resourceGroup().location)), '2018-06-30').Keys[0].value]"
-        },
         "DscRegistrationUrl": {
             "type": "string",
             "value": "[reference(resourceId(concat('rg-shared-', parameters('Environment'),'-', resourceGroup().location),'Microsoft.Automation/automationAccounts/', concat('aa', parameters('DomainAbbreviation'), parameters('Environment'), resourceGroup().location))).registrationUrl]"

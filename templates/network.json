@@ -70,9 +70,7 @@
                     ]
                 },
                 "dhcpOptions": {
-                    "dnsServers": [
-                        "10.0.1.4"
-                    ]
+                    "dnsServers": []
                 },
                 "subnets": [
                     {

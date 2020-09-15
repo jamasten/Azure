@@ -226,7 +226,7 @@
                     "comments": "---------- DSC EXTENSION ----------",
                     "type": "extensions",
                     "name": "DSC",
-                    "apiVersion": "2018-06-01",
+                    "apiVersion": "2019-07-01",
                     "location": "[resourceGroup().location]",
                     "dependsOn": [
                         "[concat('vmdc', parameters('Environment'), resourceGroup().location, '0')]",
@@ -259,7 +259,7 @@
                                 },
                                 {
                                     "Name": "NodeConfigurationName",
-                                    "Value": "ActiveDirectoryForest",
+                                    "Value": "ActiveDirectoryForest.localhost",
                                     "TypeName": "System.String"
                                 },
                                 {

@@ -18,17 +18,25 @@
             },
             "defaultValue": [
                 {
-                    "name": "xActiveDirectory",
-                    "uri": "https://github.com/jamasten/Azure/blob/master/dsc/xactivedirectory.3.0.0.nupkg?raw=true"
+                    "name": "ActiveDirectoryDsc",
+                    "uri": "https://github.com/jamasten/Azure/blob/master/dsc/modules/activedirectorydsc.4.2.0.nupkg?raw=true"
                 },
                 {
-                    "name": "xNetworking",
-                    "uri": "https://github.com/jamasten/Azure/blob/master/dsc/xnetworking.5.7.0.nupkg?raw=true"
+                    "name": "ComputerManagementDsc",
+                    "uri": "https://github.com/jamasten/Azure/blob/master/dsc/modules/computermanagementdsc.8.4.0.nupkg?raw=true"
+                },                
+                {
+                    "name": "NetworkingDsc",
+                    "uri": "https://github.com/jamasten/Azure/blob/master/dsc/modules/networking.8.1.0.nupkg?raw=true"
                 },
                 {
-                    "name": "xPendingReboot",
-                    "uri": "https://github.com/jamasten/Azure/blob/master/dsc/xpendingreboot.0.4.0.nupkg?raw=true"
-                }
+                    "name": "PSDscResources",
+                    "uri": "https://github.com/jamasten/Azure/blob/master/dsc/modules/psdscresources.2.12.0.nupkg?raw=true"
+                },
+                {
+                    "name": "xDnsServer",
+                    "uri": "https://github.com/jamasten/Azure/blob/master/dsc/modules/xdnsserver.1.16.0.nupkg?raw=true"
+                }                             
             ]
         },
         "PerformanceType": {
@@ -276,7 +284,7 @@
             "properties": {
                 "source": {
                     "type": "uri",
-                    "value": "https://raw.githubusercontent.com/jamasten/Azure/master/dsc/New-ActiveDirectoryForest.ps1",
+                    "value": "https://raw.githubusercontent.com/jamasten/Azure/master/dsc/configurations/ActiveDirectoryForest.ps1",
                     "version": "[parameters('Timestamp')]"
                 },
                 "parameters": {},

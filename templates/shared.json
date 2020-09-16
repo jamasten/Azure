@@ -279,6 +279,7 @@
             "apiVersion": "2015-10-31",
             "location": "[resourceGroup().location]",
             "dependsOn": [
+                "modulesLoop",
                 "[resourceId('Microsoft.Automation/automationAccounts', concat('aa', parameters('DomainAbbreviation'), parameters('Environment'), resourceGroup().location))]"
             ],
             "properties": {

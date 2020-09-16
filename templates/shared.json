@@ -27,7 +27,7 @@
                 },                
                 {
                     "name": "NetworkingDsc",
-                    "uri": "https://github.com/jamasten/Azure/blob/master/dsc/modules/networking.8.1.0.nupkg?raw=true"
+                    "uri": "https://github.com/jamasten/Azure/blob/master/dsc/modules/networkingdsc.8.1.0.nupkg?raw=true"
                 },
                 {
                     "name": "PSDscResources",

@@ -319,6 +319,9 @@
                             "secretName": "DiskEncryptionKekUrl"
                         }
                     },
+                    "Timestamp": {
+                        "value": "[parameters('Timestamp')]"
+                    },
                     "VmPassword": {
                         "value": "[parameters('VmPassword')]"
                     },

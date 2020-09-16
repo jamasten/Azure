@@ -11,6 +11,9 @@
         "KeyEncryptionKeyURL": {
             "type": "string"
         },
+        "Timestamp": {
+            "type": "string"
+        },
         "VmPassword": {
             "type": "securestring"
         },
@@ -275,6 +278,11 @@
                                 {
                                     "Name": "ActionAfterReboot",
                                     "Value": "ContinueConfiguration",
+                                    "TypeName": "System.String"
+                                },
+                                {
+                                    "Name": "Timestamp",
+                                    "Value": "[parameters('Timestamp')]",
                                     "TypeName": "System.String"
                                 }
                             ]

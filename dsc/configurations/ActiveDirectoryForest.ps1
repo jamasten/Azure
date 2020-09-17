@@ -57,68 +57,11 @@ configuration ActiveDirectoryForest
             SkipWindowsUpdate = $false
         }
 
-	    WindowsFeature DNS 
-        { 
-            Ensure = "Present" 
-            Name = "DNS"		
-        }
-
-	    WindowsFeature DnsTools
-	    {
-	        Ensure = "Present"
-            Name = "RSAT-DNS-Server"
-            DependsOn = "[WindowsFeature]DNS"
-	    }
-
-        DnsServerAddress DnsServer 
-        { 
-            Address        = '127.0.0.1' 
-            InterfaceAlias = 'Ethernet'
-            AddressFamily  = 'IPv4'
-	        DependsOn = "[WindowsFeature]DNS"
-        }
-
-        xDnsServerDiagnostics EnableDnsDiagnostics
-        {
-            Name = 'EnableDnsDiagnostics'
-            Answers = $true
-            EnableLogFileRollover = $true
-            FullPackets = $true
-            EnableLoggingForLocalLookupEvent = $true
-            EnableLoggingForPluginDllEvent = $true
-            EnableLoggingForRecursiveLookupEvent = $true
-            EnableLoggingForRemoteServerEvent = $true
-            EnableLoggingForServerStartStopEvent = $true
-            EnableLoggingForTombstoneEvent = $true
-            EnableLoggingForZoneDataWriteEvent = $true
-            EnableLoggingForZoneLoadingEvent = $true
-            Notifications = $true
-            Queries = $true
-            QuestionTransactions = $true
-            SaveLogsToPersistentStorage = $true
-            ReceivePackets = $true
-            SendPackets = $true
-            TcpPackets = $true
-            UdpPackets = $true
-            UnmatchedResponse = $true
-            Update = $true
-            WriteThrough = $true
-            DependsOn = "[WindowsFeature]DNS"
-        }
-
-        xDnsServerForwarder Azure
-        {
-            IsSingleInstance = 'Yes'
-            IPAddresses = '168.63.129.16'
-            UseRootHint = $true
-            DependsOn = "[WindowsFeature]DNS"
-        }
-
         WindowsFeature ADDSInstall 
         { 
             Ensure = "Present" 
             Name = "AD-Domain-Services"
-	        DependsOn="[WindowsFeature]DNS" 
+	        DependsOn="[PendingReboot]PreAddsInstall" 
         } 
 
         WindowsFeature ADDSTools
@@ -134,6 +77,13 @@ configuration ActiveDirectoryForest
             Name = "RSAT-AD-AdminCenter"
             DependsOn = "[WindowsFeature]ADDSInstall"
         }
+
+        WindowsFeature DnsTools
+	    {
+	        Ensure = "Present"
+            Name = "RSAT-DNS-Server"
+            DependsOn = "[WindowsFeature]ADDSInstall"
+	    }
          
         ADDomain FirstDomainController 
         {
@@ -142,6 +92,14 @@ configuration ActiveDirectoryForest
             SafemodeAdministratorPassword = $DomainCreds
             ForestMode = 'WinThreshold'
 	  	    DependsOn = "[WindowsFeature]ADDSInstall"
+        }
+
+        xDnsServerForwarder Azure
+        {
+            IsSingleInstance = 'Yes'
+            IPAddresses = '168.63.129.16'
+            UseRootHint = $true
+            DependsOn = "[ADDomain]FirstDomainController"
         }
 
         foreach($User in $Users)
@@ -161,6 +119,7 @@ configuration ActiveDirectoryForest
                 Surname = $User.LastName
                 UserName = ($User.FirstName + $User.LastName).ToLower()
                 UserPrincipalName = ($User.FirstName + $User.LastName + '@' + $Domain).ToLower()
+                DependsOn = "[ADDomain]FirstDomainController"
             }
         }
     }

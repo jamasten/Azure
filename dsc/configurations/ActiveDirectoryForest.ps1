@@ -7,8 +7,6 @@ configuration ActiveDirectoryForest
     ) 
     
     Import-DscResource -ModuleName ActiveDirectoryDsc -ModuleVersion '4.2.0.0'
-    Import-DscResource -ModuleName ComputerManagementDsc -ModuleVersion '8.4.0'
-    Import-DscResource -ModuleName NetworkingDsc -ModuleVersion '8.1.0'
     Import-DscResource -ModuleName PSDscResources -ModuleVersion '2.12.0.0'
     Import-DscResource -ModuleName xDnsServer -ModuleVersion '1.16.0.0'
 
@@ -46,22 +44,10 @@ configuration ActiveDirectoryForest
 
     Node localhost
     {
-        PendingReboot PreAddsInstall
-        {
-            Name = 'PreAddsInstall'
-            PsDscRunAsCredential = $DomainCreds
-            SkipCcmClientSDK = $false
-            SkipComponentBasedServicing = $false
-            SkipPendingComputerRename = $false
-            SkipPendingFileRename = $false
-            SkipWindowsUpdate = $false
-        }
-
         WindowsFeature ADDSInstall 
         { 
             Ensure = "Present" 
-            Name = "AD-Domain-Services"
-	        DependsOn="[PendingReboot]PreAddsInstall" 
+            Name = "AD-Domain-Services" 
         } 
 
         WindowsFeature ADDSTools

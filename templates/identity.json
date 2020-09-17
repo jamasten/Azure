@@ -90,7 +90,7 @@
             "comments": "---------- VIRTUAL MACHINE ----------",
             "name": "[concat('vmdc', parameters('Environment'), resourceGroup().location, '0')]",
             "type": "Microsoft.Compute/virtualMachines",
-            "apiVersion": "2017-03-30",
+            "apiVersion": "2019-07-01",
             "location": "[resourceGroup().location]",
             "dependsOn": [
                 "[resourceId('Microsoft.Network/networkInterfaces', concat('nic-vmdc', parameters('Environment'), resourceGroup().location, '0'))]",
@@ -98,7 +98,7 @@
             ],
             "properties": {
                 "hardwareProfile": {
-                    "vmSize": "Standard_A1_v2"
+                    "vmSize": "Standard_B2s"
                 },
                 "osProfile": {
                     "computerName": "[concat('vmdc', parameters('Environment'), resourceGroup().location, '0')]",

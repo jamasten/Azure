@@ -2,6 +2,9 @@
     "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
+        "Domain": {
+            "type": "string"
+        },
         "DomainAbbreviation": {
             "type": "string"
         },
@@ -28,6 +31,48 @@
         "LogAnalyticsWorkspace": "[concat('law-', parameters('Environment'), '-', resourceGroup().location)]"
     },
     "resources": [
+        {
+            "comments": "---------- KEY VAULT > KEY ENCRYPTION KEY ----------",
+            "name": "ds-adconnectuserprincipal",
+            "type": "Microsoft.Resources/deploymentScripts",
+            "apiVersion": "2019-10-01-preview",
+            "identity": {
+                "type": "UserAssigned",
+                "userAssignedIdentities": {
+                    "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities','')]": {}
+                }
+            },
+            "location": "[resourceGroup().location]",
+            "kind": "AzurePowerShell",
+            "tags": {},
+            "dependsOn": [],
+            "properties": {
+                "azPowerShellVersion": "3.0.0",
+                "cleanupPreference": "OnSuccess",
+                "scriptContent": "
+                    param(
+                        [string] [Parameter(Mandatory=$true)] $Domain
+                        [string] [Parameter(Mandatory=$true)] $Password
+                    )
+
+                    $test = Get-AzADUser -UserPrincipalName $('adconnect@' + $Domain)
+                    if(!test)
+                    {
+                        New-AzADUser `
+                            -DisplayName 'AD Connect' `
+                            -UserPrincipalName $('adconnect@' + $Domain) `
+                            -Password $Password `
+                            -MailNickname 'ADConnect'
+                    }
+
+
+                ",
+                "arguments": "[format(' -Domain {0} -Password {1}', parameters('Domain'), parameters('VmPassword'))]",
+                "forceUpdateTag": "[parameters('Timestamp')]",
+                "retentionInterval": "P1D",
+                "timeout": "PT30M"
+            }
+        },
         {
             "comments": "---------- AVAILABILITY SET ----------",
             "name": "[concat('as-vmdc', parameters('Environment'), resourceGroup().location)]",

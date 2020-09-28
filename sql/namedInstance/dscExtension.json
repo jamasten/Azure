@@ -143,6 +143,7 @@
                 "type": "DSC",
                 "typeHandlerVersion": "2.77",
                 "autoUpgradeMinorVersion": false,
+                "forceUpdateTag": "[parameters('Timestamp')]",
                 "protectedSettings": {},
                 "settings": {
                     "wmfVersion": "latest",

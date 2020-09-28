@@ -5,6 +5,11 @@
 
     node localhost
     {
+        LocalConfigurationManager 
+        {
+            RebootNodeIfNeeded = $true
+        }
+
         PendingReboot PostSqlUninstall
         {
             Name       = 'RebootPostSqlInstall'

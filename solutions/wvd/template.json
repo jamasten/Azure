@@ -97,11 +97,11 @@
             ],
             "properties": {
                 "roleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', 'b24988ac-6180-42a0-ab88-20f7382dd24c')]",
-                "principalId": "[reference(concat(subscription().id, '/resourceGroups/rg-shared-', parameters('Environment'), '-', resourceGroup().location, '/providers/Microsoft.ManagedIdentity/userAssignedIdentities/uami-registrationToken'), '2018-11-30', 'Full').properties.principalId]",
+                "principalId": "[reference(concat(subscription().id, '/resourceGroups/rg-wvdcore-', parameters('Environment'), '-', resourceGroup().location, '/providers/Microsoft.ManagedIdentity/userAssignedIdentities/uami-registrationToken'), '2018-11-30', 'Full').properties.principalId]",
                 "scope": "[resourceGroup().id]"
             }
         },
-                {
+        {
             "comments": "---------- DEPLOYMENT SCRIPT > HOST POOL REGISTRATION KEY ----------",
             "name": "ds-registrationToken",
             "type": "Microsoft.Resources/deploymentScripts",
@@ -153,7 +153,9 @@
                 "[resourceId('Microsoft.DesktopVirtualization/hostpools', concat('hp-vdi-', parameters('Environment'), '-', resourceGroup().location))]",
                 "[resourceId('Microsoft.DesktopVirtualization/applicationgroups', 'Desktops')]",
                 "[resourceId('Microsoft.DesktopVirtualization/workspaces', concat('ws-wvd-', parameters('Environment'), '-', resourceGroup().location))]",
-                "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', 'uami-registrationToken')]"
+                "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', 'uami-registrationToken')]",
+                "[resourceId('Microsoft.Authorization/roleAssignments', 'b83afb3d-d1fb-4e96-84ff-93965762fc93')]",
+                "[resourceId('Microsoft.Resources/deploymentScripts','ds-registrationToken')]"
             ],
             "properties": {
                 "mode": "Incremental",

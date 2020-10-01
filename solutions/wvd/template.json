@@ -1,0 +1,111 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "Environment": {
+            "type": "string"
+        },
+        "HostCount": {
+            "type": "int"
+        },
+        "Timestamp": {
+            "type": "string",
+            "defaultValue": "[utcNow()]"
+        },
+        "Username": {
+            "type": "string",
+            "metadata": {
+                "description": "The username portion of the UPN for the principal deploying the script"
+            }
+        },
+        "VmPassword": {
+            "type": "securestring"
+        },
+        "VmUsername": {
+            "type": "securestring"
+        }
+    },
+    "variables": {},
+    "resources": [
+        {
+            "type": "Microsoft.DesktopVirtualization/hostpools",
+            "apiVersion": "2019-12-10-preview",
+            "name": "[concat('hp-vdi-', parameters('Environment'), '-', resourceGroup().location)]",
+            "location": "[resourceGroup().location]",
+            "properties": {
+                "description": "",
+                "hostPoolType": "Pooled",
+                "maxSessionLimit": 4,
+                "loadBalancerType": "DepthFirst",
+                "validationEnvironment": false,
+                "registrationInfo": {
+                    "registrationTokenOperation": "None"
+                },
+                "preferredAppGroupType": "Desktop"
+            }
+        },
+        {
+            "type": "Microsoft.DesktopVirtualization/applicationgroups",
+            "apiVersion": "2019-12-10-preview",
+            "name": "Desktops",
+            "location": "[resourceGroup().location]",
+            "dependsOn": [
+                "[resourceId('Microsoft.DesktopVirtualization/hostpools', concat('hp-vdi-', parameters('Environment'), '-', resourceGroup().location))]"
+            ],
+            "kind": "Desktop",
+            "properties": {
+                "hostPoolArmPath": "[resourceId('Microsoft.DesktopVirtualization/hostpools', concat('hp-vdi-', parameters('Environment'), '-', resourceGroup().location))]",
+                "description": "Desktop Application Group created through the Hostpool Wizard",
+                "friendlyName": "Default Desktop",
+                "applicationGroupType": "Desktop"
+            }
+        },
+        {
+            "type": "Microsoft.DesktopVirtualization/workspaces",
+            "apiVersion": "2019-12-10-preview",
+            "name": "[concat('ws-wvd-', parameters('Environment'), '-', resourceGroup().location)]",
+            "location": "eastus",
+            "dependsOn": [
+                "[resourceId('Microsoft.DesktopVirtualization/applicationgroups', 'Desktops')]"
+            ],
+            "properties": {
+                "applicationGroupReferences": [
+                    "[resourceId('Microsoft.DesktopVirtualization/applicationgroups', 'Desktops')]"
+                ]
+            }
+        },
+        {
+
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2019-10-01",
+            "name": "[concat('SessionHosts_', parameters('Username'), '_', parameters('Timestamp'))]",
+            "resourceGroup": "[concat('rg-wvdhosts-', parameters('Environment'), '-', resourceGroup().location)]",
+            "dependsOn": [
+                "[resourceId('Microsoft.DesktopVirtualization/hostpools', concat('hp-vdi-', parameters('Environment'), '-', resourceGroup().location))]",
+                "[resourceId('Microsoft.DesktopVirtualization/applicationgroups', 'Desktops')]",
+                "[resourceId('Microsoft.DesktopVirtualization/workspaces', concat('ws-wvd-', parameters('Environment'), '-', resourceGroup().location))]"
+            ],
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "https://raw.githubusercontent.com/jamasten/Azure/master/solutions/wvd/templates/hosts.json",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "Environment": {
+                        "value": "[parameters('Environment')]"
+                    },
+                    "HostCount": {
+                        "value": "[parameters('HostCount')]"
+                    },
+                    "VmPassword": {
+                        "value": "[parameters('VmPassword')]"
+                    },
+                    "VmUsername": {
+                        "value": "[parameters('VmUsername')]"
+                    }
+                }
+            }
+        }
+    ]
+}

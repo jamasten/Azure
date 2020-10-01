@@ -201,7 +201,7 @@
                 "settings": {
                     "wmfVersion": "latest",
                     "configuration": {
-                        "url": "https://github.com/jamasten/Azure/blob/master/sql/namedInstance/SqlInstall.zip?raw=true",
+                        "url": "https://github.com/jamasten/Azure/blob/master/solutions/sql/namedInstance/dsc/SqlInstall.zip?raw=true",
                         "script": "SqlInstall.ps1",
                         "function": "SQLInstall"
                     }

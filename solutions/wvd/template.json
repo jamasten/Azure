@@ -6,7 +6,8 @@
             "type": "string"
         },
         "HostCount": {
-            "type": "int"
+            "type": "int",
+            "defaultValue": 2
         },
         "Timestamp": {
             "type": "string",

@@ -65,7 +65,7 @@
         {
             "type": "Microsoft.Compute/virtualMachines",
             "apiVersion": "2019-07-01",
-            "name": "[concat('vmvdi', parameters('Environment'), resourceGroup().location, copyIndex())]",
+            "name": "[concat('vmsh', parameters('Environment'), resourceGroup().location, copyIndex())]",
             "location": "[resourceGroup().location]",
             "dependsOn": [
                 "nicLoop",

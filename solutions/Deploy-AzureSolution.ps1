@@ -87,9 +87,7 @@ switch($Solution)
         }
     wvd {
             $Credential = Get-Credential -Message "Input the credentials for the Azure VM local admin account"
-            $HomePip = Get-PublicIpAddress
             $Params.Add("Environment", $Environment)
-            $Params.Add("HomePip", $HomePip.Trim())
             $Params.Add("Username", $UserName)
             $Params.Add("VmPassword", $Credential.Password)
             $Params.Add("VmUsername", $Credential.UserName)

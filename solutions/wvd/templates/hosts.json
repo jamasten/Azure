@@ -8,6 +8,9 @@
         "HostCount": {
             "type": "int"
         },
+        "RegistrationToken": {
+            "type": "string"
+        },
         "VmPassword": {
             "type": "securestring"
         },
@@ -146,7 +149,7 @@
                             "configurationFunction": "Configuration.ps1\\AddSessionHost",
                             "properties": {
                                 "hostPoolName": "[concat('hp-vdi-', parameters('Environment'), '-', resourceGroup().location)]",
-                                "registrationInfoToken": ""
+                                "registrationInfoToken": "[parameters('RegistrationToken')]"
                             }
                         },
                         "protectedSettings": {}

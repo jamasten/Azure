@@ -163,7 +163,7 @@
                 "mode": "Incremental",
                 "parameters": {},
                 "templateLink": {
-                    "uri": "https://raw.githubusercontent.com/jamasten/Azure/master/templates/userassignedmanagedidentity.json"
+                    "uri": "https://raw.githubusercontent.com/jamasten/Azure/master/subscription/templates/userassignedmanagedidentity.json"
                 }
             }
         },
@@ -208,7 +208,7 @@
                     }
                 },
                 "templateLink": {
-                    "uri": "https://raw.githubusercontent.com/jamasten/Azure/master/templates/network.json"
+                    "uri": "https://raw.githubusercontent.com/jamasten/Azure/master/subscription/templates/network.json"
                 }
             }
         },
@@ -256,7 +256,7 @@
                     }
                 },
                 "templateLink": {
-                    "uri": "https://raw.githubusercontent.com/jamasten/Azure/master/templates/shared.json"
+                    "uri": "https://raw.githubusercontent.com/jamasten/Azure/master/subscription/templates/shared.json"
                 }
             }
         },
@@ -286,7 +286,7 @@
                     }
                 },
                 "templateLink": {
-                    "uri": "https://raw.githubusercontent.com/jamasten/Azure/master/templates/securitycenter.json"
+                    "uri": "https://raw.githubusercontent.com/jamasten/Azure/master/subscription/templates/securitycenter.json"
                 }
             }
         },*/
@@ -331,7 +331,7 @@
                     }
                 },
                 "templateLink": {
-                    "uri": "https://raw.githubusercontent.com/jamasten/Azure/master/templates/identity.json"
+                    "uri": "https://raw.githubusercontent.com/jamasten/Azure/master/subscription/templates/identity.json"
                 }
             }
         }

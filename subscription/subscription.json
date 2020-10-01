@@ -1,0 +1,340 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2018-05-01/$scriptionDeploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "DomainAbbreviation": {
+            "type": "string",
+            "metadata": {
+                "description": "The abbreviated value of the domain name before the root node, i.e. jasonmasten for jasonmasten.com"
+            }
+        },
+        "Domain": {
+            "type": "string"
+        },
+        "Environment": {
+            "type": "string",
+            "allowedValues": [
+                "dev",
+                "prod",
+                "qa",
+                "sandbox",
+                "shared",
+                "stage",
+                "test"
+            ],
+            "defaultValue": "dev",
+            "metadata": {
+                "description": "The operating environment of the resources"
+            }
+        },
+        "DisasterRecovery": {
+            "type": "string",
+            "metadata": {
+                "description": "Determines if a secondary region is provisioned for high availability."
+            },
+            "allowedValues": [
+                "yes",
+                "no"
+            ],
+            "defaultValue": "no"
+        },
+        "HomePip": {
+            "type": "string",
+            "metadata": {
+                "description": "The Public IP address for your home netowrk to allow RDP traffic throught the NSGs"
+            }
+        },
+        "Locations": {
+            "type": "array",
+            "metadata": {
+                "description": "Locations for Resource Groups & Resources. The first index is primary location and the second index is the secondary location for business continuity and disaster recovery "
+            }
+        },
+        "Nsgs": {
+            "type": "array",
+            "metadata": {
+                "description": "Network security groups applied to the subnets"
+            },
+            "defaultValue": [
+                "shared",
+                "servers",
+                "clients"
+            ]
+        },
+        "PerformanceType": {
+            "type": "string",
+            "allowedValues": [
+                "p",
+                "s"
+            ],
+            "metadata": {
+                "description": "The storage account sku"
+            }
+        },
+        "ResourceGroups": {
+            "type": "array",
+            "metadata": {
+                "description": "Resource group identifier"
+            },
+            "defaultValue": [
+                "identity",
+                "network",
+                "shared"
+            ]
+        },
+        "SecurityDistributionGroup": {
+            "type": "string",
+            "metadata": {
+                "description": "Email address to recieve Security Center notifications"
+            }
+        },
+        "Timestamp": {
+            "type": "string",
+            "defaultValue": "[utcNow()]"
+        },
+        "UserObjectId": {
+            "type": "string",
+            "metadata": {
+                "description": "The Azure AD Object ID for the User Principal"
+            }
+        },
+        "Username": {
+            "type": "string",
+            "metadata": {
+                "description": "The username portion of the UPN for the principal deploying the script"
+            }
+        },
+        "VmPassword": {
+            "type": "securestring",
+            "metadata": {
+                "description": "Azure VM password"
+            }
+        },
+        "VmUsername": {
+            "type": "string",
+            "metadata": {
+                "description": "Azure VM username"
+            }
+        }
+    },
+    "variables": {},
+    "resources": [
+        {
+            "comments": "---------- RESOURCE GROUPS > PRIMARY REGION ----------",
+            "name": "[concat('rg-', parameters('ResourceGroups')[copyIndex()],'-', parameters('Environment'),'-', parameters('Locations')[0])]",
+            "type": "Microsoft.Resources/resourceGroups",
+            "apiVersion": "2019-10-01",
+            "location": "[parameters('Locations')[0]]",
+            "tags": {},
+            "properties": {},
+            "copy": {
+                "name": "rgLoop1",
+                "count": "[length(parameters('ResourceGroups'))]"
+            }
+        },
+        {
+            "comments": "---------- RESOURCE GROUPS > SECONDARY REGION ----------",
+            "condition": "[equals(parameters('DisasterRecovery'),'yes')]",
+            "name": "[concat('rg-', parameters('ResourceGroups')[copyIndex()],'-', parameters('Environment'),'-', parameters('Locations')[1])]",
+            "type": "Microsoft.Resources/resourceGroups",
+            "apiVersion": "2019-10-01",
+            "location": "[parameters('Locations')[1]]",
+            "tags": {},
+            "properties": {},
+            "copy": {
+                "name": "rgLoop2",
+                "count": "[length(parameters('ResourceGroups'))]"
+            }
+        },
+        {
+            "comments": "---------- LINKED DEPLOYMENT > USER ASSIGNED MANAGED IDENTITY ----------",
+            "type": "Microsoft.Resources/deployments",
+            "name": "[concat('ManagedId_', parameters('Username'), '_', parameters('Timestamp'))]",
+            "apiVersion": "2019-10-01",
+            "tags": {},
+            "dependsOn": [
+                "rgLoop1"
+            ],
+            "resourceGroup": "[concat('rg-shared-', parameters('Environment'),'-', parameters('Locations')[0])]",
+            "properties": {
+                "expressionEvaluationOptions": {
+                    "scope": "inner"
+                },
+                "mode": "Incremental",
+                "parameters": {},
+                "templateLink": {
+                    "uri": "https://raw.githubusercontent.com/jamasten/Azure/master/templates/userassignedmanagedidentity.json"
+                }
+            }
+        },
+        {
+            "comments": "---------- ROLE ASSIGNMENT > USER ASSIGNED MANAGED IDENTITY ----------",
+            "type": "Microsoft.Authorization/roleAssignments",
+            "apiVersion": "2017-09-01",
+            "name": "6d4da268-fb61-412b-91d8-8e33227b4e5a",
+            "dependsOn": [
+                "[concat('ManagedId_', parameters('Username'), '_', parameters('Timestamp'))]"
+            ],
+            "properties": {
+                "roleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', 'b24988ac-6180-42a0-ab88-20f7382dd24c')]",
+                "principalId": "[reference(concat(subscription().id, '/resourceGroups/rg-shared-', parameters('Environment'), '-', parameters('Locations')[0], '/providers/Microsoft.ManagedIdentity/userAssignedIdentities/uami-deploykek'), '2018-11-30', 'Full').properties.principalId]",
+                "scope": "[subscription().id]"
+            }
+        },
+        {
+            "comments": "---------- LINKED DEPLOYMENT > NETWORK > PRIMARY REGION ----------",
+            "type": "Microsoft.Resources/deployments",
+            "name": "[concat('Network_', parameters('Username'), '_', parameters('Timestamp'))]",
+            "apiVersion": "2019-10-01",
+            "tags": {},
+            "dependsOn": [
+                "rgLoop1"
+            ],
+            "resourceGroup": "[concat('rg-network-', parameters('Environment'),'-', parameters('Locations')[0])]",
+            "properties": {
+                "expressionEvaluationOptions": {
+                    "scope": "inner"
+                },
+                "mode": "Incremental",
+                "parameters": {
+                    "Environment": {
+                        "value": "[parameters('Environment')]"
+                    },
+                    "HomePip": {
+                        "value": "[parameters('HomePip')]"
+                    },
+                    "Nsgs": {
+                        "value": "[parameters('Nsgs')]"
+                    }
+                },
+                "templateLink": {
+                    "uri": "https://raw.githubusercontent.com/jamasten/Azure/master/templates/network.json"
+                }
+            }
+        },
+        {
+            "comments": "---------- LINKED DEPLOYMENT > SHARED > PRIMARY REGION ----------",
+            "type": "Microsoft.Resources/deployments",
+            "name": "[concat('Shared_', parameters('Username'), '_', parameters('Timestamp'))]",
+            "apiVersion": "2019-10-01",
+            "tags": {},
+            "dependsOn": [
+                "rgLoop1",
+                "[concat('ManagedId_', parameters('Username'), '_', parameters('Timestamp'))]",
+                "6d4da268-fb61-412b-91d8-8e33227b4e5a"
+            ],
+            "resourceGroup": "[concat('rg-shared-', parameters('Environment'),'-', parameters('Locations')[0])]",
+            "properties": {
+                "expressionEvaluationOptions": {
+                    "scope": "inner"
+                },
+                "mode": "Incremental",
+                "parameters": {
+                    "DomainAbbreviation": {
+                        "value": "[parameters('DomainAbbreviation')]"
+                    },
+                    "Domain": {
+                        "value": "[parameters('Domain')]"
+                    },
+                    "Environment": {
+                        "value": "[parameters('Environment')]"
+                    },
+                    "PerformanceType": {
+                        "value": "[parameters('PerformanceType')]"
+                    },
+                    "Timestamp": {
+                        "value": "[parameters('Timestamp')]"
+                    },
+                    "UserObjectId": {
+                        "value": "[parameters('UserObjectId')]"
+                    },
+                    "VmPassword": {
+                        "value": "[parameters('VmPassword')]"
+                    },
+                    "VmUsername": {
+                        "value": "[parameters('VmUsername')]"
+                    }
+                },
+                "templateLink": {
+                    "uri": "https://raw.githubusercontent.com/jamasten/Azure/master/templates/shared.json"
+                }
+            }
+        },
+        /*{
+            "comments": "---------- LINKED DEPLOYMENT > SECURITY CENTER ----------",
+            "type": "Microsoft.Resources/deployments",
+            "name": "[concat('SecurityCenter_', parameters('Username'), '_', parameters('Timestamp'))]",
+            "apiVersion": "2019-10-01",
+            "dependsOn": [
+                "[concat('Shared_', parameters('Username'), '_', parameters('Timestamp'))]"
+            ],
+            "resourceGroup": "[concat('rg-shared-', parameters('Environment'),'-', parameters('Locations')[0])]",
+            "properties": {
+                "expressionEvaluationOptions": {
+                    "scope": "inner"
+                },
+                "mode": "Incremental",
+                "parameters": {
+                    "Environment": {
+                        "value": "[parameters('Environment')]"
+                    },
+                    "Location": {
+                        "value": "[parameters('Locations')[0]]"
+                    },
+                    "SecurityDistributionGroup": {
+                        "value": "[parameters('SecurityDistributionGroup')]"
+                    }
+                },
+                "templateLink": {
+                    "uri": "https://raw.githubusercontent.com/jamasten/Azure/master/templates/securitycenter.json"
+                }
+            }
+        },*/
+        {
+            "comments": "---------- LINKED DEPLOYMENT > IDENTITY > PRIMARY REGION ----------",
+            "type": "Microsoft.Resources/deployments",
+            "name": "[concat('Identity_', parameters('Username'), '_', parameters('Timestamp'))]",
+            "apiVersion": "2019-10-01",
+            "dependsOn": [
+                "[concat('Network_', parameters('Username'), '_', parameters('Timestamp'))]",
+                "[concat('Shared_', parameters('Username'), '_', parameters('Timestamp'))]"
+            ],
+            "resourceGroup": "[concat('rg-identity-', parameters('Environment'),'-', parameters('Locations')[0])]",
+            "properties": {
+                "expressionEvaluationOptions": {
+                    "scope": "inner"
+                },
+                "mode": "Incremental",
+                "parameters": {
+                    "DomainAbbreviation": {
+                        "value": "[parameters('DomainAbbreviation')]"
+                    },
+                    "Environment": {
+                        "value": "[parameters('Environment')]"
+                    },
+                    "KeyEncryptionKeyURL": {
+                        "reference": {
+                            "keyVault": {
+                                "id": "[concat(subscription().id, '/resourceGroups/', 'rg-shared-', parameters('Environment'),'-', parameters('Locations')[0],'/providers/Microsoft.KeyVault/vaults/', 'kv', parameters('DomainAbbreviation'), parameters('Environment'), parameters('Locations')[0])]"
+                            },
+                            "secretName": "DiskEncryptionKekUrl"
+                        }
+                    },
+                    "Timestamp": {
+                        "value": "[parameters('Timestamp')]"
+                    },
+                    "VmPassword": {
+                        "value": "[parameters('VmPassword')]"
+                    },
+                    "VmUsername": {
+                        "value": "[parameters('VmUsername')]"
+                    }
+                },
+                "templateLink": {
+                    "uri": "https://raw.githubusercontent.com/jamasten/Azure/master/templates/identity.json"
+                }
+            }
+        }
+    ],
+    "outputs": {}
+}

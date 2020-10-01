@@ -1,4 +1,4 @@
-# Covert the default SQL instance to a named SQL instance
+# Convert the default SQL instance to a named SQL instance
 
 ## Steps
 1. Deploy a SQL Server VM from Azure Marketplace

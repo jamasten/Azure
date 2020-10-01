@@ -62,7 +62,7 @@ if(!(Get-AzContext | Where-Object {$_.Subscription.Id -eq $SubscriptionId}))
 #############################################################
 # Load functions
 #############################################################
-. .\utilities\functions.ps1
+. ..\utilities\functions.ps1
 
 
 #############################################################

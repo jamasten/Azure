@@ -2,37 +2,30 @@
 
     [Parameter(Mandatory=$true)]
     [ValidateSet("dev", "prod", "qa", "sandbox", "shared", "stage", "test")]
-    [bool]$DisasterRecovery, 
-
-    [Parameter(Mandatory=$true)]
-    [ValidateSet("dev", "prod", "qa", "sandbox", "shared", "stage", "test")]
     [string]$Environment, 
 
-    #Primary Azure Region
     [Parameter(Mandatory=$true)]
     [ValidateScript({(Get-AzLocation | Select-Object -ExpandProperty Location) -contains $_})]
-    [string]$LocationPrimary,
-
-    #Secondary Azure Region for BCDR
-    [Parameter(Mandatory=$true)]
-    [ValidateScript({(Get-AzLocation | Select-Object -ExpandProperty Location) -contains $_})]
-    [string]$LocationSecondary,
+    [string]$Location,
 
     [parameter(Mandatory=$true)]
-    [string]$ResourceGroup,
+    [ValidateSet("dns", "sql", "wvd")]
+    [string]$Solution,
   
     [parameter(Mandatory=$true)]
-    [string]$SubscriptionId,
-
-    [parameter(Mandatory=$true)]
-    [string]$TemplateFile
+    [string]$SubscriptionId
 )
 
 
 #############################################################
-# Load functions
+# Check directory
 #############################################################
-. ..\utilities\functions.ps1
+$test = Test-Path -Path .\Deploy-AzureSolution.ps1
+if(!$test)
+{
+    Write-Error 'Correct the working directory to support relative paths'
+    throw
+}
 
 
 #############################################################
@@ -62,21 +55,51 @@ $Context = Get-AzContext
 $Username = $Context.Account.Id.Split('@')[0]
 $TimeStamp = Get-Date -F 'yyyyMMddhhmmss'
 $Name =  $Username + '_' + $TimeStamp
-$Credential = Get-Credential -Message "Input the credentials for the Azure VM local admin account"
-$HomePip = Get-PublicIpAddress
-$VSE = @{
-    HomePip = $HomePip.Trim()
-}
-$VSE.Add("VmPassword", $Credential.Password) # Secure Strings must use Add Method for proper deserialization
-$VSE.Add("VmUsername", $Credential.UserName)
-
-
-#############################################################
-# Resource Group
-#############################################################
-if(!(Get-AzResourceGroup -Name $ResourceGroup -ErrorAction SilentlyContinue))
+$Params = @{}
+switch($Solution)
 {
-    New-AzResourceGroup -Name $AzureRg -Location $AzureLocation | Out-Null
+    dns {
+            $Credential = Get-Credential -Message "Input the credentials for the Azure VM local admin account"
+            $HomePip = Get-PublicIpAddress
+            $Params.Add("HomePip", $HomePip.Trim())
+            $Params.Add("VmPassword", $Credential.Password)
+            $Params.Add("VmUsername", $Credential.UserName)
+            $TemplateFile = ".\dns\template.json"
+            $ResourceGroup = 'rg-' + $Solution + '-' + $Environment + '-' + $Location
+            if(!(Get-AzResourceGroup -Name $ResourceGroup -ErrorAction SilentlyContinue))
+            {
+                New-AzResourceGroup -Name $ResourceGroup -Location $Location | Out-Null
+            }
+        }
+    sql {
+            $Params.Add("vmName", "vmsqltest")
+            $TemplateFile = ".\sql\namedInstance\template.json"
+            $ResourceGroup = 'rg-' + $Solution + '-' + $Environment + '-' + $Location
+            if(!(Get-AzResourceGroup -Name $ResourceGroup -ErrorAction SilentlyContinue))
+            {
+                New-AzResourceGroup -Name $ResourceGroup -Location $Location | Out-Null
+            }
+        }
+    wvd {
+            $Credential = Get-Credential -Message "Input the credentials for the Azure VM local admin account"
+            $HomePip = Get-PublicIpAddress
+            $Params.Add("Environment", $Environment)
+            $Params.Add("HomePip", $HomePip.Trim())
+            $Params.Add("Username", $UserName)
+            $Params.Add("VmPassword", $Credential.Password)
+            $Params.Add("VmUsername", $Credential.UserName)
+            $TemplateFile = ".\wvd\template.json"
+            $ResourceGroup = 'rg-' + $Solution + 'core-' + $Environment + '-' + $Location
+            if(!(Get-AzResourceGroup -Name $ResourceGroup -ErrorAction SilentlyContinue))
+            {
+                New-AzResourceGroup -Name $ResourceGroup -Location $Location | Out-Null
+            }
+            $ResourceGroup2 = 'rg-' + $Solution + 'hosts-' + $Environment + '-' + $Location
+            if(!(Get-AzResourceGroup -Name $ResourceGroup2 -ErrorAction SilentlyContinue))
+            {
+                New-AzResourceGroup -Name $ResourceGroup2 -Location $Location | Out-Null
+            }
+        }
 }
 
 
@@ -89,8 +112,7 @@ try
         -Name $Name `
         -ResourceGroupName $ResourceGroup `
         -TemplateFile $TemplateFile `
-        -ErrorAction Stop
-        -TemplateParameterObject $VSE `
+        -TemplateParameterObject $Params `
         -ErrorAction Stop `
         -Verbose
 }

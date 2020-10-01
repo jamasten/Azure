@@ -124,7 +124,7 @@
                 "cleanupPreference": "OnSuccess",
                 "scriptContent": "
                     param(
-                        [string] [Parameter(Mandatory=$true)] $Hostpool
+                        [string] [Parameter(Mandatory=$true)] $Hostpool,
 
                         [string] [Parameter(Mandatory=$true)] $ResourceGroup
                     )

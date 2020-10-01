@@ -23,8 +23,7 @@
 $test = Test-Path -Path .\Deploy-AzureSolution.ps1
 if(!$test)
 {
-    Write-Error 'Correct the working directory to support relative paths'
-    throw
+    Write-Error 'Correct the working directory to support relative paths' -ErrorAction Stop
 }
 
 

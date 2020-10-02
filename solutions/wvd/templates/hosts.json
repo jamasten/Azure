@@ -166,7 +166,8 @@
                     "name": "DSC",
                     "location": "[resourceGroup().location]",
                     "dependsOn": [
-                        "[resourceId('Microsoft.Compute/virtualMachines', concat('vmsh', parameters('Environment'), resourceGroup().location, copyIndex()))]"
+                        "[resourceId('Microsoft.Compute/virtualMachines', concat('vmsh', parameters('Environment'), resourceGroup().location, copyIndex()))]",
+                        "JsonADDomainExtension"
                     ],
                     "properties": {
                         "autoUpgradeMinorVersion": true,

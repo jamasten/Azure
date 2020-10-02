@@ -94,7 +94,7 @@
                 "storageProfile": {
                     "imageReference": {
                         "publisher": "MicrosoftWindowsDesktop",
-                        "offer": "windows-10-2004-vhd-client-office-prod-stage",
+                        "offer": "office-365",
                         "sku": "20h1-evd-o365pp",
                         "version": "latest"
                     },

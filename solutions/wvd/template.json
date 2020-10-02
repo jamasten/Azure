@@ -133,7 +133,7 @@
                         [string] [Parameter(Mandatory=$true)] $Hostpool,
                         [string] [Parameter(Mandatory=$true)] $ResourceGroup
                     )
-                    Install-Module -Name Az.DesktopVirtualization
+                    Install-Module -Name Az.DesktopVirtualization -AllowClobber -Scope AllUsers -Force
                     $Token = New-AzWvdRegistrationInfo -ResourceGroupName $ResourceGroup -HostPoolName $Hostpool -ExpirationTime $((get-date).ToUniversalTime().AddHours(2).ToString('yyyy-MM-ddTHH:mm:ss.fffffffZ'))
                     Write-Output $Token
                     $DeploymentScriptOutputs = @{}

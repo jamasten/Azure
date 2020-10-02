@@ -21,7 +21,7 @@
             "type": "securestring"
         },
         "VmUsername": {
-            "type": "securestring"
+            "type": "string"
         }
     },
     "variables": {},

@@ -2,11 +2,17 @@
     "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
+        "Domain": {
+            "type": "string"
+        },
         "Environment": {
             "type": "string"
         },
         "HostCount": {
             "type": "int"
+        },
+        "Netbios": {
+            "type": "string"
         },
         "RegistrationToken": {
             "type": "string"
@@ -131,6 +137,30 @@
                 "licenseType": "Windows_Client"
             },
             "resources": [
+                {
+                    "apiVersion": "2019-07-01",
+                    "type": "extensions",
+                    "name": "JsonADDomainExtension",
+                    "location": "[resourceGroup().location]",
+                    "dependsOn": [
+                        "[concat('Microsoft.Compute/virtualMachines/', concat('vmsh', parameters('Environment'), resourceGroup().location, copyIndex()))]"
+                    ],
+                    "properties": {
+                        "publisher": "Microsoft.Compute",
+                        "type": "JsonADDomainExtension",
+                        "typeHandlerVersion": "1.3",
+                        "autoUpgradeMinorVersion": true,
+                        "settings": {
+                            "Name": "[parameters('Domain')]",
+                            "User": "[concat(parameters('Netbios'), '\\', parameters('VmUsername'))]",
+                            "Restart": "true",
+                            "Options": "3"
+                        },
+                        "protectedSettings": {
+                            "Password": "[parameters('VmPassword')]"
+                        }
+                    }
+                },
                 {
                     "type": "extensions",
                     "apiVersion": "2019-07-01",

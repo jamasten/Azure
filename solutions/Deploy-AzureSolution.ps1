@@ -1,6 +1,9 @@
 ﻿Param(
 
     [Parameter(Mandatory=$true)]
+    [string]$Domain,
+
+    [Parameter(Mandatory=$true)]
     [ValidateSet("dev", "prod", "qa", "sandbox", "shared", "stage", "test")]
     [string]$Environment, 
 
@@ -87,7 +90,10 @@ switch($Solution)
         }
     wvd {
             $Credential = Get-Credential -Message "Input the credentials for the Azure VM local admin account"
+            $Netbios = $Domain.Split('.')[0]
+            $Params.Add("Domain", $Domain)
             $Params.Add("Environment", $Environment)
+            $Params.Add("Netbios", $Netbios)
             $Params.Add("Username", $UserName)
             $Params.Add("VmPassword", $Credential.Password)
             $Params.Add("VmUsername", $Credential.UserName)

@@ -2,12 +2,18 @@
     "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
+        "Domain": {
+            "type": "string"
+        },
         "Environment": {
             "type": "string"
         },
         "HostCount": {
             "type": "int",
             "defaultValue": 2
+        },
+        "Netbios": {
+            "type": "string"
         },
         "Timestamp": {
             "type": "string",
@@ -125,16 +131,12 @@
                 "scriptContent": "
                     param(
                         [string] [Parameter(Mandatory=$true)] $Hostpool,
-
                         [string] [Parameter(Mandatory=$true)] $ResourceGroup
                     )
-
+                    Install-Module -Name Az.DesktopVirtualization
                     $Token = New-AzWvdRegistrationInfo -ResourceGroupName $ResourceGroup -HostPoolName $Hostpool -ExpirationTime $((get-date).ToUniversalTime().AddHours(2).ToString('yyyy-MM-ddTHH:mm:ss.fffffffZ'))
-                
                     Write-Output $Token
-
                     $DeploymentScriptOutputs = @{}
-            
                     $DeploymentScriptOutputs['text'] = $Token
                 ",
                 "arguments": "[format(' -Hostpool {0} -ResourceGroup {1}', concat('hp-vdi-', parameters('Environment'), '-', resourceGroup().location), resourceGroup().name)]",
@@ -164,11 +166,17 @@
                     "contentVersion": "1.0.0.0"
                 },
                 "parameters": {
+                    "Domain": {
+                        "value": "[parameters('Domain')]"
+                    },
                     "Environment": {
                         "value": "[parameters('Environment')]"
                     },
                     "HostCount": {
                         "value": "[parameters('HostCount')]"
+                    },
+                    "Netbios": {
+                        "value": "[parameters('Netbios')]"
                     },
                     "RegistrationToken": {
                         "value": "[reference('ds-registrationToken').outputs.text]"

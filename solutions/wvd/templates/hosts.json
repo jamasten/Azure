@@ -5,6 +5,9 @@
         "Domain": {
             "type": "string"
         },
+        "DomainAbbreviation": {
+            "type": "string"
+        },
         "Environment": {
             "type": "string"
         },
@@ -27,7 +30,12 @@
             "type": "string"
         }
     },
-    "variables": {},
+    "variables": {
+        "KeyVaultResourceGroup": "[concat('rg-shared-', parameters('Environment'), '-', resourceGroup().location)]",
+        "KeyVaultName": "[concat('kv', parameters('DomainAbbreviation'), parameters('Environment'), resourceGroup().location)]",
+        "KeyVaultResourceID": "[resourceId(variables('KeyVaultResourceGroup'), 'Microsoft.KeyVault/vaults/', variables('KeyVaultName'))]",
+        "LogAnalyticsWorkspace": "[concat('law-', parameters('Environment'), '-', resourceGroup().location)]"
+    },
     "resources": [
         {
             "type": "Microsoft.Compute/availabilitySets",
@@ -140,12 +148,71 @@
             },
             "resources": [
                 {
+                    "comments": "---------- MICROSOFT MONITORING AGENT ----------",
+                    "type": "extensions",
+                    "name": "MicrosoftMonitoringAgent",
+                    "apiVersion": "2017-03-30",
+                    "location": "[resourceGroup().location]",
+                    "dependsOn": [
+                        "[concat('vmsh', parameters('Environment'), resourceGroup().location, copyIndex())]"
+                    ],
+                    "properties": {
+                        "publisher": "Microsoft.EnterpriseCloud.Monitoring",
+                        "type": "MicrosoftMonitoringAgent",
+                        "typeHandlerVersion": "1.0",
+                        "autoUpgradeMinorVersion": true,
+                        "settings": {
+                            "workspaceId": "[reference(resourceId(concat('rg-shared-', parameters('Environment'),'-', resourceGroup().location), 'Microsoft.OperationalInsights/workspaces/', variables('LogAnalyticsWorkspace')), '2015-03-20').customerId]"
+                        },
+                        "protectedSettings": {
+                            "workspaceKey": "[listKeys(resourceId(concat('rg-shared-', parameters('Environment'),'-', resourceGroup().location), 'Microsoft.OperationalInsights/workspaces/', variables('LogAnalyticsWorkspace')), '2015-03-20').primarySharedKey]"
+                        }
+                    }
+                },
+                {
+                    "comments": "---------- NETWORK WATCHER EXTENSION ----------",
+                    "type": "extensions",
+                    "apiVersion": "2017-03-30",
+                    "name": "NetworkWatcherAgentWindows",
+                    "location": "[resourceGroup().location]",
+                    "dependsOn": [
+                        "[concat('vmsh', parameters('Environment'), resourceGroup().location, copyIndex())]"
+                    ],
+                    "properties": {
+                        "publisher": "Microsoft.Azure.NetworkWatcher",
+                        "type": "NetworkWatcherAgentWindows",
+                        "typeHandlerVersion": "1.4",
+                        "autoUpgradeMinorVersion": true,
+                        "settings": {
+                        }
+                    }
+                },
+                {
+                    "comments": "---------- DEPENDENCY AGENT FOR AZURE MONITOR ----------",
+                    "type": "extensions",
+                    "apiVersion": "2017-03-30",
+                    "name": "DependencyAgentWindows",
+                    "location": "[resourceGroup().location]",
+                    "dependsOn": [
+                        "[concat('vmsh', parameters('Environment'), resourceGroup().location, copyIndex())]"
+                    ],
+                    "properties": {
+                        "publisher": "Microsoft.Azure.Monitoring.DependencyAgent",
+                        "type": "DependencyAgentWindows",
+                        "typeHandlerVersion": "9.5",
+                        "autoUpgradeMinorVersion": true
+                    }
+                },
+                {
                     "apiVersion": "2019-07-01",
                     "type": "extensions",
                     "name": "JsonADDomainExtension",
                     "location": "[resourceGroup().location]",
                     "dependsOn": [
-                        "[concat('Microsoft.Compute/virtualMachines/', concat('vmsh', parameters('Environment'), resourceGroup().location, copyIndex()))]"
+                        "[concat('vmsh', parameters('Environment'), resourceGroup().location, copyIndex())]",
+                        "MicrosoftMonitoringAgent",
+                        "NetworkWatcherAgentWindows",
+                        "DependencyAgentWindows"
                     ],
                     "properties": {
                         "forceUpdateTag": "[parameters('Timestamp')]",
@@ -165,13 +232,41 @@
                     }
                 },
                 {
+                    "comments": "---------- AZURE DISK ENCRYPTION EXTENSION ----------",
+                    "type": "extensions",
+                    "name": "AzureDiskEncryption",
+                    "location": "[resourceGroup().location]",
+                    "apiVersion": "2017-03-30",
+                    "dependsOn": [
+                        "[concat('vmsh', parameters('Environment'), resourceGroup().location, copyIndex())]",
+                        "JsonADDomainExtension"
+                    ],
+                    "properties": {
+                        "publisher": "Microsoft.Azure.Security",
+                        "type": "AzureDiskEncryption",
+                        "typeHandlerVersion": "2.2",
+                        "autoUpgradeMinorVersion": true,
+                        "forceUpdateTag": "[guid(deployment().name)]",
+                        "settings": {
+                            "EncryptionOperation": "EnableEncryption",
+                            "KeyVaultURL": "[reference(variables('KeyVaultResourceId'),'2016-10-01').vaultUri]",
+                            "KeyVaultResourceId": "[variables('KeyVaultResourceID')]",
+                            "KeyEncryptionKeyURL": "[parameters('KeyEncryptionKeyURL')]",
+                            "KekVaultResourceId": "[variables('KeyVaultResourceID')]",
+                            "KeyEncryptionAlgorithm": "RSA-OAEP",
+                            "VolumeType": "All",
+                            "ResizeOSDisk": false
+                        }
+                    }
+                },
+                {
                     "type": "extensions",
                     "apiVersion": "2019-07-01",
                     "name": "DSC",
                     "location": "[resourceGroup().location]",
                     "dependsOn": [
-                        "[resourceId('Microsoft.Compute/virtualMachines', concat('vmsh', parameters('Environment'), resourceGroup().location, copyIndex()))]",
-                        "JsonADDomainExtension"
+                        "[concat('vmsh', parameters('Environment'), resourceGroup().location, copyIndex())]",
+                        "AzureDiskEncryption"
                     ],
                     "properties": {
                         "forceUpdateTag": "[parameters('Timestamp')]",

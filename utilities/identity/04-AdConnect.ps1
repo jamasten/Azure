@@ -1,11 +1,13 @@
 #Create new user in Azure AD
-$Password = Read-Host -Prompt 'Enter User Account Passwords' -AsSecureString
+$Password = Read-Host -Prompt 'Enter Password for AD Connect account' -AsSecureString
 
 New-AzADUser `
     -DisplayName 'AD Connect' `
     -UserPrincipalName 'adconnect@jasonmasten.com' `
     -Password $Password `
     -MailNickname 'ADConnect'
+
+Connect-AzureAD -TenantId ''
 
 #Assign Global Admin permissions
 $User = Get-AzureADUser -Filter "userPrincipalName eq 'adconnect@jasonmasten.com'"

@@ -5,6 +5,9 @@
         "Domain": {
             "type": "string"
         },
+        "DomainAbbreviation": {
+            "type": "string"
+        },
         "Environment": {
             "type": "string"
         },
@@ -146,6 +149,43 @@
             }
         },
         {
+            "comments": "---------- STORAGE ACCOUNT ----------",
+            "type": "Microsoft.Storage/storageAccounts",
+            "apiVersion": "2019-06-01",
+            "name": "[concat('stors', parameters('DomainAbbreviation'), 'wvd', parameters('Environment'), resourceGroup().location)]",
+            "location": "[resourceGroup().location]",
+            "sku": {
+                "name": "Standard_LRS",
+                "tier": "Standard"
+            },
+            "kind": "StorageV2",
+            "properties": {
+                "networkAcls": {
+                    "bypass": "AzureServices",
+                    "virtualNetworkRules": [
+                    ],
+                    "ipRules": [
+                    ],
+                    "defaultAction": "Allow"
+                },
+                "supportsHttpsTrafficOnly": true,
+                "encryption": {
+                    "services": {
+                        "file": {
+                            "keyType": "Account",
+                            "enabled": true
+                        },
+                        "blob": {
+                            "keyType": "Account",
+                            "enabled": true
+                        }
+                    },
+                    "keySource": "Microsoft.Storage"
+                },
+                "accessTier": "Hot"
+            }
+        },
+        {
             "comments": "---------- LINKED DEPLOYMENT > WVD Session Hosts ----------",
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2019-10-01",
@@ -168,6 +208,9 @@
                 "parameters": {
                     "Domain": {
                         "value": "[parameters('Domain')]"
+                    },
+                    "DomainAbbreviation": {
+                        "value": "[parameters('DomainAbbreviation')]"
                     },
                     "Environment": {
                         "value": "[parameters('Environment')]"

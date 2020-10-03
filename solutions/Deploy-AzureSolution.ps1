@@ -3,6 +3,10 @@
     [Parameter(Mandatory=$true)]
     [string]$Domain,
 
+    # This is used to uniquely name resources that need to be globally unique (i.e. storage account name)
+    [Parameter(Mandatory=$true)]
+    [string]$DomainAbbreviation,
+
     [Parameter(Mandatory=$true)]
     [ValidateSet("dev", "prod", "qa", "sandbox", "shared", "stage", "test")]
     [string]$Environment, 
@@ -92,6 +96,7 @@ switch($Solution)
             $Credential = Get-Credential -Message "Input the credentials for the Azure VM local admin account"
             $Netbios = $Domain.Split('.')[0]
             $Params.Add("Domain", $Domain)
+            $Params.Add("DomainAbbreviation", $DomainAbbreviation)
             $Params.Add("Environment", $Environment)
             $Params.Add("Netbios", $Netbios)
             $Params.Add("Username", $UserName)

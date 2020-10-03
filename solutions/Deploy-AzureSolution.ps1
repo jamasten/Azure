@@ -1,19 +1,19 @@
 ﻿Param(
 
-    [Parameter(Mandatory=$true)]
-    [string]$Domain,
+    #[Parameter(Mandatory=$true)]
+    #[string]$Domain,
 
     # This is used to uniquely name resources that need to be globally unique (i.e. storage account name)
-    [Parameter(Mandatory=$true)]
-    [string]$DomainAbbreviation,
+    #[Parameter(Mandatory=$true)]
+    #[string]$DomainAbbreviation,
 
-    [Parameter(Mandatory=$true)]
-    [ValidateSet("dev", "prod", "qa", "sandbox", "shared", "stage", "test")]
-    [string]$Environment, 
+    #[Parameter(Mandatory=$true)]
+    #[ValidateSet("dev", "prod", "qa", "sandbox", "shared", "stage", "test")]
+    #[string]$Environment, 
 
-    [Parameter(Mandatory=$true)]
-    [ValidateScript({(Get-AzLocation | Select-Object -ExpandProperty Location) -contains $_})]
-    [string]$Location,
+    #[Parameter(Mandatory=$true)]
+    #[ValidateScript({(Get-AzLocation | Select-Object -ExpandProperty Location) -contains $_})]
+    #[string]$Location,
 
     [parameter(Mandatory=$true)]
     [ValidateSet("dns", "sql", "wvd")]
@@ -67,6 +67,10 @@ $Context = Get-AzContext
 $Username = $Context.Account.Id.Split('@')[0]
 $TimeStamp = Get-Date -F 'yyyyMMddhhmmss'
 $Name =  $Username + '_' + $TimeStamp
+$Domain = 'jasonmasten.com'
+$DomainAbbreviation = "jm"
+$Environment = "dev"
+$Location = "eastus"
 $Params = @{}
 switch($Solution)
 {

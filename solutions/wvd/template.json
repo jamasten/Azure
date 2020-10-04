@@ -218,6 +218,14 @@
                     "HostCount": {
                         "value": "[parameters('HostCount')]"
                     },
+                    "KeyEncryptionKeyURL": {
+                        "reference": {
+                            "keyVault": {
+                                "id": "[concat(resourceGroup().id,'/providers/Microsoft.KeyVault/vaults/', 'kv', parameters('DomainAbbreviation'), parameters('Environment'), resourceGroup().location)]"
+                            },
+                            "secretName": "DiskEncryptionKekUrl"
+                        }
+                    },
                     "Netbios": {
                         "value": "[parameters('Netbios')]"
                     },

@@ -14,6 +14,9 @@
         "HostCount": {
             "type": "int"
         },
+        "KeyEncryptionKeyURL": {
+            "type": "string"
+        },
         "Netbios": {
             "type": "string"
         },

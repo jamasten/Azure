@@ -21,7 +21,7 @@
             "type": "string"
         },
         "RegistrationToken": {
-            "type": "string"
+            "type": "securestring"
         },
         "Timestamp": {
             "type": "string"
@@ -282,10 +282,14 @@
                             "configurationFunction": "Configuration.ps1\\AddSessionHost",
                             "properties": {
                                 "hostPoolName": "[concat('hp-vdi-', parameters('Environment'), '-', resourceGroup().location)]",
-                                "registrationInfoToken": "[parameters('RegistrationToken')]"
+                                "registrationInfoToken": "PrivateSettingsRef:RegistrationToken"
                             }
                         },
-                        "protectedSettings": {}
+                        "protectedSettings": {
+                            "Items": {
+                                "RegistrationToken": "[parameters('RegistrationToken')]"
+                            }
+                        }
                     }
                 }
             ]

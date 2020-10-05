@@ -137,10 +137,11 @@
                         [string] [Parameter(Mandatory=$true)] $ResourceGroup
                     )
                     Install-Module -Name Az.DesktopVirtualization -AllowClobber -Scope AllUsers -Force
-                    $Token = (New-AzWvdRegistrationInfo -ResourceGroupName $ResourceGroup -HostPoolName $Hostpool -ExpirationTime $((get-date).ToUniversalTime().AddHours(2).ToString('yyyy-MM-ddTHH:mm:ss.fffffffZ'))).Token
+                    $String = (New-AzWvdRegistrationInfo -ResourceGroupName $ResourceGroup -HostPoolName $Hostpool -ExpirationTime $((get-date).ToUniversalTime().AddHours(2).ToString('yyyy-MM-ddTHH:mm:ss.fffffffZ'))).Token
+                    $Token = ConvertTo-SecureString -String $String -AsPlainText -Force
                     Write-Output $Token
                     $DeploymentScriptOutputs = @{}
-                    $DeploymentScriptOutputs['text'] = $Token
+                    $DeploymentScriptOutputs['token'] = $Token
                 ",
                 "arguments": "[format(' -Hostpool {0} -ResourceGroup {1}', concat('hp-vdi-', parameters('Environment'), '-', resourceGroup().location), resourceGroup().name)]",
                 "forceUpdateTag": "[parameters('Timestamp')]",
@@ -230,7 +231,7 @@
                         "value": "[parameters('Netbios')]"
                     },
                     "RegistrationToken": {
-                        "value": "[reference('ds-registrationToken').outputs.text]"
+                        "value": "[reference('ds-registrationToken').outputs.token]"
                     },
                     "Timestamp": {
                         "value": "[parameters('Timestamp')]"

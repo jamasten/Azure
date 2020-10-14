@@ -207,6 +207,7 @@
                     }
                 },
                 {
+                    "comments": "---------- DOMAIN JOIN EXTENSION ----------",
                     "apiVersion": "2019-07-01",
                     "type": "extensions",
                     "name": "JsonADDomainExtension",

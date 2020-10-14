@@ -264,6 +264,7 @@
                     }
                 },
                 {
+                    "comments": "---------- DESIRED STATE CONFIGURATION EXTENSION ----------",
                     "type": "extensions",
                     "apiVersion": "2019-07-01",
                     "name": "DSC",

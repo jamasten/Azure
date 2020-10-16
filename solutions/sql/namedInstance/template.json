@@ -2,51 +2,58 @@
     "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
+        "Environment": {
+            "type": "string"
+        },
         "Timestamp": {
             "type": "string",
             "defaultValue": "[utcNow()]"
         },
         "vmName": {
             "type": "string"
+        },
+        "VmPassword": {
+            "type": "securestring"
+        },
+        "VmUsername": {
+            "type": "securestring"
         }
     },
     "functions": [],
     "variables": {},
     "resources": [
         {
+            "comments": "---------- NETWORK INTERFACE CARD ----------",
             "type": "Microsoft.Network/networkInterfaces",
             "apiVersion": "2020-05-01",
-            "name": "vmsqltest01326",
+            "name": "[concat('nic-', parameters('vmName'))]",
             "location": "eastus",
             "properties": {
                 "ipConfigurations": [
                     {
                         "name": "ipconfig1",
                         "properties": {
-                            "privateIPAddress": "10.0.1.7",
                             "privateIPAllocationMethod": "Dynamic",
                             "subnet": {
-                                "id": "/subscriptions/3764b123-4849-4395-8e6e-ca6d68d8d4b4/resourceGroups/rg-network-dev-eastus/providers/Microsoft.Network/virtualNetworks/vnet-dev-eastus/subnets/snet-servers-dev-eastus"
+                                "id": "[resourceId(subscription().subscriptionId, concat('rg-network-', parameters('Environment'),'-', resourceGroup().location), 'Microsoft.Network/virtualNetworks/subnets', concat('vnet-', parameters('Environment'), '-', resourceGroup().location), concat('snet-servers-', parameters('Environment'), '-',resourceGroup().location))]"
                             },
                             "primary": true,
                             "privateIPAddressVersion": "IPv4"
                         }
                     }
                 ],
-                "dnsSettings": {
-                    "dnsServers": []
-                },
                 "enableAcceleratedNetworking": false,
                 "enableIPForwarding": false
             }
         },
         {
+            "comments": "---------- VIRTUAL MACHINE ----------",
             "type": "Microsoft.Compute/virtualMachines",
             "apiVersion": "2019-07-01",
-            "name": "vmsqltest01",
-            "location": "eastus",
+            "name": "[parameters('vmName')]",
+            "location": "[resourceGroup().location]",
             "dependsOn": [
-                "[resourceId('Microsoft.Network/networkInterfaces', 'vmsqltest01326')]"
+                "[resourceId('Microsoft.Network/networkInterfaces', concat('nic-', parameters('vmName')))]"
             ],
             "properties": {
                 "hardwareProfile": {
@@ -61,7 +68,7 @@
                     },
                     "osDisk": {
                         "osType": "Windows",
-                        "name": "vmsqltest01_OsDisk_1_8cc5fe1bcc4041fc824ab684c88287b3",
+                        "name": "[concat('disk-', parameters('vmName'), '-0')]",
                         "createOption": "FromImage",
                         "caching": "ReadWrite",
                         "managedDisk": {
@@ -72,7 +79,7 @@
                     "dataDisks": [
                         {
                             "lun": 0,
-                            "name": "vmsqltest01_DataDisk_0",
+                            "name": "[concat('disk-', parameters('vmName'), '-1')]",
                             "createOption": "Attach",
                             "caching": "ReadOnly",
                             "writeAcceleratorEnabled": false,
@@ -84,7 +91,7 @@
                         },
                         {
                             "lun": 1,
-                            "name": "vmsqltest01_DataDisk_1",
+                            "name": "[concat('disk-', parameters('vmName'), '-2')]",
                             "createOption": "Attach",
                             "caching": "None",
                             "writeAcceleratorEnabled": false,
@@ -97,35 +104,34 @@
                     ]
                 },
                 "osProfile": {
-                    "computerName": "vmsqltest01",
-                    "adminUsername": "rebukem",
+                    "computerName": "[parameters('vmName')]",
+                    "adminUsername": "[parameters('VmUsername')]",
+                    "adminPassword": "[parameters('VmPassword')]",
                     "windowsConfiguration": {
                         "provisionVMAgent": true,
                         "enableAutomaticUpdates": true
-                    },
-                    "secrets": [],
-                    "allowExtensionOperations": true,
-                    "requireGuestProvisionSignal": true
+                    }
                 },
                 "networkProfile": {
                     "networkInterfaces": [
                         {
-                            "id": "[resourceId('Microsoft.Network/networkInterfaces', 'vmsqltest01326')]"
+                            "id": "[resourceId('Microsoft.Network/networkInterfaces', concat('nic-', parameters('vmName')))]"
                         }
                     ]
                 }
             }
         },
         {
+            "comments": "---------- SQL VIRTUAL MACHINE ----------",
             "type": "Microsoft.SqlVirtualMachine/sqlVirtualMachines",
             "apiVersion": "2017-03-01-preview",
-            "name": "vmsqltest01",
-            "location": "eastus",
+            "name": "[parameters('vmName')]",
+            "location": "[resourceGroup().location]",
             "dependsOn": [
-                "[resourceId('Microsoft.Compute/virtualMachines', 'vmsqltest01')]"
+                "[resourceId('Microsoft.Compute/virtualMachines', parameters('vmName'))]"
             ],
             "properties": {
-                "virtualMachineResourceId": "[resourceId('Microsoft.Compute/virtualMachines', 'vmsqltest01')]",
+                "virtualMachineResourceId": "[resourceId('Microsoft.Compute/virtualMachines', parameters('vmName'))]",
                 "sqlImageOffer": "SQL2017-WS2016",
                 "sqlServerLicenseType": "PAYG",
                 "sqlManagement": "Full",
@@ -133,13 +139,39 @@
             }
         },
         {
+            "comments": "---------- USER ASSIGNED MANAGED IDENTITY ----------",
+            "type": "Microsoft.ManagedIdentity/userAssignedIdentities",
+            "name": "[concat('uami-sql', parameters('Environment'), resourceGroup().location)]",
+            "apiVersion": "2018-11-30",
+            "location": "[resourceGroup().location]",
+            "dependsOn": []
+        },
+        {
+            "comments": "---------- ROLE ASSIGNMENT > USER ASSIGNED MANAGED IDENTITY ----------",
+            "type": "Microsoft.Authorization/roleAssignments",
+            "apiVersion": "2017-09-01",
+            "name": "00fa340b-5f12-45d0-a2f3-3fa5178dde0f",
+            "dependsOn": [
+                "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', concat('uami-sql', parameters('Environment'), resourceGroup().location))]"
+            ],
+            "properties": {
+                "roleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', '9980e02c-c2be-4d73-94e8-173b1dc7cf3c')]",
+                "principalId": "[reference(concat(subscription().id, '/resourceGroups/rg-sql-', parameters('Environment'), '-', resourceGroup().location, '/providers/Microsoft.ManagedIdentity/userAssignedIdentities/uami-sql', parameters('Environment'), resourceGroup().location), '2018-11-30', 'Full').properties.principalId]",
+                "scope": "[resourceGroup().id]"
+            }
+        },
+        {
+            "comments": "---------- DEPLOYMENT SCRIPT ----------",
             "name": "ds-removesqlext",
             "type": "Microsoft.Resources/deploymentScripts",
             "apiVersion": "2019-10-01-preview",
+            "dependsOn": [
+
+            ],
             "identity": {
                 "type": "UserAssigned",
                 "userAssignedIdentities": {
-                    "/subscriptions/5edfe207-eefc-428f-b5fb-1c24bb7ff301/resourceGroups/test/providers/Microsoft.ManagedIdentity/userAssignedIdentities/id-sqtltest": {}
+                    "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', concat('uami-sql', parameters('Environment'), resourceGroup().location))]": {}
                 }
             },
             "location": "[resourceGroup().location]",
@@ -163,11 +195,14 @@
             }
         },
         {
+            "comments": "---------- CUSTOM SCRIPT EXTENSION ----------",
             "apiVersion": "2018-06-01",
             "type": "Microsoft.Compute/virtualMachines/extensions",
             "name": "[concat(parameters('vmName'),'/CustomScriptExtension')]",
             "location": "[resourceGroup().location]",
-            "dependsOn": [],
+            "dependsOn": [
+                "[resourceId('Microsoft.Resources/deploymentScripts', 'ds-removesqlext')]"
+            ],
             "tags": {},
             "properties": {
                 "publisher": "Microsoft.Compute",
@@ -184,11 +219,12 @@
         {
             "comments": "---------- DSC EXTENSION ----------",
             "type": "Microsoft.Compute/VirtualMachines/Extensions",
-            "name": "vmsqltest01/DSC",
+            "name": "[concat(parameters('vmName'), '/DSC')]",
             "apiVersion": "2019-07-01",
             "location": "[resourceGroup().location]",
             "dependsOn": [
-                "[resourceId('Microsoft.SqlVirtualMachine/sqlVirtualMachines', 'vmsqltest01')]"
+                "[resourceId('Microsoft.SqlVirtualMachine/sqlVirtualMachines', parameters('vmName'))]",
+                "[resourceId('Microsoft.Compute/virtualMachines/extensions', concat(parameters('vmName'),'/CustomScriptExtension'))]"
             ],
             "properties": {
                 "publisher": "Microsoft.Powershell",

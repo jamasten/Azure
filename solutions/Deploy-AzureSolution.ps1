@@ -88,7 +88,10 @@ switch($Solution)
             }
         }
     sql {
+            $Credential = Get-Credential -Message "Input the credentials for the Azure VM local admin account"
             $Params.Add("vmName", "vmsqltest")
+            $Params.Add("VmPassword", $Credential.Password)
+            $Params.Add("VmUsername", $Credential.UserName)
             $TemplateFile = ".\sql\namedInstance\template.json"
             $ResourceGroup = 'rg-' + $Solution + '-' + $Environment + '-' + $Location
             if(!(Get-AzResourceGroup -Name $ResourceGroup -ErrorAction SilentlyContinue))

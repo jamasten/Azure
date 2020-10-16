@@ -80,26 +80,24 @@
                         {
                             "lun": 0,
                             "name": "[concat('disk-', parameters('vmName'), '-1')]",
-                            "createOption": "Attach",
+                            "createOption": "Empty",
                             "caching": "ReadOnly",
                             "writeAcceleratorEnabled": false,
                             "managedDisk": {
                                 "storageAccountType": "Premium_LRS"
                             },
-                            "diskSizeGB": 1024,
-                            "toBeDetached": false
+                            "diskSizeGB": 1024
                         },
                         {
                             "lun": 1,
                             "name": "[concat('disk-', parameters('vmName'), '-2')]",
-                            "createOption": "Attach",
+                            "createOption": "Empty",
                             "caching": "None",
                             "writeAcceleratorEnabled": false,
                             "managedDisk": {
                                 "storageAccountType": "Premium_LRS"
                             },
-                            "diskSizeGB": 1024,
-                            "toBeDetached": false
+                            "diskSizeGB": 1024
                         }
                     ]
                 },

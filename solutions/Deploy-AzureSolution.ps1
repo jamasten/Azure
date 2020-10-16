@@ -89,6 +89,7 @@ switch($Solution)
         }
     sql {
             $Credential = Get-Credential -Message "Input the credentials for the Azure VM local admin account"
+            $Params.Add("Environment", $Environment)
             $Params.Add("vmName", "vmsqltest")
             $Params.Add("VmPassword", $Credential.Password)
             $Params.Add("VmUsername", $Credential.UserName)

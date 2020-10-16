@@ -166,7 +166,10 @@
             "type": "Microsoft.Resources/deploymentScripts",
             "apiVersion": "2019-10-01-preview",
             "dependsOn": [
-
+                "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', concat('uami-sql', parameters('Environment'), resourceGroup().location))]",
+                "[resourceId('Microsoft.Authorization/roleAssignments', '00fa340b-5f12-45d0-a2f3-3fa5178dde0f')]",
+                "[resourceId('Microsoft.Compute/virtualMachines', parameters('vmName'))]",
+                "[resourceId('Microsoft.SqlVirtualMachine/sqlVirtualMachines', parameters('vmName'))]"
             ],
             "identity": {
                 "type": "UserAssigned",
@@ -201,6 +204,8 @@
             "name": "[concat(parameters('vmName'),'/CustomScriptExtension')]",
             "location": "[resourceGroup().location]",
             "dependsOn": [
+                "[resourceId('Microsoft.Compute/virtualMachines', parameters('vmName'))]",
+                "[resourceId('Microsoft.SqlVirtualMachine/sqlVirtualMachines', parameters('vmName'))]",
                 "[resourceId('Microsoft.Resources/deploymentScripts', 'ds-removesqlext')]"
             ],
             "tags": {},
@@ -223,8 +228,9 @@
             "apiVersion": "2019-07-01",
             "location": "[resourceGroup().location]",
             "dependsOn": [
+                "[resourceId('Microsoft.Compute/virtualMachines', parameters('vmName'))]",
                 "[resourceId('Microsoft.SqlVirtualMachine/sqlVirtualMachines', parameters('vmName'))]",
-                "[resourceId('Microsoft.Compute/virtualMachines/extensions', concat(parameters('vmName'),'/CustomScriptExtension'))]"
+                "[resourceId('Microsoft.Compute/virtualMachines/extensions', parameters('vmName'),'CustomScriptExtension')]"
             ],
             "properties": {
                 "publisher": "Microsoft.Powershell",

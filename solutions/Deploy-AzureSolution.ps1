@@ -77,7 +77,6 @@ $Params = @{}
 switch($Solution)
 {
     dns {
-            $Credential = Get-Credential -Message "Input the credentials for the Azure VM local admin account"
             $HomePip = Get-PublicIpAddress
             $Params.Add("HomePip", $HomePip.Trim())
             $Params.Add("VmPassword", $VmPassword)
@@ -102,7 +101,6 @@ switch($Solution)
             }
         }
     wvd {
-            $Credential = Get-Credential -Message "Input the credentials for the Azure VM local admin account"
             $Netbios = $Domain.Split('.')[0]
             $Params.Add("Domain", $Domain)
             $Params.Add("DomainAbbreviation", $DomainAbbreviation)

@@ -86,11 +86,11 @@ $HomePip = Get-PublicIpAddress
 #############################################################
 $VSE = @{
     Domain = $Domain
-    DomainAbbreviation = $DomainAbbreviation;
-    Environment = $Environment;
-    HomePip = $HomePip.Trim();
-    Locations = @($LocationPrimary, $LocationSecondary);
-    PerformanceType = $PerformanceType;
+    DomainAbbreviation = $DomainAbbreviation
+    Environment = $Environment
+    HomePip = $HomePip.Trim()
+    Locations = @($LocationPrimary, $LocationSecondary)
+    PerformanceType = $PerformanceType
     SecurityDistributionGroup = $Email
     UserObjectId = $UserObjectId
     Username = $Username

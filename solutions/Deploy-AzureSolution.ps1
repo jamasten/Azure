@@ -71,6 +71,8 @@ $Domain = 'jasonmasten.com'
 $DomainAbbreviation = "jm"
 $Environment = "dev"
 $Location = "eastus"
+$VmPassword = (Get-AzKeyVaultSecret -VaultName $('kv' + $DomainAbbreviation + $Environment + $Location) -Name VmPassword).SecretValue
+$VmUsername = (Get-AzKeyVaultSecret -VaultName $('kv' + $DomainAbbreviation + $Environment + $Location) -Name VmUsername).SecretValue
 $Params = @{}
 switch($Solution)
 {
@@ -78,8 +80,8 @@ switch($Solution)
             $Credential = Get-Credential -Message "Input the credentials for the Azure VM local admin account"
             $HomePip = Get-PublicIpAddress
             $Params.Add("HomePip", $HomePip.Trim())
-            $Params.Add("VmPassword", $Credential.Password)
-            $Params.Add("VmUsername", $Credential.UserName)
+            $Params.Add("VmPassword", $VmPassword)
+            $Params.Add("VmUsername", $VmUsername)
             $TemplateFile = ".\dns\template.json"
             $ResourceGroup = 'rg-' + $Solution + '-' + $Environment + '-' + $Location
             if(!(Get-AzResourceGroup -Name $ResourceGroup -ErrorAction SilentlyContinue))
@@ -88,11 +90,10 @@ switch($Solution)
             }
         }
     sql {
-            $Credential = Get-Credential -Message "Input the credentials for the Azure VM local admin account"
             $Params.Add("Environment", $Environment)
             $Params.Add("vmName", "vmsqltest")
-            $Params.Add("VmPassword", $Credential.Password)
-            $Params.Add("VmUsername", $Credential.UserName)
+            $Params.Add("VmPassword", $VmPassword)
+            $Params.Add("VmUsername", $VmUsername)
             $TemplateFile = ".\sql\namedInstance\template.json"
             $ResourceGroup = 'rg-' + $Solution + '-' + $Environment + '-' + $Location
             if(!(Get-AzResourceGroup -Name $ResourceGroup -ErrorAction SilentlyContinue))
@@ -108,8 +109,8 @@ switch($Solution)
             $Params.Add("Environment", $Environment)
             $Params.Add("Netbios", $Netbios)
             $Params.Add("Username", $UserName)
-            $Params.Add("VmPassword", $Credential.Password)
-            $Params.Add("VmUsername", $Credential.UserName)
+            $Params.Add("VmPassword", $VmPassword)
+            $Params.Add("VmUsername", $VmUsername)
             $TemplateFile = ".\wvd\template.json"
             $ResourceGroup = 'rg-' + $Solution + 'core-' + $Environment + '-' + $Location
             if(!(Get-AzResourceGroup -Name $ResourceGroup -ErrorAction SilentlyContinue))

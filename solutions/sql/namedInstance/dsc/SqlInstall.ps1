@@ -10,14 +10,26 @@
             RebootNodeIfNeeded = $true
         }
 
+        Script ForceReboot
+        {
+            TestScript = {
+                $false
+            }
+            SetScript = {
+                $global:DSCMachineStatus = 1 
+            }
+            GetScript = { return @{result = 'result'}}
+        }
+
         PendingReboot PostSqlUninstall
         {
-            Name       = 'RebootPostSqlInstall'
+            Name = 'RebootPostSqlInstall'
+            DependsOn = '[Script]ForceReboot'
         }
 
         WindowsFeature 'NetFramework45'
         {
-            Name   = 'NET-Framework-45-Core'
+            Name = 'NET-Framework-45-Core'
             Ensure = 'Present'
             DependsOn = '[PendingReboot]PostSqlUninstall'
         }

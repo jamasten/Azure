@@ -29,14 +29,7 @@ Param(
     [string]$PerformanceType, 
     
     [parameter(Mandatory=$true)]
-    [string]$SubscriptionId,
-
-    [Parameter(Mandatory)]
-    [String]$VmPassword,
-
-    [Parameter(Mandatory)]
-    [String]$VmUsername
-
+    [string]$SubscriptionId
 )
 
 #############################################################
@@ -77,8 +70,19 @@ $Username = $Context.Account.Id.Split('@')[0]
 $Email = $Context.Account.Id
 $TimeStamp = Get-Date -F 'yyyyMMddhhmmss'
 $Name =  $Username + '_' + $TimeStamp
-$SecureVmPassword = ConvertTo-SecureString -String $VmPassword -AsPlainText -Force
 $HomePip = Get-PublicIpAddress
+$Credential = Get-Credential -Message 'Input Azure VM credentials'
+
+
+#############################################################
+# Add Azure AD Connect Account
+#############################################################
+$UPN = 'adconnect@' + $Domain
+$test = Get-AzADUser -UserPrincipalName $UPN -ErrorAction SilentlyContinue
+if(!$test)
+{
+    New-AzADUser -DisplayName 'AD Connect' -UserPrincipalName $UPN -Password $Credential.Password -MailNickname 'ADConnect'
+}
 
 
 #############################################################
@@ -95,8 +99,8 @@ $VSE = @{
     UserObjectId = $UserObjectId
     Username = $Username
 }
-$VSE.Add("VmPassword", $SecureVmPassword) # Secure Strings must use Add Method for proper deserialization
-$VSE.Add("VmUsername", $VmUsername) # Secure Strings must use Add Method for proper deserialization
+$VSE.Add("VmPassword", $Credential.Password) # Secure Strings must use Add Method for proper deserialization
+$VSE.Add("VmUsername", $Credential.UserName) # Secure Strings must use Add Method for proper deserialization
 
 
 #############################################################

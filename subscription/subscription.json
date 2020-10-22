@@ -50,12 +50,6 @@
             ],
             "defaultValue": "no"
         },
-        "HomePip": {
-            "type": "string",
-            "metadata": {
-                "description": "The Public IP address for your home netowrk to allow RDP traffic throught the NSGs"
-            }
-        },
         "Locations": {
             "type": "array",
             "metadata": {
@@ -200,9 +194,6 @@
                 "parameters": {
                     "Environment": {
                         "value": "[parameters('Environment')]"
-                    },
-                    "HomePip": {
-                        "value": "[parameters('HomePip')]"
                     },
                     "Nsgs": {
                         "value": "[parameters('Nsgs')]"

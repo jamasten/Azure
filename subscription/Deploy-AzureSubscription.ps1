@@ -15,12 +15,12 @@ Param(
 
     #Primary Azure Region
     [Parameter(Mandatory=$true)]
-    [ValidateScript({(Get-AzLocation | Select-Object -ExpandProperty Location) -contains $_})]
+    [ValidateSet("eastus", "usgovvirginia")]
     [string]$LocationPrimary,
 
     #Secondary Azure Region for BCDR
     [Parameter(Mandatory=$true)]
-    [ValidateScript({(Get-AzLocation | Select-Object -ExpandProperty Location) -contains $_})]
+    [ValidateSet("westus2", "usgovarizona")]
     [string]$LocationSecondary, 
   
     #Storage Account SKU: (p)remium or (s)tandard
@@ -53,12 +53,6 @@ if(!(Get-AzContext | Where-Object {$_.Subscription.Id -eq $SubscriptionId}))
 
 
 #############################################################
-# Load functions
-#############################################################
-. ..\utilities\functions.ps1
-
-
-#############################################################
 # Variables
 #############################################################
 # Gets User Principal for Key Vault Access Policy
@@ -70,8 +64,17 @@ $Username = $Context.Account.Id.Split('@')[0]
 $Email = $Context.Account.Id
 $TimeStamp = Get-Date -F 'yyyyMMddhhmmss'
 $Name =  $Username + '_' + $TimeStamp
-$HomePip = Get-PublicIpAddress
 $Credential = Get-Credential -Message 'Input Azure VM credentials'
+$AutomationLocationPrimary = switch($LocationPrimary)
+{
+    eastus {'eastus2'}
+    usgovvirginia {'usgovvirginia'}
+}
+$AutomationLocationSecondary = switch($LocationSecondary)
+{
+    westus2 {'westus2'}
+    usgovarizona {'usgovarizona'}
+}
 
 
 #############################################################
@@ -89,10 +92,11 @@ if(!$test)
 # Template Parameter Object
 #############################################################
 $VSE = @{
+    AutomationLocationPrimary = $AutomationLocationPrimary
+    AutomationLocationSecondary = $AutomationLocationSecondary
     Domain = $Domain
     DomainAbbreviation = $DomainAbbreviation
     Environment = $Environment
-    HomePip = $HomePip.Trim()
     Locations = @($LocationPrimary, $LocationSecondary)
     PerformanceType = $PerformanceType
     SecurityDistributionGroup = $Email

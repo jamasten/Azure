@@ -2,14 +2,26 @@
     "$schema": "https://schema.management.azure.com/schemas/2018-05-01/$scriptionDeploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
+        "AutomationLocationPrimary": {
+            "type": "string",
+            "metadata": {
+                "description": "This value is needed to ensure the Automation Account is deployed to a supported region for Log Analytics.  https://docs.microsoft.com/en-us/azure/automation/how-to/region-mappings"
+            }
+        },
+        "AutomationLocationSecondary": {
+            "type": "string",
+            "metadata": {
+                "description": "This value is needed to ensure the Automation Account is deployed to a supported region for Log Analytics.  https://docs.microsoft.com/en-us/azure/automation/how-to/region-mappings"
+            }
+        },
+        "Domain": {
+            "type": "string"
+        },
         "DomainAbbreviation": {
             "type": "string",
             "metadata": {
                 "description": "The abbreviated value of the domain name before the root node, i.e. jasonmasten for jasonmasten.com"
             }
-        },
-        "Domain": {
-            "type": "string"
         },
         "Environment": {
             "type": "string",
@@ -49,17 +61,6 @@
             "metadata": {
                 "description": "Locations for Resource Groups & Resources. The first index is primary location and the second index is the secondary location for business continuity and disaster recovery "
             }
-        },
-        "Nsgs": {
-            "type": "array",
-            "metadata": {
-                "description": "Network security groups applied to the subnets"
-            },
-            "defaultValue": [
-                "shared",
-                "servers",
-                "clients"
-            ]
         },
         "PerformanceType": {
             "type": "string",
@@ -151,7 +152,7 @@
             "type": "Microsoft.Resources/deployments",
             "name": "[concat('ManagedId_', parameters('Username'), '_', parameters('Timestamp'))]",
             "apiVersion": "2019-10-01",
-            "tags": {},
+            "tags": {}, 
             "dependsOn": [
                 "rgLoop1"
             ],
@@ -230,11 +231,14 @@
                 },
                 "mode": "Incremental",
                 "parameters": {
-                    "DomainAbbreviation": {
-                        "value": "[parameters('DomainAbbreviation')]"
+                    "AutomationLocationPrimary": {
+                        "value": "[parameters('AutomationLocationPrimary')]"
                     },
                     "Domain": {
                         "value": "[parameters('Domain')]"
+                    },
+                    "DomainAbbreviation": {
+                        "value": "[parameters('DomainAbbreviation')]"
                     },
                     "Environment": {
                         "value": "[parameters('Environment')]"

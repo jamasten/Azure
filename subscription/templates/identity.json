@@ -48,9 +48,7 @@
             "type": "Microsoft.Network/networkInterfaces",
             "apiVersion": "2018-08-01",
             "location": "[resourceGroup().location]",
-            "dependsOn": [
-                "[concat('pip-vmdc', parameters('Environment'), resourceGroup().location, '0')]"
-            ],
+            "dependsOn": [],
             "tags": {
             },
             "properties": {

@@ -4,12 +4,6 @@
     "parameters": {
         "Environment": {
             "type": "string"
-        },
-        "HomePip": {
-            "type": "string"
-        },
-        "Nsgs": {
-            "type": "array"
         }
     },
     "resources": [
@@ -20,37 +14,6 @@
             "name": "[concat('nw-', parameters('Environment'), '-', resourceGroup().location)]",
             "location": "[resourceGroup().location]",
             "properties": {}
-        },
-        {
-            "type": "Microsoft.Network/networkSecurityGroups",
-            "apiVersion": "2020-05-01",
-            "name": "[concat('nsg-', parameters('Nsgs')[copyIndex()], '-', parameters('Environment'), '-', resourceGroup().location)]",
-            "location": "[resourceGroup().location]",
-            "copy": {
-                "name": "nsgLoop",
-                "count": "[length(parameters('Nsgs'))]"
-            },
-            "properties": {
-                "securityRules": [
-                    {
-                        "name": "Allow_RDP",
-                        "properties": {
-                            "protocol": "*",
-                            "sourcePortRange": "*",
-                            "destinationPortRange": "3389",
-                            "sourceAddressPrefix": "[parameters('HomePip')]",
-                            "destinationAddressPrefix": "*",
-                            "access": "Allow",
-                            "priority": 100,
-                            "direction": "Inbound",
-                            "sourcePortRanges": [],
-                            "destinationPortRanges": [],
-                            "sourceAddressPrefixes": [],
-                            "destinationAddressPrefixes": []
-                        }
-                    }
-                ]
-            }
         },
         {
             "comments": "---------- VIRTUAL NETWORK ----------",
@@ -70,7 +33,10 @@
                     ]
                 },
                 "dhcpOptions": {
-                    "dnsServers": []
+                    "dnsServers": [
+                        "10.0.0.4",
+                        "168.63.129.16"
+                    ]
                 },
                 "subnets": [
                     {

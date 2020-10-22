@@ -2,10 +2,13 @@
     "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
-        "DomainAbbreviation": {
+        "AutomationLocationPrimary": {
             "type": "string"
         },
         "Domain": {
+            "type": "string"
+        },
+        "DomainAbbreviation": {
             "type": "string"
         },
         "Environment": {
@@ -24,7 +27,7 @@
                 {
                     "name": "ComputerManagementDsc",
                     "uri": "https://github.com/jamasten/Azure/blob/master/dsc/modules/computermanagementdsc.8.4.0.nupkg?raw=true"
-                },                
+                },
                 {
                     "name": "NetworkingDsc",
                     "uri": "https://github.com/jamasten/Azure/blob/master/dsc/modules/networkingdsc.8.1.0.nupkg?raw=true"
@@ -36,7 +39,7 @@
                 {
                     "name": "xDnsServer",
                     "uri": "https://github.com/jamasten/Azure/blob/master/dsc/modules/xdnsserver.1.16.0.nupkg?raw=true"
-                }                             
+                }
             ]
         },
         "PerformanceType": {
@@ -204,6 +207,32 @@
             }
         },
         {
+            "comments": "---------- KEY VAULT > SECRET > VM PASSWORD ----------",
+            "type": "Microsoft.KeyVault/vaults/secrets",
+            "apiVersion": "2016-10-01",
+            "name": "[concat('kv', parameters('DomainAbbreviation'), parameters('Environment'), resourceGroup().location, '/VmPassword')]",
+            "tags": {},
+            "dependsOn": [
+                "ds-diskencryptionkek"
+            ],
+            "properties": {
+                "value": "[parameters('VmPassword')]"
+            }
+        },
+        {
+            "comments": "---------- KEY VAULT > SECRET > KEK URL ----------",
+            "type": "Microsoft.KeyVault/vaults/secrets",
+            "apiVersion": "2016-10-01",
+            "name": "[concat('kv', parameters('DomainAbbreviation'), parameters('Environment'), resourceGroup().location, '/VmUsername')]",
+            "tags": {},
+            "dependsOn": [
+                "ds-diskencryptionkek"
+            ],
+            "properties": {
+                "value": "[parameters('VmUsername')]"
+            }
+        },
+        {
             "comments": "---------- STORAGE ACCOUNT ----------",
             "type": "Microsoft.Storage/storageAccounts",
             "apiVersion": "2019-06-01",
@@ -245,7 +274,7 @@
             "name": "[concat('aa', parameters('DomainAbbreviation'), parameters('Environment'), resourceGroup().location)]",
             "type": "Microsoft.Automation/automationAccounts",
             "apiVersion": "2015-10-31",
-            "location": "[resourceGroup().location]",
+            "location": "[parameters('AutomationLocationPrimary')]",
             "tags": {
             },
             "properties": {

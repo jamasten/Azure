@@ -3,7 +3,7 @@
     "contentVersion": "1.0.0.0",
     "parameters": {
         "AutomationLocation": {
-            "type": "array"
+            "type": "string"
         },
         "DomainAbbreviation": {
             "type": "string"

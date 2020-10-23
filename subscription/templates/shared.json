@@ -22,23 +22,23 @@
             "defaultValue": [
                 {
                     "name": "ActiveDirectoryDsc",
-                    "uri": "https://github.com/jamasten/Azure/blob/master/dsc/modules/activedirectorydsc.4.2.0.nupkg?raw=true"
+                    "uri": "https://github.com/jamasten/Azure/blob/master/subscription/dsc/modules/activedirectorydsc.4.2.0.nupkg?raw=true"
                 },
                 {
                     "name": "ComputerManagementDsc",
-                    "uri": "https://github.com/jamasten/Azure/blob/master/dsc/modules/computermanagementdsc.8.4.0.nupkg?raw=true"
+                    "uri": "https://github.com/jamasten/Azure/blob/master/subscription/dsc/modules/computermanagementdsc.8.4.0.nupkg?raw=true"
                 },
                 {
                     "name": "NetworkingDsc",
-                    "uri": "https://github.com/jamasten/Azure/blob/master/dsc/modules/networkingdsc.8.1.0.nupkg?raw=true"
+                    "uri": "https://github.com/jamasten/Azure/blob/master/subscription/dsc/modules/networkingdsc.8.1.0.nupkg?raw=true"
                 },
                 {
                     "name": "PSDscResources",
-                    "uri": "https://github.com/jamasten/Azure/blob/master/dsc/modules/psdscresources.2.12.0.nupkg?raw=true"
+                    "uri": "https://github.com/jamasten/Azure/blob/master/subscription/dsc/modules/psdscresources.2.12.0.nupkg?raw=true"
                 },
                 {
                     "name": "xDnsServer",
-                    "uri": "https://github.com/jamasten/Azure/blob/master/dsc/modules/xdnsserver.1.16.0.nupkg?raw=true"
+                    "uri": "https://github.com/jamasten/Azure/blob/master/subscription/dsc/modules/xdnsserver.1.16.0.nupkg?raw=true"
                 }
             ]
         },

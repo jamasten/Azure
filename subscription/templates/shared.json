@@ -310,7 +310,7 @@
             "location": "[parameters('AutomationLocationPrimary')]",
             "dependsOn": [
                 "modulesLoop",
-                "[resourceId('Microsoft.Automation/automationAccounts', concat('aa-', parameters('DomainAbbreviation'), '-', parameters('Environment'), '-', resourceGroup().location))]"
+                "[resourceId('Microsoft.Automation/automationAccounts', concat('aa-', parameters('DomainAbbreviation'), '-', parameters('Environment'), '-', parameters('AutomationLocationPrimary')))]"
             ],
             "properties": {
                 "source": {
@@ -325,12 +325,12 @@
         {
             "comments": "---------- AUTOMATION ACCOUNT > CREDENTIAL ----------",
             "type": "Microsoft.Automation/automationAccounts/credentials",
-            "name": "[concat('aa-', parameters('DomainAbbreviation'), '-', parameters('Environment'), '-', resourceGroup().location, '/Administrator')]",
+            "name": "[concat('aa-', parameters('DomainAbbreviation'), '-', parameters('Environment'), '-', parameters('AutomationLocationPrimary'), '/Administrator')]",
             "apiVersion": "2015-10-31",
             "location": "[parameters('AutomationLocationPrimary')]",
             "tags": {},
             "dependsOn": [
-                "[resourceId('Microsoft.Automation/automationAccounts', concat('aa-', parameters('DomainAbbreviation'), '-', parameters('Environment'), '-', resourceGroup().location))]"
+                "[resourceId('Microsoft.Automation/automationAccounts', concat('aa-', parameters('DomainAbbreviation'), '-', parameters('Environment'), '-', parameters('AutomationLocationPrimary')))]"
             ],
             "properties": {
                 "userName": "[parameters('VmUsername')]",

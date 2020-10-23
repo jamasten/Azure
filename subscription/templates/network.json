@@ -44,10 +44,7 @@
                             "addressPrefix": "10.0.0.0/24",
                             "delegations": [],
                             "privateEndpointNetworkPolicies": "Enabled",
-                            "privateLinkServiceNetworkPolicies": "Enabled",
-                            "networkSecurityGroup": {
-                                "id": "[resourceId('Microsoft.Network/networkSecurityGroups', concat('nsg-shared-',  parameters('Environment'), '-', resourceGroup().location))]"
-                            }
+                            "privateLinkServiceNetworkPolicies": "Enabled"
                         }
                     },
                     {
@@ -56,10 +53,7 @@
                             "addressPrefix": "10.0.1.0/24",
                             "delegations": [],
                             "privateEndpointNetworkPolicies": "Enabled",
-                            "privateLinkServiceNetworkPolicies": "Enabled",
-                            "networkSecurityGroup": {
-                                "id": "[resourceId('Microsoft.Network/networkSecurityGroups', concat('nsg-servers-',  parameters('Environment'), '-', resourceGroup().location))]"
-                            }
+                            "privateLinkServiceNetworkPolicies": "Enabled"
                         }
                     },
                     {
@@ -68,10 +62,7 @@
                             "addressPrefix": "10.0.2.0/24",
                             "delegations": [],
                             "privateEndpointNetworkPolicies": "Enabled",
-                            "privateLinkServiceNetworkPolicies": "Enabled",
-                            "networkSecurityGroup": {
-                                "id": "[resourceId('Microsoft.Network/networkSecurityGroups', concat('nsg-wvd-',  parameters('Environment'), '-', resourceGroup().location))]"
-                            }
+                            "privateLinkServiceNetworkPolicies": "Enabled"
                         }
                     }
                 ],

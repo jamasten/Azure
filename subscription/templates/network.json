@@ -23,8 +23,7 @@
             "location": "[resourceGroup().location]",
             "tags": {},
             "dependsOn": [
-                "[concat('nw-', parameters('Environment'), '-', resourceGroup().location)]",
-                "nsgLoop"
+                "[concat('nw-', parameters('Environment'), '-', resourceGroup().location)]"
             ],
             "properties": {
                 "addressSpace": {

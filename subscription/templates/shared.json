@@ -63,7 +63,7 @@
         {
             "comments": "---------- KEY VAULT ----------",
             "type": "Microsoft.KeyVault/vaults",
-            "name": "[concat('kv', parameters('DomainAbbreviation'), parameters('Environment'), resourceGroup().location)]",
+            "name": "[concat('kv-', parameters('DomainAbbreviation'), '-', parameters('Environment'), '-', resourceGroup().location)]",
             "apiVersion": "2016-10-01",
             "location": "[resourceGroup().location]",
             "tags": {},
@@ -164,7 +164,7 @@
             "kind": "AzurePowerShell",
             "tags": {},
             "dependsOn": [
-                "[concat('kv', parameters('DomainAbbreviation'), parameters('Environment'), resourceGroup().location)]"
+                "[concat('kv-', parameters('DomainAbbreviation'), '-', parameters('Environment'), '-', resourceGroup().location)]"
             ],
             "properties": {
                 "azPowerShellVersion": "3.0.0",
@@ -187,7 +187,7 @@
             
                     $DeploymentScriptOutputs['text'] = $KeyEncryptionKeyURL 
                 ",
-                "arguments": "[format(' -KeyVault {0}', concat('kv', parameters('DomainAbbreviation'), parameters('Environment'), resourceGroup().location))]",
+                "arguments": "[format(' -KeyVault {0}', concat('kv-', parameters('DomainAbbreviation'), '-', parameters('Environment'), '-', resourceGroup().location))]",
                 "forceUpdateTag": "[parameters('Timestamp')]",
                 "retentionInterval": "P1D",
                 "timeout": "PT30M"
@@ -197,7 +197,7 @@
             "comments": "---------- KEY VAULT > SECRET > KEK URL ----------",
             "type": "Microsoft.KeyVault/vaults/secrets",
             "apiVersion": "2016-10-01",
-            "name": "[concat('kv', parameters('DomainAbbreviation'), parameters('Environment'), resourceGroup().location, '/DiskEncryptionKekUrl')]",
+            "name": "[concat('kv-', parameters('DomainAbbreviation'), '-', parameters('Environment'), '-', resourceGroup().location, '/DiskEncryptionKekUrl')]",
             "tags": {},
             "dependsOn": [
                 "ds-diskencryptionkek"
@@ -210,7 +210,7 @@
             "comments": "---------- KEY VAULT > SECRET > VM PASSWORD ----------",
             "type": "Microsoft.KeyVault/vaults/secrets",
             "apiVersion": "2016-10-01",
-            "name": "[concat('kv', parameters('DomainAbbreviation'), parameters('Environment'), resourceGroup().location, '/VmPassword')]",
+            "name": "[concat('kv-', parameters('DomainAbbreviation'), '-', parameters('Environment'), '-', resourceGroup().location, '/VmPassword')]",
             "tags": {},
             "dependsOn": [
                 "ds-diskencryptionkek"
@@ -223,7 +223,7 @@
             "comments": "---------- KEY VAULT > SECRET > KEK URL ----------",
             "type": "Microsoft.KeyVault/vaults/secrets",
             "apiVersion": "2016-10-01",
-            "name": "[concat('kv', parameters('DomainAbbreviation'), parameters('Environment'), resourceGroup().location, '/VmUsername')]",
+            "name": "[concat('kv-', parameters('DomainAbbreviation'), '-', parameters('Environment'), '-', resourceGroup().location, '/VmUsername')]",
             "tags": {},
             "dependsOn": [
                 "ds-diskencryptionkek"
@@ -236,7 +236,7 @@
             "comments": "---------- STORAGE ACCOUNT ----------",
             "type": "Microsoft.Storage/storageAccounts",
             "apiVersion": "2019-06-01",
-            "name": "[concat('stor', parameters('PerformanceType'), parameters('DomainAbbreviation'), parameters('Environment'), resourceGroup().location)]",
+            "name": "[concat('stor', parameters('DomainAbbreviation'), parameters('Environment'), resourceGroup().location, parameters('PerformanceType'))]",
             "location": "[resourceGroup().location]",
             "sku": {
                 "name": "Standard_LRS",
@@ -271,7 +271,7 @@
         },
         {
             "comments": "---------- AUTOMATION ACCOUNT ----------",
-            "name": "[concat('aa', parameters('DomainAbbreviation'), parameters('Environment'), resourceGroup().location)]",
+            "name": "[concat('aa-', parameters('DomainAbbreviation'), '-', parameters('Environment'), '-', resourceGroup().location)]",
             "type": "Microsoft.Automation/automationAccounts",
             "apiVersion": "2015-10-31",
             "location": "[parameters('AutomationLocationPrimary')]",
@@ -287,9 +287,9 @@
             "comments": "---------- AUTOMATION ACCOUNT > MODULES ----------",
             "type": "Microsoft.Automation/automationAccounts/modules",
             "apiVersion": "2015-10-31",
-            "name": "[concat('aa', parameters('DomainAbbreviation'), parameters('Environment'), resourceGroup().location, '/', parameters('Modules')[copyIndex()].name)]",
+            "name": "[concat('aa-', parameters('DomainAbbreviation'), '-', parameters('Environment'), '-', resourceGroup().location, '/', parameters('Modules')[copyIndex()].name)]",
             "dependsOn": [
-                "[resourceId('Microsoft.Automation/automationAccounts', concat('aa', parameters('DomainAbbreviation'), parameters('Environment'), resourceGroup().location))]"
+                "[resourceId('Microsoft.Automation/automationAccounts', concat('aa-', parameters('DomainAbbreviation'), '-', parameters('Environment'), '-', resourceGroup().location))]"
             ],
             "copy": {
                 "name": "modulesLoop",
@@ -304,12 +304,12 @@
         {
             "comments": "---------- AUTOMATION ACCOUNT > CONFIGURATION ----------",
             "type": "Microsoft.Automation/automationAccounts/configurations",
-            "name": "[concat('aa', parameters('DomainAbbreviation'), parameters('Environment'), resourceGroup().location, '/ActiveDirectoryForest')]",
+            "name": "[concat('aa-', parameters('DomainAbbreviation'), '-', parameters('Environment'), '-', resourceGroup().location, '/ActiveDirectoryForest')]",
             "apiVersion": "2015-10-31",
             "location": "[resourceGroup().location]",
             "dependsOn": [
                 "modulesLoop",
-                "[resourceId('Microsoft.Automation/automationAccounts', concat('aa', parameters('DomainAbbreviation'), parameters('Environment'), resourceGroup().location))]"
+                "[resourceId('Microsoft.Automation/automationAccounts', concat('aa-', parameters('DomainAbbreviation'), '-', parameters('Environment'), '-', resourceGroup().location))]"
             ],
             "properties": {
                 "source": {
@@ -324,11 +324,11 @@
         {
             "comments": "---------- AUTOMATION ACCOUNT > CREDENTIAL ----------",
             "type": "Microsoft.Automation/automationAccounts/credentials",
-            "name": "[concat('aa', parameters('DomainAbbreviation'), parameters('Environment'), resourceGroup().location, '/Administrator')]",
+            "name": "[concat('aa-', parameters('DomainAbbreviation'), '-', parameters('Environment'), '-', resourceGroup().location, '/Administrator')]",
             "apiVersion": "2015-10-31",
             "tags": {},
             "dependsOn": [
-                "[resourceId('Microsoft.Automation/automationAccounts', concat('aa', parameters('DomainAbbreviation'), parameters('Environment'), resourceGroup().location))]"
+                "[resourceId('Microsoft.Automation/automationAccounts', concat('aa-', parameters('DomainAbbreviation'), '-', parameters('Environment'), '-', resourceGroup().location))]"
             ],
             "properties": {
                 "userName": "[parameters('VmUsername')]",
@@ -338,14 +338,14 @@
         {
             "comments": "---------- AUTOMATION ACCOUNT > COMPILATION JOBS ----------",
             "type": "Microsoft.Automation/automationAccounts/compilationjobs",
-            "name": "[concat('aa', parameters('DomainAbbreviation'), parameters('Environment'), resourceGroup().location, '/', guid(deployment().name))]",
+            "name": "[concat('aa-', parameters('DomainAbbreviation'), '-', parameters('Environment'), '-', resourceGroup().location, '/', guid(deployment().name))]",
             "apiVersion": "2018-01-15",
             "location": "[resourceGroup().location]",
             "dependsOn": [
-                "[resourceId('Microsoft.Automation/automationAccounts', concat('aa', parameters('DomainAbbreviation'), parameters('Environment'), resourceGroup().location))]",
+                "[resourceId('Microsoft.Automation/automationAccounts', concat('aa-', parameters('DomainAbbreviation'), '-', parameters('Environment'), '-', resourceGroup().location))]",
                 "modulesLoop",
-                "[resourceId('Microsoft.Automation/automationAccounts/configurations', concat('aa', parameters('DomainAbbreviation'), parameters('Environment'), resourceGroup().location), 'ActiveDirectoryForest')]",
-                "[resourceId('Microsoft.Automation/automationAccounts/credentials', concat('aa', parameters('DomainAbbreviation'), parameters('Environment'), resourceGroup().location), 'Administrator')]"
+                "[resourceId('Microsoft.Automation/automationAccounts/configurations', concat('aa-', parameters('DomainAbbreviation'), '-', parameters('Environment'), '-', resourceGroup().location), 'ActiveDirectoryForest')]",
+                "[resourceId('Microsoft.Automation/automationAccounts/credentials', concat('aa-', parameters('DomainAbbreviation'), '-', parameters('Environment'), '-', resourceGroup().location), 'Administrator')]"
             ],
             "properties": {
                 "configuration": {

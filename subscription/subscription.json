@@ -277,7 +277,7 @@
                     "uri": "https://raw.githubusercontent.com/jamasten/Azure/master/subscription/templates/securitycenter.json"
                 }
             }
-        },
+        },*/
         {
             "comments": "---------- LINKED DEPLOYMENT > IDENTITY > PRIMARY REGION ----------",
             "type": "Microsoft.Resources/deployments",
@@ -294,6 +294,9 @@
                 },
                 "mode": "Incremental",
                 "parameters": {
+                    "AutomationLocationPrimary": {
+                        "value": "[parameters('AutomationLocationPrimary')]"
+                    },
                     "DomainAbbreviation": {
                         "value": "[parameters('DomainAbbreviation')]"
                     },
@@ -322,7 +325,7 @@
                     "uri": "https://raw.githubusercontent.com/jamasten/Azure/master/subscription/templates/identity.json"
                 }
             }
-        }*/
+        }
     ],
     "outputs": {}
 }

@@ -9,8 +9,12 @@ Param(
     [Parameter(Mandatory=$true)]
     [string]$DomainAbbreviation,
 
+    #An abbreviated version of the environment
+    #d = development
+    #p = production
+    #t = test
     [Parameter(Mandatory=$true)]
-    [ValidateSet("dev", "prod", "qa", "sandbox", "shared", "stage", "test")]
+    [ValidateSet("d", "p", "t")]
     [string]$Environment, 
 
     #Primary Azure Region

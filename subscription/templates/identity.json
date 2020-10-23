@@ -26,14 +26,14 @@
     },
     "variables": {
         "KeyVaultResourceGroup": "[concat('rg-shared-', parameters('Environment'), '-', resourceGroup().location)]",
-        "KeyVaultName": "[concat('kv', parameters('DomainAbbreviation'), parameters('Environment'), resourceGroup().location)]",
+        "KeyVaultName": "[concat('kv-', parameters('DomainAbbreviation'), '-', parameters('Environment'), '-', resourceGroup().location)]",
         "KeyVaultResourceID": "[resourceId(variables('KeyVaultResourceGroup'), 'Microsoft.KeyVault/vaults/', variables('KeyVaultName'))]",
         "LogAnalyticsWorkspace": "[concat('law-', parameters('Environment'), '-', resourceGroup().location)]"
     },
     "resources": [
         {
             "comments": "---------- AVAILABILITY SET ----------",
-            "name": "[concat('as-vm-dc-', parameters('Environment'), '-', resourceGroup().location)]",
+            "name": "[concat('as-dc-', parameters('Environment'), '-', resourceGroup().location)]",
             "type": "Microsoft.Compute/availabilitySets",
             "apiVersion": "2019-07-01",
             "location": "[resourceGroup().location]",
@@ -47,7 +47,7 @@
         },
         {
             "comments": "---------- NETWORK INTERFACE ----------",
-            "name": "[concat('nic-vm-dc-', parameters('Environment'), '-', resourceGroup().location, '-0')]",
+            "name": "[concat('nic-dc-', parameters('Environment'), '-', resourceGroup().location, '-0')]",
             "type": "Microsoft.Network/networkInterfaces",
             "apiVersion": "2018-08-01",
             "location": "[resourceGroup().location]",
@@ -76,8 +76,8 @@
             "apiVersion": "2019-07-01",
             "location": "[resourceGroup().location]",
             "dependsOn": [
-                "[resourceId('Microsoft.Network/networkInterfaces', concat('nic-vm-dc-', parameters('Environment'), '-', resourceGroup().location, '-0'))]",
-                "[resourceId('Microsoft.Compute/availabilitySets', concat('as-vm-dc-', parameters('Environment'), '-', resourceGroup().location))]"
+                "[resourceId('Microsoft.Network/networkInterfaces', concat('nic-dc-', parameters('Environment'), '-', resourceGroup().location, '-0'))]",
+                "[resourceId('Microsoft.Compute/availabilitySets', concat('as-dc-', parameters('Environment'), '-', resourceGroup().location))]"
             ],
             "properties": {
                 "hardwareProfile": {
@@ -96,7 +96,7 @@
                         "version": "latest"
                     },
                     "osDisk": {
-                        "name": "[concat('disk-vm-dc-', parameters('Environment'), '-', resourceGroup().location, '-0-0')]",
+                        "name": "[concat('disk-dc-', parameters('Environment'), '-', resourceGroup().location, '-0-0')]",
                         "caching": "None",
                         "createOption": "FromImage",
                         "managedDisk": {
@@ -108,7 +108,7 @@
                 "networkProfile": {
                     "networkInterfaces": [
                         {
-                            "id": "[resourceId('Microsoft.Network/networkInterfaces', concat('nic-vm-dc-', parameters('Environment'), '-', resourceGroup().location, '-0'))]"
+                            "id": "[resourceId('Microsoft.Network/networkInterfaces', concat('nic-dc-', parameters('Environment'), '-', resourceGroup().location, '-0'))]"
                         }
                     ]
                 },
@@ -118,7 +118,7 @@
                     }
                 },
                 "availabilitySet": {
-                    "id": "[resourceId('Microsoft.Compute/availabilitySets', concat('as-vm-dc-', parameters('Environment'), '-', resourceGroup().location))]"
+                    "id": "[resourceId('Microsoft.Compute/availabilitySets', concat('as-dc-', parameters('Environment'), '-', resourceGroup().location))]"
                 }
             },
             "resources": [

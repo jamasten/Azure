@@ -42,7 +42,7 @@
                 }
             ]
         },
-        "PerformanceType": {
+        "StorageType": {
             "type": "string"
         },
         "Timestamp": {
@@ -236,7 +236,7 @@
             "comments": "---------- STORAGE ACCOUNT ----------",
             "type": "Microsoft.Storage/storageAccounts",
             "apiVersion": "2019-06-01",
-            "name": "[concat('stor', parameters('DomainAbbreviation'), parameters('Environment'), resourceGroup().location, parameters('PerformanceType'))]",
+            "name": "[concat('stor', parameters('DomainAbbreviation'), parameters('Environment'), resourceGroup().location, parameters('StorageType'))]",
             "location": "[resourceGroup().location]",
             "sku": {
                 "name": "Standard_LRS",

@@ -20,17 +20,12 @@ Param(
     #Primary Azure Region
     [Parameter(Mandatory=$true)]
     [ValidateSet("eastus", "usgovvirginia")]
-    [string]$LocationPrimary,
-
-    #Secondary Azure Region for BCDR
-    [Parameter(Mandatory=$true)]
-    [ValidateSet("westus2", "usgovarizona")]
-    [string]$LocationSecondary, 
+    [string]$Location,
   
     #Storage Account SKU: (p)remium or (s)tandard
     [Parameter(Mandatory=$true)]
     [ValidateSet("p", "s")]
-    [string]$PerformanceType, 
+    [string]$StorageType, 
     
     [parameter(Mandatory=$true)]
     [string]$SubscriptionId
@@ -69,7 +64,12 @@ $Email = $Context.Account.Id
 $TimeStamp = Get-Date -F 'yyyyMMddhhmmss'
 $Name =  $Username + '_' + $TimeStamp
 $Credential = Get-Credential -Message 'Input Azure VM credentials'
-$AutomationLocationPrimary = switch($LocationPrimary)
+$LocationSecondary = switch($Location)
+{
+    eastus {'westus2'}
+    usgovvirginia {'usgovarizona'}
+}
+$AutomationLocationPrimary = switch($Location)
 {
     eastus {'eastus2'}
     usgovvirginia {'usgovvirginia'}
@@ -101,8 +101,8 @@ $VSE = @{
     Domain = $Domain
     DomainAbbreviation = $DomainAbbreviation
     Environment = $Environment
-    Locations = @($LocationPrimary, $LocationSecondary)
-    PerformanceType = $PerformanceType
+    Locations = @($Location, $LocationSecondary)
+    StorageType = $StorageType
     SecurityDistributionGroup = $Email
     UserObjectId = $UserObjectId
     Username = $Username

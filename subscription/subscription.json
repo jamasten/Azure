@@ -52,16 +52,6 @@
                 "description": "Locations for Resource Groups & Resources. The first index is primary location and the second index is the secondary location for business continuity and disaster recovery "
             }
         },
-        "PerformanceType": {
-            "type": "string",
-            "allowedValues": [
-                "p",
-                "s"
-            ],
-            "metadata": {
-                "description": "The storage account sku"
-            }
-        },
         "ResourceGroups": {
             "type": "array",
             "metadata": {
@@ -77,6 +67,16 @@
             "type": "string",
             "metadata": {
                 "description": "Email address to recieve Security Center notifications"
+            }
+        },
+        "StorageType": {
+            "type": "string",
+            "allowedValues": [
+                "p",
+                "s"
+            ],
+            "metadata": {
+                "description": "The storage account sku, (p)remium or (s)tandard"
             }
         },
         "Timestamp": {
@@ -227,8 +227,8 @@
                     "Environment": {
                         "value": "[parameters('Environment')]"
                     },
-                    "PerformanceType": {
-                        "value": "[parameters('PerformanceType')]"
+                    "StorageType": {
+                        "value": "[parameters('StorageType')]"
                     },
                     "Timestamp": {
                         "value": "[parameters('Timestamp')]"

@@ -271,7 +271,7 @@
         },
         {
             "comments": "---------- AUTOMATION ACCOUNT ----------",
-            "name": "[concat('aa-', parameters('DomainAbbreviation'), '-', parameters('Environment'), '-', resourceGroup().location)]",
+            "name": "[concat('aa-', parameters('DomainAbbreviation'), '-', parameters('Environment'), '-', parameters('AutomationLocationPrimary'))]",
             "type": "Microsoft.Automation/automationAccounts",
             "apiVersion": "2015-10-31",
             "location": "[parameters('AutomationLocationPrimary')]",
@@ -287,9 +287,10 @@
             "comments": "---------- AUTOMATION ACCOUNT > MODULES ----------",
             "type": "Microsoft.Automation/automationAccounts/modules",
             "apiVersion": "2015-10-31",
-            "name": "[concat('aa-', parameters('DomainAbbreviation'), '-', parameters('Environment'), '-', resourceGroup().location, '/', parameters('Modules')[copyIndex()].name)]",
+            "name": "[concat('aa-', parameters('DomainAbbreviation'), '-', parameters('Environment'), '-', parameters('AutomationLocationPrimary'), '/', parameters('Modules')[copyIndex()].name)]",
+            "location": "[parameters('AutomationLocationPrimary')]",
             "dependsOn": [
-                "[resourceId('Microsoft.Automation/automationAccounts', concat('aa-', parameters('DomainAbbreviation'), '-', parameters('Environment'), '-', resourceGroup().location))]"
+                "[resourceId('Microsoft.Automation/automationAccounts', concat('aa-', parameters('DomainAbbreviation'), '-', parameters('Environment'), '-', parameters('AutomationLocationPrimary')))]"
             ],
             "copy": {
                 "name": "modulesLoop",
@@ -304,9 +305,9 @@
         {
             "comments": "---------- AUTOMATION ACCOUNT > CONFIGURATION ----------",
             "type": "Microsoft.Automation/automationAccounts/configurations",
-            "name": "[concat('aa-', parameters('DomainAbbreviation'), '-', parameters('Environment'), '-', resourceGroup().location, '/ActiveDirectoryForest')]",
+            "name": "[concat('aa-', parameters('DomainAbbreviation'), '-', parameters('Environment'), '-', parameters('AutomationLocationPrimary'), '/ActiveDirectoryForest')]",
             "apiVersion": "2015-10-31",
-            "location": "[resourceGroup().location]",
+            "location": "[parameters('AutomationLocationPrimary')]",
             "dependsOn": [
                 "modulesLoop",
                 "[resourceId('Microsoft.Automation/automationAccounts', concat('aa-', parameters('DomainAbbreviation'), '-', parameters('Environment'), '-', resourceGroup().location))]"
@@ -326,6 +327,7 @@
             "type": "Microsoft.Automation/automationAccounts/credentials",
             "name": "[concat('aa-', parameters('DomainAbbreviation'), '-', parameters('Environment'), '-', resourceGroup().location, '/Administrator')]",
             "apiVersion": "2015-10-31",
+            "location": "[parameters('AutomationLocationPrimary')]",
             "tags": {},
             "dependsOn": [
                 "[resourceId('Microsoft.Automation/automationAccounts', concat('aa-', parameters('DomainAbbreviation'), '-', parameters('Environment'), '-', resourceGroup().location))]"
@@ -338,14 +340,14 @@
         {
             "comments": "---------- AUTOMATION ACCOUNT > COMPILATION JOBS ----------",
             "type": "Microsoft.Automation/automationAccounts/compilationjobs",
-            "name": "[concat('aa-', parameters('DomainAbbreviation'), '-', parameters('Environment'), '-', resourceGroup().location, '/', guid(deployment().name))]",
+            "name": "[concat('aa-', parameters('DomainAbbreviation'), '-', parameters('Environment'), '-', parameters('AutomationLocationPrimary'), '/', guid(deployment().name))]",
             "apiVersion": "2018-01-15",
-            "location": "[resourceGroup().location]",
+            "location": "[parameters('AutomationLocationPrimary')]",
             "dependsOn": [
-                "[resourceId('Microsoft.Automation/automationAccounts', concat('aa-', parameters('DomainAbbreviation'), '-', parameters('Environment'), '-', resourceGroup().location))]",
+                "[resourceId('Microsoft.Automation/automationAccounts', concat('aa-', parameters('DomainAbbreviation'), '-', parameters('Environment'), '-', parameters('AutomationLocationPrimary')))]",
                 "modulesLoop",
-                "[resourceId('Microsoft.Automation/automationAccounts/configurations', concat('aa-', parameters('DomainAbbreviation'), '-', parameters('Environment'), '-', resourceGroup().location), 'ActiveDirectoryForest')]",
-                "[resourceId('Microsoft.Automation/automationAccounts/credentials', concat('aa-', parameters('DomainAbbreviation'), '-', parameters('Environment'), '-', resourceGroup().location), 'Administrator')]"
+                "[resourceId('Microsoft.Automation/automationAccounts/configurations', concat('aa-', parameters('DomainAbbreviation'), '-', parameters('Environment'), '-', parameters('AutomationLocationPrimary')), 'ActiveDirectoryForest')]",
+                "[resourceId('Microsoft.Automation/automationAccounts/credentials', concat('aa-', parameters('DomainAbbreviation'), '-', parameters('Environment'), '-', parameters('AutomationLocationPrimary')), 'Administrator')]"
             ],
             "properties": {
                 "configuration": {

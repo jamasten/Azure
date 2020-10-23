@@ -2,8 +2,8 @@
     "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
-        "AutomationLocationPrimary": {
-            "type": "string"
+        "AutomationLocation": {
+            "type": "array"
         },
         "DomainAbbreviation": {
             "type": "string"
@@ -240,7 +240,7 @@
                                 },
                                 {
                                     "Name": "RegistrationUrl",
-                                    "Value": "[reference(resourceId(concat('rg-shared-', parameters('Environment'),'-', resourceGroup().location), 'Microsoft.Automation/automationAccounts/', concat('aa-', parameters('DomainAbbreviation'), '-', parameters('Environment'), '-', parameters('AutomationLocationPrimary'))), '2018-06-30').registrationUrl]",
+                                    "Value": "[reference(resourceId(concat('rg-shared-', parameters('Environment'),'-', resourceGroup().location), 'Microsoft.Automation/automationAccounts/', concat('aa-', parameters('DomainAbbreviation'), '-', parameters('Environment'), '-', parameters('AutomationLocation'))), '2018-06-30').registrationUrl]",
                                     "TypeName": "System.String"
                                 },
                                 {

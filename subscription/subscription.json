@@ -2,16 +2,10 @@
     "$schema": "https://schema.management.azure.com/schemas/2018-05-01/$scriptionDeploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
-        "AutomationLocationPrimary": {
-            "type": "string",
+        "AutomationLocations": {
+            "type": "array",
             "metadata": {
-                "description": "This value is needed to ensure the Automation Account is deployed to a supported region for Log Analytics.  https://docs.microsoft.com/en-us/azure/automation/how-to/region-mappings"
-            }
-        },
-        "AutomationLocationSecondary": {
-            "type": "string",
-            "metadata": {
-                "description": "This value is needed to ensure the Automation Account is deployed to a supported region for Log Analytics.  https://docs.microsoft.com/en-us/azure/automation/how-to/region-mappings"
+                "description": "These values are needed to ensure the Automation Account is deployed to a supported region for Log Analytics.  https://docs.microsoft.com/en-us/azure/automation/how-to/region-mappings"
             }
         },
         "Domain": {
@@ -215,8 +209,8 @@
                 },
                 "mode": "Incremental",
                 "parameters": {
-                    "AutomationLocationPrimary": {
-                        "value": "[parameters('AutomationLocationPrimary')]"
+                    "AutomationLocation": {
+                        "value": "[parameters('AutomationLocations')[0]]"
                     },
                     "Domain": {
                         "value": "[parameters('Domain')]"
@@ -294,8 +288,8 @@
                 },
                 "mode": "Incremental",
                 "parameters": {
-                    "AutomationLocationPrimary": {
-                        "value": "[parameters('AutomationLocationPrimary')]"
+                    "AutomationLocation": {
+                        "value": "[parameters('AutomationLocations')[0]]"
                     },
                     "DomainAbbreviation": {
                         "value": "[parameters('DomainAbbreviation')]"

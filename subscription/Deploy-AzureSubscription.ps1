@@ -64,20 +64,15 @@ $Email = $Context.Account.Id
 $TimeStamp = Get-Date -F 'yyyyMMddhhmmss'
 $Name =  $Username + '_' + $TimeStamp
 $Credential = Get-Credential -Message 'Input Azure VM credentials'
-$LocationSecondary = switch($Location)
+$Locations = switch($Location)
 {
-    eastus {'westus2'}
-    usgovvirginia {'usgovarizona'}
+    eastus {@('eastus','westus2')}
+    usgovvirginia {@('usgovvirginia','usgovarizona')}
 }
-$AutomationLocationPrimary = switch($Location)
+$AutomationLocations = switch($Location)
 {
-    eastus {'eastus2'}
-    usgovvirginia {'usgovvirginia'}
-}
-$AutomationLocationSecondary = switch($LocationSecondary)
-{
-    westus2 {'westus2'}
-    usgovarizona {'usgovarizona'}
+    eastus {@('eastus2','westus2')}
+    usgovvirginia {@('usgovvirginia','usgovarizona')}
 }
 
 
@@ -96,12 +91,11 @@ if(!$test)
 # Template Parameter Object
 #############################################################
 $VSE = @{
-    AutomationLocationPrimary = $AutomationLocationPrimary
-    AutomationLocationSecondary = $AutomationLocationSecondary
+    AutomationLocations = $AutomationLocations
     Domain = $Domain
     DomainAbbreviation = $DomainAbbreviation
     Environment = $Environment
-    Locations = @($Location, $LocationSecondary)
+    Locations = $Locations
     StorageType = $StorageType
     SecurityDistributionGroup = $Email
     UserObjectId = $UserObjectId

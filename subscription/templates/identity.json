@@ -14,6 +14,9 @@
         "KeyEncryptionKeyURL": {
             "type": "string"
         },
+        "LocationAbbreviation": {
+            "type": "string"
+        },
         "Timestamp": {
             "type": "string"
         },
@@ -71,7 +74,7 @@
         },
         {
             "comments": "---------- VIRTUAL MACHINE ----------",
-            "name": "[concat('vm-dc-', parameters('Environment'), '-', resourceGroup().location, '-0')]",
+            "name": "[concat('vm-dc-', parameters('Environment'), '-', parameters('LocationAbbreviation'), '-0')]",
             "type": "Microsoft.Compute/virtualMachines",
             "apiVersion": "2019-07-01",
             "location": "[resourceGroup().location]",
@@ -84,7 +87,7 @@
                     "vmSize": "Standard_B2s"
                 },
                 "osProfile": {
-                    "computerName": "[concat('vm-dc-', parameters('Environment'), '-', resourceGroup().location, '-0')]",
+                    "computerName": "[concat('vm-dc-', parameters('Environment'), '-', parameters('LocationAbbreviation'), '-0')]",
                     "adminUsername": "[parameters('VmUsername')]",
                     "adminPassword": "[parameters('VmPassword')]"
                 },
@@ -129,7 +132,7 @@
                     "apiVersion": "2017-03-30",
                     "location": "[resourceGroup().location]",
                     "dependsOn": [
-                        "[concat('vm-dc-', parameters('Environment'), '-', resourceGroup().location, '-0')]"
+                        "[concat('vm-dc-', parameters('Environment'), '-', parameters('LocationAbbreviation'), '-0')]"
                     ],
                     "properties": {
                         "publisher": "Microsoft.EnterpriseCloud.Monitoring",
@@ -151,7 +154,7 @@
                     "name": "NetworkWatcherAgentWindows",
                     "location": "[resourceGroup().location]",
                     "dependsOn": [
-                        "[concat('vm-dc-', parameters('Environment'), '-', resourceGroup().location, '-0')]"
+                        "[concat('vm-dc-', parameters('Environment'), '-', parameters('LocationAbbreviation'), '-0')]"
                     ],
                     "properties": {
                         "publisher": "Microsoft.Azure.NetworkWatcher",
@@ -169,7 +172,7 @@
                     "name": "DependencyAgentWindows",
                     "location": "[resourceGroup().location]",
                     "dependsOn": [
-                        "[concat('vm-dc-', parameters('Environment'), '-', resourceGroup().location, '-0')]"
+                        "[concat('vm-dc-', parameters('Environment'), '-', parameters('LocationAbbreviation'), '-0')]"
                     ],
                     "properties": {
                         "publisher": "Microsoft.Azure.Monitoring.DependencyAgent",
@@ -185,7 +188,7 @@
                     "location": "[resourceGroup().location]",
                     "apiVersion": "2017-03-30",
                     "dependsOn": [
-                        "[concat('vm-dc-', parameters('Environment'), '-', resourceGroup().location, '-0')]",
+                        "[concat('vm-dc-', parameters('Environment'), '-', parameters('LocationAbbreviation'), '-0')]",
                         "MicrosoftMonitoringAgent",
                         "NetworkWatcherAgentWindows",
                         "DependencyAgentWindows"
@@ -215,7 +218,7 @@
                     "apiVersion": "2019-07-01",
                     "location": "[resourceGroup().location]",
                     "dependsOn": [
-                        "[concat('vm-dc-', parameters('Environment'), '-', resourceGroup().location, '-0')]",
+                        "[concat('vm-dc-', parameters('Environment'), '-', parameters('LocationAbbreviation'), '-0')]",
                         "AzureDiskEncryption"
                     ],
                     "properties": {

@@ -46,6 +46,12 @@
                 "description": "Locations for Resource Groups & Resources. The first index is primary location and the second index is the secondary location for business continuity and disaster recovery "
             }
         },
+        "LocationAbbreviations": {
+            "type": "array",
+            "metadata": {
+                "description": "Location abbreviations are used for Virtual Machine names since they are limited to 15 characters. The first index is primary location and the second index is the secondary location for business continuity and disaster recovery "
+            }
+        },
         "ResourceGroups": {
             "type": "array",
             "metadata": {
@@ -304,6 +310,9 @@
                             },
                             "secretName": "DiskEncryptionKekUrl"
                         }
+                    },
+                    "LocationAbbreviation": {
+                        "value": "[parameters('LocationAbbreviations')[0]]"
                     },
                     "Timestamp": {
                         "value": "[parameters('Timestamp')]"

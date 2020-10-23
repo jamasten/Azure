@@ -69,6 +69,11 @@ $Locations = switch($Location)
     eastus {@('eastus','westus2')}
     usgovvirginia {@('usgovvirginia','usgovarizona')}
 }
+$LocationAbbreviations = switch($Location)
+{
+    eastus {@('eus','wus')}
+    usgovvirginia {@('usv','usa')}
+}
 $AutomationLocations = switch($Location)
 {
     eastus {@('eastus2','westus2')}
@@ -90,19 +95,20 @@ if(!$test)
 #############################################################
 # Template Parameter Object
 #############################################################
-$VSE = @{
+$Params = @{
     AutomationLocations = $AutomationLocations
     Domain = $Domain
     DomainAbbreviation = $DomainAbbreviation
     Environment = $Environment
     Locations = $Locations
+    LocationAbbreviations = $LocationAbbreviations
     StorageType = $StorageType
     SecurityDistributionGroup = $Email
     UserObjectId = $UserObjectId
     Username = $Username
 }
-$VSE.Add("VmPassword", $Credential.Password) # Secure Strings must use Add Method for proper deserialization
-$VSE.Add("VmUsername", $Credential.UserName) # Secure Strings must use Add Method for proper deserialization
+$Params.Add("VmPassword", $Credential.Password) # Secure Strings must use Add Method for proper deserialization
+$Params.Add("VmUsername", $Credential.UserName) # Secure Strings must use Add Method for proper deserialization
 
 
 #############################################################
@@ -112,9 +118,9 @@ try
 {
     New-AzSubscriptionDeployment `
         -Name $Name `
-        -Location $VSE.Locations[0] `
+        -Location $Params.Locations[0] `
         -TemplateFile '.\subscription.json' `
-        -TemplateParameterObject $VSE `
+        -TemplateParameterObject $Params `
         -ErrorAction Stop `
         -Verbose
 }

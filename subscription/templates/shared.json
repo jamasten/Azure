@@ -314,7 +314,7 @@
             "properties": {
                 "source": {
                     "type": "uri",
-                    "value": "https://raw.githubusercontent.com/jamasten/Azure/master/dsc/configurations/ActiveDirectoryForest.ps1",
+                    "value": "https://raw.githubusercontent.com/jamasten/Azure/master/subscription/dsc/configurations/ActiveDirectoryForest.ps1",
                     "version": "[parameters('Timestamp')]"
                 },
                 "parameters": {},

@@ -33,7 +33,7 @@
     "resources": [
         {
             "comments": "---------- AVAILABILITY SET ----------",
-            "name": "[concat('as-vm-dc', parameters('Environment'), '-', resourceGroup().location)]",
+            "name": "[concat('as-vm-dc-', parameters('Environment'), '-', resourceGroup().location)]",
             "type": "Microsoft.Compute/availabilitySets",
             "apiVersion": "2019-07-01",
             "location": "[resourceGroup().location]",

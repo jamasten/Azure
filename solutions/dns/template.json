@@ -103,35 +103,35 @@
             },
             "defaultValue": [
                 {
-                    "name": "vmclthub1",
+                    "name": "vm-clt-hub-1",
                     "publisher": "MicrosoftWindowsDesktop",
                     "offer": "Windows-10",
                     "sku": "20h1-pro",
                     "licenseType": "Windows_Client"
                 },
                 {
-                    "name": "vmcltspoke1",
+                    "name": "vm-clt-spoke-1",
                     "publisher": "MicrosoftWindowsDesktop",
                     "offer": "Windows-10",
                     "sku": "20h1-pro",
                     "licenseType": "Windows_Client"
                 },
                 {
-                    "name": "vmcltspoke2",
+                    "name": "vm-clt-spoke-2",
                     "publisher": "MicrosoftWindowsDesktop",
                     "offer": "Windows-10",
                     "sku": "20h1-pro",
                     "licenseType": "Windows_Client"
                 },
                 {
-                    "name": "vmdnshub",
+                    "name": "vm-dns-hub",
                     "publisher": "MicrosoftWindowsServer",
                     "offer": "WindowsServer",
                     "sku": "2016-Datacenter",
                     "licenseType": null
                 },
                 {
-                    "name": "vmdnsspoke",
+                    "name": "vm-dns-spoke",
                     "publisher": "MicrosoftWindowsServer",
                     "offer": "WindowsServer",
                     "sku": "2016-Datacenter",

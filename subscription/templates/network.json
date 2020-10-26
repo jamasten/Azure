@@ -57,7 +57,7 @@
                         }
                     },
                     {
-                        "name": "[concat('snet-wvd-', parameters('Environment'), '-', resourceGroup().location)]",
+                        "name": "[concat('snet-clients-', parameters('Environment'), '-', resourceGroup().location)]",
                         "properties": {
                             "addressPrefix": "10.0.2.0/24",
                             "delegations": [],

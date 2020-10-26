@@ -1,19 +1,23 @@
 ﻿Param(
 
     #[Parameter(Mandatory=$true)]
-    #[string]$Domain,
+    [string]$Domain,
 
     # This is used to uniquely name resources that need to be globally unique (i.e. storage account name)
-    #[Parameter(Mandatory=$true)]
-    #[string]$DomainAbbreviation,
+    [Parameter(Mandatory=$true)]
+    [string]$DomainAbbreviation,
 
-    #[Parameter(Mandatory=$true)]
-    #[ValidateSet("dev", "prod", "qa", "sandbox", "shared", "stage", "test")]
-    #[string]$Environment, 
+    #An abbreviated version of the environment
+    #d = development
+    #p = production
+    #t = test
+    [Parameter(Mandatory=$true)]
+    [ValidateSet("d", "p", "t")]
+    [string]$Environment,
 
-    #[Parameter(Mandatory=$true)]
-    #[ValidateScript({(Get-AzLocation | Select-Object -ExpandProperty Location) -contains $_})]
-    #[string]$Location,
+    [Parameter(Mandatory=$true)]
+    [ValidateSet("eastus", "usgovvirginia", "usgovarizona", "westus2")]
+    [string]$Location,
 
     [parameter(Mandatory=$true)]
     [ValidateSet("dns", "sql", "wvd")]
@@ -55,28 +59,26 @@ if(!(Get-AzContext | Where-Object {$_.Subscription.Id -eq $SubscriptionId}))
 
 
 #############################################################
-# Load functions
-#############################################################
-. ..\utilities\functions.ps1
-
-
-#############################################################
 # Variables
 #############################################################
 $Context = Get-AzContext
 $Username = $Context.Account.Id.Split('@')[0]
 $TimeStamp = Get-Date -F 'yyyyMMddhhmmss'
 $Name =  $Username + '_' + $TimeStamp
-$Domain = 'jasonmasten.com'
-$DomainAbbreviation = "jm"
-$Environment = "dev"
-$Location = "eastus"
+$LocationAbbreviation = switch($Location)
+{
+    eastus {'eus'}
+    usgovarizona {'usa'}
+    usgovvirginia {'usv'}
+    westus2 {'wus'}
+}
 $VmPassword = (Get-AzKeyVaultSecret -VaultName $('kv' + $DomainAbbreviation + $Environment + $Location) -Name VmPassword).SecretValue
 $VmUsername = (Get-AzKeyVaultSecret -VaultName $('kv' + $DomainAbbreviation + $Environment + $Location) -Name VmUsername).SecretValue
 $Params = @{}
 switch($Solution)
 {
     dns {
+            . ..\utilities\functions.ps1
             $HomePip = Get-PublicIpAddress
             $Params.Add("HomePip", $HomePip.Trim())
             $Params.Add("VmPassword", $VmPassword)
@@ -90,7 +92,7 @@ switch($Solution)
         }
     sql {
             $Params.Add("Environment", $Environment)
-            $Params.Add("vmName", "vmsqltest")
+            $Params.Add("LocationAbbreviation", $LocationAbbreviation)
             $Params.Add("VmPassword", $VmPassword)
             $Params.Add("VmUsername", $VmUsername)
             $TemplateFile = ".\sql\namedInstance\template.json"
@@ -105,6 +107,7 @@ switch($Solution)
             $Params.Add("Domain", $Domain)
             $Params.Add("DomainAbbreviation", $DomainAbbreviation)
             $Params.Add("Environment", $Environment)
+            $Params.Add("LocationAbbreviation", $LocationAbbreviation)
             $Params.Add("Netbios", $Netbios)
             $Params.Add("Username", $UserName)
             $Params.Add("VmPassword", $VmPassword)

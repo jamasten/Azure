@@ -14,6 +14,9 @@
         "HostCount": {
             "type": "int"
         },
+        "LocationAbbreviation": {
+            "type": "string"
+        },
         "KeyEncryptionKeyURL": {
             "type": "string"
         },
@@ -43,7 +46,7 @@
         {
             "type": "Microsoft.Compute/availabilitySets",
             "apiVersion": "2019-07-01",
-            "name": "[concat('as-vmsh', parameters('Environment'), '-', resourceGroup().location)]",
+            "name": "[concat('as-sh-', parameters('Environment'), '-', resourceGroup().location)]",
             "location": "[resourceGroup().location]",
             "dependsOn": [],
             "sku": {
@@ -58,7 +61,7 @@
         {
             "type": "Microsoft.Network/networkInterfaces",
             "apiVersion": "2020-05-01",
-            "name": "[concat('nic-vmsh', parameters('Environment'), resourceGroup().location, copyIndex())]",
+            "name": "[concat('nic-sh-', parameters('Environment'), '-', resourceGroup().location, '-', copyIndex())]",
             "location": "[resourceGroup().location]",
             "copy": {
                 "name": "nicLoop",
@@ -71,7 +74,7 @@
                         "properties": {
                             "privateIPAllocationMethod": "Dynamic",
                             "subnet": {
-                                "id": "[resourceId(subscription().subscriptionId, concat('rg-network-', parameters('Environment'),'-', resourceGroup().location), 'Microsoft.Network/virtualNetworks/subnets', concat('vnet-', parameters('Environment'), '-', resourceGroup().location), concat('snet-wvd-', parameters('Environment'), '-',resourceGroup().location))]"
+                                "id": "[resourceId(subscription().subscriptionId, concat('rg-network-', parameters('Environment'),'-', resourceGroup().location), 'Microsoft.Network/virtualNetworks/subnets', concat('vnet-', parameters('Environment'), '-', resourceGroup().location), concat('snet-clients-', parameters('Environment'), '-',resourceGroup().location))]"
                             },
                             "primary": true,
                             "privateIPAddressVersion": "IPv4"
@@ -88,11 +91,11 @@
         {
             "type": "Microsoft.Compute/virtualMachines",
             "apiVersion": "2019-07-01",
-            "name": "[concat('vmsh', parameters('Environment'), resourceGroup().location, copyIndex())]",
+            "name": "[concat('vm-sh-', parameters('Environment'), '-', parameters('LocationAbbreviation'), '-', copyIndex())]",
             "location": "[resourceGroup().location]",
             "dependsOn": [
                 "nicLoop",
-                "[resourceId('Microsoft.Compute/availabilitySets', concat('as-vmsh', parameters('Environment'), '-', resourceGroup().location))]"
+                "[resourceId('Microsoft.Compute/availabilitySets', concat('as-sh-', parameters('Environment'), '-', resourceGroup().location))]"
             ],
             "copy": {
                 "name": "vmLoop",
@@ -100,7 +103,7 @@
             },
             "properties": {
                 "availabilitySet": {
-                    "id": "[resourceId('Microsoft.Compute/availabilitySets', concat('as-vmsh', parameters('Environment'), '-', resourceGroup().location))]"
+                    "id": "[resourceId('Microsoft.Compute/availabilitySets', concat('as-sh-', parameters('Environment'), '-', resourceGroup().location))]"
                 },
                 "hardwareProfile": {
                     "vmSize": "Standard_B2s"
@@ -114,7 +117,7 @@
                     },
                     "osDisk": {
                         "osType": "Windows",
-                        "name": "[concat('disk-vmsh', parameters('Environment'), resourceGroup().location, copyIndex(), '-0')]",
+                        "name": "[concat('disk-sh-', parameters('Environment'), '-', resourceGroup().location, '-', copyIndex(), '-0')]",
                         "createOption": "FromImage",
                         "caching": "None",
                         "managedDisk": {
@@ -125,7 +128,7 @@
                     "dataDisks": []
                 },
                 "osProfile": {
-                    "computerName": "[concat('vmsh', parameters('Environment'), resourceGroup().location, copyIndex())]",
+                    "computerName": "[concat('vm-sh-', parameters('Environment'), '-', parameters('LocationAbbreviation'), '-', copyIndex())]",
                     "adminUsername": "[parameters('VmUsername')]",
                     "adminPassword": "[parameters('VmPassword')]",
                     "windowsConfiguration": {
@@ -138,7 +141,7 @@
                 "networkProfile": {
                     "networkInterfaces": [
                         {
-                            "id": "[resourceId('Microsoft.Network/networkInterfaces', concat('nic-vmsh', parameters('Environment'), resourceGroup().location, copyIndex()))]"
+                            "id": "[resourceId('Microsoft.Network/networkInterfaces', concat('nic-sh-', parameters('Environment'), '-', resourceGroup().location, '-', copyIndex()))]"
                         }
                     ]
                 },
@@ -157,7 +160,7 @@
                     "apiVersion": "2017-03-30",
                     "location": "[resourceGroup().location]",
                     "dependsOn": [
-                        "[concat('vmsh', parameters('Environment'), resourceGroup().location, copyIndex())]"
+                        "[concat('vm-sh-', parameters('Environment'), '-', parameters('LocationAbbreviation'), '-', copyIndex())]"
                     ],
                     "properties": {
                         "publisher": "Microsoft.EnterpriseCloud.Monitoring",
@@ -179,7 +182,7 @@
                     "name": "NetworkWatcherAgentWindows",
                     "location": "[resourceGroup().location]",
                     "dependsOn": [
-                        "[concat('vmsh', parameters('Environment'), resourceGroup().location, copyIndex())]"
+                        "[concat('vm-sh-', parameters('Environment'), '-', parameters('LocationAbbreviation'), '-', copyIndex())]"
                     ],
                     "properties": {
                         "publisher": "Microsoft.Azure.NetworkWatcher",
@@ -197,7 +200,7 @@
                     "name": "DependencyAgentWindows",
                     "location": "[resourceGroup().location]",
                     "dependsOn": [
-                        "[concat('vmsh', parameters('Environment'), resourceGroup().location, copyIndex())]"
+                        "[concat('vm-sh-', parameters('Environment'), '-', parameters('LocationAbbreviation'), '-', copyIndex())]"
                     ],
                     "properties": {
                         "publisher": "Microsoft.Azure.Monitoring.DependencyAgent",
@@ -213,7 +216,7 @@
                     "name": "JsonADDomainExtension",
                     "location": "[resourceGroup().location]",
                     "dependsOn": [
-                        "[concat('vmsh', parameters('Environment'), resourceGroup().location, copyIndex())]",
+                        "[concat('vm-sh-', parameters('Environment'), '-', parameters('LocationAbbreviation'), '-', copyIndex())]",
                         "MicrosoftMonitoringAgent",
                         "NetworkWatcherAgentWindows",
                         "DependencyAgentWindows"
@@ -242,7 +245,7 @@
                     "location": "[resourceGroup().location]",
                     "apiVersion": "2017-03-30",
                     "dependsOn": [
-                        "[concat('vmsh', parameters('Environment'), resourceGroup().location, copyIndex())]",
+                        "[concat('vm-sh-', parameters('Environment'), '-', parameters('LocationAbbreviation'), '-', copyIndex())]",
                         "JsonADDomainExtension"
                     ],
                     "properties": {
@@ -270,7 +273,7 @@
                     "name": "DSC",
                     "location": "[resourceGroup().location]",
                     "dependsOn": [
-                        "[concat('vmsh', parameters('Environment'), resourceGroup().location, copyIndex())]",
+                        "[concat('vm-sh-', parameters('Environment'), '-', parameters('LocationAbbreviation'), '-', copyIndex())]",
                         "AzureDiskEncryption"
                     ],
                     "properties": {

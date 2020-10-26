@@ -5,12 +5,15 @@
         "Environment": {
             "type": "string"
         },
+        "LocationAbbreviation": {
+            "type": "string",
+            "metadata": {
+                "description": "A 3 letter abbreviation of the Azure datacenter location for use with VM names."
+            }
+        },
         "Timestamp": {
             "type": "string",
             "defaultValue": "[utcNow()]"
-        },
-        "vmName": {
-            "type": "string"
         },
         "VmPassword": {
             "type": "securestring"
@@ -26,7 +29,7 @@
             "comments": "---------- NETWORK INTERFACE CARD ----------",
             "type": "Microsoft.Network/networkInterfaces",
             "apiVersion": "2020-05-01",
-            "name": "[concat('nic-', parameters('vmName'))]",
+            "name": "[concat('nic-sql-', parameters('Environment'), '-', resourceGroup().location)]",
             "location": "eastus",
             "properties": {
                 "ipConfigurations": [
@@ -50,10 +53,10 @@
             "comments": "---------- VIRTUAL MACHINE ----------",
             "type": "Microsoft.Compute/virtualMachines",
             "apiVersion": "2019-07-01",
-            "name": "[parameters('vmName')]",
+            "name": "[concat('vm-sql-', parameters('Environment'), '-', parameters('LocationAbbreviation'))]",
             "location": "[resourceGroup().location]",
             "dependsOn": [
-                "[resourceId('Microsoft.Network/networkInterfaces', concat('nic-', parameters('vmName')))]"
+                "[resourceId('Microsoft.Network/networkInterfaces', concat('nic-sql-', parameters('Environment'), '-', resourceGroup().location))]"
             ],
             "properties": {
                 "hardwareProfile": {
@@ -68,7 +71,7 @@
                     },
                     "osDisk": {
                         "osType": "Windows",
-                        "name": "[concat('disk-', parameters('vmName'), '-0')]",
+                        "name": "[concat('disk-sql',  parameters('Environment'), '-', resourceGroup().location, '-0')]",
                         "createOption": "FromImage",
                         "caching": "ReadWrite",
                         "managedDisk": {
@@ -79,7 +82,7 @@
                     "dataDisks": [
                         {
                             "lun": 0,
-                            "name": "[concat('disk-', parameters('vmName'), '-1')]",
+                            "name": "[concat('disk-sql',  parameters('Environment'), '-', resourceGroup().location, '-1')]",
                             "createOption": "Empty",
                             "caching": "ReadOnly",
                             "writeAcceleratorEnabled": false,
@@ -90,7 +93,7 @@
                         },
                         {
                             "lun": 1,
-                            "name": "[concat('disk-', parameters('vmName'), '-2')]",
+                            "name": "[concat('disk-sql',  parameters('Environment'), '-', resourceGroup().location, '-2')]",
                             "createOption": "Empty",
                             "caching": "None",
                             "writeAcceleratorEnabled": false,
@@ -102,7 +105,7 @@
                     ]
                 },
                 "osProfile": {
-                    "computerName": "[parameters('vmName')]",
+                    "name": "[concat('vm-sql-', parameters('Environment'), '-', parameters('LocationAbbreviation'))]",
                     "adminUsername": "[parameters('VmUsername')]",
                     "adminPassword": "[parameters('VmPassword')]",
                     "windowsConfiguration": {
@@ -113,7 +116,7 @@
                 "networkProfile": {
                     "networkInterfaces": [
                         {
-                            "id": "[resourceId('Microsoft.Network/networkInterfaces', concat('nic-', parameters('vmName')))]"
+                            "id": "[resourceId('Microsoft.Network/networkInterfaces', concat('nic-sql-', parameters('Environment'), '-', resourceGroup().location))]"
                         }
                     ]
                 }
@@ -123,13 +126,13 @@
             "comments": "---------- SQL VIRTUAL MACHINE ----------",
             "type": "Microsoft.SqlVirtualMachine/sqlVirtualMachines",
             "apiVersion": "2017-03-01-preview",
-            "name": "[parameters('vmName')]",
+            "name": "[concat('vm-sql-', parameters('Environment'), '-', parameters('LocationAbbreviation'))]",
             "location": "[resourceGroup().location]",
             "dependsOn": [
-                "[resourceId('Microsoft.Compute/virtualMachines', parameters('vmName'))]"
+                "[resourceId('Microsoft.Compute/virtualMachines', concat('vm-sql-', parameters('Environment'), '-', parameters('LocationAbbreviation')))]"
             ],
             "properties": {
-                "virtualMachineResourceId": "[resourceId('Microsoft.Compute/virtualMachines', parameters('vmName'))]",
+                "virtualMachineResourceId": "[resourceId('Microsoft.Compute/virtualMachines', concat('vm-sql-', parameters('Environment'), '-', parameters('LocationAbbreviation')))]",
                 "sqlImageOffer": "SQL2017-WS2016",
                 "sqlServerLicenseType": "PAYG",
                 "sqlManagement": "Full",
@@ -166,8 +169,8 @@
             "dependsOn": [
                 "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', concat('uami-sql', parameters('Environment'), resourceGroup().location))]",
                 "[resourceId('Microsoft.Authorization/roleAssignments', '00fa340b-5f12-45d0-a2f3-3fa5178dde0f')]",
-                "[resourceId('Microsoft.Compute/virtualMachines', parameters('vmName'))]",
-                "[resourceId('Microsoft.SqlVirtualMachine/sqlVirtualMachines', parameters('vmName'))]"
+                "[resourceId('Microsoft.Compute/virtualMachines', concat('vm-sql-', parameters('Environment'), '-', parameters('LocationAbbreviation')))]",
+                "[resourceId('Microsoft.SqlVirtualMachine/sqlVirtualMachines', concat('vm-sql-', parameters('Environment'), '-', parameters('LocationAbbreviation')))]"
             ],
             "identity": {
                 "type": "UserAssigned",
@@ -189,7 +192,7 @@
                     $Rg = (Get-AzResource -Name $vmName -ResourceType Microsoft.Compute/virtualMachines).ResourceGroupName
                     Remove-AzVMExtension -ResourceGroupName $Rg -VMName $vmName -Name SqlIaasExtension -Force
                 ",
-                "arguments": "[format(' -vmName {0}', parameters('vmName'))]",
+                "arguments": "[format(' -vmName {0}', concat('vm-sql-', parameters('Environment'), '-', parameters('LocationAbbreviation')))]",
                 "forceUpdateTag": "[parameters('Timestamp')]",
                 "retentionInterval": "P1D",
                 "timeout": "PT30M"
@@ -199,11 +202,11 @@
             "comments": "---------- CUSTOM SCRIPT EXTENSION ----------",
             "apiVersion": "2018-06-01",
             "type": "Microsoft.Compute/virtualMachines/extensions",
-            "name": "[concat(parameters('vmName'),'/CustomScriptExtension')]",
+            "name": "[concat('vm-sql-', parameters('Environment'), '-', parameters('LocationAbbreviation'),'/CustomScriptExtension')]",
             "location": "[resourceGroup().location]",
             "dependsOn": [
-                "[resourceId('Microsoft.Compute/virtualMachines', parameters('vmName'))]",
-                "[resourceId('Microsoft.SqlVirtualMachine/sqlVirtualMachines', parameters('vmName'))]",
+                "[resourceId('Microsoft.Compute/virtualMachines', concat('vm-sql-', parameters('Environment'), '-', parameters('LocationAbbreviation')))]",
+                "[resourceId('Microsoft.SqlVirtualMachine/sqlVirtualMachines', concat('vm-sql-', parameters('Environment'), '-', parameters('LocationAbbreviation')))]",
                 "[resourceId('Microsoft.Resources/deploymentScripts', 'ds-removesqlext')]"
             ],
             "tags": {},
@@ -222,13 +225,13 @@
         {
             "comments": "---------- DSC EXTENSION ----------",
             "type": "Microsoft.Compute/VirtualMachines/Extensions",
-            "name": "[concat(parameters('vmName'), '/DSC')]",
+            "name": "[concat('vm-sql-', parameters('Environment'), '-', parameters('LocationAbbreviation'), '/DSC')]",
             "apiVersion": "2019-07-01",
             "location": "[resourceGroup().location]",
             "dependsOn": [
-                "[resourceId('Microsoft.Compute/virtualMachines', parameters('vmName'))]",
-                "[resourceId('Microsoft.SqlVirtualMachine/sqlVirtualMachines', parameters('vmName'))]",
-                "[resourceId('Microsoft.Compute/virtualMachines/extensions', parameters('vmName'),'CustomScriptExtension')]"
+                "[resourceId('Microsoft.Compute/virtualMachines', concat('vm-sql-', parameters('Environment'), '-', parameters('LocationAbbreviation')))]",
+                "[resourceId('Microsoft.SqlVirtualMachine/sqlVirtualMachines', concat('vm-sql-', parameters('Environment'), '-', parameters('LocationAbbreviation')))]",
+                "[resourceId('Microsoft.Compute/virtualMachines/extensions', concat('vm-sql-', parameters('Environment'), '-', parameters('LocationAbbreviation')),'CustomScriptExtension')]"
             ],
             "properties": {
                 "publisher": "Microsoft.Powershell",

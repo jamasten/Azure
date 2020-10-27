@@ -72,8 +72,8 @@ $LocationAbbreviation = switch($Location)
     usgovvirginia {'usv'}
     westus2 {'wus'}
 }
-$VmPassword = (Get-AzKeyVaultSecret -VaultName $('kv' + $DomainAbbreviation + $Environment + $Location) -Name VmPassword).SecretValue
-$VmUsername = (Get-AzKeyVaultSecret -VaultName $('kv' + $DomainAbbreviation + $Environment + $Location) -Name VmUsername).SecretValue
+$VmPassword = (Get-AzKeyVaultSecret -VaultName $('kv-' + $DomainAbbreviation + '-' + $Environment + '-' + $Location) -Name VmPassword).SecretValue
+$VmUsername = (Get-AzKeyVaultSecret -VaultName $('kv-' + $DomainAbbreviation + '-' + $Environment + '-' + $Location) -Name VmUsername).SecretValue
 $Params = @{}
 switch($Solution)
 {

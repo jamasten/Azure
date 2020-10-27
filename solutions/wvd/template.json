@@ -233,7 +233,7 @@
                     "KeyEncryptionKeyURL": {
                         "reference": {
                             "keyVault": {
-                                "id": "[concat(subscription().id, '/resourceGroups/', 'rg-shared-', parameters('Environment'),'-', resourceGroup().location,'/providers/Microsoft.KeyVault/vaults/', 'kv', parameters('DomainAbbreviation'), parameters('Environment'), resourceGroup().location)]"
+                                "id": "[concat(subscription().id, '/resourceGroups/', 'rg-shared-', parameters('Environment'),'-', resourceGroup().location,'/providers/Microsoft.KeyVault/vaults/', 'kv-', parameters('DomainAbbreviation'), '-', parameters('Environment'), '-', resourceGroup().location)]"
                             },
                             "secretName": "DiskEncryptionKekUrl"
                         }

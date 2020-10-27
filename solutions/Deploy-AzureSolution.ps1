@@ -75,14 +75,14 @@ $LocationAbbreviation = switch($Location)
 $VmPassword = (Get-AzKeyVaultSecret -VaultName $('kv-' + $DomainAbbreviation + '-' + $Environment + '-' + $Location) -Name VmPassword).SecretValue
 $VmUsername = (Get-AzKeyVaultSecret -VaultName $('kv-' + $DomainAbbreviation + '-' + $Environment + '-' + $Location) -Name VmUsername).SecretValue
 $Params = @{}
+$Params.Add("VmPassword", $VmPassword)
+$Params.Add("VmUsername", $VmUsername)
 switch($Solution)
 {
     dns {
             . ..\utilities\functions.ps1
             $HomePip = Get-PublicIpAddress
             $Params.Add("HomePip", $HomePip.Trim())
-            $Params.Add("VmPassword", $VmPassword)
-            $Params.Add("VmUsername", $VmUsername)
             $TemplateFile = ".\dns\template.json"
             $ResourceGroup = 'rg-' + $Solution + '-' + $Environment + '-' + $Location
             if(!(Get-AzResourceGroup -Name $ResourceGroup -ErrorAction SilentlyContinue))
@@ -93,8 +93,6 @@ switch($Solution)
     sql {
             $Params.Add("Environment", $Environment)
             $Params.Add("LocationAbbreviation", $LocationAbbreviation)
-            $Params.Add("VmPassword", $VmPassword)
-            $Params.Add("VmUsername", $VmUsername)
             $TemplateFile = ".\sql\namedInstance\template.json"
             $ResourceGroup = 'rg-' + $Solution + '-' + $Environment + '-' + $Location
             if(!(Get-AzResourceGroup -Name $ResourceGroup -ErrorAction SilentlyContinue))
@@ -110,8 +108,6 @@ switch($Solution)
             $Params.Add("LocationAbbreviation", $LocationAbbreviation)
             $Params.Add("Netbios", $Netbios)
             $Params.Add("Username", $UserName)
-            $Params.Add("VmPassword", $VmPassword)
-            $Params.Add("VmUsername", $VmUsername)
             $TemplateFile = ".\wvd\template.json"
             $ResourceGroup = 'rg-' + $Solution + 'core-' + $Environment + '-' + $Location
             if(!(Get-AzResourceGroup -Name $ResourceGroup -ErrorAction SilentlyContinue))

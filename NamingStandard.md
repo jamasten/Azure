@@ -96,13 +96,14 @@
 | Notification Hub Namespace | Global | nhns-(DomainAbbreviation)-(ApplicationName)-(EnvironmentAbbreviation)-(Region) | nhns-jm-bing-dev-eastus |
 | Power BI Embedded | Global | pbiemb-(DomainAbbreviation)-(ApplicationName)-(EnvironmentAbbreviation)-(Region) | pbiem-jm-bing-d-eastus |
 | Public IP | Resource Group | pip-(ApplicationName or Role or Azure Service)-(EnvironmentAbbreviation)-(Region)-(OPTIONAL: VM Ordinal)-(OPTIONAL: Ordinal) | pip-bing-d-eastus-0 or pip-dc-d-eastus-0-0 or pip-bastion-d-eastus |
+| Private Endpoint Connection | Resource Group | pvtep-(ApplicationName or Service)-(EnvironmentAbbreviation)-(Region) | pvtep-bing-d-eastus or pvtep-storjmwvddeusp0-d-eastus |
 | Resource Groups | Subscription | rg-(ApplicationName or Service)-(EnvironmentAbbreviation)-(Region) | rg-bing-d-eastus or rg-identity-d-eastus |
 | Service Bus | Global | sb-(DomainAbbreviation)-(ApplicationName)-(EnvironmentAbbreviation)-(Region).servicebus.windows.net | sb-jm-bing-dev-eastus |
 | Service Bus Queues | Service Bus | sbq-(Query Descriptor)-(EnvironmentAbbreviation)-(Region) | sbq-messagequery-d-eastus |
 | Site-To-Site Connections | Resource Group | cn-(Local Gateway Name)-to-(Virtual Gateway Name) | cn-lgw-d-eastus-to-vgw-d-eastus |
 | SQL Data Warehouse | Global | sqldw-(DomainAbbreviation)-(ApplicationName)-(EnvironmentAbbreviation)-(Region) | sqldw-jm-bing-d-eastus |
 | SQL Server Stretch Database | Azure SQL Database | sqlstrdb-(ApplicationName)-(EnvironmentAbbreviation)-(Region) | sqlstrdb-bing-d-eastus |
-| Storage Account | Global | stor(DomainAbbreviation)(ApplicationName or Usage)(EnvironmentAbbreviation)(Region)(PerformanceType)(OPTIONAL: Ordinal) | storjmbingdeastuss or storjmwvddeastusp0  |
+| Storage Account | Global | stor(DomainAbbreviation)(ApplicationName or Usage)(EnvironmentAbbreviation)(RegionAbbreviation)(PerformanceType)(OPTIONAL: Ordinal) | storjmbingdeuss or storjmwvddeusp0  |
 | Storsimple | Global | storsimp-(DomainAbbreviation)-(ApplicationName)-(EnvironmentAbbreviation)-(Region) | storsimp-jm-bing-d-eastus |  
 | Subnet | Virtual Network | snet-(Usage)-(EnvironmentAbbreviation)-(Region) | snet-servers-d-eastus |
 | Virtual Machine | Resource Group | vm-(ApplicationName or Role)-(EnvironmentAbbreviation)-(RegionAbbreviation)-(Ordinal) | vm-dc-d-eus-0 |

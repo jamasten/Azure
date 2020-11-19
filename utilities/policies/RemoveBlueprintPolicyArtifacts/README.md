@@ -1,13 +1,17 @@
 # Remove Azure Policy Artifacts Assigned By An Azure Blueprint
 
-Use the code below to remove policy artifacts that were assigned by an Azure Blueprint.
+Use the code below to remove policy artifacts that were assigned by an Azure
+Blueprint.
 
-!!!WARNING!!! This script will remove all matching policy assignments at the blueprint assignment's scope.  For instance, if you assign the "allowed locations" policy with one blueprint and assign the "allowed locations" policy again with another blueprint in the same subscription, there is no way to differentiate between the two so the script deletes both.
+!!!WARNING!!! This script will remove all matching policy assignments at the
+blueprint assignment's scope. For instance, if you assign the "allowed
+locations" policy with one blueprint and assign the "allowed locations" policy
+again with another blueprint in the same subscription, there is no way to
+differentiate between the two so the script deletes both.
 
 ## Try with PowerShell
 
-````powershell
-
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 $name = '<Input the name of the Blueprint Assignment>'
 $bpAssignment = Get-AzBlueprintAssignment | Where-Object {$_.Name -eq $name}
 $scope = $bpAssignment.BlueprintId.Split('/')[1]
@@ -31,5 +35,4 @@ foreach($artifact in $bpArtifacts)
         }
     }
 }
-
-````
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

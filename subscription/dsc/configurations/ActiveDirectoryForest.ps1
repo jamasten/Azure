@@ -83,7 +83,7 @@ configuration ActiveDirectoryForest
         xDnsServerForwarder Azure
         {
             IsSingleInstance = 'Yes'
-            IPAddresses = '168.63.129.16'
+            IPAddresses = '208.67.222.222','208.67.220.220'
             UseRootHint = $true
             DependsOn = "[ADDomain]FirstDomainController"
         }

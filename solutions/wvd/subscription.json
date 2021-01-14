@@ -116,7 +116,7 @@
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2019-10-01",
             "name": "[concat('WvdInfra_', parameters('Username'), '_', parameters('Timestamp'))]",
-            "resourceGroup": "[concat('rg-wvd-infra-', parameters('Environment'), '-', resourceGroup().location)]",
+            "resourceGroup": "[concat('rg-wvd-infra-', parameters('Environment'), '-', parameters('Locations')[0])]",
             "dependsOn": [
                 "rgLoop1"
             ],
@@ -147,7 +147,7 @@
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2019-10-01",
             "name": "[concat('WvdHosts_', parameters('Username'), '_', parameters('Timestamp'))]",
-            "resourceGroup": "[concat('rg-wvd-hosts-', parameters('Environment'), '-', resourceGroup().location)]",
+            "resourceGroup": "[concat('rg-wvd-hosts-', parameters('Environment'), '-', parameters('Locations')[0])]",
             "dependsOn": [
                 "rgLoop1",
                 "[concat('WvdInfra_', parameters('Username'), '_', parameters('Timestamp'))]"
@@ -177,7 +177,7 @@
                     "KeyEncryptionKeyURL": {
                         "reference": {
                             "keyVault": {
-                                "id": "[concat(subscription().id, '/resourceGroups/', 'rg-shared-', parameters('Environment'),'-', resourceGroup().location,'/providers/Microsoft.KeyVault/vaults/', 'kv-', parameters('DomainAbbreviation'), '-', parameters('Environment'), '-', resourceGroup().location)]"
+                                "id": "[concat(subscription().id, '/resourceGroups/', 'rg-shared-', parameters('Environment'),'-', parameters('Locations')[0],'/providers/Microsoft.KeyVault/vaults/', 'kv-', parameters('DomainAbbreviation'), '-', parameters('Environment'), '-', parameters('Locations')[0])]"
                             },
                             "secretName": "DiskEncryptionKekUrl"
                         }
@@ -197,7 +197,7 @@
                     "VmPassword": {
                         "reference": {
                             "keyVault": {
-                                "id": "[concat(subscription().id, '/resourceGroups/', 'rg-shared-', parameters('Environment'),'-', resourceGroup().location,'/providers/Microsoft.KeyVault/vaults/', 'kv-', parameters('DomainAbbreviation'), '-', parameters('Environment'), '-', resourceGroup().location)]"
+                                "id": "[concat(subscription().id, '/resourceGroups/', 'rg-shared-', parameters('Environment'),'-', parameters('Locations')[0], '/providers/Microsoft.KeyVault/vaults/', 'kv-', parameters('DomainAbbreviation'), '-', parameters('Environment'), '-', parameters('Locations')[0])]"
                             },
                             "secretName": "VmPassword"
                         }
@@ -205,7 +205,7 @@
                     "VmUsername": {
                         "reference": {
                             "keyVault": {
-                                "id": "[concat(subscription().id, '/resourceGroups/', 'rg-shared-', parameters('Environment'),'-', resourceGroup().location,'/providers/Microsoft.KeyVault/vaults/', 'kv-', parameters('DomainAbbreviation'), '-', parameters('Environment'), '-', resourceGroup().location)]"
+                                "id": "[concat(subscription().id, '/resourceGroups/', 'rg-shared-', parameters('Environment'),'-', parameters('Locations')[0], '/providers/Microsoft.KeyVault/vaults/', 'kv-', parameters('DomainAbbreviation'), '-', parameters('Environment'), '-', parameters('Locations')[0])]"
                             },
                             "secretName": "VmUsername"
                         }

@@ -19,7 +19,9 @@
             "defaultValue": "[utcNow()]"
         }
     },
-    "variables": {},
+    "variables": {
+        "guid": "[guid(deployment().name)]"
+    },
     "resources": [
         {
             "comments": "---------- WVD HOST POOL ----------",
@@ -86,8 +88,8 @@
         {
             "comments": "---------- ROLE ASSIGNMENT > USER ASSIGNED MANAGED IDENTITY ----------",
             "type": "Microsoft.Authorization/roleAssignments",
-            "apiVersion": "2017-09-01",
-            "name": "b83afb3d-d1fb-4e96-84ff-93965762fc93",
+            "apiVersion": "2015-07-01",
+            "name": "[variables('guid')]",
             "dependsOn": [
                 "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', 'uami-registrationToken')]"
             ],
@@ -113,7 +115,7 @@
             "tags": {},
             "dependsOn": [
                 "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', 'uami-registrationToken')]",
-                "[resourceId('Microsoft.Authorization/roleAssignments', 'b83afb3d-d1fb-4e96-84ff-93965762fc93')]"
+                "[resourceId('Microsoft.Authorization/roleAssignments', variables('guid'))]"
             ],
             "properties": {
                 "azPowerShellVersion": "3.0.0",

@@ -24,11 +24,6 @@ Param(
     [Parameter(Mandatory=$true)]
     [ValidateSet("eastus", "usgovvirginia")]
     [string]$Location,
-  
-    #Storage Account SKU: (p)remium or (s)tandard
-    [Parameter(Mandatory=$true)]
-    [ValidateSet("p", "s")]
-    [string]$StorageType, 
     
     [parameter(Mandatory=$true)]
     [string]$SubscriptionId

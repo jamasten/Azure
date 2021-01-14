@@ -20,7 +20,7 @@
         }
     },
     "variables": {
-        "guid": "[guid(deployment().name)]"
+        //"guid": "[guid(deployment().name)]"
     },
     "resources": [
         {
@@ -85,7 +85,7 @@
             "comments": "---------- ROLE ASSIGNMENT > USER ASSIGNED MANAGED IDENTITY ----------",
             "type": "Microsoft.Authorization/roleAssignments",
             "apiVersion": "2015-07-01",
-            "name": "[variables('guid')]",
+            "name": "6757b9bd-4fd2-5671-a130-0f5642dd204f",
             "dependsOn": [
                 "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', 'uami-registrationToken')]"
             ],
@@ -114,7 +114,7 @@
                 "[resourceId('Microsoft.DesktopVirtualization/applicationgroups', 'Desktops')]",
                 "[resourceId('Microsoft.DesktopVirtualization/workspaces', concat('ws-wvd-', parameters('Environment'), '-', resourceGroup().location))]",
                 "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', 'uami-registrationToken')]",
-                "[resourceId('Microsoft.Authorization/roleAssignments', variables('guid'))]"
+                "[resourceId('Microsoft.Authorization/roleAssignments', '6757b9bd-4fd2-5671-a130-0f5642dd204f')]"
             ],
             "properties": {
                 "azPowerShellVersion": "3.0.0",

@@ -79,11 +79,7 @@
             "name": "uami-registrationToken",
             "apiVersion": "2018-11-30",
             "location": "[resourceGroup().location]",
-            "dependsOn": [
-                "[resourceId('Microsoft.DesktopVirtualization/hostpools', concat('hp-wvd-', parameters('Environment'), '-', resourceGroup().location))]",
-                "[resourceId('Microsoft.DesktopVirtualization/applicationgroups', 'Desktops')]",
-                "[resourceId('Microsoft.DesktopVirtualization/workspaces', concat('ws-wvd-', parameters('Environment'), '-', resourceGroup().location))]"
-            ]
+            "dependsOn": []
         },
         {
             "comments": "---------- ROLE ASSIGNMENT > USER ASSIGNED MANAGED IDENTITY ----------",
@@ -114,6 +110,9 @@
             "kind": "AzurePowerShell",
             "tags": {},
             "dependsOn": [
+                "[resourceId('Microsoft.DesktopVirtualization/hostpools', concat('hp-wvd-', parameters('Environment'), '-', resourceGroup().location))]",
+                "[resourceId('Microsoft.DesktopVirtualization/applicationgroups', 'Desktops')]",
+                "[resourceId('Microsoft.DesktopVirtualization/workspaces', concat('ws-wvd-', parameters('Environment'), '-', resourceGroup().location))]",
                 "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', 'uami-registrationToken')]",
                 "[resourceId('Microsoft.Authorization/roleAssignments', variables('guid'))]"
             ],

@@ -68,6 +68,9 @@
                 "wvd-hosts"
             ]
         },
+        "StorageAccount": {
+            "type": "string"
+        },
         "Timestamp": {
             "type": "string",
             "defaultValue": "[utcNow()]"
@@ -184,6 +187,9 @@
                     },
                     "RegistrationToken": {
                         "value": "[reference('ds-registrationToken').outputs.text]"
+                    },
+                    "StorageAccount": {
+                        "value": "[parameters('StorageAccount')]"
                     },
                     "Timestamp": {
                         "value": "[parameters('Timestamp')]"

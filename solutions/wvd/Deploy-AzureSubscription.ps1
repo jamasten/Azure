@@ -78,6 +78,7 @@ $Params = @{}
 $Params.Add("Domain", $Domain)
 $Params.Add("DomainAbbreviation", $DomainAbbreviation)
 $Params.Add("Environment", $Environment)
+$Params.Add("HostCount", $HostCount)
 $Params.Add("Locations", $Locations)
 $Params.Add("LocationAbbreviations", $LocationAbbreviations)
 $Params.Add("Netbios", $Netbios)

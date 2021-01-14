@@ -20,7 +20,7 @@
     [string]$Location,
 
     [parameter(Mandatory=$true)]
-    [ValidateSet("dns", "sql", "wvd")]
+    [ValidateSet("dns", "sql")]
     [string]$Solution,
   
     [parameter(Mandatory=$true)]
@@ -99,27 +99,6 @@ switch($Solution)
             if(!(Get-AzResourceGroup -Name $ResourceGroup -ErrorAction SilentlyContinue))
             {
                 New-AzResourceGroup -Name $ResourceGroup -Location $Location | Out-Null
-            }
-        }
-    wvd {
-            $Netbios = $Domain.Split('.')[0]
-            $Params.Add("Domain", $Domain)
-            $Params.Add("DomainAbbreviation", $DomainAbbreviation)
-            $Params.Add("Environment", $Environment)
-            $Params.Add("LocationAbbreviation", $LocationAbbreviation)
-            $Params.Add("Netbios", $Netbios)
-            $Params.Add("StorageAccount", $StorageAccount)
-            $Params.Add("Username", $UserName)
-            $TemplateFile = ".\wvd\template.json"
-            $ResourceGroup = 'rg-' + $Solution + 'core-' + $Environment + '-' + $Location
-            if(!(Get-AzResourceGroup -Name $ResourceGroup -ErrorAction SilentlyContinue))
-            {
-                New-AzResourceGroup -Name $ResourceGroup -Location $Location | Out-Null
-            }
-            $ResourceGroup2 = 'rg-' + $Solution + 'hosts-' + $Environment + '-' + $Location
-            if(!(Get-AzResourceGroup -Name $ResourceGroup2 -ErrorAction SilentlyContinue))
-            {
-                New-AzResourceGroup -Name $ResourceGroup2 -Location $Location | Out-Null
             }
         }
 }

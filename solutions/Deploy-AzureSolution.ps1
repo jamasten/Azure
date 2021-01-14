@@ -72,6 +72,7 @@ $LocationAbbreviation = switch($Location)
     usgovvirginia {'usv'}
     westus2 {'wus'}
 }
+$StorageAccount = (Get-AzResource -ResourceType Microsoft.Storage/storageAccounts | Where-Object {$_.ResourceGroupName -eq $('rg-shared-' + $Environment + '-' + $Location)}).Name
 $VmPassword = (Get-AzKeyVaultSecret -VaultName $('kv-' + $DomainAbbreviation + '-' + $Environment + '-' + $Location) -Name VmPassword).SecretValue
 $VmUsername = (Get-AzKeyVaultSecret -VaultName $('kv-' + $DomainAbbreviation + '-' + $Environment + '-' + $Location) -Name VmUsername).SecretValue
 $Params = @{}
@@ -107,6 +108,7 @@ switch($Solution)
             $Params.Add("Environment", $Environment)
             $Params.Add("LocationAbbreviation", $LocationAbbreviation)
             $Params.Add("Netbios", $Netbios)
+            $Params.Add("StorageAccount", $StorageAccount)
             $Params.Add("Username", $UserName)
             $TemplateFile = ".\wvd\template.json"
             $ResourceGroup = 'rg-' + $Solution + 'core-' + $Environment + '-' + $Location

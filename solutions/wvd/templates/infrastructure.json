@@ -25,7 +25,7 @@
             "comments": "---------- WVD HOST POOL ----------",
             "type": "Microsoft.DesktopVirtualization/hostpools",
             "apiVersion": "2019-12-10-preview",
-            "name": "[concat('hp-vdi-', parameters('Environment'), '-', resourceGroup().location)]",
+            "name": "[concat('hp-wvd-', parameters('Environment'), '-', resourceGroup().location)]",
             "location": "[resourceGroup().location]",
             "properties": {
                 "description": "",
@@ -46,11 +46,11 @@
             "name": "Desktops",
             "location": "[resourceGroup().location]",
             "dependsOn": [
-                "[resourceId('Microsoft.DesktopVirtualization/hostpools', concat('hp-vdi-', parameters('Environment'), '-', resourceGroup().location))]"
+                "[resourceId('Microsoft.DesktopVirtualization/hostpools', concat('hp-wvd-', parameters('Environment'), '-', resourceGroup().location))]"
             ],
             "kind": "Desktop",
             "properties": {
-                "hostPoolArmPath": "[resourceId('Microsoft.DesktopVirtualization/hostpools', concat('hp-vdi-', parameters('Environment'), '-', resourceGroup().location))]",
+                "hostPoolArmPath": "[resourceId('Microsoft.DesktopVirtualization/hostpools', concat('hp-wvd-', parameters('Environment'), '-', resourceGroup().location))]",
                 "description": "Desktop Application Group created through the Hostpool Wizard",
                 "friendlyName": "Default Desktop",
                 "applicationGroupType": "Desktop"
@@ -78,7 +78,7 @@
             "apiVersion": "2018-11-30",
             "location": "[resourceGroup().location]",
             "dependsOn": [
-                "[resourceId('Microsoft.DesktopVirtualization/hostpools', concat('hp-vdi-', parameters('Environment'), '-', resourceGroup().location))]",
+                "[resourceId('Microsoft.DesktopVirtualization/hostpools', concat('hp-wvd-', parameters('Environment'), '-', resourceGroup().location))]",
                 "[resourceId('Microsoft.DesktopVirtualization/applicationgroups', 'Desktops')]",
                 "[resourceId('Microsoft.DesktopVirtualization/workspaces', concat('ws-wvd-', parameters('Environment'), '-', resourceGroup().location))]"
             ]
@@ -129,7 +129,7 @@
                     $DeploymentScriptOutputs = @{}
                     $DeploymentScriptOutputs['text'] = $Token
                 ",
-                "arguments": "[format(' -Hostpool {0} -ResourceGroup {1}', concat('hp-vdi-', parameters('Environment'), '-', resourceGroup().location), resourceGroup().name)]",
+                "arguments": "[format(' -Hostpool {0} -ResourceGroup {1}', concat('hp-wvd-', parameters('Environment'), '-', resourceGroup().location), resourceGroup().name)]",
                 "forceUpdateTag": "[parameters('Timestamp')]",
                 "retentionInterval": "P1D",
                 "timeout": "PT30M"

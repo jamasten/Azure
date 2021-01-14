@@ -139,7 +139,7 @@
             "comments": "---------- STORAGE ACCOUNT ----------",
             "type": "Microsoft.Storage/storageAccounts",
             "apiVersion": "2019-06-01",
-            "name": "[concat('stor', parameters('DomainAbbreviation'), 'wvd', parameters('Environment'), parameters('LocationAbbreviation'), 's0')]",
+            "name": "[concat('stor', parameters('DomainAbbreviation'), 'wvd', parameters('Environment'), parameters('LocationAbbreviation'), 'p0')]",
             "location": "[resourceGroup().location]",
             "sku": {
                 "name": "Premium_LRS",

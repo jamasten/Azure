@@ -186,7 +186,7 @@
                         "value": "[parameters('Netbios')]"
                     },
                     "RegistrationToken": {
-                        "value": "[reference('ds-registrationToken').outputs.text]"
+                        "value": "[reference(concat('WvdInfra_', parameters('Username'), '_', parameters('Timestamp'))).outputs.registrationToken.value]"
                     },
                     "StorageAccount": {
                         "value": "[parameters('StorageAccount')]"

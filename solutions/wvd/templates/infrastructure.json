@@ -173,5 +173,11 @@
                 "accessTier": "Hot"
             }
         }
-    ]
+    ],
+    "outputs": {
+        "registrationToken": {
+            "type": "string",
+            "value": "[reference('ds-registrationToken').outputs.text]"
+        }
+    }
 }

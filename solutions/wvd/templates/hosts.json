@@ -266,7 +266,7 @@
                         "protectedSettings": {
                             "commandToExecute": "powershell -ExecutionPolicy Unrestricted -File Setup-FSLogix.ps1 CommandToExecuteArgument",
                             "storageAccountName": "[parameters('StorageAccount')]",
-                            "storageAccountKey": "[listKeys(resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccount')), '2019-06-01').keys[0].value]"
+                            "storageAccountKey": "[listKeys(resourceId(concat('rg-shared-', parameters('Environment'), '-', resourceGroup().location), 'Microsoft.Storage/storageAccounts', parameters('storageAccount')), '2019-06-01').keys[0].value]"
                         }
                     }
                 },

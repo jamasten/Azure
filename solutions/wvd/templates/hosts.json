@@ -26,6 +26,9 @@
         "RegistrationToken": {
             "type": "string"
         },
+        "StorageAccount": {
+            "type": "string"
+        },
         "Timestamp": {
             "type": "string"
         },
@@ -91,7 +94,7 @@
         {
             "type": "Microsoft.Compute/virtualMachines",
             "apiVersion": "2019-07-01",
-            "name": "[concat('vm-sh-', parameters('Environment'), '-', parameters('LocationAbbreviation'), '-', copyIndex())]",
+            "name": "[concat('vm-wvd-', parameters('Environment'), '-', parameters('LocationAbbreviation'), '-', copyIndex())]",
             "location": "[resourceGroup().location]",
             "dependsOn": [
                 "nicLoop",
@@ -128,7 +131,7 @@
                     "dataDisks": []
                 },
                 "osProfile": {
-                    "computerName": "[concat('vm-sh-', parameters('Environment'), '-', parameters('LocationAbbreviation'), '-', copyIndex())]",
+                    "computerName": "[concat('vm-wvd-', parameters('Environment'), '-', parameters('LocationAbbreviation'), '-', copyIndex())]",
                     "adminUsername": "[parameters('VmUsername')]",
                     "adminPassword": "[parameters('VmPassword')]",
                     "windowsConfiguration": {
@@ -160,7 +163,7 @@
                     "apiVersion": "2017-03-30",
                     "location": "[resourceGroup().location]",
                     "dependsOn": [
-                        "[concat('vm-sh-', parameters('Environment'), '-', parameters('LocationAbbreviation'), '-', copyIndex())]"
+                        "[concat('vm-wvd-', parameters('Environment'), '-', parameters('LocationAbbreviation'), '-', copyIndex())]"
                     ],
                     "properties": {
                         "publisher": "Microsoft.EnterpriseCloud.Monitoring",
@@ -182,7 +185,7 @@
                     "name": "NetworkWatcherAgentWindows",
                     "location": "[resourceGroup().location]",
                     "dependsOn": [
-                        "[concat('vm-sh-', parameters('Environment'), '-', parameters('LocationAbbreviation'), '-', copyIndex())]"
+                        "[concat('vm-wvd-', parameters('Environment'), '-', parameters('LocationAbbreviation'), '-', copyIndex())]"
                     ],
                     "properties": {
                         "publisher": "Microsoft.Azure.NetworkWatcher",
@@ -200,7 +203,7 @@
                     "name": "DependencyAgentWindows",
                     "location": "[resourceGroup().location]",
                     "dependsOn": [
-                        "[concat('vm-sh-', parameters('Environment'), '-', parameters('LocationAbbreviation'), '-', copyIndex())]"
+                        "[concat('vm-wvd-', parameters('Environment'), '-', parameters('LocationAbbreviation'), '-', copyIndex())]"
                     ],
                     "properties": {
                         "publisher": "Microsoft.Azure.Monitoring.DependencyAgent",
@@ -216,7 +219,7 @@
                     "name": "JsonADDomainExtension",
                     "location": "[resourceGroup().location]",
                     "dependsOn": [
-                        "[concat('vm-sh-', parameters('Environment'), '-', parameters('LocationAbbreviation'), '-', copyIndex())]",
+                        "[concat('vm-wvd-', parameters('Environment'), '-', parameters('LocationAbbreviation'), '-', copyIndex())]",
                         "MicrosoftMonitoringAgent",
                         "NetworkWatcherAgentWindows",
                         "DependencyAgentWindows"
@@ -239,14 +242,43 @@
                     }
                 },
                 {
+                    "comments": "---------- CUSTOM SCRIPT EXTENSION ----------",
+                    "apiVersion": "2018-06-01",
+                    "type": "extensions",
+                    "name": "CustomScriptExtension",
+                    "location": "[resourceGroup().location]",
+                    "dependsOn": [
+                        "[concat('vm-wvd-', parameters('Environment'), '-', parameters('LocationAbbreviation'), '-', copyIndex())]",
+                        "JsonADDomainExtension"
+                    ],
+                    "tags": {},
+                    "properties": {
+                        "publisher": "Microsoft.Compute",
+                        "type": "CustomScriptExtension",
+                        "typeHandlerVersion": "1.10",
+                        "autoUpgradeMinorVersion": true,
+                        "settings": {
+                            "fileUris": [
+                                "[concat('https://', parameters('StorageAccount'), '.blob.core.windows.net/scripts/Setup-FSLogix.ps1')]"
+                            ],
+                            "timestamp": "[parameters('Timestamp')]"
+                        },
+                        "protectedSettings": {
+                            "commandToExecute": "powershell -ExecutionPolicy Unrestricted -File Setup-FSLogix.ps1 CommandToExecuteArgument",
+                            "storageAccountName": "[parameters('StorageAccount')]",
+                            "storageAccountKey": "[listKeys(resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccount')), '2019-06-01').keys[0].value]"
+                        }
+                    }
+                },
+                {
                     "comments": "---------- AZURE DISK ENCRYPTION EXTENSION ----------",
                     "type": "extensions",
                     "name": "AzureDiskEncryption",
                     "location": "[resourceGroup().location]",
                     "apiVersion": "2017-03-30",
                     "dependsOn": [
-                        "[concat('vm-sh-', parameters('Environment'), '-', parameters('LocationAbbreviation'), '-', copyIndex())]",
-                        "JsonADDomainExtension"
+                        "[concat('vm-wvd-', parameters('Environment'), '-', parameters('LocationAbbreviation'), '-', copyIndex())]",
+                        "CustomScriptExtension"
                     ],
                     "properties": {
                         "publisher": "Microsoft.Azure.Security",
@@ -273,7 +305,7 @@
                     "name": "DSC",
                     "location": "[resourceGroup().location]",
                     "dependsOn": [
-                        "[concat('vm-sh-', parameters('Environment'), '-', parameters('LocationAbbreviation'), '-', copyIndex())]",
+                        "[concat('vm-wvd-', parameters('Environment'), '-', parameters('LocationAbbreviation'), '-', copyIndex())]",
                         "AzureDiskEncryption"
                     ],
                     "properties": {

@@ -318,7 +318,7 @@
                             "modulesUrl": "https://wvdportalstorageblob.blob.core.windows.net/galleryartifacts/Configuration_7-20-2020.zip",
                             "configurationFunction": "Configuration.ps1\\AddSessionHost",
                             "properties": {
-                                "hostPoolName": "[concat('hp-vdi-', parameters('Environment'), '-', resourceGroup().location)]",
+                                "hostPoolName": "[concat('hp-wvd-', parameters('Environment'), '-', resourceGroup().location)]",
                                 "registrationInfoToken": "[parameters('RegistrationToken')]"
                             }
                         },

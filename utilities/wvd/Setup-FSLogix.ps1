@@ -13,3 +13,5 @@ Expand-Archive -Path $($Path + '\FSlogix.zip')
 Start-Process -FilePath 'C:\Temp\FSlogix\x64\Release\FSLogixAppsSetup.exe' -ArgumentList "/install","/quiet" -Wait | Out-Null
 
 Remove-Item -Path $Path -Recurse -Force
+
+Start-Process -FilePath 'C:\Windows\System32\gpupdate.exe' -ArgumentList "/force" -Wait | Out-Null

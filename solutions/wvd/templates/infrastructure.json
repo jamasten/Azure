@@ -142,17 +142,18 @@
             "name": "[concat('stor', parameters('DomainAbbreviation'), 'wvd', parameters('Environment'), parameters('LocationAbbreviation'), 's0')]",
             "location": "[resourceGroup().location]",
             "sku": {
-                "name": "Standard_LRS",
-                "tier": "Standard"
+                "name": "Premium_LRS",
+                "tier": "Premium"
             },
-            "kind": "StorageV2",
+            "kind": "FileStorage",
             "properties": {
+                "minimumTlsVersion": "TLS1_2",
+                "allowBlobPublicAccess": false,
+                "largeFileSharesState": "Enabled",
                 "networkAcls": {
                     "bypass": "AzureServices",
-                    "virtualNetworkRules": [
-                    ],
-                    "ipRules": [
-                    ],
+                    "virtualNetworkRules": [],
+                    "ipRules": [],
                     "defaultAction": "Allow"
                 },
                 "supportsHttpsTrafficOnly": true,

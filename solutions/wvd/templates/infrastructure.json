@@ -53,8 +53,8 @@
             "kind": "Desktop",
             "properties": {
                 "hostPoolArmPath": "[resourceId('Microsoft.DesktopVirtualization/hostpools', concat('hp-wvd-', parameters('Environment'), '-', resourceGroup().location))]",
-                "description": "Desktop Application Group created through the Hostpool Wizard",
-                "friendlyName": "Default Desktop",
+                "description": "Desktop Application Group created through an ARM template",
+                "friendlyName": "Pooled Desktop",
                 "applicationGroupType": "Desktop"
             }
         },

@@ -1,12 +1,8 @@
-$locName="usgovarizona"
-$pubName="cisco"
-$offerName="cisco-ftdv"
-Get-AzVMImagePublisher -Location $locName
-Get-AzVMImageOffer -Location $locName -PublisherName $pubName
-Get-AzVMImageSku -Location $locName -PublisherName $pubName -Offer $offerName | Select Skus
-
-$locName="southafricanorth"
-$pubName="MicrosoftWindowsServer"
-$offerName="WindowsServer"
-$skuName="ftdv-azure-byol"
-Get-AzVMImage -Location $locName -PublisherName $pubName -Offer $offerName -Skus $skuname | select Version
+﻿$location = "eastus"
+$publisher = "MicrosoftWindowsServer"
+$offer = "WindowsServer"
+$sku = "2019-Datacenter-Core"
+(Get-AzVMImagePublisher -Location $location).PublisherName
+(Get-AzVMImageOffer -Location $location -PublisherName $publisher).Offer
+(Get-AzVMImageSku -Location $location -PublisherName $publisher -Offer $offer).Skus
+Get-AzVMImage -Location $location -PublisherName $publisher -Offer $offer -Skus $sku | Select-Object * | Format-List

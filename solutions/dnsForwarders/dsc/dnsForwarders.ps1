@@ -1,18 +1,13 @@
 ﻿configuration DnsForwarders 
 { 
-   param 
+   param
    ( 
-        [Parameter(Mandatory)]
-        [String]$Domain,
-
         [Parameter(Mandatory)]
         [Array]$IPAddresses
     ) 
     
     Import-DscResource -ModuleName PSDscResources -ModuleVersion '2.12.0.0'
     Import-DscResource -ModuleName xDnsServer -ModuleVersion '1.16.0.0'
-
-    $DomainCreds = Get-AutomationPSCredential 'Administrator'
 
     Node localhost
     {
@@ -23,13 +18,14 @@
             Name = "DNS"
 	    }
 
-        WindowsFeature DnsTools
-	    {
-	        Ensure = "Present"
-            Name = "RSAT-DNS-Server"
+        xDnsServerForwarder OnPremDns
+        {
+            IsSingleInstance = 'Yes'
+            IPAddresses = $IPAddresses
+            UseRootHint = $true
             DependsOn = "[WindowsFeature]DnsServer"
-	    }
-         
+        }
+
         xDnsServerConditionalForwarder AzurePrivateDnsZone
         {
             Ensure = "Present"
@@ -37,15 +33,5 @@
             MasterServers = "168.63.129.16"
             DependsOn = "[WindowsFeature]DnsServer"
         }
-
-        xDnsServerConditionalForwarder OnPremDns
-        {
-            Ensure = "Present"
-            Name = $Domain
-            MasterServers = $IPAddresses
-            DependsOn = "[WindowsFeature]DnsServer"
-        }
-
-
     }
 }

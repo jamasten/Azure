@@ -266,22 +266,13 @@
                         "settings": {
                             "modulesUrl": "https://github.com/jamasten/Azure/raw/master/solutions/dnsForwarders/dsc/dnsForwarders.zip",
                             "configurationFunction": "dnsForwarders.ps1\\dnsForwarders",
-                            "Properties": [
-                                {
-                                    "Name": "ConfigurationMode",
-                                    "Value": "ApplyandAutoCorrect",
-                                    "TypeName": "System.String"
-                                },
-                                {
-                                    "Name": "RebootNodeIfNeeded",
-                                    "Value": true,
-                                    "TypeName": "System.Boolean"
-                                },
-                                {
-                                    "Name": "ActionAfterReboot",
-                                    "Value": "ContinueConfiguration",
-                                    "TypeName": "System.String"
-                                },
+                            "configurationArguments": {
+                                "ActionAfterReboot": "ContinueConfiguration",
+                                "ConfigurationMode": "ApplyandAutoCorrect",
+                                "RebootNodeIfNeeded": true,
+                                "IPAddresses": "[parameters('OnPremDnsServers')]"
+                            },
+                            "properties": [
                                 {
                                     "Name": "IPAddresses",
                                     "Value": "[parameters('OnPremDnsServers')]",

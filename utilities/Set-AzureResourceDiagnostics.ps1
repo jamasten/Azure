@@ -35,6 +35,13 @@ Param(
     [parameter(Mandatory)][string]$WorkspaceResourceId
 )
 
+# Ensure the Insight provider is enabled on your Azure subscription
+$ProviderState = (Get-AzResourceProvider -ProviderNamespace 'microsoft.insights').RegistrationState
+if($ProviderState -contains 'NotRegistered')
+{
+    Throw 'The required resource provider, "microsoft.insignts", needs to be enabled on your subscription.'
+}
+
 # Gets all the resources in your subscriptions
 $Resources = Get-AzResource
 

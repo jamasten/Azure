@@ -115,7 +115,7 @@
                 "[resourceId('Microsoft.DesktopVirtualization/applicationgroups', 'Desktops')]",
                 "[resourceId('Microsoft.DesktopVirtualization/workspaces', concat('ws-wvd-', parameters('Environment'), '-', resourceGroup().location))]",
                 "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', 'uami-registrationToken')]",
-                "[resourceId('Microsoft.Authorization/roleAssignments', variables('guid'))]"
+                //"[resourceId('Microsoft.Authorization/roleAssignments', variables('guid'))]"
                 //"[resourceId('Microsoft.Authorization/roleAssignments', '6757b9bd-4fd2-5671-a130-0f5642dd204f')]"
             ],
             "properties": {

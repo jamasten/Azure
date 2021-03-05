@@ -2,11 +2,11 @@ configuration ActiveDirectoryForest
 { 
    param 
    ( 
-        [Parameter(Mandatory)]
+        [Parameter(Mandatory=$true)]
         [String]$Domain
 
-        [Parameter(Mandatory)]
-        []$DomainCreds
+        [Parameter(Mandatory=$true)]
+        [System.Management.Automation.PSCredential]$DomainCreds
     ) 
     
     Import-DscResource -ModuleName ActiveDirectoryDsc -ModuleVersion '4.2.0.0'

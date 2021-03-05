@@ -33,7 +33,7 @@
                             "privateIPAllocationMethod": "Static",
                             "privateIPAddress": "10.0.0.4",
                             "subnet": {
-                                "id": "[resourceId(subscription().subscriptionId, concat('rg-network-p-', resourceGroup().location), 'Microsoft.Network/virtualNetworks/subnets', concat('vnet-p-', resourceGroup().location), concat('snet-shared-p-',resourceGroup().location))]"
+                                "id": "[resourceId(subscription().subscriptionId, concat('rg-network-p-', resourceGroup().location), 'Microsoft.Network/virtualNetworks/subnets', concat('vnet-p-', resourceGroup().location), concat('snet-identity-p-',resourceGroup().location))]"
                             }
                         }
                     }

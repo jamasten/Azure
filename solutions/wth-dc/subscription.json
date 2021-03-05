@@ -5,29 +5,12 @@
         "Domain": {
             "type": "string"
         },
-        "Environment": {
+        "Location": {
             "type": "string",
-            "allowedValues": [
-                "d",
-                "p",
-                "t"
-            ],
-            "defaultValue": "d",
             "metadata": {
-                "description": "The operating environment of the resources"
-            }
-        },
-        "Locations": {
-            "type": "array",
-            "metadata": {
-                "description": "Locations for Resource Groups & Resources. The first index is primary location and the second index is the secondary location for business continuity and disaster recovery "
-            }
-        },
-        "LocationAbbreviations": {
-            "type": "array",
-            "metadata": {
-                "description": "Location abbreviations are used for Virtual Machine names since they are limited to 15 characters. The first index is primary location and the second index is the secondary location for business continuity and disaster recovery "
-            }
+                "description": "Location for Resource Groups "
+            },
+            "defaultValue": "eastus"
         },
         "ResourceGroups": {
             "type": "array",
@@ -66,10 +49,10 @@
     "resources": [
         {
             "comments": "---------- RESOURCE GROUPS ----------",
-            "name": "[concat('rg-', parameters('ResourceGroups')[copyIndex()],'-', parameters('Environment'),'-', parameters('Locations')[0])]",
+            "name": "[concat('rg-wth-', parameters('ResourceGroups')[copyIndex()],'-d-', parameters('Location'))]",
             "type": "Microsoft.Resources/resourceGroups",
             "apiVersion": "2019-10-01",
-            "location": "[parameters('Locations')[0]]",
+            "location": "[parameters('Location')]",
             "tags": {},
             "properties": {},
             "copy": {
@@ -86,19 +69,15 @@
             "dependsOn": [
                 "rgLoop"
             ],
-            "resourceGroup": "[concat('rg-network-', parameters('Environment'),'-', parameters('Locations')[0])]",
+            "resourceGroup": "[concat('rg-wth-network-d-', parameters('Location'))]",
             "properties": {
                 "expressionEvaluationOptions": {
                     "scope": "inner"
                 },
                 "mode": "Incremental",
-                "parameters": {
-                    "Environment": {
-                        "value": "[parameters('Environment')]"
-                    }
-                },
+                "parameters": {},
                 "templateLink": {
-                    "uri": "https://raw.githubusercontent.com/jamasten/Azure/master/subscription/templates/network.json"
+                    "uri": "https://raw.githubusercontent.com/jamasten/Azure/master/solutions/wth-dc/templates/network.json"
                 }
             }
         },
@@ -110,7 +89,7 @@
             "dependsOn": [
                 "[concat('Network_', parameters('Username'), '_', parameters('Timestamp'))]"
             ],
-            "resourceGroup": "[concat('rg-identity-', parameters('Environment'),'-', parameters('Locations')[0])]",
+            "resourceGroup": "[concat('rg-wth-identity-d-', parameters('Location'))]",
             "properties": {
                 "expressionEvaluationOptions": {
                     "scope": "inner"
@@ -119,12 +98,6 @@
                 "parameters": {
                     "Domain": {
                         "value": "[parameters('Domain')]"
-                    },
-                    "Environment": {
-                        "value": "[parameters('Environment')]"
-                    },
-                    "LocationAbbreviation": {
-                        "value": "[parameters('LocationAbbreviations')[0]]"
                     },
                     "Timestamp": {
                         "value": "[parameters('Timestamp')]"
@@ -137,7 +110,7 @@
                     }
                 },
                 "templateLink": {
-                    "uri": "https://raw.githubusercontent.com/jamasten/Azure/master/subscription/templates/identity.json"
+                    "uri": "https://raw.githubusercontent.com/jamasten/Azure/master/solutions/wth-dc/templates/identity.json"
                 }
             }
         }

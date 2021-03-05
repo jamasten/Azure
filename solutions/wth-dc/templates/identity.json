@@ -2,10 +2,7 @@
     "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
-        "Environment": {
-            "type": "string"
-        },
-        "LocationAbbreviation": {
+        "Domain": {
             "type": "string"
         },
         "Timestamp": {
@@ -22,7 +19,7 @@
     "resources": [
         {
             "comments": "---------- NETWORK INTERFACE ----------",
-            "name": "[concat('nic-dc-', parameters('Environment'), '-', resourceGroup().location, '-0')]",
+            "name": "[concat('nic-dc-d-', resourceGroup().location, '-0')]",
             "type": "Microsoft.Network/networkInterfaces",
             "apiVersion": "2018-08-01",
             "location": "[resourceGroup().location]",
@@ -46,19 +43,19 @@
         },
         {
             "comments": "---------- VIRTUAL MACHINE ----------",
-            "name": "[concat('vm-dc-', parameters('Environment'), '-', parameters('LocationAbbreviation'), '-0')]",
+            "name": "vm-dc-d-eus-0",
             "type": "Microsoft.Compute/virtualMachines",
             "apiVersion": "2019-07-01",
             "location": "[resourceGroup().location]",
             "dependsOn": [
-                "[resourceId('Microsoft.Network/networkInterfaces', concat('nic-dc-', parameters('Environment'), '-', resourceGroup().location, '-0'))]"
+                "[resourceId('Microsoft.Network/networkInterfaces', concat('nic-dc-d-', resourceGroup().location, '-0'))]"
             ],
             "properties": {
                 "hardwareProfile": {
                     "vmSize": "Standard_B2s"
                 },
                 "osProfile": {
-                    "computerName": "[concat('vm-dc-', parameters('Environment'), '-', parameters('LocationAbbreviation'), '-0')]",
+                    "computerName": "vm-dc-d-eus-0",
                     "adminUsername": "[parameters('VmUsername')]",
                     "adminPassword": "[parameters('VmPassword')]"
                 },
@@ -70,7 +67,7 @@
                         "version": "latest"
                     },
                     "osDisk": {
-                        "name": "[concat('disk-dc-', parameters('Environment'), '-', resourceGroup().location, '-0-0')]",
+                        "name": "[concat('disk-dc-d-', resourceGroup().location, '-0-0')]",
                         "caching": "None",
                         "createOption": "FromImage",
                         "managedDisk": {
@@ -82,7 +79,7 @@
                 "networkProfile": {
                     "networkInterfaces": [
                         {
-                            "id": "[resourceId('Microsoft.Network/networkInterfaces', concat('nic-dc-', parameters('Environment'), '-', resourceGroup().location, '-0'))]"
+                            "id": "[resourceId('Microsoft.Network/networkInterfaces', concat('nic-dc-d-', resourceGroup().location, '-0'))]"
                         }
                     ]
                 },
@@ -100,7 +97,7 @@
                     "apiVersion": "2019-07-01",
                     "location": "[resourceGroup().location]",
                     "dependsOn": [
-                        "[concat('vm-dc-', parameters('Environment'), '-', parameters('LocationAbbreviation'), '-0')]",
+                        "vm-dc-d-eus-0"
                     ],
                     "properties": {
                         "publisher": "Microsoft.Powershell",

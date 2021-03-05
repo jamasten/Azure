@@ -12,6 +12,15 @@
             "properties": {}
         },
         {
+            "type": "Microsoft.Network/networkSecurityGroups",
+            "apiVersion": "2020-05-01",
+            "name": "[concat('nsg-shared-d-', resourceGroup().location)]",
+            "location": "[resourceGroup().location]",
+            "properties": {
+                "securityRules": []
+            }
+        },
+        {
             "comments": "---------- VIRTUAL NETWORK ----------",
             "name": "[concat('vnet-d-', resourceGroup().location)]",
             "type": "Microsoft.Network/virtualNetworks",
@@ -42,80 +51,12 @@
                             "privateEndpointNetworkPolicies": "Enabled",
                             "privateLinkServiceNetworkPolicies": "Enabled"
                         }
-                    },
-                    {
-                        "name": "[concat('snet-servers-d-', resourceGroup().location)]",
-                        "properties": {
-                            "addressPrefix": "10.0.1.0/24",
-                            "delegations": [],
-                            "privateEndpointNetworkPolicies": "Enabled",
-                            "privateLinkServiceNetworkPolicies": "Enabled"
-                        }
-                    },
-                    {
-                        "name": "[concat('snet-clients-d-', resourceGroup().location)]",
-                        "properties": {
-                            "addressPrefix": "10.0.2.0/24",
-                            "delegations": [],
-                            "privateEndpointNetworkPolicies": "Enabled",
-                            "privateLinkServiceNetworkPolicies": "Enabled"
-                        }
-                    },
-                    {
-                        "name": "AzureBastionSubnet",
-                        "properties": {
-                            "addressPrefix": "10.0.3.0/24",
-                            "serviceEndpoints": [],
-                            "delegations": [],
-                            "privateEndpointNetworkPolicies": "Enabled",
-                            "privateLinkServiceNetworkPolicies": "Enabled"
-                        }
                     }
                 ],
                 "virtualNetworkPeerings": [
                 ],
                 "enableDdosProtection": false,
                 "enableVmProtection": false
-            }
-        },
-        {
-            "type": "Microsoft.Network/publicIPAddresses",
-            "apiVersion": "2020-05-01",
-            "name": "[concat('pip-bastion-d-', resourceGroup().location)]",
-            "location": "[resourceGroup().location]",
-            "sku": {
-                "name": "Standard"
-            },
-            "properties": {
-                "publicIPAddressVersion": "IPv4",
-                "publicIPAllocationMethod": "Static",
-                "idleTimeoutInMinutes": 4
-            }
-        },
-        {
-            "type": "Microsoft.Network/bastionHosts",
-            "apiVersion": "2020-05-01",
-            "name": "[concat('bastion-d-', resourceGroup().location)]",
-            "location": "[resourceGroup().location]",
-            "dependsOn": [
-                "[concat('pip-bastion-d-', resourceGroup().location)]",
-                "[concat('vnet-d-', resourceGroup().location)]"
-            ],
-            "properties": {
-                "ipConfigurations": [
-                    {
-                        "name": "IpConf",
-                        "properties": {
-                            "privateIPAllocationMethod": "Dynamic",
-                            "publicIPAddress": {
-                                "id": "[resourceId('Microsoft.Network/publicIPAddresses', concat('pip-bastion-d-', resourceGroup().location))]"
-                            },
-                            "subnet": {
-                                "id": "[resourceId(subscription().subscriptionId, concat('rg-network-d-', resourceGroup().location), 'Microsoft.Network/virtualNetworks/subnets', concat('vnet-d-', resourceGroup().location), '/subnets/AzureBastionSubnet')]"
-                            }
-                        }
-                    }
-                ]
             }
         }
     ]

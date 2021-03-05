@@ -8,7 +8,7 @@ Param(
     [string]$SubscriptionId,
 
     [parameter(Mandatory=$true)]
-    [System.Management.Automation.PSCredential]$Credential = (Get-Credential -Message 'Input the credentials used for your local administator on your Azure virtual machines.  The same password will be used for your domain users using WVD.')
+    [System.Management.Automation.PSCredential]$Credential
 )
 
 #############################################################
@@ -42,21 +42,11 @@ $Name =  $Username + '_' + $TimeStamp
 
 
 #############################################################
-# Add Azure AD Connect Account
-#############################################################
-$UPN = 'adconnect@' + $Domain
-$test = Get-AzADUser -UserPrincipalName $UPN -ErrorAction SilentlyContinue
-if(!$test)
-{
-    New-AzADUser -DisplayName 'AD Connect' -UserPrincipalName $UPN -Password $Credential.Password -MailNickname 'ADConnect'
-}
-
-
-#############################################################
 # Template Parameter Object
 #############################################################
 $Params = @{}
 $Params.Add("Domain", $Domain)
+$Params.Add("Username", $Username)
 $Params.Add("VmPassword", $Credential.Password)
 $Params.Add("VmUsername", $Credential.UserName)
 
@@ -69,7 +59,7 @@ try
     New-AzSubscriptionDeployment `
         -Name $Name `
         -Location eastus `
-        -TemplateFile 'https://raw.githubusercontent.com/jamasten/Azure/master/solutions/wth-dc/subscription.json' `
+        -TemplateUri 'https://raw.githubusercontent.com/jamasten/Azure/master/solutions/wth-dc/subscription.json' `
         -TemplateParameterObject $Params `
         -ErrorAction Stop `
         -Verbose

@@ -24,8 +24,7 @@
             "apiVersion": "2018-08-01",
             "location": "[resourceGroup().location]",
             "dependsOn": [],
-            "tags": {
-            },
+            "tags": {},
             "properties": {
                 "ipConfigurations": [
                     {
@@ -34,7 +33,7 @@
                             "privateIPAllocationMethod": "Static",
                             "privateIPAddress": "10.0.0.4",
                             "subnet": {
-                                "id": "[resourceId(subscription().subscriptionId, concat('rg-network-', parameters('Environment'),'-', resourceGroup().location), 'Microsoft.Network/virtualNetworks/subnets', concat('vnet-', parameters('Environment'), '-', resourceGroup().location), concat('snet-shared-', parameters('Environment'), '-',resourceGroup().location))]"
+                                "id": "[resourceId(subscription().subscriptionId, concat('rg-network-d-', resourceGroup().location), 'Microsoft.Network/virtualNetworks/subnets', concat('vnet-d-', resourceGroup().location), concat('snet-shared-d-',resourceGroup().location))]"
                             }
                         }
                     }
@@ -104,52 +103,15 @@
                         "type": "DSC",
                         "typeHandlerVersion": "2.77",
                         "autoUpgradeMinorVersion": true,
-                        "protectedSettings": {
-                            "Items": {
-                                "registrationKeyPrivate": "[listKeys(resourceId(concat('rg-shared-', parameters('Environment'),'-', resourceGroup().location), 'Microsoft.Automation/automationAccounts/', concat('aa-', parameters('DomainAbbreviation'), '-', parameters('Environment'), '-', parameters('AutomationLocation'))), '2018-06-30').Keys[0].value]"
-                            }
-                        },
+                        "forceUpdateTag": "[parameters('Timestamp')]",
+                        "protectedSettings": {},
                         "settings": {
-                            "Properties": [
-                                {
-                                    "Name": "RegistrationKey",
-                                    "Value": {
-                                        "UserName": "PLACEHOLDER_DONOTUSE",
-                                        "Password": "PrivateSettingsRef:registrationKeyPrivate"
-                                    },
-                                    "TypeName": "System.Management.Automation.PSCredential"
-                                },
-                                {
-                                    "Name": "RegistrationUrl",
-                                    "Value": "[reference(resourceId(concat('rg-shared-', parameters('Environment'),'-', resourceGroup().location), 'Microsoft.Automation/automationAccounts/', concat('aa-', parameters('DomainAbbreviation'), '-', parameters('Environment'), '-', parameters('AutomationLocation'))), '2018-06-30').registrationUrl]",
-                                    "TypeName": "System.String"
-                                },
-                                {
-                                    "Name": "NodeConfigurationName",
-                                    "Value": "ActiveDirectoryForest.localhost",
-                                    "TypeName": "System.String"
-                                },
-                                {
-                                    "Name": "ConfigurationMode",
-                                    "Value": "ApplyandAutoCorrect",
-                                    "TypeName": "System.String"
-                                },
-                                {
-                                    "Name": "RebootNodeIfNeeded",
-                                    "Value": true,
-                                    "TypeName": "System.Boolean"
-                                },
-                                {
-                                    "Name": "ActionAfterReboot",
-                                    "Value": "ContinueConfiguration",
-                                    "TypeName": "System.String"
-                                },
-                                {
-                                    "Name": "Timestamp",
-                                    "Value": "[parameters('Timestamp')]",
-                                    "TypeName": "System.String"
-                                }
-                            ]
+                            "wmfVersion": "latest",
+                            "configuration": {
+                                "url": "https://github.com/jamasten/Azure/blob/master/solutions/wth-dc/dsc/ActiveDirectoryDsc.zip?raw=true",
+                                "script": "ActiveDirectoryForest.ps1",
+                                "function": "ActiveDirectoryForest"
+                            }
                         }
                     }
                 }

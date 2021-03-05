@@ -46,6 +46,11 @@ configuration ActiveDirectoryForest
 
     Node localhost
     {
+        LocalConfigurationManager 
+        {
+            RebootNodeIfNeeded = $true
+        }
+        
         WindowsFeature ADDSInstall 
         { 
             Ensure = "Present" 

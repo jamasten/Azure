@@ -6,7 +6,7 @@
         {
             "type": "Microsoft.Network/networkSecurityGroups",
             "apiVersion": "2020-05-01",
-            "name": "[concat('nsg-shared-p-', resourceGroup().location)]",
+            "name": "[concat('nsg-identity-p-', resourceGroup().location)]",
             "location": "[resourceGroup().location]",
             "properties": {
                 "securityRules": []

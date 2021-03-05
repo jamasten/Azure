@@ -1,0 +1,146 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "Domain": {
+            "type": "string"
+        },
+        "Environment": {
+            "type": "string",
+            "allowedValues": [
+                "d",
+                "p",
+                "t"
+            ],
+            "defaultValue": "d",
+            "metadata": {
+                "description": "The operating environment of the resources"
+            }
+        },
+        "Locations": {
+            "type": "array",
+            "metadata": {
+                "description": "Locations for Resource Groups & Resources. The first index is primary location and the second index is the secondary location for business continuity and disaster recovery "
+            }
+        },
+        "LocationAbbreviations": {
+            "type": "array",
+            "metadata": {
+                "description": "Location abbreviations are used for Virtual Machine names since they are limited to 15 characters. The first index is primary location and the second index is the secondary location for business continuity and disaster recovery "
+            }
+        },
+        "ResourceGroups": {
+            "type": "array",
+            "metadata": {
+                "description": "Resource group identifier"
+            },
+            "defaultValue": [
+                "identity",
+                "network"
+            ]
+        },
+        "Timestamp": {
+            "type": "string",
+            "defaultValue": "[utcNow()]"
+        },
+        "Username": {
+            "type": "string",
+            "metadata": {
+                "description": "The username portion of the UPN for the principal deploying the script"
+            }
+        },
+        "VmPassword": {
+            "type": "securestring",
+            "metadata": {
+                "description": "Azure VM password"
+            }
+        },
+        "VmUsername": {
+            "type": "string",
+            "metadata": {
+                "description": "Azure VM username"
+            }
+        }
+    },
+    "variables": {},
+    "resources": [
+        {
+            "comments": "---------- RESOURCE GROUPS ----------",
+            "name": "[concat('rg-', parameters('ResourceGroups')[copyIndex()],'-', parameters('Environment'),'-', parameters('Locations')[0])]",
+            "type": "Microsoft.Resources/resourceGroups",
+            "apiVersion": "2019-10-01",
+            "location": "[parameters('Locations')[0]]",
+            "tags": {},
+            "properties": {},
+            "copy": {
+                "name": "rgLoop",
+                "count": "[length(parameters('ResourceGroups'))]"
+            }
+        },
+        {
+            "comments": "---------- LINKED DEPLOYMENT > NETWORK ----------",
+            "type": "Microsoft.Resources/deployments",
+            "name": "[concat('Network_', parameters('Username'), '_', parameters('Timestamp'))]",
+            "apiVersion": "2019-10-01",
+            "tags": {},
+            "dependsOn": [
+                "rgLoop"
+            ],
+            "resourceGroup": "[concat('rg-network-', parameters('Environment'),'-', parameters('Locations')[0])]",
+            "properties": {
+                "expressionEvaluationOptions": {
+                    "scope": "inner"
+                },
+                "mode": "Incremental",
+                "parameters": {
+                    "Environment": {
+                        "value": "[parameters('Environment')]"
+                    }
+                },
+                "templateLink": {
+                    "uri": "https://raw.githubusercontent.com/jamasten/Azure/master/subscription/templates/network.json"
+                }
+            }
+        },
+        {
+            "comments": "---------- LINKED DEPLOYMENT > IDENTITY ----------",
+            "type": "Microsoft.Resources/deployments",
+            "name": "[concat('Identity_', parameters('Username'), '_', parameters('Timestamp'))]",
+            "apiVersion": "2019-10-01",
+            "dependsOn": [
+                "[concat('Network_', parameters('Username'), '_', parameters('Timestamp'))]"
+            ],
+            "resourceGroup": "[concat('rg-identity-', parameters('Environment'),'-', parameters('Locations')[0])]",
+            "properties": {
+                "expressionEvaluationOptions": {
+                    "scope": "inner"
+                },
+                "mode": "Incremental",
+                "parameters": {
+                    "Domain": {
+                        "value": "[parameters('Domain')]"
+                    },
+                    "Environment": {
+                        "value": "[parameters('Environment')]"
+                    },
+                    "LocationAbbreviation": {
+                        "value": "[parameters('LocationAbbreviations')[0]]"
+                    },
+                    "Timestamp": {
+                        "value": "[parameters('Timestamp')]"
+                    },
+                    "VmPassword": {
+                        "value": "[parameters('VmPassword')]"
+                    },
+                    "VmUsername": {
+                        "value": "[parameters('VmUsername')]"
+                    }
+                },
+                "templateLink": {
+                    "uri": "https://raw.githubusercontent.com/jamasten/Azure/master/subscription/templates/identity.json"
+                }
+            }
+        }
+    ],
+    "outputs": {}
+}

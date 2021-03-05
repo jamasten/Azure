@@ -19,7 +19,7 @@
     "resources": [
         {
             "comments": "---------- NETWORK INTERFACE ----------",
-            "name": "[concat('nic-dc-d-', resourceGroup().location, '-0')]",
+            "name": "[concat('nic-dc-p-', resourceGroup().location, '-0')]",
             "type": "Microsoft.Network/networkInterfaces",
             "apiVersion": "2018-08-01",
             "location": "[resourceGroup().location]",
@@ -33,7 +33,7 @@
                             "privateIPAllocationMethod": "Static",
                             "privateIPAddress": "10.0.0.4",
                             "subnet": {
-                                "id": "[resourceId(subscription().subscriptionId, concat('rg-network-d-', resourceGroup().location), 'Microsoft.Network/virtualNetworks/subnets', concat('vnet-d-', resourceGroup().location), concat('snet-shared-d-',resourceGroup().location))]"
+                                "id": "[resourceId(subscription().subscriptionId, concat('rg-network-p-', resourceGroup().location), 'Microsoft.Network/virtualNetworks/subnets', concat('vnet-p-', resourceGroup().location), concat('snet-shared-p-',resourceGroup().location))]"
                             }
                         }
                     }
@@ -42,19 +42,19 @@
         },
         {
             "comments": "---------- VIRTUAL MACHINE ----------",
-            "name": "vm-dc-d-eus-0",
+            "name": "vm-dc-p-eus-0",
             "type": "Microsoft.Compute/virtualMachines",
             "apiVersion": "2019-07-01",
             "location": "[resourceGroup().location]",
             "dependsOn": [
-                "[resourceId('Microsoft.Network/networkInterfaces', concat('nic-dc-d-', resourceGroup().location, '-0'))]"
+                "[resourceId('Microsoft.Network/networkInterfaces', concat('nic-dc-p-', resourceGroup().location, '-0'))]"
             ],
             "properties": {
                 "hardwareProfile": {
                     "vmSize": "Standard_B2s"
                 },
                 "osProfile": {
-                    "computerName": "vm-dc-d-eus-0",
+                    "computerName": "vm-dc-p-eus-0",
                     "adminUsername": "[parameters('VmUsername')]",
                     "adminPassword": "[parameters('VmPassword')]"
                 },
@@ -66,7 +66,7 @@
                         "version": "latest"
                     },
                     "osDisk": {
-                        "name": "[concat('disk-dc-d-', resourceGroup().location, '-0-0')]",
+                        "name": "[concat('disk-dc-p-', resourceGroup().location, '-0-0')]",
                         "caching": "None",
                         "createOption": "FromImage",
                         "managedDisk": {
@@ -78,7 +78,7 @@
                 "networkProfile": {
                     "networkInterfaces": [
                         {
-                            "id": "[resourceId('Microsoft.Network/networkInterfaces', concat('nic-dc-d-', resourceGroup().location, '-0'))]"
+                            "id": "[resourceId('Microsoft.Network/networkInterfaces', concat('nic-dc-p-', resourceGroup().location, '-0'))]"
                         }
                     ]
                 },
@@ -96,7 +96,7 @@
                     "apiVersion": "2019-07-01",
                     "location": "[resourceGroup().location]",
                     "dependsOn": [
-                        "vm-dc-d-eus-0"
+                        "vm-dc-p-eus-0"
                     ],
                     "properties": {
                         "publisher": "Microsoft.Powershell",

@@ -49,7 +49,7 @@
     "resources": [
         {
             "comments": "---------- RESOURCE GROUPS ----------",
-            "name": "[concat('rg-wth-', parameters('ResourceGroups')[copyIndex()],'-d-', parameters('Location'))]",
+            "name": "[concat('rg-wth-', parameters('ResourceGroups')[copyIndex()],'-p-', parameters('Location'))]",
             "type": "Microsoft.Resources/resourceGroups",
             "apiVersion": "2019-10-01",
             "location": "[parameters('Location')]",
@@ -69,7 +69,7 @@
             "dependsOn": [
                 "rgLoop"
             ],
-            "resourceGroup": "[concat('rg-wth-network-d-', parameters('Location'))]",
+            "resourceGroup": "[concat('rg-wth-network-p-', parameters('Location'))]",
             "properties": {
                 "expressionEvaluationOptions": {
                     "scope": "inner"
@@ -89,7 +89,7 @@
             "dependsOn": [
                 "[concat('Network_', parameters('Username'), '_', parameters('Timestamp'))]"
             ],
-            "resourceGroup": "[concat('rg-wth-identity-d-', parameters('Location'))]",
+            "resourceGroup": "[concat('rg-wth-identity-p-', parameters('Location'))]",
             "properties": {
                 "expressionEvaluationOptions": {
                     "scope": "inner"

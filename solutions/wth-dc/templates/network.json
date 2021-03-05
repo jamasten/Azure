@@ -4,17 +4,9 @@
     "parameters": {},
     "resources": [
         {
-            "comments": "---------- NETWORK WATCHER ----------",
-            "type": "Microsoft.Network/networkWatchers",
-            "apiVersion": "2020-04-01",
-            "name": "[concat('nw-d-', resourceGroup().location)]",
-            "location": "[resourceGroup().location]",
-            "properties": {}
-        },
-        {
             "type": "Microsoft.Network/networkSecurityGroups",
             "apiVersion": "2020-05-01",
-            "name": "[concat('nsg-shared-d-', resourceGroup().location)]",
+            "name": "[concat('nsg-shared-p-', resourceGroup().location)]",
             "location": "[resourceGroup().location]",
             "properties": {
                 "securityRules": []
@@ -22,13 +14,13 @@
         },
         {
             "comments": "---------- VIRTUAL NETWORK ----------",
-            "name": "[concat('vnet-d-', resourceGroup().location)]",
+            "name": "[concat('vnet-p-', resourceGroup().location)]",
             "type": "Microsoft.Network/virtualNetworks",
             "apiVersion": "2018-08-01",
             "location": "[resourceGroup().location]",
             "tags": {},
             "dependsOn": [
-                "[concat('nw-d-', resourceGroup().location)]"
+                "[concat('nsg-identity-p-', resourceGroup().location)]"
             ],
             "properties": {
                 "addressSpace": {
@@ -44,9 +36,12 @@
                 },
                 "subnets": [
                     {
-                        "name": "[concat('snet-shared-d-', resourceGroup().location)]",
+                        "name": "[concat('snet-identity-p-', resourceGroup().location)]",
                         "properties": {
                             "addressPrefix": "10.0.0.0/24",
+                             "networkSecurityGroup": {
+                                "id": "[resourceId('Microsoft.Network/networkSecurityGroups', concat('nsg-identity-p-', resourceGroup().location))]"
+                            },
                             "delegations": [],
                             "privateEndpointNetworkPolicies": "Enabled",
                             "privateLinkServiceNetworkPolicies": "Enabled"

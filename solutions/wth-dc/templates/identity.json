@@ -111,7 +111,22 @@
                                 "url": "https://github.com/jamasten/Azure/blob/master/solutions/wth-dc/dsc/ActiveDirectoryDsc.zip?raw=true",
                                 "script": "ActiveDirectoryForest.ps1",
                                 "function": "ActiveDirectoryForest"
-                            }
+                            },
+                            "properties": [
+                                {
+                                    "Name": "DomainCreds",
+                                    "Value": {
+                                        "UserName": "[parameters('VmUsername')]",
+                                        "Password": "[parameters('VmPassword')]"
+                                    },
+                                    "TypeName": "System.Management.Automation.PSCredential"
+                                },
+                                {
+                                    "Name": "Domain",
+                                    "Value": "[parameters('Domain')]",
+                                    "TypeName": "System.String"
+                                }
+                            ]
                         }
                     }
                 }

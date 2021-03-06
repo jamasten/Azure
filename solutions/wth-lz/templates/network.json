@@ -1,26 +1,37 @@
 {
     "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
-    "parameters": {},
+    "parameters": {
+        "Environment": {
+            "type": "string"
+        },
+        "Location": {
+            "type": "string"
+        }
+    },
+    "variables": {
+        "nsg": "[concat('nsg-identity-', parameters('Environment'),'-', parameters('Location'))]"
+
+    },
     "resources": [
         {
             "type": "Microsoft.Network/networkSecurityGroups",
             "apiVersion": "2020-05-01",
-            "name": "[concat('nsg-identity-p-', resourceGroup().location)]",
-            "location": "[resourceGroup().location]",
+            "name": "[variables('nsg')]",
+            "location": "[parameters('Location')]",
             "properties": {
                 "securityRules": []
             }
         },
         {
             "comments": "---------- VIRTUAL NETWORK ----------",
-            "name": "[concat('vnet-p-', resourceGroup().location)]",
+            "name": "[concat('vnet-', parameters('Environment'),'-', parameters('Location'))]",
             "type": "Microsoft.Network/virtualNetworks",
             "apiVersion": "2018-08-01",
-            "location": "[resourceGroup().location]",
+            "location": "[parameters('Location')]",
             "tags": {},
             "dependsOn": [
-                "[concat('nsg-identity-p-', resourceGroup().location)]"
+                "[variables('nsg')]"
             ],
             "properties": {
                 "addressSpace": {
@@ -36,11 +47,11 @@
                 },
                 "subnets": [
                     {
-                        "name": "[concat('snet-identity-p-', resourceGroup().location)]",
+                        "name": "[concat('snet-identity-', parameters('Environment'),'-', parameters('Location'))]",
                         "properties": {
                             "addressPrefix": "10.0.0.0/24",
-                             "networkSecurityGroup": {
-                                "id": "[resourceId('Microsoft.Network/networkSecurityGroups', concat('nsg-identity-p-', resourceGroup().location))]"
+                            "networkSecurityGroup": {
+                                "id": "[resourceId('Microsoft.Network/networkSecurityGroups', variables('nsg'))]"
                             },
                             "delegations": [],
                             "privateEndpointNetworkPolicies": "Enabled",

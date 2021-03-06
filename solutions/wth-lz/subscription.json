@@ -52,7 +52,52 @@
             }
         }
     },
-    "variables": {},
+    "variables": {
+        "VmLocation": {
+            "australiacentral": "ac",
+            "australiacentral2": "ac2",
+            "australiaeast": "ae",
+            "australiasoutheast": "ase",
+            "brazilsouth": "bs",
+            "brazilsoutheast": "bse",
+            "canadacentral": "cc",
+            "canadaeast": "ce",
+            "centralindia": "ci",
+            "centralus": "cus",
+            "eastasia": "ea",
+            "eastus": "eus",
+            "eastus2": "eus2",
+            "francecentral": "fc",
+            "francesouth": "fs",
+            "germanynorth": "gn",
+            "germanywestcentral": "gwc",
+            "japaneast": "je",
+            "japanwest": "jw",
+            "koreacentral": "kc",
+            "koreasouth": "ks",
+            "northcentralus": "ncus",
+            "northeurope": "ne",
+            "norwayeast": "noe",
+            "norwaywest": "now",
+            "southafricanorth": "san",
+            "southafricawest": "saw",
+            "southcentralus": "scus",
+            "southeastasia": "sea",
+            "southindia": "si",
+            "switzerlandnorth": "sn",
+            "switzerlandwest": "sw",
+            "uaecentral": "uaec",
+            "uaenorth": "uaen",
+            "uksouth": "uks",
+            "ukwest": "ukw",
+            "westcentralus": "wcus",
+            "westeurope": "we",
+            "westindia": "wi",
+            "westus": "wus",
+            "westus2": "wus2",
+            "westus3": "wus3"
+        }
+    },
     "resources": [
         {
             "comments": "---------- RESOURCE GROUPS ----------",
@@ -121,6 +166,9 @@
                     },
                     "Timestamp": {
                         "value": "[parameters('Timestamp')]"
+                    },
+                    "VmLocation": {
+                        "value": "[variables('VmLocation')[parameters('Location')]]"
                     },
                     "VmPassword": {
                         "value": "[parameters('VmPassword')]"

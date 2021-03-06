@@ -14,17 +14,19 @@
         "Timestamp": {
             "type": "string"
         },
+        "VmLocation": {
+            "type": "string"
+        },
         "VmPassword": {
             "type": "securestring"
         },
         "VmUsername": {
-            "type": "securestring"
+            "type": "string"
         }
     },
     "variables": {
-        "locationAbbr": "[substring(parameters('Location'), 0, 1)]",
         "nic": "[concat('nic-dc-', parameters('Environment'),'-', parameters('Location'), '-0')]",
-        "vm": "[concat('vm-dc-', parameters('Environment'),'-', variables('locationAbbr'),'-0')]"
+        "vm": "[concat('vm-dc-', parameters('Environment'),'-', parameters('VmLocation'),'-0')]"
     },
     "resources": [
         {

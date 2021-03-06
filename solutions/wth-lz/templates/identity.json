@@ -105,11 +105,8 @@
                         "autoUpgradeMinorVersion": true,
                         "forceUpdateTag": "[parameters('Timestamp')]",
                         "protectedSettings": {
-                            "configurationArguments": {
-                                "DomainCreds": {
-                                    "UserName": "[parameters('VmUsername')]",
-                                    "Password": "[parameters('VmPassword')]"
-                                }
+                            "Items": {
+                                "VmPassword": "[parameters('VmPassword')]"
                             }
                         },
                         "settings": {
@@ -117,7 +114,11 @@
                             "modulesUrl": "https://github.com/jamasten/Azure/blob/master/solutions/wth-lz/dsc/ActiveDirectoryDsc.zip?raw=true",
                             "configurationFunction": "ActiveDirectoryForest.ps1\\ActiveDirectoryForest",
                             "properties": {
-                                "Domain": "[parameters('Domain')]"
+                                "Domain": "[parameters('Domain')]",
+                                "DomainCreds": {
+                                    "UserName": "[parameters('VmUsername')]",
+                                    "Password": "PrivateSettingsRef:VmPassword"
+                                }
                             }
                         }
                     }

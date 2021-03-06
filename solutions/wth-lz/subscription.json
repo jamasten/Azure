@@ -146,6 +146,7 @@
             "name": "[concat('Identity_', parameters('Username'), '_', parameters('Timestamp'))]",
             "apiVersion": "2019-10-01",
             "dependsOn": [
+                "rgLoop",
                 "[concat('Network_', parameters('Username'), '_', parameters('Timestamp'))]"
             ],
             "resourceGroup": "[concat('rg-wth-identity-', parameters('Environment'),'-', parameters('Location'))]",

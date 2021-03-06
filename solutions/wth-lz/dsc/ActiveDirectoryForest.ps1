@@ -3,7 +3,7 @@ configuration ActiveDirectoryForest
    param 
    ( 
         [Parameter(Mandatory=$true)]
-        [String]$Domain
+        [String]$Domain,
 
         [Parameter(Mandatory=$true)]
         [System.Management.Automation.PSCredential]$DomainCreds

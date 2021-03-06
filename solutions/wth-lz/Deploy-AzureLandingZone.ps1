@@ -64,6 +64,5 @@ try
 }
 catch 
 {
-    Write-Host "Deployment Failed: $Name"
     $_ | Select-Object *
 }

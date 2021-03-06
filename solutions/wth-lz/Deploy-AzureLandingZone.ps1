@@ -17,8 +17,7 @@ Param(
 if(!(Get-AzSubscription | Where-Object {$_.Id -eq $SubscriptionId}))
 {
     Connect-AzAccount `
-        -Subscription $SubscriptionId `
-        -UseDeviceAuthentication
+        -Subscription $SubscriptionId
 }
 
 
@@ -32,11 +31,10 @@ if(!(Get-AzContext | Where-Object {$_.Subscription.Id -eq $SubscriptionId}))
 
 
 #############################################################
-# Variables
+# Variables used for setting deployment names
 #############################################################
 $Context = Get-AzContext
 $Username = $Context.Account.Id.Split('@')[0]
-$Email = $Context.Account.Id
 $TimeStamp = Get-Date -F 'yyyyMMddhhmmss'
 $Name =  $Username + '_' + $TimeStamp
 

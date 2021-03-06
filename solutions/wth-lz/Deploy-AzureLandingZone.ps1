@@ -59,7 +59,7 @@ try
     New-AzSubscriptionDeployment `
         -Name $Name `
         -Location eastus `
-        -TemplateUri 'https://raw.githubusercontent.com/jamasten/Azure/master/solutions/wth-dc/subscription.json' `
+        -TemplateUri 'https://raw.githubusercontent.com/jamasten/Azure/master/solutions/wth-lz/subscription.json' `
         -TemplateParameterObject $Params `
         -ErrorAction Stop `
         -Verbose

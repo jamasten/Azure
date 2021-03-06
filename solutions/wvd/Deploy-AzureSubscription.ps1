@@ -35,8 +35,7 @@ Param(
 if(!(Get-AzSubscription | Where-Object {$_.Id -eq $SubscriptionId}))
 {
     Connect-AzAccount `
-        -Subscription $SubscriptionId `
-        -UseDeviceAuthentication
+        -Subscription $SubscriptionId
 }
 
 
@@ -101,6 +100,5 @@ try
 }
 catch 
 {
-    Write-Host "Deployment Failed: $Name"
     $_ | Select-Object *
 }

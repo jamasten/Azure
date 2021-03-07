@@ -24,7 +24,7 @@
             }
         },
         "Location": {
-            "type": "array",
+            "type": "string",
             "metadata": {
                 "description": "Location for Resource Groups & Resources."
             }

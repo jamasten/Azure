@@ -80,7 +80,7 @@
             "location": "[parameters('Location')]",
             "dependsOn": []
         },
-        /*{
+        {
             "comments": "---------- ROLE ASSIGNMENT > USER ASSIGNED MANAGED IDENTITY ----------",
             "type": "Microsoft.Authorization/roleAssignments",
             "apiVersion": "2017-09-01",
@@ -94,7 +94,7 @@
                 "principalId": "[reference(concat(subscription().id, '/resourceGroups/', resourceGroup().name, '/providers/Microsoft.ManagedIdentity/userAssignedIdentities/uami-registrationToken'), '2018-11-30', 'Full').properties.principalId]",
                 "scope": "[resourceGroup().id]"
             }
-        },*/
+        },
         {
             "comments": "---------- DEPLOYMENT SCRIPT > HOST POOL REGISTRATION KEY ----------",
             "name": "ds-registrationToken",

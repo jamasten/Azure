@@ -112,7 +112,7 @@
                         "version": "latest"
                     },
                     "osDisk": {
-                        "name": "[concat('disk-dc-p-', parameters('Location'), '-0-0')]",
+                        "name": "[concat('disk-dc-p-', parameters('Location'), '-', copyIndex(),'-0')]",
                         "caching": "None",
                         "createOption": "FromImage",
                         "managedDisk": {

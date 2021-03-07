@@ -213,6 +213,34 @@
                     }
                 },
                 {
+                    "comments": "---------- CUSTOM SCRIPT EXTENSION ----------",
+                    "apiVersion": "2018-06-01",
+                    "type": "extensions",
+                    "name": "CustomScriptExtension",
+                    "location": "[parameters('Location')]",
+                    "dependsOn": [
+                        "[concat('vm-wvd-', parameters('Environment'), '-', parameters('VmLocation'), '-', copyIndex())]",
+                        "MicrosoftMonitoringAgent",
+                        "NetworkWatcherAgentWindows",
+                        "DependencyAgentWindows"
+                    ],
+                    "tags": {},
+                    "properties": {
+                        "publisher": "Microsoft.Compute",
+                        "type": "CustomScriptExtension",
+                        "typeHandlerVersion": "1.10",
+                        "autoUpgradeMinorVersion": true,
+                        "settings": {
+                            "fileUris": [
+                                "https://raw.githubusercontent.com/jamasten/Azure/master/solutions/wvd/scripts/Setup-FSLogix.ps1"
+                            ],
+                            "timestamp": "[parameters('Timestamp')]",
+                            "commandToExecute": "powershell -ExecutionPolicy Unrestricted -File Setup-FSLogix.ps1 CommandToExecuteArgument"
+                        },
+                        "protectedSettings": {}
+                    }
+                },
+                {
                     "comments": "---------- DOMAIN JOIN EXTENSION ----------",
                     "apiVersion": "2019-07-01",
                     "type": "extensions",
@@ -220,9 +248,7 @@
                     "location": "[parameters('Location')]",
                     "dependsOn": [
                         "[concat('vm-wvd-', parameters('Environment'), '-', parameters('VmLocation'), '-', copyIndex())]",
-                        "MicrosoftMonitoringAgent",
-                        "NetworkWatcherAgentWindows",
-                        "DependencyAgentWindows"
+                        "CustomScriptExtension"
                     ],
                     "properties": {
                         "forceUpdateTag": "[parameters('Timestamp')]",
@@ -239,32 +265,6 @@
                         "protectedSettings": {
                             "Password": "[parameters('VmPassword')]"
                         }
-                    }
-                },
-                {
-                    "comments": "---------- CUSTOM SCRIPT EXTENSION ----------",
-                    "apiVersion": "2018-06-01",
-                    "type": "extensions",
-                    "name": "CustomScriptExtension",
-                    "location": "[parameters('Location')]",
-                    "dependsOn": [
-                        "[concat('vm-wvd-', parameters('Environment'), '-', parameters('VmLocation'), '-', copyIndex())]",
-                        "JsonADDomainExtension"
-                    ],
-                    "tags": {},
-                    "properties": {
-                        "publisher": "Microsoft.Compute",
-                        "type": "CustomScriptExtension",
-                        "typeHandlerVersion": "1.10",
-                        "autoUpgradeMinorVersion": true,
-                        "settings": {
-                            "fileUris": [
-                                "https://raw.githubusercontent.com/jamasten/Azure/master/solutions/wvd/scripts/Setup-FSLogix.ps1"
-                            ],
-                            "timestamp": "[parameters('Timestamp')]",
-                            "commandToExecute": "powershell -ExecutionPolicy Unrestricted -File Setup-FSLogix.ps1 CommandToExecuteArgument"
-                        },
-                        "protectedSettings": {}
                     }
                 },
                 {

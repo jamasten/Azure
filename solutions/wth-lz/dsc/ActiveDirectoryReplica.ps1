@@ -20,7 +20,7 @@
     Import-DscResource -ModuleName xDnsServer -ModuleVersion '1.16.0.0'
 
     $DomainName = $Domain.Split('.')[0]
-    [System.Management.Automation.PSCredential]$DomainCreds2 = New-Object System.Management.Automation.PSCredential ("${DomainName}\$($Admincreds.UserName)", $Admincreds.Password)
+    [System.Management.Automation.PSCredential]$DomainCreds2 = New-Object System.Management.Automation.PSCredential ("${DomainName}\$($DomainCreds.UserName)", $DomainCreds.Password)
 
     Node localhost
     {

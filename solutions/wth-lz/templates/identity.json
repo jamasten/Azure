@@ -137,42 +137,76 @@
                     "id": "[resourceId('Microsoft.Compute/availabilitySets', concat('as-dc-', parameters('Environment'), '-', parameters('Location')))]"
                 }
             },
-            "resources": [
-                {
-                    "comments": "---------- DSC EXTENSION ----------",
-                    "type": "extensions",
-                    "name": "DSC",
-                    "apiVersion": "2019-07-01",
-                    "location": "[parameters('Location')]",
-                    "dependsOn": [
-                        "[concat('vm-dc-', parameters('Environment'),'-', parameters('VmLocation'),'-', copyIndex())]"
-                    ],
+            "resources": []
+        },
+        {
+            "comments": "---------- DSC EXTENSION > DC 01 ----------",
+            "type": "Microsoft.Compute/virtualMachines/extensions",
+            "name": "[concat('vm-dc-', parameters('Environment'),'-', parameters('VmLocation'),'-0/DSC')]",
+            "apiVersion": "2019-07-01",
+            "location": "[parameters('Location')]",
+            "dependsOn": [
+                "vmLoop"
+            ],
+            "properties": {
+                "publisher": "Microsoft.Powershell",
+                "type": "DSC",
+                "typeHandlerVersion": "2.77",
+                "autoUpgradeMinorVersion": true,
+                "forceUpdateTag": "[parameters('Timestamp')]",
+                "protectedSettings": {
+                    "Items": {
+                        "VmPassword": "[parameters('VmPassword')]"
+                    }
+                },
+                "settings": {
+                    "wmfVersion": "latest",
+                    "modulesUrl": "[variables('configurations')[0].modulesUrl]",
+                    "configurationFunction": "[variables('configurations')[0].configurationFunction]",
                     "properties": {
-                        "publisher": "Microsoft.Powershell",
-                        "type": "DSC",
-                        "typeHandlerVersion": "2.77",
-                        "autoUpgradeMinorVersion": true,
-                        "forceUpdateTag": "[parameters('Timestamp')]",
-                        "protectedSettings": {
-                            "Items": {
-                                "VmPassword": "[parameters('VmPassword')]"
-                            }
-                        },
-                        "settings": {
-                            "wmfVersion": "latest",
-                            "modulesUrl": "[variables('configurations')[copyIndex()].modulesUrl]",
-                            "configurationFunction": "[variables('configurations')[copyIndex()].configurationFunction]",
-                            "properties": {
-                                "Domain": "[parameters('Domain')]",
-                                "DomainCreds": {
-                                    "UserName": "[parameters('VmUsername')]",
-                                    "Password": "PrivateSettingsRef:VmPassword"
-                                }
-                            }
+                        "Domain": "[parameters('Domain')]",
+                        "DomainCreds": {
+                            "UserName": "[parameters('VmUsername')]",
+                            "Password": "PrivateSettingsRef:VmPassword"
                         }
                     }
                 }
-            ]
+            }
+        },
+        {
+            "comments": "---------- DSC EXTENSION > DC 02 ----------",
+            "type": "Microsoft.Compute/virtualMachines/extensions",
+            "name": "[concat('vm-dc-', parameters('Environment'),'-', parameters('VmLocation'),'-1/DSC')]",
+            "apiVersion": "2019-07-01",
+            "location": "[parameters('Location')]",
+            "dependsOn": [
+                "vmLoop",
+                "[concat('vm-dc-', parameters('Environment'),'-', parameters('VmLocation'),'-0/DSC')]"
+            ],
+            "properties": {
+                "publisher": "Microsoft.Powershell",
+                "type": "DSC",
+                "typeHandlerVersion": "2.77",
+                "autoUpgradeMinorVersion": true,
+                "forceUpdateTag": "[parameters('Timestamp')]",
+                "protectedSettings": {
+                    "Items": {
+                        "VmPassword": "[parameters('VmPassword')]"
+                    }
+                },
+                "settings": {
+                    "wmfVersion": "latest",
+                    "modulesUrl": "[variables('configurations')[1].modulesUrl]",
+                    "configurationFunction": "[variables('configurations')[1].configurationFunction]",
+                    "properties": {
+                        "Domain": "[parameters('Domain')]",
+                        "DomainCreds": {
+                            "UserName": "[parameters('VmUsername')]",
+                            "Password": "PrivateSettingsRef:VmPassword"
+                        }
+                    }
+                }
+            }
         }
     ]
 }

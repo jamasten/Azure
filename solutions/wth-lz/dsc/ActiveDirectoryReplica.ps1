@@ -62,7 +62,7 @@
         {
             DomainName = $Domain
             Credential = $DomainCreds2
-            WaitTimeout = 900
+            WaitTimeout = 300
             DependsOn  = "[WindowsFeature]ADDSTools"
         }
 

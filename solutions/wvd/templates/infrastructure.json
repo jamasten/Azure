@@ -18,9 +18,7 @@
             "type": "string"
         }
     },
-    "variables": {
-        "guid": "[guid(deployment().name)]"
-    },
+    "variables": {},
     "resources": [
         {
             "comments": "---------- WVD HOST POOL ----------",

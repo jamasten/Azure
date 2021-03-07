@@ -8,15 +8,14 @@
         "Environment": {
             "type": "string"
         },
-        "LocationAbbreviation": {
-            "type": "string",
-            "metadata": {
-                "description": "A 3 letter abbreviation of the Azure datacenter location for use with VM names."
-            }
+        "Location": {
+            "type": "string"
         },
         "Timestamp": {
-            "type": "string",
-            "defaultValue": "[utcNow()]"
+            "type": "string"
+        },
+        "VmLocation": {
+            "type": "string"
         }
     },
     "variables": {
@@ -27,8 +26,8 @@
             "comments": "---------- WVD HOST POOL ----------",
             "type": "Microsoft.DesktopVirtualization/hostpools",
             "apiVersion": "2019-12-10-preview",
-            "name": "[concat('hp-wvd-', parameters('Environment'), '-', resourceGroup().location)]",
-            "location": "[resourceGroup().location]",
+            "name": "[concat('hp-wvd-', parameters('Environment'), '-', parameters('Location'))]",
+            "location": "[parameters('Location')]",
             "properties": {
                 "description": "",
                 "hostPoolType": "Pooled",
@@ -46,13 +45,13 @@
             "type": "Microsoft.DesktopVirtualization/applicationgroups",
             "apiVersion": "2019-12-10-preview",
             "name": "Desktops",
-            "location": "[resourceGroup().location]",
+            "location": "[parameters('Location')]",
             "dependsOn": [
-                "[resourceId('Microsoft.DesktopVirtualization/hostpools', concat('hp-wvd-', parameters('Environment'), '-', resourceGroup().location))]"
+                "[resourceId('Microsoft.DesktopVirtualization/hostpools', concat('hp-wvd-', parameters('Environment'), '-', parameters('Location')))]"
             ],
             "kind": "Desktop",
             "properties": {
-                "hostPoolArmPath": "[resourceId('Microsoft.DesktopVirtualization/hostpools', concat('hp-wvd-', parameters('Environment'), '-', resourceGroup().location))]",
+                "hostPoolArmPath": "[resourceId('Microsoft.DesktopVirtualization/hostpools', concat('hp-wvd-', parameters('Environment'), '-', parameters('Location')))]",
                 "description": "Desktop Application Group created through an ARM template",
                 "friendlyName": "Pooled Desktop",
                 "applicationGroupType": "Desktop"
@@ -62,7 +61,7 @@
             "comments": "---------- WVD WORKSPACE ----------",
             "type": "Microsoft.DesktopVirtualization/workspaces",
             "apiVersion": "2019-12-10-preview",
-            "name": "[concat('ws-wvd-', parameters('Environment'), '-', resourceGroup().location)]",
+            "name": "[concat('ws-wvd-', parameters('Environment'), '-', parameters('Location'))]",
             "location": "eastus",
             "dependsOn": [
                 "[resourceId('Microsoft.DesktopVirtualization/applicationgroups', 'Desktops')]"
@@ -78,7 +77,7 @@
             "type": "Microsoft.ManagedIdentity/userAssignedIdentities",
             "name": "uami-registrationToken",
             "apiVersion": "2018-11-30",
-            "location": "[resourceGroup().location]",
+            "location": "[parameters('Location')]",
             "dependsOn": []
         },
         /*{
@@ -107,14 +106,14 @@
                     "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities','uami-registrationToken')]": {}
                 }
             },
-            "location": "[resourceGroup().location]",
+            "location": "[parameters('Location')]",
             "kind": "AzurePowerShell",
             "tags": {},
             "dependsOn": [
-                "[resourceId('Microsoft.DesktopVirtualization/hostpools', concat('hp-wvd-', parameters('Environment'), '-', resourceGroup().location))]",
+                "[resourceId('Microsoft.DesktopVirtualization/hostpools', concat('hp-wvd-', parameters('Environment'), '-', parameters('Location')))]",
                 "[resourceId('Microsoft.DesktopVirtualization/applicationgroups', 'Desktops')]",
-                "[resourceId('Microsoft.DesktopVirtualization/workspaces', concat('ws-wvd-', parameters('Environment'), '-', resourceGroup().location))]",
-                "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', 'uami-registrationToken')]",
+                "[resourceId('Microsoft.DesktopVirtualization/workspaces', concat('ws-wvd-', parameters('Environment'), '-', parameters('Location')))]",
+                "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', 'uami-registrationToken')]"
                 //"[resourceId('Microsoft.Authorization/roleAssignments', variables('guid'))]"
                 //"[resourceId('Microsoft.Authorization/roleAssignments', '6757b9bd-4fd2-5671-a130-0f5642dd204f')]"
             ],
@@ -132,7 +131,7 @@
                     $DeploymentScriptOutputs = @{}
                     $DeploymentScriptOutputs['text'] = $Token
                 ",
-                "arguments": "[format(' -Hostpool {0} -ResourceGroup {1}', concat('hp-wvd-', parameters('Environment'), '-', resourceGroup().location), resourceGroup().name)]",
+                "arguments": "[format(' -Hostpool {0} -ResourceGroup {1}', concat('hp-wvd-', parameters('Environment'), '-', parameters('Location')), resourceGroup().name)]",
                 "forceUpdateTag": "[parameters('Timestamp')]",
                 "retentionInterval": "P1D",
                 "timeout": "PT30M"
@@ -142,8 +141,8 @@
             "comments": "---------- STORAGE ACCOUNT ----------",
             "type": "Microsoft.Storage/storageAccounts",
             "apiVersion": "2019-06-01",
-            "name": "[concat('stor', parameters('DomainAbbreviation'), 'wvd', parameters('Environment'), parameters('LocationAbbreviation'), 'p0')]",
-            "location": "[resourceGroup().location]",
+            "name": "[concat('stor', parameters('DomainAbbreviation'), 'wvd', parameters('Environment'), parameters('VmLocation'), 'p0')]",
+            "location": "[parameters('Location')]",
             "sku": {
                 "name": "Premium_LRS",
                 "tier": "Premium"
@@ -180,9 +179,9 @@
             "comments": "---------- STORAGE ACCOUNT > FILE SERVICES ----------",
             "type": "Microsoft.Storage/storageAccounts/fileServices",
             "apiVersion": "2020-08-01-preview",
-            "name": "[concat('stor', parameters('DomainAbbreviation'), 'wvd', parameters('Environment'), parameters('LocationAbbreviation'), 'p0/default')]",
+            "name": "[concat('stor', parameters('DomainAbbreviation'), 'wvd', parameters('Environment'), parameters('VmLocation'), 'p0/default')]",
             "dependsOn": [
-                "[resourceId('Microsoft.Storage/storageAccounts', concat('stor', parameters('DomainAbbreviation'), 'wvd', parameters('Environment'), parameters('LocationAbbreviation'), 'p0'))]"
+                "[resourceId('Microsoft.Storage/storageAccounts', concat('stor', parameters('DomainAbbreviation'), 'wvd', parameters('Environment'), parameters('VmLocation'), 'p0'))]"
             ],
             "sku": {
                 "name": "Premium_LRS",
@@ -201,10 +200,10 @@
             "comments": "---------- STORAGE ACCOUNT > FILE SHARE ----------",
             "type": "Microsoft.Storage/storageAccounts/fileServices/shares",
             "apiVersion": "2020-08-01-preview",
-            "name": "[concat('stor', parameters('DomainAbbreviation'), 'wvd', parameters('Environment'), parameters('LocationAbbreviation'), 'p0/default/hp-wvd-d-eastus')]",
+            "name": "[concat('stor', parameters('DomainAbbreviation'), 'wvd', parameters('Environment'), parameters('VmLocation'), 'p0/default/hp-wvd-d-eastus')]",
             "dependsOn": [
-                "[resourceId('Microsoft.Storage/storageAccounts/fileServices', concat('stor', parameters('DomainAbbreviation'), 'wvd', parameters('Environment'), parameters('LocationAbbreviation'), 'p0'), 'default')]",
-                "[resourceId('Microsoft.Storage/storageAccounts', concat('stor', parameters('DomainAbbreviation'), 'wvd', parameters('Environment'), parameters('LocationAbbreviation'), 'p0'))]"
+                "[resourceId('Microsoft.Storage/storageAccounts/fileServices', concat('stor', parameters('DomainAbbreviation'), 'wvd', parameters('Environment'), parameters('VmLocation'), 'p0'), 'default')]",
+                "[resourceId('Microsoft.Storage/storageAccounts', concat('stor', parameters('DomainAbbreviation'), 'wvd', parameters('Environment'), parameters('VmLocation'), 'p0'))]"
             ],
             "properties": {
                 "accessTier": "Premium",
@@ -216,10 +215,10 @@
             "comments": "---------- LOGIC APP > WVD SCALING AUTOMATION ----------",
             "type": "Microsoft.Logic/workflows",
             "apiVersion": "2017-07-01",
-            "name": "[concat('hp-wvd-', parameters('Environment'),'-', resourceGroup().location,'_Autoscale_Scheduler')]",
-            "location": "[resourceGroup().location]",
+            "name": "[concat('hp-wvd-', parameters('Environment'),'-', parameters('Location'),'_Autoscale_Scheduler')]",
+            "location": "[parameters('Location')]",
             "dependsOn": [
-                "[resourceId('Microsoft.DesktopVirtualization/hostpools', concat('hp-wvd-', parameters('Environment'), '-', resourceGroup().location))]"
+                "[resourceId('Microsoft.DesktopVirtualization/hostpools', concat('hp-wvd-', parameters('Environment'), '-', parameters('Location')))]"
             ],
             "properties": {
                 "state": "Enabled",
@@ -247,7 +246,7 @@
                                     "ConnectionAssetName": "AzureRunAsConnection",
                                     "EndPeakTime": "17:00",
                                     "EnvironmentName": "AzureCloud",
-                                    "HostPoolName": "[concat('hp-wvd-', parameters('Environment'),'-', resourceGroup().location)]",
+                                    "HostPoolName": "[concat('hp-wvd-', parameters('Environment'),'-', parameters('Location'))]",
                                     "LimitSecondsToForceLogOffUser": 0,
                                     "LogAnalyticsPrimaryKey": "",
                                     "LogAnalyticsWorkspaceId": "",
@@ -255,7 +254,7 @@
                                     "LogOffMessageTitle": "User Sign Out",
                                     "MaintenanceTagName": "",
                                     "MinimumNumberOfRDSH": 1,
-                                    "ResourceGroupName": "[concat('rg-wvd-infra-', parameters('Environment'), '-', resourceGroup().location)]",
+                                    "ResourceGroupName": "[concat('rg-wvd-infra-', parameters('Environment'), '-', parameters('Location'))]",
                                     "SessionThresholdPerCPU": 2,
                                     "SubscriptionId": "[subscription().subscriptionId]",
                                     "TimeDifference": "-5:00",

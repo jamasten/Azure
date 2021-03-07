@@ -142,7 +142,7 @@
         {
             "comments": "---------- DSC EXTENSION > DC 01 ----------",
             "type": "Microsoft.Compute/virtualMachines/extensions",
-            "name": "[concat('vm-dc-', parameters('Environment'),'-', parameters('VmLocation'),'-0/DSC')]",
+            "name": "[concat('vm-dc-', parameters('Environment'),'-', parameters('VmLocation'),'-0/DesiredStateConfiguration')]",
             "apiVersion": "2019-07-01",
             "location": "[parameters('Location')]",
             "dependsOn": [
@@ -176,12 +176,12 @@
         {
             "comments": "---------- DSC EXTENSION > DC 02 ----------",
             "type": "Microsoft.Compute/virtualMachines/extensions",
-            "name": "[concat('vm-dc-', parameters('Environment'),'-', parameters('VmLocation'),'-1/DSC')]",
+            "name": "[concat('vm-dc-', parameters('Environment'),'-', parameters('VmLocation'),'-1/DesiredStateConfiguration')]",
             "apiVersion": "2019-07-01",
             "location": "[parameters('Location')]",
             "dependsOn": [
                 "vmLoop",
-                "[concat('vm-dc-', parameters('Environment'),'-', parameters('VmLocation'),'-0/DSC')]"
+                "[concat('vm-dc-', parameters('Environment'),'-', parameters('VmLocation'),'-0/DesiredStateConfiguration')]"
             ],
             "properties": {
                 "publisher": "Microsoft.Powershell",

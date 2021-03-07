@@ -5,12 +5,6 @@
         "Domain": {
             "type": "string"
         },
-        "DomainAbbreviation": {
-            "type": "string",
-            "metadata": {
-                "description": "The abbreviated value of the domain name before the root node, i.e. jasonmasten for jasonmasten.com"
-            }
-        },
         "Environment": {
             "type": "string",
             "allowedValues": [
@@ -23,39 +17,16 @@
                 "description": "The operating environment of the resources"
             }
         },
-        "DisasterRecovery": {
-            "type": "string",
-            "metadata": {
-                "description": "Determines if a secondary region is provisioned for high availability."
-            },
-            "allowedValues": [
-                "yes",
-                "no"
-            ],
-            "defaultValue": "no"
-        },
         "HostCount": {
             "type": "int",
             "metadata": {
-                "description": "Number of session hosts to deploy"
+                "description": "Number of WVD session hosts to deploy"
             }
         },
-        "Locations": {
+        "Location": {
             "type": "array",
             "metadata": {
-                "description": "Locations for Resource Groups & Resources. The first index is primary location and the second index is the secondary location for business continuity and disaster recovery "
-            }
-        },
-        "LocationAbbreviations": {
-            "type": "array",
-            "metadata": {
-                "description": "Location abbreviations are used for Virtual Machine names since they are limited to 15 characters. The first index is primary location and the second index is the secondary location for business continuity and disaster recovery "
-            }
-        },
-        "NetBios": {
-            "type": "string",
-            "metadata": {
-                "description": "Used to domain join virtual machines"
+                "description": "Location for Resource Groups & Resources."
             }
         },
         "ResourceGroups": {
@@ -69,7 +40,10 @@
             ]
         },
         "StorageAccount": {
-            "type": "string"
+            "type": "string",
+            "metadata": {
+                "description": "Name of the storage account"
+            }
         },
         "Timestamp": {
             "type": "string",
@@ -82,14 +56,68 @@
             }
         }
     },
-    "variables": {},
+    "variables": {
+        "Netbios": "[split(parameters('Domain'), '.')[0]]",
+        "DomainAbbreviation": "[substring(variables('Netbios'), 0, 3)]",
+        "KeyVaultId": "[concat(subscription().id, '/resourceGroups/', 'rg-shared-', parameters('Environment'),'-', parameters('Location'), '/providers/Microsoft.KeyVault/vaults/', 'kv-', variables('DomainAbbreviation'), '-', parameters('Environment'), '-', parameters('Location'))]",
+        "VmLocation": {
+            "australiacentral": "ac",
+            "australiacentral2": "ac2",
+            "australiaeast": "ae",
+            "australiasoutheast": "ase",
+            "brazilsouth": "bs",
+            "brazilsoutheast": "bse",
+            "canadacentral": "cc",
+            "canadaeast": "ce",
+            "centralindia": "ci",
+            "centralus": "cus",
+            "eastasia": "ea",
+            "eastus": "eus",
+            "eastus2": "eus2",
+            "francecentral": "fc",
+            "francesouth": "fs",
+            "germanynorth": "gn",
+            "germanywestcentral": "gwc",
+            "japaneast": "je",
+            "japanwest": "jw",
+            "koreacentral": "kc",
+            "koreasouth": "ks",
+            "northcentralus": "ncus",
+            "northeurope": "ne",
+            "norwayeast": "noe",
+            "norwaywest": "now",
+            "southafricanorth": "san",
+            "southafricawest": "saw",
+            "southcentralus": "scus",
+            "southeastasia": "sea",
+            "southindia": "si",
+            "switzerlandnorth": "sn",
+            "switzerlandwest": "sw",
+            "uaecentral": "uaec",
+            "uaenorth": "uaen",
+            "uksouth": "uks",
+            "ukwest": "ukw",
+            "usdodcentral": "usdc",
+            "usdodeast": "usde",
+            "usgovarizona": "usga",
+            "usgoviowa": "usgi",
+            "usgovtexas": "usgt",
+            "usgovvirginia": "usgv",
+            "westcentralus": "wcus",
+            "westeurope": "we",
+            "westindia": "wi",
+            "westus": "wus",
+            "westus2": "wus2",
+            "westus3": "wus3"
+        }
+    },
     "resources": [
         {
-            "comments": "---------- RESOURCE GROUPS > PRIMARY REGION ----------",
-            "name": "[concat('rg-', parameters('ResourceGroups')[copyIndex()],'-', parameters('Environment'),'-', parameters('Locations')[0])]",
+            "comments": "---------- RESOURCE GROUPS ----------",
+            "name": "[concat('rg-', parameters('ResourceGroups')[copyIndex()],'-', parameters('Environment'),'-', parameters('Location'))]",
             "type": "Microsoft.Resources/resourceGroups",
             "apiVersion": "2019-10-01",
-            "location": "[parameters('Locations')[0]]",
+            "location": "[parameters('Location')]",
             "tags": {},
             "properties": {},
             "copy": {
@@ -98,25 +126,11 @@
             }
         },
         {
-            "comments": "---------- RESOURCE GROUPS > SECONDARY REGION ----------",
-            "condition": "[equals(parameters('DisasterRecovery'),'yes')]",
-            "name": "[concat('rg-', parameters('ResourceGroups')[copyIndex()],'-', parameters('Environment'),'-', parameters('Locations')[1])]",
-            "type": "Microsoft.Resources/resourceGroups",
-            "apiVersion": "2019-10-01",
-            "location": "[parameters('Locations')[1]]",
-            "tags": {},
-            "properties": {},
-            "copy": {
-                "name": "rgLoop2",
-                "count": "[length(parameters('ResourceGroups'))]"
-            }
-        },
-        {
             "comments": "---------- LINKED DEPLOYMENT > WVD INFRASTRUCTURE ----------",
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2019-10-01",
             "name": "[concat('WvdInfra_', parameters('Username'), '_', parameters('Timestamp'))]",
-            "resourceGroup": "[concat('rg-wvd-infra-', parameters('Environment'), '-', parameters('Locations')[0])]",
+            "resourceGroup": "[concat('rg-wvd-infra-', parameters('Environment'), '-', parameters('Location'))]",
             "dependsOn": [
                 "rgLoop1"
             ],
@@ -128,16 +142,16 @@
                 },
                 "parameters": {
                     "DomainAbbreviation": {
-                        "value": "[parameters('DomainAbbreviation')]"
+                        "value": "[variables('DomainAbbreviation')]"
                     },
                     "Environment": {
                         "value": "[parameters('Environment')]"
                     },
-                    "LocationAbbreviation": {
-                        "value": "[parameters('LocationAbbreviations')[0]]"
-                    },
                     "Timestamp": {
                         "value": "[parameters('Timestamp')]"
+                    },
+                    "VmLocation": {
+                        "value": "[variables('VmLocation')[parameters('Location')]]"
                     }
                 }
             }
@@ -147,7 +161,7 @@
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2019-10-01",
             "name": "[concat('WvdHosts_', parameters('Username'), '_', parameters('Timestamp'))]",
-            "resourceGroup": "[concat('rg-wvd-hosts-', parameters('Environment'), '-', parameters('Locations')[0])]",
+            "resourceGroup": "[concat('rg-wvd-hosts-', parameters('Environment'), '-', parameters('Location'))]",
             "dependsOn": [
                 "rgLoop1",
                 "[concat('WvdInfra_', parameters('Username'), '_', parameters('Timestamp'))]"
@@ -163,7 +177,7 @@
                         "value": "[parameters('Domain')]"
                     },
                     "DomainAbbreviation": {
-                        "value": "[parameters('DomainAbbreviation')]"
+                        "value": "[variables('DomainAbbreviation')]"
                     },
                     "Environment": {
                         "value": "[parameters('Environment')]"
@@ -171,19 +185,16 @@
                     "HostCount": {
                         "value": "[parameters('HostCount')]"
                     },
-                    "LocationAbbreviation": {
-                        "value": "[parameters('LocationAbbreviations')[0]]"
-                    },
                     "KeyEncryptionKeyURL": {
                         "reference": {
                             "keyVault": {
-                                "id": "[concat(subscription().id, '/resourceGroups/', 'rg-shared-', parameters('Environment'),'-', parameters('Locations')[0],'/providers/Microsoft.KeyVault/vaults/', 'kv-', parameters('DomainAbbreviation'), '-', parameters('Environment'), '-', parameters('Locations')[0])]"
+                                "id": "[variables('KeyVaultId')]"
                             },
                             "secretName": "DiskEncryptionKekUrl"
                         }
                     },
                     "Netbios": {
-                        "value": "[parameters('Netbios')]"
+                        "value": "[variables('Netbios')]"
                     },
                     "RegistrationToken": {
                         "value": "[reference(concat('WvdInfra_', parameters('Username'), '_', parameters('Timestamp'))).outputs.registrationToken.value]"
@@ -194,10 +205,13 @@
                     "Timestamp": {
                         "value": "[parameters('Timestamp')]"
                     },
+                    "VmLocation": {
+                        "value": "[variables('VmLocation')[parameters('Location')]]"
+                    },
                     "VmPassword": {
                         "reference": {
                             "keyVault": {
-                                "id": "[concat(subscription().id, '/resourceGroups/', 'rg-shared-', parameters('Environment'),'-', parameters('Locations')[0], '/providers/Microsoft.KeyVault/vaults/', 'kv-', parameters('DomainAbbreviation'), '-', parameters('Environment'), '-', parameters('Locations')[0])]"
+                                "id": "[variables('KeyVaultId')]"
                             },
                             "secretName": "VmPassword"
                         }
@@ -205,7 +219,7 @@
                     "VmUsername": {
                         "reference": {
                             "keyVault": {
-                                "id": "[concat(subscription().id, '/resourceGroups/', 'rg-shared-', parameters('Environment'),'-', parameters('Locations')[0], '/providers/Microsoft.KeyVault/vaults/', 'kv-', parameters('DomainAbbreviation'), '-', parameters('Environment'), '-', parameters('Locations')[0])]"
+                                "id": "[variables('KeyVaultId')]"
                             },
                             "secretName": "VmUsername"
                         }

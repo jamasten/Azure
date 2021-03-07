@@ -4,11 +4,6 @@ Param(
     [Parameter(Mandatory=$true)]
     [string]$Domain,
 
-    #An abbreviated version of the domain name
-    #Used for naming external resources (e.g., key vault, storage account, automation account)
-    [Parameter(Mandatory=$true)]
-    [string]$DomainAbbreviation,
-
     #An abbreviated version of the environment
     #d = development
     #p = production

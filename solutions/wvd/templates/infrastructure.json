@@ -201,66 +201,6 @@
                 "shareQuota": 100,
                 "enabledProtocols": "SMB"
             }
-        },
-        {
-            "comments": "---------- LOGIC APP > WVD SCALING AUTOMATION ----------",
-            "type": "Microsoft.Logic/workflows",
-            "apiVersion": "2017-07-01",
-            "name": "[concat('hp-wvd-', parameters('Environment'),'-', parameters('Location'),'_Autoscale_Scheduler')]",
-            "location": "[parameters('Location')]",
-            "dependsOn": [
-                "[resourceId('Microsoft.DesktopVirtualization/hostpools', concat('hp-wvd-', parameters('Environment'), '-', parameters('Location')))]"
-            ],
-            "properties": {
-                "state": "Enabled",
-                "definition": {
-                    "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
-                    "contentVersion": "1.0.0.0",
-                    "parameters": {},
-                    "triggers": {
-                        "Recurrence": {
-                            "recurrence": {
-                                "frequency": "Minute",
-                                "interval": 15
-                            },
-                            "type": "Recurrence"
-                        }
-                    },
-                    "actions": {
-                        "HTTP": {
-                            "runAfter": {},
-                            "type": "Http",
-                            "inputs": {
-                                "body": {
-                                    "AADTenantId": "[subscription().tenantId]",
-                                    "BeginPeakTime": "8:00",
-                                    "ConnectionAssetName": "AzureRunAsConnection",
-                                    "EndPeakTime": "17:00",
-                                    "EnvironmentName": "AzureCloud",
-                                    "HostPoolName": "[concat('hp-wvd-', parameters('Environment'),'-', parameters('Location'))]",
-                                    "LimitSecondsToForceLogOffUser": 0,
-                                    "LogAnalyticsPrimaryKey": "",
-                                    "LogAnalyticsWorkspaceId": "",
-                                    "LogOffMessageBody": "You are about to be signed out.  Please save your work and close all applications.",
-                                    "LogOffMessageTitle": "User Sign Out",
-                                    "MaintenanceTagName": "",
-                                    "MinimumNumberOfRDSH": 1,
-                                    "ResourceGroupName": "[concat('rg-wvd-infra-', parameters('Environment'), '-', parameters('Location'))]",
-                                    "SessionThresholdPerCPU": 2,
-                                    "SubscriptionId": "[subscription().subscriptionId]",
-                                    "TimeDifference": "-5:00",
-                                    "UseARMAPI": {
-                                        "IsPresent": true
-                                    }
-                                },
-                                "method": "POST",
-                                "uri": ""
-                            }
-                        }
-                    }
-                },
-                "parameters": {}
-            }
         }
     ],
     "outputs": {

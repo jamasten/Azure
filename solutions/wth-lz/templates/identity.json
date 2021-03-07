@@ -25,25 +25,55 @@
         }
     },
     "variables": {
-        "nic": "[concat('nic-dc-', parameters('Environment'),'-', parameters('Location'), '-0')]",
-        "vm": "[concat('vm-dc-', parameters('Environment'),'-', parameters('VmLocation'),'-0')]"
+        "IpAddresses": [
+            "10.0.0.4",
+            "10.0.0.5"
+        ],
+        "configurations": [
+            {
+                "modulesUrl": "https://github.com/jamasten/Azure/blob/master/solutions/wth-lz/dsc/ActiveDirectoryForest.zip?raw=true",
+                "configurationFunction": "ActiveDirectoryForest.ps1\\ActiveDirectoryForest"
+            },
+            {
+                "modulesUrl": "https://github.com/jamasten/Azure/blob/master/solutions/wth-lz/dsc/ActiveDirectoryReplica.zip?raw=true",
+                "configurationFunction": "ActiveDirectoryReplica.ps1\\ActiveDirectoryReplica"
+            }
+        ]
     },
     "resources": [
         {
+            "comments": "---------- AVAILABILITY SET ----------",
+            "name": "[concat('as-dc-', parameters('Environment'), '-', parameters('Location'))]",
+            "type": "Microsoft.Compute/availabilitySets",
+            "apiVersion": "2019-07-01",
+            "location": "[parameters('Location')]",
+            "properties": {
+                "platformFaultDomainCount": 2,
+                "platformUpdateDomainCount": 2
+            },
+            "sku": {
+                "name": "Aligned"
+            }
+        },
+        {
             "comments": "---------- NETWORK INTERFACE ----------",
-            "name": "[variables('nic')]",
+            "name": "[concat('nic-dc-', parameters('Environment'),'-', parameters('Location'), '-', copyIndex())]",
             "type": "Microsoft.Network/networkInterfaces",
             "apiVersion": "2018-08-01",
             "location": "[parameters('Location')]",
             "dependsOn": [],
             "tags": {},
+            "copy": {
+                "name": "nicLoop",
+                "count": 2
+            },
             "properties": {
                 "ipConfigurations": [
                     {
                         "name": "ipConfig0",
                         "properties": {
                             "privateIPAllocationMethod": "Static",
-                            "privateIPAddress": "10.0.0.4",
+                            "privateIPAddress": "[variables('IpAddresses')[copyIndex()]]",
                             "subnet": {
                                 "id": "[resourceId(subscription().subscriptionId, concat('rg-wth-network-', parameters('Environment'),'-', parameters('Location')), 'Microsoft.Network/virtualNetworks/subnets', concat('vnet-', parameters('Environment'),'-', parameters('Location')), concat('snet-identity-', parameters('Environment'),'-', parameters('Location')))]"
                             }
@@ -54,19 +84,23 @@
         },
         {
             "comments": "---------- VIRTUAL MACHINE ----------",
-            "name": "[variables('vm')]",
+            "name": "[concat('vm-dc-', parameters('Environment'),'-', parameters('VmLocation'),'-', copyIndex())]",
             "type": "Microsoft.Compute/virtualMachines",
             "apiVersion": "2019-07-01",
             "location": "[parameters('Location')]",
             "dependsOn": [
-                "[resourceId('Microsoft.Network/networkInterfaces', variables('nic'))]"
+                "nicLoop"
             ],
+            "copy": {
+                "name": "vmLoop",
+                "count": 2
+            },
             "properties": {
                 "hardwareProfile": {
                     "vmSize": "Standard_B2s"
                 },
                 "osProfile": {
-                    "computerName": "[variables('vm')]",
+                    "computerName": "[concat('vm-dc-', parameters('Environment'),'-', parameters('VmLocation'),'-', copyIndex())]",
                     "adminUsername": "[parameters('VmUsername')]",
                     "adminPassword": "[parameters('VmPassword')]"
                 },
@@ -90,7 +124,7 @@
                 "networkProfile": {
                     "networkInterfaces": [
                         {
-                            "id": "[resourceId('Microsoft.Network/networkInterfaces', variables('nic'))]"
+                            "id": "[resourceId('Microsoft.Network/networkInterfaces', concat('nic-dc-', parameters('Environment'),'-', parameters('Location'), '-', copyIndex()))]"
                         }
                     ]
                 },
@@ -98,6 +132,9 @@
                     "bootDiagnostics": {
                         "enabled": false
                     }
+                },
+                "availabilitySet": {
+                    "id": "[resourceId('Microsoft.Compute/availabilitySets', concat('as-dc-', parameters('Environment'), '-', parameters('Location')))]"
                 }
             },
             "resources": [
@@ -108,7 +145,7 @@
                     "apiVersion": "2019-07-01",
                     "location": "[parameters('Location')]",
                     "dependsOn": [
-                        "[variables('vm')]"
+                        "[concat('vm-dc-', parameters('Environment'),'-', parameters('VmLocation'),'-', copyIndex())]"
                     ],
                     "properties": {
                         "publisher": "Microsoft.Powershell",
@@ -123,8 +160,8 @@
                         },
                         "settings": {
                             "wmfVersion": "latest",
-                            "modulesUrl": "https://github.com/jamasten/Azure/blob/master/solutions/wth-lz/dsc/ActiveDirectoryDsc.zip?raw=true",
-                            "configurationFunction": "ActiveDirectoryForest.ps1\\ActiveDirectoryForest",
+                            "modulesUrl": "[variables('configurations')[copyIndex()].modulesUrl]",
+                            "configurationFunction": "[variables('configurations')[copyIndex()].configurationFunction]",
                             "properties": {
                                 "Domain": "[parameters('Domain')]",
                                 "DomainCreds": {

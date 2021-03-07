@@ -46,10 +46,12 @@ configuration ActiveDirectoryForest
 
     Node localhost
     {
-        LocalConfigurationManager 
-        {
-            RebootNodeIfNeeded = $true
-        }
+       LocalConfigurationManager            
+       {            
+          ActionAfterReboot = 'ContinueConfiguration'            
+          ConfigurationMode = 'ApplyOnly'            
+          RebootNodeIfNeeded = $true            
+       }
         
         WindowsFeature ADDSInstall 
         { 

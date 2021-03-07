@@ -39,12 +39,6 @@
                 "wvd-hosts"
             ]
         },
-        "StorageAccount": {
-            "type": "string",
-            "metadata": {
-                "description": "Name of the storage account"
-            }
-        },
         "Timestamp": {
             "type": "string",
             "defaultValue": "[utcNow()]"
@@ -58,7 +52,8 @@
     },
     "variables": {
         "Netbios": "[split(parameters('Domain'), '.')[0]]",
-        "DomainAbbreviation": "[substring(variables('Netbios'), 0, 3)]",
+        "DomainAbbreviation": "jm",
+        //"DomainAbbreviation": "[substring(variables('Netbios'), 0, 3)]",
         "KeyVaultId": "[concat(subscription().id, '/resourceGroups/', 'rg-shared-', parameters('Environment'),'-', parameters('Location'), '/providers/Microsoft.KeyVault/vaults/', 'kv-', variables('DomainAbbreviation'), '-', parameters('Environment'), '-', parameters('Location'))]",
         "VmLocation": {
             "australiacentral": "ac",
@@ -147,6 +142,9 @@
                     "Environment": {
                         "value": "[parameters('Environment')]"
                     },
+                    "Location": {
+                        "value": "[parameters('Location')]"
+                    },
                     "Timestamp": {
                         "value": "[parameters('Timestamp')]"
                     },
@@ -185,6 +183,9 @@
                     "HostCount": {
                         "value": "[parameters('HostCount')]"
                     },
+                    "Location": {
+                        "value": "[parameters('Location')]"
+                    },
                     "KeyEncryptionKeyURL": {
                         "reference": {
                             "keyVault": {
@@ -198,9 +199,6 @@
                     },
                     "RegistrationToken": {
                         "value": "[reference(concat('WvdInfra_', parameters('Username'), '_', parameters('Timestamp'))).outputs.registrationToken.value]"
-                    },
-                    "StorageAccount": {
-                        "value": "[parameters('StorageAccount')]"
                     },
                     "Timestamp": {
                         "value": "[parameters('Timestamp')]"

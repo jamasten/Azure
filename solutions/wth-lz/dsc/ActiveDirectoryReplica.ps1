@@ -78,7 +78,7 @@
             IsSingleInstance = 'Yes'
             IPAddresses = '168.63.129.16'
             UseRootHint = $true
-            DependsOn = "[ADDomain]SecondDomainController"
+            DependsOn = "[ADDomainController]SecondDomainController"
         }
    }
 }

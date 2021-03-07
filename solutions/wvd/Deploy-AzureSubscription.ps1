@@ -1,11 +1,11 @@
 Param(
 
-    #The first node in the domain name (i.e. jasonmasten.com)
+    #The first node in the domain name (e.g., jasonmasten.com)
     [Parameter(Mandatory=$true)]
     [string]$Domain,
 
     #An abbreviated version of the domain name
-    #Used for naming external resources (i.e. key vault, storage account, automation account)
+    #Used for naming external resources (e.g., key vault, storage account, automation account)
     [Parameter(Mandatory=$true)]
     [string]$DomainAbbreviation,
 
@@ -22,9 +22,8 @@ Param(
 
     #Primary Azure Region
     [Parameter(Mandatory=$true)]
-    [ValidateSet("eastus", "usgovvirginia")]
     [string]$Location,
-    
+
     [parameter(Mandatory=$true)]
     [string]$SubscriptionId
 )
@@ -49,39 +48,22 @@ if(!(Get-AzContext | Where-Object {$_.Subscription.Id -eq $SubscriptionId}))
 
 
 #############################################################
-# Template Parameter Object
+# Variables
 #############################################################
 $Context = Get-AzContext
 $Username = $Context.Account.Id.Split('@')[0]
 $TimeStamp = Get-Date -F 'yyyyMMddhhmmss'
 $Name =  $Username + '_' + $TimeStamp
-$Locations = switch($Location)
-{
-    eastus {@('eastus','westus2')}
-    usgovvirginia {@('usgovvirginia','usgovarizona')}
-}
-$LocationAbbreviations = switch($Location)
-{
-    eastus {@('eus','wus')}
-    usgovvirginia {@('usv','usa')}
-}
-$AutomationLocations = switch($Location)
-{
-    eastus {@('eastus2','westus2')}
-    usgovvirginia {@('usgovvirginia','usgovarizona')}
-}
-$StorageAccount = (Get-AzResource -ResourceType Microsoft.Storage/storageAccounts | Where-Object {$_.ResourceGroupName -eq $('rg-shared-' + $Environment + '-' + $Location)}).Name
-$Netbios = $Domain.Split('.')[0]
 
+
+#############################################################
+# Template Parameter Object
+#############################################################
 $Params = @{}       
 $Params.Add("Domain", $Domain)
-$Params.Add("DomainAbbreviation", $DomainAbbreviation)
 $Params.Add("Environment", $Environment)
 $Params.Add("HostCount", $HostCount)
-$Params.Add("Locations", $Locations)
-$Params.Add("LocationAbbreviations", $LocationAbbreviations)
-$Params.Add("Netbios", $Netbios)
-$Params.Add("StorageAccount", $StorageAccount)
+$Params.Add("Location", $Location)
 $Params.Add("Username", $UserName)
 
 
@@ -93,7 +75,7 @@ try
     New-AzSubscriptionDeployment `
         -Name $Name `
         -Location $Location `
-        -TemplateFile '.\subscription.json' `
+        -TemplateUri 'https://raw.githubusercontent.com/jamasten/Azure/master/solutions/wvd/subscription.json' `
         -TemplateParameterObject $Params `
         -ErrorAction Stop `
         -Verbose

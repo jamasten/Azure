@@ -14,7 +14,7 @@
         "HostCount": {
             "type": "int"
         },
-        "LocationAbbreviation": {
+        "Location": {
             "type": "string"
         },
         "KeyEncryptionKeyURL": {
@@ -26,10 +26,10 @@
         "RegistrationToken": {
             "type": "string"
         },
-        "StorageAccount": {
+        "Timestamp": {
             "type": "string"
         },
-        "Timestamp": {
+        "VmLocation": {
             "type": "string"
         },
         "VmPassword": {
@@ -40,17 +40,17 @@
         }
     },
     "variables": {
-        "KeyVaultResourceGroup": "[concat('rg-shared-', parameters('Environment'), '-', resourceGroup().location)]",
-        "KeyVaultName": "[concat('kv-', parameters('DomainAbbreviation'), '-', parameters('Environment'), '-', resourceGroup().location)]",
+        "KeyVaultResourceGroup": "[concat('rg-shared-', parameters('Environment'), '-', parameters('Location'))]",
+        "KeyVaultName": "[concat('kv-', parameters('DomainAbbreviation'), '-', parameters('Environment'), '-', parameters('Location'))]",
         "KeyVaultResourceID": "[resourceId(variables('KeyVaultResourceGroup'), 'Microsoft.KeyVault/vaults/', variables('KeyVaultName'))]",
-        "LogAnalyticsWorkspace": "[concat('law-', parameters('Environment'), '-', resourceGroup().location)]"
+        "LogAnalyticsWorkspace": "[concat('law-', parameters('Environment'), '-', parameters('Location'))]"
     },
     "resources": [
         {
             "type": "Microsoft.Compute/availabilitySets",
             "apiVersion": "2019-07-01",
-            "name": "[concat('as-wvd-', parameters('Environment'), '-', resourceGroup().location)]",
-            "location": "[resourceGroup().location]",
+            "name": "[concat('as-wvd-', parameters('Environment'), '-', parameters('Location'))]",
+            "location": "[parameters('Location')]",
             "dependsOn": [],
             "sku": {
                 "name": "Aligned"
@@ -64,8 +64,8 @@
         {
             "type": "Microsoft.Network/networkInterfaces",
             "apiVersion": "2020-05-01",
-            "name": "[concat('nic-wvd-', parameters('Environment'), '-', resourceGroup().location, '-', copyIndex())]",
-            "location": "[resourceGroup().location]",
+            "name": "[concat('nic-wvd-', parameters('Environment'), '-', parameters('Location'), '-', copyIndex())]",
+            "location": "[parameters('Location')]",
             "copy": {
                 "name": "nicLoop",
                 "count": "[parameters('HostCount')]"
@@ -77,7 +77,7 @@
                         "properties": {
                             "privateIPAllocationMethod": "Dynamic",
                             "subnet": {
-                                "id": "[resourceId(subscription().subscriptionId, concat('rg-network-', parameters('Environment'),'-', resourceGroup().location), 'Microsoft.Network/virtualNetworks/subnets', concat('vnet-', parameters('Environment'), '-', resourceGroup().location), concat('snet-clients-', parameters('Environment'), '-',resourceGroup().location))]"
+                                "id": "[resourceId(subscription().subscriptionId, concat('rg-network-', parameters('Environment'),'-', parameters('Location')), 'Microsoft.Network/virtualNetworks/subnets', concat('vnet-', parameters('Environment'), '-', parameters('Location')), concat('snet-clients-', parameters('Environment'), '-',parameters('Location')))]"
                             },
                             "primary": true,
                             "privateIPAddressVersion": "IPv4"
@@ -94,11 +94,11 @@
         {
             "type": "Microsoft.Compute/virtualMachines",
             "apiVersion": "2019-07-01",
-            "name": "[concat('vm-wvd-', parameters('Environment'), '-', parameters('LocationAbbreviation'), '-', copyIndex())]",
-            "location": "[resourceGroup().location]",
+            "name": "[concat('vm-wvd-', parameters('Environment'), '-', parameters('VmLocation'), '-', copyIndex())]",
+            "location": "[parameters('Location')]",
             "dependsOn": [
                 "nicLoop",
-                "[resourceId('Microsoft.Compute/availabilitySets', concat('as-wvd-', parameters('Environment'), '-', resourceGroup().location))]"
+                "[resourceId('Microsoft.Compute/availabilitySets', concat('as-wvd-', parameters('Environment'), '-', parameters('Location')))]"
             ],
             "copy": {
                 "name": "vmLoop",
@@ -106,7 +106,7 @@
             },
             "properties": {
                 "availabilitySet": {
-                    "id": "[resourceId('Microsoft.Compute/availabilitySets', concat('as-wvd-', parameters('Environment'), '-', resourceGroup().location))]"
+                    "id": "[resourceId('Microsoft.Compute/availabilitySets', concat('as-wvd-', parameters('Environment'), '-', parameters('Location')))]"
                 },
                 "hardwareProfile": {
                     "vmSize": "Standard_B2s"
@@ -120,7 +120,7 @@
                     },
                     "osDisk": {
                         "osType": "Windows",
-                        "name": "[concat('disk-wvd-', parameters('Environment'), '-', resourceGroup().location, '-', copyIndex(), '-0')]",
+                        "name": "[concat('disk-wvd-', parameters('Environment'), '-', parameters('Location'), '-', copyIndex(), '-0')]",
                         "createOption": "FromImage",
                         "caching": "None",
                         "managedDisk": {
@@ -131,7 +131,7 @@
                     "dataDisks": []
                 },
                 "osProfile": {
-                    "computerName": "[concat('vm-wvd-', parameters('Environment'), '-', parameters('LocationAbbreviation'), '-', copyIndex())]",
+                    "computerName": "[concat('vm-wvd-', parameters('Environment'), '-', parameters('VmLocation'), '-', copyIndex())]",
                     "adminUsername": "[parameters('VmUsername')]",
                     "adminPassword": "[parameters('VmPassword')]",
                     "windowsConfiguration": {
@@ -144,7 +144,7 @@
                 "networkProfile": {
                     "networkInterfaces": [
                         {
-                            "id": "[resourceId('Microsoft.Network/networkInterfaces', concat('nic-wvd-', parameters('Environment'), '-', resourceGroup().location, '-', copyIndex()))]"
+                            "id": "[resourceId('Microsoft.Network/networkInterfaces', concat('nic-wvd-', parameters('Environment'), '-', parameters('Location'), '-', copyIndex()))]"
                         }
                     ]
                 },
@@ -161,9 +161,9 @@
                     "type": "extensions",
                     "name": "MicrosoftMonitoringAgent",
                     "apiVersion": "2017-03-30",
-                    "location": "[resourceGroup().location]",
+                    "location": "[parameters('Location')]",
                     "dependsOn": [
-                        "[concat('vm-wvd-', parameters('Environment'), '-', parameters('LocationAbbreviation'), '-', copyIndex())]"
+                        "[concat('vm-wvd-', parameters('Environment'), '-', parameters('VmLocation'), '-', copyIndex())]"
                     ],
                     "properties": {
                         "publisher": "Microsoft.EnterpriseCloud.Monitoring",
@@ -171,10 +171,10 @@
                         "typeHandlerVersion": "1.0",
                         "autoUpgradeMinorVersion": true,
                         "settings": {
-                            "workspaceId": "[reference(resourceId(concat('rg-shared-', parameters('Environment'),'-', resourceGroup().location), 'Microsoft.OperationalInsights/workspaces/', variables('LogAnalyticsWorkspace')), '2015-03-20').customerId]"
+                            "workspaceId": "[reference(resourceId(concat('rg-shared-', parameters('Environment'),'-', parameters('Location')), 'Microsoft.OperationalInsights/workspaces/', variables('LogAnalyticsWorkspace')), '2015-03-20').customerId]"
                         },
                         "protectedSettings": {
-                            "workspaceKey": "[listKeys(resourceId(concat('rg-shared-', parameters('Environment'),'-', resourceGroup().location), 'Microsoft.OperationalInsights/workspaces/', variables('LogAnalyticsWorkspace')), '2015-03-20').primarySharedKey]"
+                            "workspaceKey": "[listKeys(resourceId(concat('rg-shared-', parameters('Environment'),'-', parameters('Location')), 'Microsoft.OperationalInsights/workspaces/', variables('LogAnalyticsWorkspace')), '2015-03-20').primarySharedKey]"
                         }
                     }
                 },
@@ -183,9 +183,9 @@
                     "type": "extensions",
                     "apiVersion": "2017-03-30",
                     "name": "NetworkWatcherAgentWindows",
-                    "location": "[resourceGroup().location]",
+                    "location": "[parameters('Location')]",
                     "dependsOn": [
-                        "[concat('vm-wvd-', parameters('Environment'), '-', parameters('LocationAbbreviation'), '-', copyIndex())]"
+                        "[concat('vm-wvd-', parameters('Environment'), '-', parameters('VmLocation'), '-', copyIndex())]"
                     ],
                     "properties": {
                         "publisher": "Microsoft.Azure.NetworkWatcher",
@@ -201,9 +201,9 @@
                     "type": "extensions",
                     "apiVersion": "2017-03-30",
                     "name": "DependencyAgentWindows",
-                    "location": "[resourceGroup().location]",
+                    "location": "[parameters('Location')]",
                     "dependsOn": [
-                        "[concat('vm-wvd-', parameters('Environment'), '-', parameters('LocationAbbreviation'), '-', copyIndex())]"
+                        "[concat('vm-wvd-', parameters('Environment'), '-', parameters('VmLocation'), '-', copyIndex())]"
                     ],
                     "properties": {
                         "publisher": "Microsoft.Azure.Monitoring.DependencyAgent",
@@ -217,9 +217,9 @@
                     "apiVersion": "2019-07-01",
                     "type": "extensions",
                     "name": "JsonADDomainExtension",
-                    "location": "[resourceGroup().location]",
+                    "location": "[parameters('Location')]",
                     "dependsOn": [
-                        "[concat('vm-wvd-', parameters('Environment'), '-', parameters('LocationAbbreviation'), '-', copyIndex())]",
+                        "[concat('vm-wvd-', parameters('Environment'), '-', parameters('VmLocation'), '-', copyIndex())]",
                         "MicrosoftMonitoringAgent",
                         "NetworkWatcherAgentWindows",
                         "DependencyAgentWindows"
@@ -246,9 +246,9 @@
                     "apiVersion": "2018-06-01",
                     "type": "extensions",
                     "name": "CustomScriptExtension",
-                    "location": "[resourceGroup().location]",
+                    "location": "[parameters('Location')]",
                     "dependsOn": [
-                        "[concat('vm-wvd-', parameters('Environment'), '-', parameters('LocationAbbreviation'), '-', copyIndex())]",
+                        "[concat('vm-wvd-', parameters('Environment'), '-', parameters('VmLocation'), '-', copyIndex())]",
                         "JsonADDomainExtension"
                     ],
                     "tags": {},
@@ -259,25 +259,22 @@
                         "autoUpgradeMinorVersion": true,
                         "settings": {
                             "fileUris": [
-                                "[concat('https://', parameters('StorageAccount'), '.blob.core.windows.net/scripts/Setup-FSLogix.ps1')]"
+                                "https://raw.githubusercontent.com/jamasten/Azure/master/solutions/wvd/scripts/Setup-FSLogix.ps1"
                             ],
-                            "timestamp": "[parameters('Timestamp')]"
+                            "timestamp": "[parameters('Timestamp')]",
+                            "commandToExecute": "powershell -ExecutionPolicy Unrestricted -File Setup-FSLogix.ps1 CommandToExecuteArgument"
                         },
-                        "protectedSettings": {
-                            "commandToExecute": "powershell -ExecutionPolicy Unrestricted -File Setup-FSLogix.ps1 CommandToExecuteArgument",
-                            "storageAccountName": "[parameters('StorageAccount')]",
-                            "storageAccountKey": "[listKeys(resourceId(concat('rg-shared-', parameters('Environment'), '-', resourceGroup().location), 'Microsoft.Storage/storageAccounts', parameters('storageAccount')), '2019-06-01').keys[0].value]"
-                        }
+                        "protectedSettings": {}
                     }
                 },
                 {
                     "comments": "---------- AZURE DISK ENCRYPTION EXTENSION ----------",
                     "type": "extensions",
                     "name": "AzureDiskEncryption",
-                    "location": "[resourceGroup().location]",
+                    "location": "[parameters('Location')]",
                     "apiVersion": "2017-03-30",
                     "dependsOn": [
-                        "[concat('vm-wvd-', parameters('Environment'), '-', parameters('LocationAbbreviation'), '-', copyIndex())]",
+                        "[concat('vm-wvd-', parameters('Environment'), '-', parameters('VmLocation'), '-', copyIndex())]",
                         "CustomScriptExtension"
                     ],
                     "properties": {
@@ -303,9 +300,9 @@
                     "type": "extensions",
                     "apiVersion": "2019-07-01",
                     "name": "DSC",
-                    "location": "[resourceGroup().location]",
+                    "location": "[parameters('Location')]",
                     "dependsOn": [
-                        "[concat('vm-wvd-', parameters('Environment'), '-', parameters('LocationAbbreviation'), '-', copyIndex())]",
+                        "[concat('vm-wvd-', parameters('Environment'), '-', parameters('VmLocation'), '-', copyIndex())]",
                         "AzureDiskEncryption"
                     ],
                     "properties": {
@@ -318,7 +315,7 @@
                             "modulesUrl": "https://wvdportalstorageblob.blob.core.windows.net/galleryartifacts/Configuration_7-20-2020.zip",
                             "configurationFunction": "Configuration.ps1\\AddSessionHost",
                             "properties": {
-                                "hostPoolName": "[concat('hp-wvd-', parameters('Environment'), '-', resourceGroup().location)]",
+                                "hostPoolName": "[concat('hp-wvd-', parameters('Environment'), '-', parameters('Location'))]",
                                 "registrationInfoToken": "[parameters('RegistrationToken')]"
                             }
                         },

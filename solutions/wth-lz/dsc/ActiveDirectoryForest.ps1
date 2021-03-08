@@ -15,33 +15,105 @@ configuration ActiveDirectoryForest
 
     $Users = @(
         @{
-            "FirstName" = "Cereal";
-            "LastName" = "Killer";
+            "FirstName" = "Adam";
+            "LastName" = "Warlock";
         },
         @{
-            "FirstName" = "Lord";
-            "LastName" = "Nikon";
+            "FirstName" = "Batman";
+            "LastName" = "";
         },
         @{
-            "FirstName" = "Crash";
-            "LastName" = "Override";
+            "FirstName" = "Black";
+            "LastName" = "Adam";
         },
         @{
-            "FirstName" = "Phantom";
-            "LastName" = "Phreak";
+            "FirstName" = "Black";
+            "LastName" = "Widow";
         },
         @{
-            "FirstName" = "Acid";
-            "LastName" = "Burn";
+            "FirstName" = "Captain";
+            "LastName" = "America";
         },
         @{
-            "FirstName" = "Zero";
-            "LastName" = "Cool";
+            "FirstName" = "Cat";
+            "LastName" = "Woman";
         },
         @{
-            "FirstName" = "The";
-            "LastName" = "Plague";
-        }
+            "FirstName" = "Dr";
+            "LastName" = "Strange";
+        },
+        @{
+            "FirstName" = "Gamora";
+            "LastName" = "";
+        },
+        @{
+            "FirstName" = "Hulk";
+            "LastName" = "";
+        },
+        @{
+            "FirstName" = "Joker";
+            "LastName" = "";
+        },
+        @{
+            "FirstName" = "Lex";
+            "LastName" = "Luthor";
+        },
+        @{
+            "FirstName" = "Maria";
+            "LastName" = "Hill";
+        },
+        @{
+            "FirstName" = "Nick";
+            "LastName" = "Fury";
+        },
+        @{
+            "FirstName" = "Night";
+            "LastName" = "Thrasher";
+        },
+        @{
+            "FirstName" = "Nova";
+            "LastName" = "";
+        },
+        @{
+            "FirstName" = "Robin";
+            "LastName" = "";
+        },
+        @{
+            "FirstName" = "Rocket";
+            "LastName" = "";
+        },
+        @{
+            "FirstName" = "Shazam";
+            "LastName" = "";
+        },
+        @{
+            "FirstName" = "Speed";
+            "LastName" = "Ball";
+        },
+        @{
+            "FirstName" = "Spiderman";
+            "LastName" = "";
+        },
+        @{
+            "FirstName" = "Star";
+            "LastName" = "Lord";
+        },
+        @{
+            "FirstName" = "Dr";
+            "LastName" = "Strange";
+        },
+        @{
+            "FirstName" = "Superman";
+            "LastName" = "";
+        },
+        @{
+            "FirstName" = "Thor";
+            "LastName" = "";
+        },
+        @{
+            "FirstName" = "Wonder";
+            "LastName" = "Woman";
+        },
     )
 
     Node localhost

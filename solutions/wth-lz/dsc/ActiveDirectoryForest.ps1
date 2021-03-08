@@ -113,7 +113,7 @@ configuration ActiveDirectoryForest
         @{
             "FirstName" = "Wonder";
             "LastName" = "Woman";
-        },
+        }
     )
 
     Node localhost

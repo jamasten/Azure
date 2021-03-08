@@ -14,106 +14,30 @@ configuration ActiveDirectoryForest
     Import-DscResource -ModuleName xDnsServer -ModuleVersion '1.16.0.0'
 
     $Users = @(
-        @{
-            "FirstName" = "Adam";
-            "LastName" = "Warlock";
-        },
-        @{
-            "FirstName" = "Batman";
-            "LastName" = "";
-        },
-        @{
-            "FirstName" = "Black";
-            "LastName" = "Adam";
-        },
-        @{
-            "FirstName" = "Black";
-            "LastName" = "Widow";
-        },
-        @{
-            "FirstName" = "Captain";
-            "LastName" = "America";
-        },
-        @{
-            "FirstName" = "Cat";
-            "LastName" = "Woman";
-        },
-        @{
-            "FirstName" = "Dr";
-            "LastName" = "Strange";
-        },
-        @{
-            "FirstName" = "Gamora";
-            "LastName" = "";
-        },
-        @{
-            "FirstName" = "Hulk";
-            "LastName" = "";
-        },
-        @{
-            "FirstName" = "Joker";
-            "LastName" = "";
-        },
-        @{
-            "FirstName" = "Lex";
-            "LastName" = "Luthor";
-        },
-        @{
-            "FirstName" = "Maria";
-            "LastName" = "Hill";
-        },
-        @{
-            "FirstName" = "Nick";
-            "LastName" = "Fury";
-        },
-        @{
-            "FirstName" = "Night";
-            "LastName" = "Thrasher";
-        },
-        @{
-            "FirstName" = "Nova";
-            "LastName" = "";
-        },
-        @{
-            "FirstName" = "Robin";
-            "LastName" = "";
-        },
-        @{
-            "FirstName" = "Rocket";
-            "LastName" = "";
-        },
-        @{
-            "FirstName" = "Shazam";
-            "LastName" = "";
-        },
-        @{
-            "FirstName" = "Speed";
-            "LastName" = "Ball";
-        },
-        @{
-            "FirstName" = "Spiderman";
-            "LastName" = "";
-        },
-        @{
-            "FirstName" = "Star";
-            "LastName" = "Lord";
-        },
-        @{
-            "FirstName" = "Dr";
-            "LastName" = "Strange";
-        },
-        @{
-            "FirstName" = "Superman";
-            "LastName" = "";
-        },
-        @{
-            "FirstName" = "Thor";
-            "LastName" = "";
-        },
-        @{
-            "FirstName" = "Wonder";
-            "LastName" = "Woman";
-        }
+        "AdamWarlock",
+        "Batman",
+        "BlackAdam",
+        "BlackWidow",
+        "CaptainAmerica",
+        "CatWoman",
+        "DrStrange",
+        "Gamora",
+        "Hulk",
+        "Joker",
+        "LexLuthor",
+        "MariaHill",
+        "NickFury",
+        "NightThrasher",
+        "Nova",
+        "Robin",
+        "Rocket",
+        "Shazam",
+        "SpeedBall",
+        "Spiderman",
+        "StarLord",
+        "Superman",
+        "Thor",
+        "WonderWoman"
     )
 
     Node localhost
@@ -171,7 +95,7 @@ configuration ActiveDirectoryForest
 
         foreach($User in $Users)
         {
-            ADUser $($User.FirstName + $User.LastName)
+            ADUser $($User)
             {
                 Ensure = 'Present'
                 Password = $DomainCreds
@@ -179,13 +103,11 @@ configuration ActiveDirectoryForest
                 DomainName = $Domain
                 CannotChangePassword = $true
                 ChangePasswordAtLogon = $false 
-                DisplayName = $User.FirstName + ' ' + $User.LastName
+                DisplayName = $User
                 Enabled = $true
-                GivenName = $User.FirstName
                 PasswordNeverExpires = $true
-                Surname = $User.LastName
-                UserName = ($User.FirstName + $User.LastName).ToLower()
-                UserPrincipalName = ($User.FirstName + $User.LastName + '@' + $Domain).ToLower()
+                UserName = ($User).ToLower()
+                UserPrincipalName = ($User + '@' + $Domain).ToLower()
                 DependsOn = "[ADDomain]FirstDomainController"
             }
         }

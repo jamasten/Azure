@@ -189,9 +189,6 @@
                     "Location": {
                         "value": "[parameters('Location')]"
                     },
-                    "Timestamp": {
-                        "value": "[parameters('Timestamp')]"
-                    },
                     "UserObjectId": {
                         "value": "[parameters('UserObjectId')]"
                     },

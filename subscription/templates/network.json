@@ -4,6 +4,9 @@
     "parameters": {
         "Environment": {
             "type": "string"
+        },
+        "Location": {
+            "type": "string"
         }
     },
     "resources": [
@@ -11,19 +14,19 @@
             "comments": "---------- NETWORK WATCHER ----------",
             "type": "Microsoft.Network/networkWatchers",
             "apiVersion": "2020-04-01",
-            "name": "[concat('nw-', parameters('Environment'), '-', resourceGroup().location)]",
-            "location": "[resourceGroup().location]",
+            "name": "[concat('nw-', parameters('Environment'), '-', parameters('Location'))]",
+            "location": "[parameters('Location')]",
             "properties": {}
         },
         {
             "comments": "---------- VIRTUAL NETWORK ----------",
-            "name": "[concat('vnet-', parameters('Environment'), '-', resourceGroup().location)]",
+            "name": "[concat('vnet-', parameters('Environment'), '-', parameters('Location'))]",
             "type": "Microsoft.Network/virtualNetworks",
             "apiVersion": "2018-08-01",
-            "location": "[resourceGroup().location]",
+            "location": "[parameters('Location')]",
             "tags": {},
             "dependsOn": [
-                "[concat('nw-', parameters('Environment'), '-', resourceGroup().location)]"
+                "[concat('nw-', parameters('Environment'), '-', parameters('Location'))]"
             ],
             "properties": {
                 "addressSpace": {
@@ -39,7 +42,7 @@
                 },
                 "subnets": [
                     {
-                        "name": "[concat('snet-shared-', parameters('Environment'), '-', resourceGroup().location)]",
+                        "name": "[concat('snet-shared-', parameters('Environment'), '-', parameters('Location'))]",
                         "properties": {
                             "addressPrefix": "10.0.0.0/24",
                             "delegations": [],
@@ -48,7 +51,7 @@
                         }
                     },
                     {
-                        "name": "[concat('snet-servers-', parameters('Environment'), '-', resourceGroup().location)]",
+                        "name": "[concat('snet-servers-', parameters('Environment'), '-', parameters('Location'))]",
                         "properties": {
                             "addressPrefix": "10.0.1.0/24",
                             "delegations": [],
@@ -57,7 +60,7 @@
                         }
                     },
                     {
-                        "name": "[concat('snet-clients-', parameters('Environment'), '-', resourceGroup().location)]",
+                        "name": "[concat('snet-clients-', parameters('Environment'), '-', parameters('Location'))]",
                         "properties": {
                             "addressPrefix": "10.0.2.0/24",
                             "delegations": [],
@@ -85,8 +88,8 @@
         {
             "type": "Microsoft.Network/publicIPAddresses",
             "apiVersion": "2020-05-01",
-            "name": "[concat('pip-bastion-', parameters('Environment'), '-', resourceGroup().location)]",
-            "location": "[resourceGroup().location]",
+            "name": "[concat('pip-bastion-', parameters('Environment'), '-', parameters('Location'))]",
+            "location": "[parameters('Location')]",
             "sku": {
                 "name": "Standard"
             },
@@ -99,11 +102,11 @@
         {
             "type": "Microsoft.Network/bastionHosts",
             "apiVersion": "2020-05-01",
-            "name": "[concat('bastion-', parameters('Environment'), '-', resourceGroup().location)]",
-            "location": "[resourceGroup().location]",
+            "name": "[concat('bastion-', parameters('Environment'), '-', parameters('Location'))]",
+            "location": "[parameters('Location')]",
             "dependsOn": [
-                "[concat('pip-bastion-', parameters('Environment'), '-', resourceGroup().location)]",
-                "[concat('vnet-', parameters('Environment'), '-', resourceGroup().location)]"
+                "[concat('pip-bastion-', parameters('Environment'), '-', parameters('Location'))]",
+                "[concat('vnet-', parameters('Environment'), '-', parameters('Location'))]"
             ],
             "properties": {
                 "ipConfigurations": [
@@ -112,10 +115,10 @@
                         "properties": {
                             "privateIPAllocationMethod": "Dynamic",
                             "publicIPAddress": {
-                                "id": "[resourceId('Microsoft.Network/publicIPAddresses', concat('pip-bastion-', parameters('Environment'), '-', resourceGroup().location))]"
+                                "id": "[resourceId('Microsoft.Network/publicIPAddresses', concat('pip-bastion-', parameters('Environment'), '-', parameters('Location')))]"
                             },
                             "subnet": {
-                                "id": "[resourceId(subscription().subscriptionId, concat('rg-network-', parameters('Environment'),'-', resourceGroup().location), 'Microsoft.Network/virtualNetworks/subnets', concat('vnet-', parameters('Environment'), '-', resourceGroup().location), '/subnets/AzureBastionSubnet')]"
+                                "id": "[resourceId(subscription().subscriptionId, concat('rg-network-', parameters('Environment'),'-', parameters('Location')), 'Microsoft.Network/virtualNetworks/subnets', concat('vnet-', parameters('Environment'), '-', parameters('Location')), '/subnets/AzureBastionSubnet')]"
                             }
                         }
                     }

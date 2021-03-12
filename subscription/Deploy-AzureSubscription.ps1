@@ -66,6 +66,7 @@ $Params = @{
     DomainAbbreviation = $DomainAbbreviation
     Environment = $Environment
     Location = $Location
+    TimeStamp = $TimeStamp
     UserObjectId = $UserObjectId
     Username = $Username
 }

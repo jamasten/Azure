@@ -2,7 +2,7 @@
     "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
-        "AutomationLocation": {
+        "Domain": {
             "type": "string"
         },
         "DomainAbbreviation": {
@@ -14,7 +14,10 @@
         "KeyEncryptionKeyURL": {
             "type": "string"
         },
-        "LocationAbbreviation": {
+        "Location": {
+            "type": "string"
+        },
+        "LocationAbbr": {
             "type": "string"
         },
         "Timestamp": {
@@ -28,18 +31,18 @@
         }
     },
     "variables": {
-        "KeyVaultResourceGroup": "[concat('rg-shared-', parameters('Environment'), '-', resourceGroup().location)]",
-        "KeyVaultName": "[concat('kv-', parameters('DomainAbbreviation'), '-', parameters('Environment'), '-', resourceGroup().location)]",
+        "KeyVaultResourceGroup": "[concat('rg-shared-', parameters('Environment'), '-', parameters('Location'))]",
+        "KeyVaultName": "[concat('kv-', parameters('DomainAbbreviation'), '-', parameters('Environment'), '-', parameters('Location'))]",
         "KeyVaultResourceID": "[resourceId(variables('KeyVaultResourceGroup'), 'Microsoft.KeyVault/vaults/', variables('KeyVaultName'))]",
-        "LogAnalyticsWorkspace": "[concat('law-', parameters('Environment'), '-', resourceGroup().location)]"
+        "LogAnalyticsWorkspace": "[concat('law-', parameters('Environment'), '-', parameters('Location'))]"
     },
     "resources": [
         {
             "comments": "---------- AVAILABILITY SET ----------",
-            "name": "[concat('as-dc-', parameters('Environment'), '-', resourceGroup().location)]",
+            "name": "[concat('as-dc-', parameters('Environment'), '-', parameters('Location'))]",
             "type": "Microsoft.Compute/availabilitySets",
             "apiVersion": "2019-07-01",
-            "location": "[resourceGroup().location]",
+            "location": "[parameters('Location')]",
             "properties": {
                 "platformFaultDomainCount": 2,
                 "platformUpdateDomainCount": 2
@@ -50,10 +53,10 @@
         },
         {
             "comments": "---------- NETWORK INTERFACE ----------",
-            "name": "[concat('nic-dc-', parameters('Environment'), '-', resourceGroup().location, '-0')]",
+            "name": "[concat('nic-dc-', parameters('Environment'), '-', parameters('Location'), '-0')]",
             "type": "Microsoft.Network/networkInterfaces",
             "apiVersion": "2018-08-01",
-            "location": "[resourceGroup().location]",
+            "location": "[parameters('Location')]",
             "dependsOn": [],
             "tags": {
             },
@@ -65,7 +68,7 @@
                             "privateIPAllocationMethod": "Static",
                             "privateIPAddress": "10.0.0.4",
                             "subnet": {
-                                "id": "[resourceId(subscription().subscriptionId, concat('rg-network-', parameters('Environment'),'-', resourceGroup().location), 'Microsoft.Network/virtualNetworks/subnets', concat('vnet-', parameters('Environment'), '-', resourceGroup().location), concat('snet-shared-', parameters('Environment'), '-',resourceGroup().location))]"
+                                "id": "[resourceId(subscription().subscriptionId, concat('rg-network-', parameters('Environment'),'-', parameters('Location')), 'Microsoft.Network/virtualNetworks/subnets', concat('vnet-', parameters('Environment'), '-', parameters('Location')), concat('snet-shared-', parameters('Environment'), '-',parameters('Location')))]"
                             }
                         }
                     }
@@ -74,20 +77,20 @@
         },
         {
             "comments": "---------- VIRTUAL MACHINE ----------",
-            "name": "[concat('vm-dc-', parameters('Environment'), '-', parameters('LocationAbbreviation'), '-0')]",
+            "name": "[concat('vm-dc-', parameters('Environment'), '-', parameters('LocationAbbr'), '-0')]",
             "type": "Microsoft.Compute/virtualMachines",
             "apiVersion": "2019-07-01",
-            "location": "[resourceGroup().location]",
+            "location": "[parameters('Location')]",
             "dependsOn": [
-                "[resourceId('Microsoft.Network/networkInterfaces', concat('nic-dc-', parameters('Environment'), '-', resourceGroup().location, '-0'))]",
-                "[resourceId('Microsoft.Compute/availabilitySets', concat('as-dc-', parameters('Environment'), '-', resourceGroup().location))]"
+                "[resourceId('Microsoft.Network/networkInterfaces', concat('nic-dc-', parameters('Environment'), '-', parameters('Location'), '-0'))]",
+                "[resourceId('Microsoft.Compute/availabilitySets', concat('as-dc-', parameters('Environment'), '-', parameters('Location')))]"
             ],
             "properties": {
                 "hardwareProfile": {
                     "vmSize": "Standard_B2s"
                 },
                 "osProfile": {
-                    "computerName": "[concat('vm-dc-', parameters('Environment'), '-', parameters('LocationAbbreviation'), '-0')]",
+                    "computerName": "[concat('vm-dc-', parameters('Environment'), '-', parameters('LocationAbbr'), '-0')]",
                     "adminUsername": "[parameters('VmUsername')]",
                     "adminPassword": "[parameters('VmPassword')]"
                 },
@@ -99,7 +102,7 @@
                         "version": "latest"
                     },
                     "osDisk": {
-                        "name": "[concat('disk-dc-', parameters('Environment'), '-', resourceGroup().location, '-0-0')]",
+                        "name": "[concat('disk-dc-', parameters('Environment'), '-', parameters('Location'), '-0-0')]",
                         "caching": "None",
                         "createOption": "FromImage",
                         "managedDisk": {
@@ -111,7 +114,7 @@
                 "networkProfile": {
                     "networkInterfaces": [
                         {
-                            "id": "[resourceId('Microsoft.Network/networkInterfaces', concat('nic-dc-', parameters('Environment'), '-', resourceGroup().location, '-0'))]"
+                            "id": "[resourceId('Microsoft.Network/networkInterfaces', concat('nic-dc-', parameters('Environment'), '-', parameters('Location'), '-0'))]"
                         }
                     ]
                 },
@@ -121,7 +124,7 @@
                     }
                 },
                 "availabilitySet": {
-                    "id": "[resourceId('Microsoft.Compute/availabilitySets', concat('as-dc-', parameters('Environment'), '-', resourceGroup().location))]"
+                    "id": "[resourceId('Microsoft.Compute/availabilitySets', concat('as-dc-', parameters('Environment'), '-', parameters('Location')))]"
                 }
             },
             "resources": [
@@ -130,9 +133,9 @@
                     "type": "extensions",
                     "name": "MicrosoftMonitoringAgent",
                     "apiVersion": "2017-03-30",
-                    "location": "[resourceGroup().location]",
+                    "location": "[parameters('Location')]",
                     "dependsOn": [
-                        "[concat('vm-dc-', parameters('Environment'), '-', parameters('LocationAbbreviation'), '-0')]"
+                        "[concat('vm-dc-', parameters('Environment'), '-', parameters('LocationAbbr'), '-0')]"
                     ],
                     "properties": {
                         "publisher": "Microsoft.EnterpriseCloud.Monitoring",
@@ -140,10 +143,10 @@
                         "typeHandlerVersion": "1.0",
                         "autoUpgradeMinorVersion": true,
                         "settings": {
-                            "workspaceId": "[reference(resourceId(concat('rg-shared-', parameters('Environment'),'-', resourceGroup().location), 'Microsoft.OperationalInsights/workspaces/', variables('LogAnalyticsWorkspace')), '2015-03-20').customerId]"
+                            "workspaceId": "[reference(resourceId(concat('rg-shared-', parameters('Environment'),'-', parameters('Location')), 'Microsoft.OperationalInsights/workspaces/', variables('LogAnalyticsWorkspace')), '2015-03-20').customerId]"
                         },
                         "protectedSettings": {
-                            "workspaceKey": "[listKeys(resourceId(concat('rg-shared-', parameters('Environment'),'-', resourceGroup().location), 'Microsoft.OperationalInsights/workspaces/', variables('LogAnalyticsWorkspace')), '2015-03-20').primarySharedKey]"
+                            "workspaceKey": "[listKeys(resourceId(concat('rg-shared-', parameters('Environment'),'-', parameters('Location')), 'Microsoft.OperationalInsights/workspaces/', variables('LogAnalyticsWorkspace')), '2015-03-20').primarySharedKey]"
                         }
                     }
                 },
@@ -152,9 +155,9 @@
                     "type": "extensions",
                     "apiVersion": "2017-03-30",
                     "name": "NetworkWatcherAgentWindows",
-                    "location": "[resourceGroup().location]",
+                    "location": "[parameters('Location')]",
                     "dependsOn": [
-                        "[concat('vm-dc-', parameters('Environment'), '-', parameters('LocationAbbreviation'), '-0')]"
+                        "[concat('vm-dc-', parameters('Environment'), '-', parameters('LocationAbbr'), '-0')]"
                     ],
                     "properties": {
                         "publisher": "Microsoft.Azure.NetworkWatcher",
@@ -170,9 +173,9 @@
                     "type": "extensions",
                     "apiVersion": "2017-03-30",
                     "name": "DependencyAgentWindows",
-                    "location": "[resourceGroup().location]",
+                    "location": "[parameters('Location')]",
                     "dependsOn": [
-                        "[concat('vm-dc-', parameters('Environment'), '-', parameters('LocationAbbreviation'), '-0')]"
+                        "[concat('vm-dc-', parameters('Environment'), '-', parameters('LocationAbbr'), '-0')]"
                     ],
                     "properties": {
                         "publisher": "Microsoft.Azure.Monitoring.DependencyAgent",
@@ -185,10 +188,10 @@
                     "comments": "---------- AZURE DISK ENCRYPTION EXTENSION ----------",
                     "type": "extensions",
                     "name": "AzureDiskEncryption",
-                    "location": "[resourceGroup().location]",
+                    "location": "[parameters('Location')]",
                     "apiVersion": "2017-03-30",
                     "dependsOn": [
-                        "[concat('vm-dc-', parameters('Environment'), '-', parameters('LocationAbbreviation'), '-0')]",
+                        "[concat('vm-dc-', parameters('Environment'), '-', parameters('LocationAbbr'), '-0')]",
                         "MicrosoftMonitoringAgent",
                         "NetworkWatcherAgentWindows",
                         "DependencyAgentWindows"
@@ -216,9 +219,9 @@
                     "type": "extensions",
                     "name": "DSC",
                     "apiVersion": "2019-07-01",
-                    "location": "[resourceGroup().location]",
+                    "location": "[parameters('Location')]",
                     "dependsOn": [
-                        "[concat('vm-dc-', parameters('Environment'), '-', parameters('LocationAbbreviation'), '-0')]",
+                        "[concat('vm-dc-', parameters('Environment'), '-', parameters('LocationAbbr'), '-0')]",
                         "AzureDiskEncryption"
                     ],
                     "properties": {
@@ -226,52 +229,23 @@
                         "type": "DSC",
                         "typeHandlerVersion": "2.77",
                         "autoUpgradeMinorVersion": true,
+                        "forceUpdateTag": "[parameters('Timestamp')]",
                         "protectedSettings": {
                             "Items": {
-                                "registrationKeyPrivate": "[listKeys(resourceId(concat('rg-shared-', parameters('Environment'),'-', resourceGroup().location), 'Microsoft.Automation/automationAccounts/', concat('aa-', parameters('DomainAbbreviation'), '-', parameters('Environment'), '-', parameters('AutomationLocation'))), '2018-06-30').Keys[0].value]"
+                                "VmPassword": "[parameters('VmPassword')]"
                             }
                         },
                         "settings": {
-                            "Properties": [
-                                {
-                                    "Name": "RegistrationKey",
-                                    "Value": {
-                                        "UserName": "PLACEHOLDER_DONOTUSE",
-                                        "Password": "PrivateSettingsRef:registrationKeyPrivate"
-                                    },
-                                    "TypeName": "System.Management.Automation.PSCredential"
-                                },
-                                {
-                                    "Name": "RegistrationUrl",
-                                    "Value": "[reference(resourceId(concat('rg-shared-', parameters('Environment'),'-', resourceGroup().location), 'Microsoft.Automation/automationAccounts/', concat('aa-', parameters('DomainAbbreviation'), '-', parameters('Environment'), '-', parameters('AutomationLocation'))), '2018-06-30').registrationUrl]",
-                                    "TypeName": "System.String"
-                                },
-                                {
-                                    "Name": "NodeConfigurationName",
-                                    "Value": "ActiveDirectoryForest.localhost",
-                                    "TypeName": "System.String"
-                                },
-                                {
-                                    "Name": "ConfigurationMode",
-                                    "Value": "ApplyandAutoCorrect",
-                                    "TypeName": "System.String"
-                                },
-                                {
-                                    "Name": "RebootNodeIfNeeded",
-                                    "Value": true,
-                                    "TypeName": "System.Boolean"
-                                },
-                                {
-                                    "Name": "ActionAfterReboot",
-                                    "Value": "ContinueConfiguration",
-                                    "TypeName": "System.String"
-                                },
-                                {
-                                    "Name": "Timestamp",
-                                    "Value": "[parameters('Timestamp')]",
-                                    "TypeName": "System.String"
+                            "wmfVersion": "latest",
+                            "modulesUrl": "",
+                            "configurationFunction": "",
+                            "properties": {
+                                "Domain": "[parameters('Domain')]",
+                                "DomainCreds": {
+                                    "UserName": "[parameters('VmUsername')]",
+                                    "Password": "PrivateSettingsRef:VmPassword"
                                 }
-                            ]
+                            }
                         }
                     }
                 }

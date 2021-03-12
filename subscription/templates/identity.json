@@ -5,13 +5,7 @@
         "Domain": {
             "type": "string"
         },
-        "DomainAbbreviation": {
-            "type": "string"
-        },
         "Environment": {
-            "type": "string"
-        },
-        "KeyEncryptionKeyURL": {
             "type": "string"
         },
         "Location": {
@@ -26,12 +20,6 @@
         "VmUsername": {
             "type": "securestring"
         }
-    },
-    "variables": {
-        "KeyVaultResourceGroup": "[concat('rg-shared-', parameters('Environment'), '-', parameters('Location'))]",
-        "KeyVaultName": "[concat('kv-', parameters('DomainAbbreviation'), '-', parameters('Environment'), '-', parameters('Location'))]",
-        "KeyVaultResourceID": "[resourceId(variables('KeyVaultResourceGroup'), 'Microsoft.KeyVault/vaults/', variables('KeyVaultName'))]",
-        "LogAnalyticsWorkspace": "[concat('law-', parameters('Environment'), '-', parameters('Location'))]"
     },
     "resources": [
         {

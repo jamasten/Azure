@@ -226,9 +226,6 @@
                     "Domain": {
                         "value": "[parameters('Domain')]"
                     },
-                    "DomainAbbreviation": {
-                        "value": "[parameters('DomainAbbreviation')]"
-                    },
                     "Environment": {
                         "value": "[parameters('Environment')]"
                     },

@@ -11,9 +11,6 @@
         "Location": {
             "type": "string"
         },
-        "Timestamp": {
-            "type": "string"
-        },
         "UserObjectId": {
             "type": "string"
         },
@@ -116,83 +113,26 @@
             }
         },
         {
-            "comments": "---------- KEY VAULT > KEY ENCRYPTION KEY ----------",
-            "name": "ds-diskencryptionkek",
-            "type": "Microsoft.Resources/deploymentScripts",
-            "apiVersion": "2019-10-01-preview",
-            "identity": {
-                "type": "UserAssigned",
-                "userAssignedIdentities": {
-                    "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities','uami-deploykek')]": {}
-                }
-            },
-            "location": "[parameters('Location')]",
-            "kind": "AzurePowerShell",
-            "tags": {},
-            "dependsOn": [
-                "[concat('kv-', parameters('DomainAbbreviation'), '-', parameters('Environment'), '-', parameters('Location'))]"
-            ],
-            "properties": {
-                "azPowerShellVersion": "3.0.0",
-                "cleanupPreference": "OnSuccess",
-                "scriptContent": "
-                    param(
-                        [string] [Parameter(Mandatory=$true)] $KeyVault
-                    )
-
-                    if(!(Get-AzKeyVaultKey -Name DiskEncryption -VaultName $KeyVault))
-                    {
-                        Add-AzKeyVaultKey -Name DiskEncryption -VaultName $KeyVault -Destination Software
-                    }
-
-                    $KeyEncryptionKeyURL = (Get-AzKeyVaultKey -VaultName $KeyVault -Name 'DiskEncryption' -IncludeVersions | Where-Object {$_.Enabled -eq $true}).Id
-                
-                    Write-Output $KeyEncryptionKeyURL
-
-                    $DeploymentScriptOutputs = @{}
-            
-                    $DeploymentScriptOutputs['text'] = $KeyEncryptionKeyURL 
-                ",
-                "arguments": "[format(' -KeyVault {0}', concat('kv-', parameters('DomainAbbreviation'), '-', parameters('Environment'), '-', parameters('Location')))]",
-                "forceUpdateTag": "[parameters('Timestamp')]",
-                "retentionInterval": "P1D",
-                "timeout": "PT30M"
-            }
-        },
-        {
-            "comments": "---------- KEY VAULT > SECRET > KEK URL ----------",
-            "type": "Microsoft.KeyVault/vaults/secrets",
-            "apiVersion": "2016-10-01",
-            "name": "[concat('kv-', parameters('DomainAbbreviation'), '-', parameters('Environment'), '-', parameters('Location'), '/DiskEncryptionKekUrl')]",
-            "tags": {},
-            "dependsOn": [
-                "ds-diskencryptionkek"
-            ],
-            "properties": {
-                "value": "[reference('ds-diskencryptionkek').outputs.text]"
-            }
-        },
-        {
             "comments": "---------- KEY VAULT > SECRET > VM PASSWORD ----------",
             "type": "Microsoft.KeyVault/vaults/secrets",
             "apiVersion": "2016-10-01",
             "name": "[concat('kv-', parameters('DomainAbbreviation'), '-', parameters('Environment'), '-', parameters('Location'), '/VmPassword')]",
             "tags": {},
             "dependsOn": [
-                "ds-diskencryptionkek"
+                "[concat('kv-', parameters('DomainAbbreviation'), '-', parameters('Environment'), '-', parameters('Location'))]"
             ],
             "properties": {
                 "value": "[parameters('VmPassword')]"
             }
         },
         {
-            "comments": "---------- KEY VAULT > SECRET > KEK URL ----------",
+            "comments": "---------- KEY VAULT > SECRET > VM USERNAME ----------",
             "type": "Microsoft.KeyVault/vaults/secrets",
             "apiVersion": "2016-10-01",
             "name": "[concat('kv-', parameters('DomainAbbreviation'), '-', parameters('Environment'), '-', parameters('Location'), '/VmUsername')]",
             "tags": {},
             "dependsOn": [
-                "ds-diskencryptionkek"
+                "[concat('kv-', parameters('DomainAbbreviation'), '-', parameters('Environment'), '-', parameters('Location'))]"
             ],
             "properties": {
                 "value": "[parameters('VmUsername')]"

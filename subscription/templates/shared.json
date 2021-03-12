@@ -139,6 +139,20 @@
             }
         },
         {
+            "comments": "---------- AUTOMATION ACCOUNT ----------",
+            "name": "[concat('aa-', parameters('DomainAbbreviation'), '-', parameters('Environment'), '-', parameters('Location'))]",
+            "type": "Microsoft.Automation/automationAccounts",
+            "apiVersion": "2015-10-31",
+            "location": "[parameters('Location')]",
+            "tags": {
+            },
+            "properties": {
+                "sku": {
+                    "name": "Free"
+                }
+            }
+        },
+        {
             "comments": "---------- STORAGE ACCOUNT ----------",
             "type": "Microsoft.Storage/storageAccounts",
             "apiVersion": "2019-06-01",

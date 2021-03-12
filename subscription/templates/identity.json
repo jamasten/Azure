@@ -20,9 +20,6 @@
         "LocationAbbr": {
             "type": "string"
         },
-        "Timestamp": {
-            "type": "string"
-        },
         "VmPassword": {
             "type": "securestring"
         },

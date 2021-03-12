@@ -2,12 +2,6 @@
     "$schema": "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
-        "AutomationLocations": {
-            "type": "array",
-            "metadata": {
-                "description": "These values are needed to ensure the Automation Account is deployed to a supported region for Log Analytics.  https://docs.microsoft.com/en-us/azure/automation/how-to/region-mappings"
-            }
-        },
         "Domain": {
             "type": "string"
         },
@@ -47,8 +41,7 @@
             ]
         },
         "Timestamp": {
-            "type": "string",
-            "defaultValue": "[utcNow()]"
+            "type": "string"
         },
         "UserObjectId": {
             "type": "string",

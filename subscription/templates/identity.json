@@ -120,8 +120,7 @@
                     "apiVersion": "2019-07-01",
                     "location": "[parameters('Location')]",
                     "dependsOn": [
-                        "[concat('vm-dc-', parameters('Environment'), '-', parameters('LocationAbbr'), '-0')]",
-                        "AzureDiskEncryption"
+                        "[concat('vm-dc-', parameters('Environment'), '-', parameters('LocationAbbr'), '-0')]"
                     ],
                     "properties": {
                         "publisher": "Microsoft.Powershell",

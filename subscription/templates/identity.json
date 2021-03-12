@@ -229,7 +229,6 @@
                         "type": "DSC",
                         "typeHandlerVersion": "2.77",
                         "autoUpgradeMinorVersion": true,
-                        "forceUpdateTag": "[parameters('Timestamp')]",
                         "protectedSettings": {
                             "Items": {
                                 "VmPassword": "[parameters('VmPassword')]"
@@ -237,8 +236,8 @@
                         },
                         "settings": {
                             "wmfVersion": "latest",
-                            "modulesUrl": "",
-                            "configurationFunction": "",
+                            "modulesUrl": "https://github.com/jamasten/Azure/blob/master/subscription/dsc/ActiveDirectoryForest.zip?raw=true",
+                            "configurationFunction": "ActiveDirectoryForest.ps1\\ActiveDirectoryForest",
                             "properties": {
                                 "Domain": "[parameters('Domain')]",
                                 "DomainCreds": {

@@ -118,7 +118,7 @@
                                 "id": "[resourceId('Microsoft.Network/publicIPAddresses', concat('pip-bastion-', parameters('Environment'), '-', parameters('Location')))]"
                             },
                             "subnet": {
-                                "id": "[resourceId(subscription().subscriptionId, concat('rg-network-', parameters('Environment'),'-', parameters('Location')), 'Microsoft.Network/virtualNetworks/subnets', concat('vnet-', parameters('Environment'), '-', parameters('Location')), '/subnets/AzureBastionSubnet')]"
+                                "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', concat('vnet-', parameters('Environment'), '-', parameters('Location')), 'AzureBastionSubnet')]"
                             }
                         }
                     }

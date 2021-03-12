@@ -21,11 +21,6 @@ Param(
     [Parameter(Mandatory=$true)]
     [ValidateSet("eastus", "usgovvirginia")]
     [string]$Location,
-  
-    #Storage Account SKU: (p)remium or (s)tandard
-    [Parameter(Mandatory=$true)]
-    [ValidateSet("p", "s")]
-    [string]$StorageType, 
     
     [parameter(Mandatory=$true)]
     [string]$SubscriptionId
@@ -34,21 +29,7 @@ Param(
 #############################################################
 # Authenticate to Azure
 #############################################################
-if(!(Get-AzSubscription | Where-Object {$_.Id -eq $SubscriptionId}))
-{
-    Connect-AzAccount `
-        -Subscription $SubscriptionId `
-        -UseDeviceAuthentication
-}
-
-
-#############################################################
-# Set Subscription Context
-#############################################################
-if(!(Get-AzContext | Where-Object {$_.Subscription.Id -eq $SubscriptionId}))
-{
-    Set-AzContext -Subscription $SubscriptionId
-}
+Connect-AzAccount -Subscription $SubscriptionId
 
 
 #############################################################
@@ -64,21 +45,6 @@ $Email = $Context.Account.Id
 $TimeStamp = Get-Date -F 'yyyyMMddhhmmss'
 $Name =  $Username + '_' + $TimeStamp
 $Credential = Get-Credential -Message 'Input Azure VM credentials'
-$Locations = switch($Location)
-{
-    eastus {@('eastus','westus2')}
-    usgovvirginia {@('usgovvirginia','usgovarizona')}
-}
-$LocationAbbreviations = switch($Location)
-{
-    eastus {@('eus','wus')}
-    usgovvirginia {@('usv','usa')}
-}
-$AutomationLocations = switch($Location)
-{
-    eastus {@('eastus2','westus2')}
-    usgovvirginia {@('usgovvirginia','usgovarizona')}
-}
 
 
 #############################################################
@@ -96,14 +62,10 @@ if(!$test)
 # Template Parameter Object
 #############################################################
 $Params = @{
-    AutomationLocations = $AutomationLocations
     Domain = $Domain
     DomainAbbreviation = $DomainAbbreviation
     Environment = $Environment
-    Locations = $Locations
-    LocationAbbreviations = $LocationAbbreviations
-    StorageType = $StorageType
-    SecurityDistributionGroup = $Email
+    Location = $Location
     UserObjectId = $UserObjectId
     Username = $Username
 }
@@ -114,18 +76,9 @@ $Params.Add("VmUsername", $Credential.UserName) # Secure Strings must use Add Me
 #############################################################
 # Deployment
 #############################################################
-try 
-{
-    New-AzSubscriptionDeployment `
-        -Name $Name `
-        -Location $Params.Locations[0] `
-        -TemplateFile '.\subscription.json' `
-        -TemplateParameterObject $Params `
-        -ErrorAction Stop `
-        -Verbose
-}
-catch 
-{
-    Write-Host "Deployment Failed: $Name"
-    $_ | Select-Object *
-}
+New-AzSubscriptionDeployment `
+    -Name $Name `
+    -Location $Location `
+    -TemplateFile '.\subscription.json' `
+    -TemplateParameterObject $Params `
+    -Verbose

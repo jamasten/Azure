@@ -29,27 +29,10 @@
                 "description": "The operating environment of the resources"
             }
         },
-        "DisasterRecovery": {
-            "type": "string",
-            "metadata": {
-                "description": "Determines if a secondary region is provisioned for high availability."
-            },
-            "allowedValues": [
-                "yes",
-                "no"
-            ],
-            "defaultValue": "no"
-        },
-        "Locations": {
+        "Location": {
             "type": "array",
             "metadata": {
-                "description": "Locations for Resource Groups & Resources. The first index is primary location and the second index is the secondary location for business continuity and disaster recovery "
-            }
-        },
-        "LocationAbbreviations": {
-            "type": "array",
-            "metadata": {
-                "description": "Location abbreviations are used for Virtual Machine names since they are limited to 15 characters. The first index is primary location and the second index is the secondary location for business continuity and disaster recovery "
+                "description": "Location for Resource Groups & Resources"
             }
         },
         "ResourceGroups": {
@@ -62,22 +45,6 @@
                 "network",
                 "shared"
             ]
-        },
-        "SecurityDistributionGroup": {
-            "type": "string",
-            "metadata": {
-                "description": "Email address to recieve Security Center notifications"
-            }
-        },
-        "StorageType": {
-            "type": "string",
-            "allowedValues": [
-                "p",
-                "s"
-            ],
-            "metadata": {
-                "description": "The storage account sku, (p)remium or (s)tandard"
-            }
         },
         "Timestamp": {
             "type": "string",
@@ -108,10 +75,26 @@
             }
         }
     },
-    "variables": {},
+    "variables": {
+        "LocationAbbr": {
+            "centralus": "cus",
+            "eastus": "eus",
+            "eastus2": "eus2",
+            "northcentralus": "ncus",
+            "southcentralus": "scus",
+            "usgovarizona": "usga",
+            "usgoviowa": "usgi",
+            "usgovtexas": "usgt",
+            "usgovvirginia": "usgv",
+            "westcentralus": "wcus",
+            "westus": "wus",
+            "westus2": "wus2",
+            "westus3": "wus3"
+        }
+    },
     "resources": [
         {
-            "comments": "---------- RESOURCE GROUPS > PRIMARY REGION ----------",
+            "comments": "---------- RESOURCE GROUPS ----------",
             "name": "[concat('rg-', parameters('ResourceGroups')[copyIndex()],'-', parameters('Environment'),'-', parameters('Locations')[0])]",
             "type": "Microsoft.Resources/resourceGroups",
             "apiVersion": "2019-10-01",
@@ -124,25 +107,11 @@
             }
         },
         {
-            "comments": "---------- RESOURCE GROUPS > SECONDARY REGION ----------",
-            "condition": "[equals(parameters('DisasterRecovery'),'yes')]",
-            "name": "[concat('rg-', parameters('ResourceGroups')[copyIndex()],'-', parameters('Environment'),'-', parameters('Locations')[1])]",
-            "type": "Microsoft.Resources/resourceGroups",
-            "apiVersion": "2019-10-01",
-            "location": "[parameters('Locations')[1]]",
-            "tags": {},
-            "properties": {},
-            "copy": {
-                "name": "rgLoop2",
-                "count": "[length(parameters('ResourceGroups'))]"
-            }
-        },
-        {
             "comments": "---------- LINKED DEPLOYMENT > USER ASSIGNED MANAGED IDENTITY ----------",
             "type": "Microsoft.Resources/deployments",
             "name": "[concat('ManagedId_', parameters('Username'), '_', parameters('Timestamp'))]",
             "apiVersion": "2019-10-01",
-            "tags": {}, 
+            "tags": {},
             "dependsOn": [
                 "rgLoop1"
             ],
@@ -173,7 +142,7 @@
             }
         },
         {
-            "comments": "---------- LINKED DEPLOYMENT > NETWORK > PRIMARY REGION ----------",
+            "comments": "---------- LINKED DEPLOYMENT > NETWORK ----------",
             "type": "Microsoft.Resources/deployments",
             "name": "[concat('Network_', parameters('Username'), '_', parameters('Timestamp'))]",
             "apiVersion": "2019-10-01",
@@ -188,8 +157,14 @@
                 },
                 "mode": "Incremental",
                 "parameters": {
+                    "Domain": {
+                        "value": "[parameters('Domain')]"
+                    },
                     "Environment": {
                         "value": "[parameters('Environment')]"
+                    },
+                    "Location": {
+                        "value": "[parameters('Location')]"
                     }
                 },
                 "templateLink": {
@@ -198,7 +173,7 @@
             }
         },
         {
-            "comments": "---------- LINKED DEPLOYMENT > SHARED > PRIMARY REGION ----------",
+            "comments": "---------- LINKED DEPLOYMENT > SHARED ----------",
             "type": "Microsoft.Resources/deployments",
             "name": "[concat('Shared_', parameters('Username'), '_', parameters('Timestamp'))]",
             "apiVersion": "2019-10-01",
@@ -215,9 +190,6 @@
                 },
                 "mode": "Incremental",
                 "parameters": {
-                    "AutomationLocation": {
-                        "value": "[parameters('AutomationLocations')[0]]"
-                    },
                     "Domain": {
                         "value": "[parameters('Domain')]"
                     },
@@ -227,8 +199,8 @@
                     "Environment": {
                         "value": "[parameters('Environment')]"
                     },
-                    "StorageType": {
-                        "value": "[parameters('StorageType')]"
+                    "Location": {
+                        "value": "[parameters('Location')]"
                     },
                     "Timestamp": {
                         "value": "[parameters('Timestamp')]"
@@ -248,38 +220,8 @@
                 }
             }
         },
-        /*{
-            "comments": "---------- LINKED DEPLOYMENT > SECURITY CENTER ----------",
-            "type": "Microsoft.Resources/deployments",
-            "name": "[concat('SecurityCenter_', parameters('Username'), '_', parameters('Timestamp'))]",
-            "apiVersion": "2019-10-01",
-            "dependsOn": [
-                "[concat('Shared_', parameters('Username'), '_', parameters('Timestamp'))]"
-            ],
-            "resourceGroup": "[concat('rg-shared-', parameters('Environment'),'-', parameters('Locations')[0])]",
-            "properties": {
-                "expressionEvaluationOptions": {
-                    "scope": "inner"
-                },
-                "mode": "Incremental",
-                "parameters": {
-                    "Environment": {
-                        "value": "[parameters('Environment')]"
-                    },
-                    "Location": {
-                        "value": "[parameters('Locations')[0]]"
-                    },
-                    "SecurityDistributionGroup": {
-                        "value": "[parameters('SecurityDistributionGroup')]"
-                    }
-                },
-                "templateLink": {
-                    "uri": "https://raw.githubusercontent.com/jamasten/Azure/master/subscription/templates/securitycenter.json"
-                }
-            }
-        },*/
         {
-            "comments": "---------- LINKED DEPLOYMENT > IDENTITY > PRIMARY REGION ----------",
+            "comments": "---------- LINKED DEPLOYMENT > IDENTITY ----------",
             "type": "Microsoft.Resources/deployments",
             "name": "[concat('Identity_', parameters('Username'), '_', parameters('Timestamp'))]",
             "apiVersion": "2019-10-01",
@@ -294,9 +236,6 @@
                 },
                 "mode": "Incremental",
                 "parameters": {
-                    "AutomationLocation": {
-                        "value": "[parameters('AutomationLocations')[0]]"
-                    },
                     "DomainAbbreviation": {
                         "value": "[parameters('DomainAbbreviation')]"
                     },
@@ -311,8 +250,11 @@
                             "secretName": "DiskEncryptionKekUrl"
                         }
                     },
-                    "LocationAbbreviation": {
-                        "value": "[parameters('LocationAbbreviations')[0]]"
+                    "Location": {
+                        "value": "[parameters('Location')]"
+                    },
+                    "LocationAbbr": {
+                        "value": "[variables('LocationAbbr')[parameters('Location')]]"
                     },
                     "Timestamp": {
                         "value": "[parameters('Timestamp')]"

@@ -88,10 +88,10 @@
     "resources": [
         {
             "comments": "---------- RESOURCE GROUPS ----------",
-            "name": "[concat('rg-', parameters('ResourceGroups')[copyIndex()],'-', parameters('Environment'),'-', parameters('Locations')[0])]",
+            "name": "[concat('rg-', parameters('ResourceGroups')[copyIndex()],'-', parameters('Environment'),'-', parameters('Location'))]",
             "type": "Microsoft.Resources/resourceGroups",
             "apiVersion": "2019-10-01",
-            "location": "[parameters('Locations')[0]]",
+            "location": "[parameters('Location')]",
             "tags": {},
             "properties": {},
             "copy": {
@@ -108,7 +108,7 @@
             "dependsOn": [
                 "rgLoop1"
             ],
-            "resourceGroup": "[concat('rg-shared-', parameters('Environment'),'-', parameters('Locations')[0])]",
+            "resourceGroup": "[concat('rg-shared-', parameters('Environment'),'-', parameters('Location'))]",
             "properties": {
                 "expressionEvaluationOptions": {
                     "scope": "inner"
@@ -130,7 +130,7 @@
             ],
             "properties": {
                 "roleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', 'b24988ac-6180-42a0-ab88-20f7382dd24c')]",
-                "principalId": "[reference(concat(subscription().id, '/resourceGroups/rg-shared-', parameters('Environment'), '-', parameters('Locations')[0], '/providers/Microsoft.ManagedIdentity/userAssignedIdentities/uami-deploykek'), '2018-11-30', 'Full').properties.principalId]",
+                "principalId": "[reference(concat(subscription().id, '/resourceGroups/rg-shared-', parameters('Environment'), '-', parameters('Location'), '/providers/Microsoft.ManagedIdentity/userAssignedIdentities/uami-deploykek'), '2018-11-30', 'Full').properties.principalId]",
                 "scope": "[subscription().id]"
             }
         },
@@ -143,7 +143,7 @@
             "dependsOn": [
                 "rgLoop1"
             ],
-            "resourceGroup": "[concat('rg-network-', parameters('Environment'),'-', parameters('Locations')[0])]",
+            "resourceGroup": "[concat('rg-network-', parameters('Environment'),'-', parameters('Location'))]",
             "properties": {
                 "expressionEvaluationOptions": {
                     "scope": "inner"
@@ -176,7 +176,7 @@
                 "[concat('ManagedId_', parameters('Username'), '_', parameters('Timestamp'))]",
                 "6d4da268-fb61-412b-91d8-8e33227b4e5a"
             ],
-            "resourceGroup": "[concat('rg-shared-', parameters('Environment'),'-', parameters('Locations')[0])]",
+            "resourceGroup": "[concat('rg-shared-', parameters('Environment'),'-', parameters('Location'))]",
             "properties": {
                 "expressionEvaluationOptions": {
                     "scope": "inner"
@@ -222,7 +222,7 @@
                 "[concat('Network_', parameters('Username'), '_', parameters('Timestamp'))]",
                 "[concat('Shared_', parameters('Username'), '_', parameters('Timestamp'))]"
             ],
-            "resourceGroup": "[concat('rg-identity-', parameters('Environment'),'-', parameters('Locations')[0])]",
+            "resourceGroup": "[concat('rg-identity-', parameters('Environment'),'-', parameters('Location'))]",
             "properties": {
                 "expressionEvaluationOptions": {
                     "scope": "inner"
@@ -238,7 +238,7 @@
                     "KeyEncryptionKeyURL": {
                         "reference": {
                             "keyVault": {
-                                "id": "[concat(subscription().id, '/resourceGroups/', 'rg-shared-', parameters('Environment'),'-', parameters('Locations')[0],'/providers/Microsoft.KeyVault/vaults/', 'kv-', parameters('DomainAbbreviation'), '-', parameters('Environment'), '-', parameters('Locations')[0])]"
+                                "id": "[concat(subscription().id, '/resourceGroups/', 'rg-shared-', parameters('Environment'),'-', parameters('Location'),'/providers/Microsoft.KeyVault/vaults/', 'kv-', parameters('DomainAbbreviation'), '-', parameters('Environment'), '-', parameters('Location'))]"
                             },
                             "secretName": "DiskEncryptionKekUrl"
                         }

@@ -26,20 +26,7 @@ Param(
 #############################################################
 # Authenticate to Azure
 #############################################################
-if(!(Get-AzSubscription | Where-Object {$_.Id -eq $SubscriptionId}))
-{
-    Connect-AzAccount `
-        -Subscription $SubscriptionId
-}
-
-
-#############################################################
-# Set Subscription Context
-#############################################################
-if(!(Get-AzContext | Where-Object {$_.Subscription.Id -eq $SubscriptionId}))
-{
-    Set-AzContext -Subscription $SubscriptionId
-}
+Connect-AzAccount -Subscription $SubscriptionId
 
 
 #############################################################
@@ -65,17 +52,10 @@ $Params.Add("Username", $UserName)
 #############################################################
 # Deployment
 #############################################################
-try 
-{
-    New-AzSubscriptionDeployment `
-        -Name $Name `
-        -Location $Location `
-        -TemplateUri 'https://raw.githubusercontent.com/jamasten/Azure/master/solutions/wvd/subscription.json' `
-        -TemplateParameterObject $Params `
-        -ErrorAction Stop `
-        -Verbose
-}
-catch 
-{
-    $_ | Select-Object *
-}
+New-AzSubscriptionDeployment `
+    -Name $Name `
+    -Location $Location `
+    -TemplateUri 'https://raw.githubusercontent.com/jamasten/Azure/master/solutions/wvd/subscription.json' `
+    -TemplateParameterObject $Params `
+    -ErrorAction Stop `
+    -Verbose

@@ -2,47 +2,13 @@
     "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
-        "AutomationLocation": {
-            "type": "string"
-        },
-        "Domain": {
-            "type": "string"
-        },
         "DomainAbbreviation": {
             "type": "string"
         },
         "Environment": {
             "type": "string"
         },
-        "Modules": {
-            "type": "array",
-            "metadata": {
-                "description": "Automation modules needed to support DSC configurations"
-            },
-            "defaultValue": [
-                {
-                    "name": "ActiveDirectoryDsc",
-                    "uri": "https://github.com/jamasten/Azure/blob/master/subscription/dsc/modules/activedirectorydsc.4.2.0.nupkg?raw=true"
-                },
-                {
-                    "name": "ComputerManagementDsc",
-                    "uri": "https://github.com/jamasten/Azure/blob/master/subscription/dsc/modules/computermanagementdsc.8.4.0.nupkg?raw=true"
-                },
-                {
-                    "name": "NetworkingDsc",
-                    "uri": "https://github.com/jamasten/Azure/blob/master/subscription/dsc/modules/networkingdsc.8.1.0.nupkg?raw=true"
-                },
-                {
-                    "name": "PSDscResources",
-                    "uri": "https://github.com/jamasten/Azure/blob/master/subscription/dsc/modules/psdscresources.2.12.0.nupkg?raw=true"
-                },
-                {
-                    "name": "xDnsServer",
-                    "uri": "https://github.com/jamasten/Azure/blob/master/subscription/dsc/modules/xdnsserver.1.16.0.nupkg?raw=true"
-                }
-            ]
-        },
-        "StorageType": {
+        "Location": {
             "type": "string"
         },
         "Timestamp": {
@@ -63,9 +29,9 @@
         {
             "comments": "---------- KEY VAULT ----------",
             "type": "Microsoft.KeyVault/vaults",
-            "name": "[concat('kv-', parameters('DomainAbbreviation'), '-', parameters('Environment'), '-', resourceGroup().location)]",
+            "name": "[concat('kv-', parameters('DomainAbbreviation'), '-', parameters('Environment'), '-', parameters('Location'))]",
             "apiVersion": "2016-10-01",
-            "location": "[resourceGroup().location]",
+            "location": "[parameters('Location')]",
             "tags": {},
             "dependsOn": [],
             "properties": {
@@ -160,11 +126,11 @@
                     "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities','uami-deploykek')]": {}
                 }
             },
-            "location": "[resourceGroup().location]",
+            "location": "[parameters('Location')]",
             "kind": "AzurePowerShell",
             "tags": {},
             "dependsOn": [
-                "[concat('kv-', parameters('DomainAbbreviation'), '-', parameters('Environment'), '-', resourceGroup().location)]"
+                "[concat('kv-', parameters('DomainAbbreviation'), '-', parameters('Environment'), '-', parameters('Location'))]"
             ],
             "properties": {
                 "azPowerShellVersion": "3.0.0",
@@ -187,7 +153,7 @@
             
                     $DeploymentScriptOutputs['text'] = $KeyEncryptionKeyURL 
                 ",
-                "arguments": "[format(' -KeyVault {0}', concat('kv-', parameters('DomainAbbreviation'), '-', parameters('Environment'), '-', resourceGroup().location))]",
+                "arguments": "[format(' -KeyVault {0}', concat('kv-', parameters('DomainAbbreviation'), '-', parameters('Environment'), '-', parameters('Location')))]",
                 "forceUpdateTag": "[parameters('Timestamp')]",
                 "retentionInterval": "P1D",
                 "timeout": "PT30M"
@@ -197,7 +163,7 @@
             "comments": "---------- KEY VAULT > SECRET > KEK URL ----------",
             "type": "Microsoft.KeyVault/vaults/secrets",
             "apiVersion": "2016-10-01",
-            "name": "[concat('kv-', parameters('DomainAbbreviation'), '-', parameters('Environment'), '-', resourceGroup().location, '/DiskEncryptionKekUrl')]",
+            "name": "[concat('kv-', parameters('DomainAbbreviation'), '-', parameters('Environment'), '-', parameters('Location'), '/DiskEncryptionKekUrl')]",
             "tags": {},
             "dependsOn": [
                 "ds-diskencryptionkek"
@@ -210,7 +176,7 @@
             "comments": "---------- KEY VAULT > SECRET > VM PASSWORD ----------",
             "type": "Microsoft.KeyVault/vaults/secrets",
             "apiVersion": "2016-10-01",
-            "name": "[concat('kv-', parameters('DomainAbbreviation'), '-', parameters('Environment'), '-', resourceGroup().location, '/VmPassword')]",
+            "name": "[concat('kv-', parameters('DomainAbbreviation'), '-', parameters('Environment'), '-', parameters('Location'), '/VmPassword')]",
             "tags": {},
             "dependsOn": [
                 "ds-diskencryptionkek"
@@ -223,7 +189,7 @@
             "comments": "---------- KEY VAULT > SECRET > KEK URL ----------",
             "type": "Microsoft.KeyVault/vaults/secrets",
             "apiVersion": "2016-10-01",
-            "name": "[concat('kv-', parameters('DomainAbbreviation'), '-', parameters('Environment'), '-', resourceGroup().location, '/VmUsername')]",
+            "name": "[concat('kv-', parameters('DomainAbbreviation'), '-', parameters('Environment'), '-', parameters('Location'), '/VmUsername')]",
             "tags": {},
             "dependsOn": [
                 "ds-diskencryptionkek"
@@ -236,8 +202,8 @@
             "comments": "---------- STORAGE ACCOUNT ----------",
             "type": "Microsoft.Storage/storageAccounts",
             "apiVersion": "2019-06-01",
-            "name": "[concat('stor', parameters('DomainAbbreviation'), parameters('Environment'), resourceGroup().location, parameters('StorageType'))]",
-            "location": "[resourceGroup().location]",
+            "name": "[concat('stor', parameters('DomainAbbreviation'), parameters('Environment'), parameters('Location'), 's')]",
+            "location": "[parameters('Location')]",
             "sku": {
                 "name": "Standard_LRS",
                 "tier": "Standard"
@@ -270,102 +236,11 @@
             }
         },
         {
-            "comments": "---------- AUTOMATION ACCOUNT ----------",
-            "name": "[concat('aa-', parameters('DomainAbbreviation'), '-', parameters('Environment'), '-', parameters('AutomationLocation'))]",
-            "type": "Microsoft.Automation/automationAccounts",
-            "apiVersion": "2015-10-31",
-            "location": "[parameters('AutomationLocation')]",
-            "tags": {
-            },
-            "properties": {
-                "sku": {
-                    "name": "Free"
-                }
-            }
-        },
-        {
-            "comments": "---------- AUTOMATION ACCOUNT > MODULES ----------",
-            "type": "Microsoft.Automation/automationAccounts/modules",
-            "apiVersion": "2015-10-31",
-            "name": "[concat('aa-', parameters('DomainAbbreviation'), '-', parameters('Environment'), '-', parameters('AutomationLocation'), '/', parameters('Modules')[copyIndex()].name)]",
-            "location": "[parameters('AutomationLocation')]",
-            "dependsOn": [
-                "[resourceId('Microsoft.Automation/automationAccounts', concat('aa-', parameters('DomainAbbreviation'), '-', parameters('Environment'), '-', parameters('AutomationLocation')))]"
-            ],
-            "copy": {
-                "name": "modulesLoop",
-                "count": "[length(parameters('Modules'))]"
-            },
-            "properties": {
-                "contentLink": {
-                    "uri": "[parameters('Modules')[copyIndex()].uri]"
-                }
-            }
-        },
-        {
-            "comments": "---------- AUTOMATION ACCOUNT > CONFIGURATION ----------",
-            "type": "Microsoft.Automation/automationAccounts/configurations",
-            "name": "[concat('aa-', parameters('DomainAbbreviation'), '-', parameters('Environment'), '-', parameters('AutomationLocation'), '/ActiveDirectoryForest')]",
-            "apiVersion": "2015-10-31",
-            "location": "[parameters('AutomationLocation')]",
-            "dependsOn": [
-                "modulesLoop",
-                "[resourceId('Microsoft.Automation/automationAccounts', concat('aa-', parameters('DomainAbbreviation'), '-', parameters('Environment'), '-', parameters('AutomationLocation')))]"
-            ],
-            "properties": {
-                "source": {
-                    "type": "uri",
-                    "value": "https://raw.githubusercontent.com/jamasten/Azure/master/subscription/dsc/configurations/ActiveDirectoryForest.ps1",
-                    "version": "[parameters('Timestamp')]"
-                },
-                "parameters": {},
-                "description": "Configures the primary domain controller to setup the forest"
-            }
-        },
-        {
-            "comments": "---------- AUTOMATION ACCOUNT > CREDENTIAL ----------",
-            "type": "Microsoft.Automation/automationAccounts/credentials",
-            "name": "[concat('aa-', parameters('DomainAbbreviation'), '-', parameters('Environment'), '-', parameters('AutomationLocation'), '/Administrator')]",
-            "apiVersion": "2015-10-31",
-            "location": "[parameters('AutomationLocation')]",
-            "tags": {},
-            "dependsOn": [
-                "[resourceId('Microsoft.Automation/automationAccounts', concat('aa-', parameters('DomainAbbreviation'), '-', parameters('Environment'), '-', parameters('AutomationLocation')))]"
-            ],
-            "properties": {
-                "userName": "[parameters('VmUsername')]",
-                "password": "[parameters('VmPassword')]"
-            }
-        },
-        {
-            "comments": "---------- AUTOMATION ACCOUNT > COMPILATION JOBS ----------",
-            "type": "Microsoft.Automation/automationAccounts/compilationjobs",
-            "name": "[concat('aa-', parameters('DomainAbbreviation'), '-', parameters('Environment'), '-', parameters('AutomationLocation'), '/', guid(deployment().name))]",
-            "apiVersion": "2018-01-15",
-            "location": "[parameters('AutomationLocation')]",
-            "dependsOn": [
-                "[resourceId('Microsoft.Automation/automationAccounts', concat('aa-', parameters('DomainAbbreviation'), '-', parameters('Environment'), '-', parameters('AutomationLocation')))]",
-                "modulesLoop",
-                "[resourceId('Microsoft.Automation/automationAccounts/configurations', concat('aa-', parameters('DomainAbbreviation'), '-', parameters('Environment'), '-', parameters('AutomationLocation')), 'ActiveDirectoryForest')]",
-                "[resourceId('Microsoft.Automation/automationAccounts/credentials', concat('aa-', parameters('DomainAbbreviation'), '-', parameters('Environment'), '-', parameters('AutomationLocation')), 'Administrator')]"
-            ],
-            "properties": {
-                "configuration": {
-                    "name": "ActiveDirectoryForest"
-                },
-                "parameters": {
-                    "Domain": "[parameters('Domain')]",
-                    "configurationData": "[concat('{\"AllNodes\":{\"nodename\":\"localhost\"}}')]"
-                },
-                "incrementNodeConfigurationBuild": true
-            }
-        },
-        {
             "comments": "---------- LOG ANALYTICS ----------",
             "type": "Microsoft.OperationalInsights/workspaces",
             "apiVersion": "2020-03-01-preview",
-            "name": "[concat('law-', parameters('Environment'), '-', resourceGroup().location)]",
-            "location": "[resourceGroup().location]",
+            "name": "[concat('law-', parameters('Environment'), '-', parameters('Location'))]",
+            "location": "[parameters('Location')]",
             "tags": {},
             "properties": {
                 "sku": {

@@ -209,15 +209,12 @@
             }
         },
         {
+            "comments": "---------- SHARED IMAGE GALLERY ----------",
             "type": "Microsoft.Compute/galleries",
             "apiVersion": "2019-03-01",
             "name": "[concat('sig-', parameters('Environment'), '-', parameters('Location'))]",
             "location": "[parameters('Location')]",
-            "properties": {
-                "identifier": {
-                    "uniqueName": "3764b123-4849-4395-8e6e-ca6d68d8d4b4-SIG_D_EASTUS"
-                }
-            }
+            "properties": {}
         }
     ],
     "outputs": {}

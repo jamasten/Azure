@@ -9,12 +9,26 @@
         "Location": {
             "type": "string",
             "defaultValue": "eastus"
+        },
+        "Timestamp": {
+            "type": "string",
+            "metadata": {
+                "description": "The timestamp is used for the release value in the Image Version"
+            },
+            "defaultValue": "[utcNow('yyyyMMddhhmmss')]"
         }
     },
-    "variables": {},
+    "variables": {
+        "Gallery": "[concat('sig_', parameters('Environment'), '_', parameters('Location'))]",
+        "Image": "Win10v20H2_Ent_Evd_O365",
+        "SubnetRg": "[concat('rg-network-', parameters('Environment'), '-', parameters('Location'))]",
+        "Vnet": "[concat('vnet-', parameters('Environment'), '-', parameters('Location'))]",
+        "Subnet": "[concat('snet-clients-', parameters('Environment'), '-', parameters('Location'))]",
+        "Version": "[concat('1.0.', parameters('Timestamp'))]"
+    },
     "resources": [
         {
-            "name": "[concat('sig-', parameters('Environment'), '-', parameters('Location'))]",
+            "name": "[variables('Gallery')]",
             "type": "Microsoft.Compute/galleries",
             "apiVersion": "2019-03-01",
             "location": "[parameters('Location')]",
@@ -25,12 +39,12 @@
             },
             "resources": [
                 {
-                    "name": "Win10v20H2_Ent_Evd_O365",
+                    "name": "[variables('Image')]",
                     "type": "images",
                     "apiVersion": "2019-03-01",
                     "location": "[parameters('Location')]",
                     "dependsOn": [
-                        "[concat('sig-', parameters('Environment'), '-', parameters('Location'))]"
+                        "[variables('Gallery')]"
                     ],
                     "tags": {},
                     "properties": {
@@ -46,12 +60,13 @@
             ]
         },
         {
-            "name": "[concat('imgT-Win10EntEvdO365-', parameters('Environment'), '-', parameters('Location'))]",
+            "name": "[concat('imgTemplate-Win10EntEvdO365-', parameters('Environment'), '-', parameters('Location'))]",
             "type": "Microsoft.VirtualMachineImages/imageTemplates",
             "apiVersion": "2020-02-14",
             "location": "[parameters('Location')]",
             "dependsOn": [
-                "[concat('sig-', parameters('Environment'), '-', parameters('Location'))]"
+                "[variables('Gallery')]",
+                "[variables('Image')]"
             ],
             "tags": {},
             "identity": {
@@ -64,13 +79,16 @@
                 "buildTimeoutInMinutes": 120,
                 "vmProfile": {
                     "vmSize": "Standard_D2_v2",
-                    "osDiskSizeGB": 127
+                    "osDiskSizeGB": 127,
+                    "vnetConfig": {
+                        "subnetId": "[resourceId(variables('SubnetRg'), 'Microsoft.Network/virtualNetworks/subnets', variables('Vnet'), variables('Subnet'))]"
+                    }
                 },
                 "source": {
                     "type": "PlatformImage",
                     "publisher": "MicrosoftWindowsDesktop",
-                    "offer": "windows-10",
-                    "sku": "20h1-ent",
+                    "offer": "office-365",
+                    "sku": "20h1-evd-o365pp",
                     "version": "latest"
                 },
                 "customize": [
@@ -79,7 +97,7 @@
                         "name": "installFsLogix",
                         "runElevated": true,
                         "runAsSystem": true,
-                        "scriptUri": ""
+                        "scriptUri": "https://raw.githubusercontent.com/jamasten/Azure/master/solutions/imageBuilder/0_installConfFsLogix.ps1"
                     },
                     {
                         "type": "WindowsRestart",
@@ -91,7 +109,7 @@
                         "name": "Install Teams",
                         "runElevated": true,
                         "runAsSystem": true,
-                        "scriptUri": ""
+                        "scriptUri": "https://raw.githubusercontent.com/jamasten/Azure/master/solutions/imageBuilder/2_installTeams.ps1"
                     },
                     {
                         "type": "WindowsRestart",
@@ -104,29 +122,24 @@
                         "filters": [
                             "exclude:$_.Title -like '*Preview*'",
                             "include:$true"
-                        ],
-                        "updateLimit": 40
+                        ]
                     }
 
                 ],
                 "distribute": [
                     {
                         "type": "SharedImage",
-                        "galleryImageId": "[resourceId('Microsoft.Compute/galleries/images', concat('sig_', parameters('Environment'), '_', parameters('Location')), 'Win10v20H2EvdO365')]",
-                        "runOutputName": "<runOutputName>",
-                        "artifactTags": {
-                            "source": "wvd10",
-                            "baseosimg": "windows10"
-                        },
+                        "galleryImageId": "[resourceId('Microsoft.Compute/galleries/images/versions', variables('Gallery'), 'Win10v20H2EvdO365', variables('Version'))]",
+                        "runOutputName": "[parameters('Timestamp')]",
+                        "artifactTags": {},
                         "replicationRegions": [
-                            "<region1>"
+                            "eastus"
 
-                        ]
+                        ],
+                        "storageAccountType": "Standard_LRS"
                     }
                 ]
             }
         }
-
-
     ]
 }

@@ -1,0 +1,132 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "Environment": {
+            "type": "string",
+            "defaultValue": "d"
+        },
+        "Location": {
+            "type": "string",
+            "defaultValue": "eastus"
+        }
+    },
+    "variables": {},
+    "resources": [
+        {
+            "name": "[concat('sig-', parameters('Environment'), '-', parameters('Location'))]",
+            "type": "Microsoft.Compute/galleries",
+            "apiVersion": "2019-03-01",
+            "location": "[parameters('Location')]",
+            "tags": {},
+            "properties": {
+                "description": "",
+                "identifier": {}
+            },
+            "resources": [
+                {
+                    "name": "Win10v20H2_Ent_Evd_O365",
+                    "type": "images",
+                    "apiVersion": "2019-03-01",
+                    "location": "[parameters('Location')]",
+                    "dependsOn": [
+                        "[concat('sig-', parameters('Environment'), '-', parameters('Location'))]"
+                    ],
+                    "tags": {},
+                    "properties": {
+                        "osType": "Windows",
+                        "osState": "Generalized",
+                        "identifier": {
+                            "publisher": "MicrosoftWindowsDesktop",
+                            "offer": "office-365",
+                            "sku": "20h1-evd-o365pp"
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "[concat('imgT-Win10EntEvdO365-', parameters('Environment'), '-', parameters('Location'))]",
+            "type": "Microsoft.VirtualMachineImages/imageTemplates",
+            "apiVersion": "2020-02-14",
+            "location": "[parameters('Location')]",
+            "dependsOn": [
+                "[concat('sig-', parameters('Environment'), '-', parameters('Location'))]"
+            ],
+            "tags": {},
+            "identity": {
+                "type": "UserAssigned",
+                "userAssignedIdentities": {
+                    "<imgBuilderId>": {}
+                }
+            },
+            "properties": {
+                "buildTimeoutInMinutes": 120,
+                "vmProfile": {
+                    "vmSize": "Standard_D2_v2",
+                    "osDiskSizeGB": 127
+                },
+                "source": {
+                    "type": "PlatformImage",
+                    "publisher": "MicrosoftWindowsDesktop",
+                    "offer": "windows-10",
+                    "sku": "20h1-ent",
+                    "version": "latest"
+                },
+                "customize": [
+                    {
+                        "type": "PowerShell",
+                        "name": "installFsLogix",
+                        "runElevated": true,
+                        "runAsSystem": true,
+                        "scriptUri": ""
+                    },
+                    {
+                        "type": "WindowsRestart",
+                        "restartCheckCommand": "write-host 'restarting post Optimizations'",
+                        "restartTimeout": "5m"
+                    },
+                    {
+                        "type": "PowerShell",
+                        "name": "Install Teams",
+                        "runElevated": true,
+                        "runAsSystem": true,
+                        "scriptUri": ""
+                    },
+                    {
+                        "type": "WindowsRestart",
+                        "restartCheckCommand": "write-host 'restarting post Teams Install'",
+                        "restartTimeout": "5m"
+                    },
+                    {
+                        "type": "WindowsUpdate",
+                        "searchCriteria": "IsInstalled=0",
+                        "filters": [
+                            "exclude:$_.Title -like '*Preview*'",
+                            "include:$true"
+                        ],
+                        "updateLimit": 40
+                    }
+
+                ],
+                "distribute": [
+                    {
+                        "type": "SharedImage",
+                        "galleryImageId": "[resourceId('Microsoft.Compute/galleries/images', concat('sig_', parameters('Environment'), '_', parameters('Location')), 'Win10v20H2EvdO365')]",
+                        "runOutputName": "<runOutputName>",
+                        "artifactTags": {
+                            "source": "wvd10",
+                            "baseosimg": "windows10"
+                        },
+                        "replicationRegions": [
+                            "<region1>"
+
+                        ]
+                    }
+                ]
+            }
+        }
+
+
+    ]
+}

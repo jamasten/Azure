@@ -3,23 +3,19 @@
     "contentVersion": "1.0.0.0",
     "parameters": {
         "Environment": {
-            "type": "string",
-            "defaultValue": "d"
+            "type": "string"
         },
         "Location": {
-            "type": "string",
-            "defaultValue": "eastus"
+            "type": "string"
+        },
+        "Role": {
+            "type": "string"
         },
         "Timestamp": {
-            "type": "string",
-            "metadata": {
-                "description": "The timestamp is used for the release value in the Image Version"
-            },
-            "defaultValue": "[utcNow('yyyyMMddhhmmss')]"
+            "type": "string"
         }
     },
     "variables": {
-        "Role": "306df715-4b7f-4724-b11a-7cb70804e3ce",
         "RgId": "[resourceGroup().id]",
         "Identity": "uami-imageBuilder",
         "Gallery": "[concat('sig_', parameters('Environment'), '_', parameters('Location'))]",
@@ -47,7 +43,7 @@
                 "[variables('Identity')]"
             ],
             "properties": {
-                "roleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', variables('Role'))]",
+                "roleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', parameters('Role'))]",
                 "principalId": "[reference(concat(variables('RgId'), '/providers/Microsoft.ManagedIdentity/userAssignedIdentities/uami-imageBuilder'), '2018-11-30', 'Full').properties.principalId]",
                 "scope": "[variables('RgId')]"
             }

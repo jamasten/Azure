@@ -19,6 +19,9 @@
         }
     },
     "variables": {
+        "Role": "306df715-4b7f-4724-b11a-7cb70804e3ce",
+        "RgId": "[resourceGroup().id]",
+        "Identity": "uami-imageBuilder",
         "Gallery": "[concat('sig_', parameters('Environment'), '_', parameters('Location'))]",
         "Image": "Win10v20H2_Ent_Evd_O365",
         "SubnetRg": "[concat('rg-network-', parameters('Environment'), '-', parameters('Location'))]",
@@ -27,6 +30,28 @@
         "Version": "[concat('1.0.', parameters('Timestamp'))]"
     },
     "resources": [
+        {
+            "comments": "---------- USER ASSIGNED MANAGED IDENTITY ----------",
+            "type": "Microsoft.ManagedIdentity/userAssignedIdentities",
+            "name": "[variables('Identity')]",
+            "apiVersion": "2018-11-30",
+            "location": "[parameters('Location')]",
+            "dependsOn": []
+        },
+        {
+            "comments": "---------- ROLE ASSIGNMENT > USER ASSIGNED MANAGED IDENTITY ----------",
+            "type": "Microsoft.Authorization/roleAssignments",
+            "apiVersion": "2017-09-01",
+            "name": "483faf2b-68d9-4b31-a890-b6394e949092",
+            "dependsOn": [
+                "[variables('Identity')]"
+            ],
+            "properties": {
+                "roleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', variables('Role'))]",
+                "principalId": "[reference(concat(variables('RgId'), '/providers/Microsoft.ManagedIdentity/userAssignedIdentities/uami-imageBuilder'), '2018-11-30', 'Full').properties.principalId]",
+                "scope": "[variables('RgId')]"
+            }
+        },
         {
             "name": "[variables('Gallery')]",
             "type": "Microsoft.Compute/galleries",
@@ -66,13 +91,14 @@
             "location": "[parameters('Location')]",
             "dependsOn": [
                 "[variables('Gallery')]",
-                "[variables('Image')]"
+                "[variables('Image')]",
+                "[variables('Identity')]"
             ],
             "tags": {},
             "identity": {
                 "type": "UserAssigned",
                 "userAssignedIdentities": {
-                    "<imgBuilderId>": {}
+                    "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('Identity'))]": {}
                 }
             },
             "properties": {
@@ -129,7 +155,8 @@
                 "distribute": [
                     {
                         "type": "SharedImage",
-                        "galleryImageId": "[resourceId('Microsoft.Compute/galleries/images/versions', variables('Gallery'), 'Win10v20H2EvdO365', variables('Version'))]",
+                        //"galleryImageId": "[concat(subscription().id, '/resourceGroups/rg-shared-d-eastus/providers/Microsoft.Compute/galleries/',variables('Gallery'),'/images/Win10v20H2EvdO365/versions/', variables('Version'))]",
+                        "galleryImageId": "/subscriptions/3764b123-4849-4395-8e6e-ca6d68d8d4b4/resourceGroups/rg-shared-d-eastus/providers/Microsoft.Compute/galleries/sig_d_eastus/images/Win10v20H2_Ent_Evd_O365",
                         "runOutputName": "[parameters('Timestamp')]",
                         "artifactTags": {},
                         "replicationRegions": [

@@ -179,7 +179,6 @@
                         "artifactTags": {},
                         "replicationRegions": [
                             "eastus"
-
                         ],
                         "storageAccountType": "Standard_LRS"
                     }

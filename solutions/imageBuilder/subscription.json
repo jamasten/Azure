@@ -73,7 +73,71 @@
         {
             "comments": "---------- LINKED DEPLOYMENT > SHARED ----------",
             "type": "Microsoft.Resources/deployments",
-            "name": "[parameters('Timestamp')]",
+            "name": "[concat('shared_', parameters('Timestamp'))]",
+            "apiVersion": "2019-10-01",
+            "tags": {},
+            "dependsOn": [
+                "[variables('RoleImg')]",
+                "[variables('RoleVnet')]"
+            ],
+            "resourceGroup": "[concat('rg-shared-', parameters('Environment'),'-', parameters('Location'))]",
+            "properties": {
+                "expressionEvaluationOptions": {
+                    "scope": "inner"
+                },
+                "mode": "Incremental",
+                "parameters": {
+                    "Environment": {
+                        "value": "[parameters('Environment')]"
+                    },
+                    "Location": {
+                        "value": "[parameters('Location')]"
+                    },
+                    "RoleImg": {
+                        "value": "[variables('RoleImg')]"
+                    },
+                    "RoleVnet": {
+                        "value": "[variables('RoleVnet')]"
+                    },
+                    "Timestamp": {
+                        "value": "[parameters('Timestamp')]"
+                    }
+                },
+                "templateLink": {
+                    "uri": "https://raw.githubusercontent.com/jamasten/Azure/master/solutions/imageBuilder/template.json"
+                }
+            }
+        }
+        {
+            "comments": "---------- LINKED DEPLOYMENT > NETWORK ----------",
+            "type": "Microsoft.Resources/deployments",
+            "name": "[concat('network_', parameters('Timestamp'))]",
+            "apiVersion": "2019-10-01",
+            "tags": {},
+            "dependsOn": [
+                "[variables('RoleImg')]",
+                "[variables('RoleVnet')]"
+            ],
+            "resourceGroup": "[concat('rg-network-', parameters('Environment'),'-', parameters('Location'))]",
+            "properties": {
+                "expressionEvaluationOptions": {
+                    "scope": "inner"
+                },
+                "mode": "Incremental",
+                "parameters": {
+                    "Role": {
+                        "value": "[variables('RoleVnet')]"
+                    }
+                },
+                "templateLink": {
+                    "uri": "https://raw.githubusercontent.com/jamasten/Azure/master/solutions/imageBuilder/template.json"
+                }
+            }
+        },
+        {
+            "comments": "---------- LINKED DEPLOYMENT > SHARED ----------",
+            "type": "Microsoft.Resources/deployments",
+            "name": "[concat('imageBuilder_', parameters('Timestamp'))]",
             "apiVersion": "2019-10-01",
             "tags": {},
             "dependsOn": [

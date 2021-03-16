@@ -8,7 +8,10 @@
         "Location": {
             "type": "string"
         },
-        "Role": {
+        "RoleImg": {
+            "type": "string"
+        },
+        "RoleVnet": {
             "type": "string"
         },
         "Timestamp": {
@@ -35,7 +38,7 @@
             "dependsOn": []
         },
         {
-            "comments": "---------- ROLE ASSIGNMENT > USER ASSIGNED MANAGED IDENTITY ----------",
+            "comments": "---------- ROLE ASSIGNMENT ----------",
             "type": "Microsoft.Authorization/roleAssignments",
             "apiVersion": "2017-09-01",
             "name": "483faf2b-68d9-4b31-a890-b6394e949092",
@@ -43,12 +46,27 @@
                 "[variables('Identity')]"
             ],
             "properties": {
-                "roleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', parameters('Role'))]",
+                "roleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', parameters('RoleImg'))]",
                 "principalId": "[reference(concat(variables('RgId'), '/providers/Microsoft.ManagedIdentity/userAssignedIdentities/uami-imageBuilder'), '2018-11-30', 'Full').properties.principalId]",
                 "scope": "[variables('RgId')]"
             }
         },
         {
+            "comments": "---------- ROLE ASSIGNMENT ----------",
+            "type": "Microsoft.Authorization/roleAssignments",
+            "apiVersion": "2017-09-01",
+            "name": "8f86a747-5ec8-48bc-86d0-d0915160e07d",
+            "dependsOn": [
+                "[variables('Identity')]"
+            ],
+            "properties": {
+                "roleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', parameters('RoleVnet'))]",
+                "principalId": "[reference(concat(variables('RgId'), '/providers/Microsoft.ManagedIdentity/userAssignedIdentities/uami-imageBuilder'), '2018-11-30', 'Full').properties.principalId]",
+                "scope": "[variables('SubnetRg')]"
+            }
+        },
+        {
+            "comments": "---------- SHARED IMAGE GALLERY ----------",
             "name": "[variables('Gallery')]",
             "type": "Microsoft.Compute/galleries",
             "apiVersion": "2019-03-01",
@@ -60,6 +78,7 @@
             },
             "resources": [
                 {
+                    "comments": "---------- IMAGE DEFINITION ----------",
                     "name": "[variables('Image')]",
                     "type": "images",
                     "apiVersion": "2019-03-01",
@@ -81,14 +100,17 @@
             ]
         },
         {
-            "name": "[concat('imgTemplate-Win10EntEvdO365-', parameters('Environment'), '-', parameters('Location'))]",
+            "comments": "---------- IMAGE BUILDER TEMPLATE ----------",
             "type": "Microsoft.VirtualMachineImages/imageTemplates",
+            "name": "[concat('imgTemplate-Win10EntEvdO365-', parameters('Environment'), '-', parameters('Location'))]",
             "apiVersion": "2020-02-14",
             "location": "[parameters('Location')]",
             "dependsOn": [
                 "[variables('Gallery')]",
                 "[variables('Image')]",
-                "[variables('Identity')]"
+                "[variables('Identity')]",
+                "483faf2b-68d9-4b31-a890-b6394e949092",
+                "8f86a747-5ec8-48bc-86d0-d0915160e07d"
             ],
             "tags": {},
             "identity": {

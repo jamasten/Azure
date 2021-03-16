@@ -16,17 +16,18 @@
         }
     },
     "variables": {
-        "Role": "306df715-4b7f-4724-b11a-7cb70804e3ce"
+        "RoleImg": "306df715-4b7f-4724-b11a-7cb70804e3ce",
+        "RoleVnet": "19af9265-b895-4f7b-b72b-28c8be79473a"
     },
     "resources": [
         {
-            "comments": "---------- ROLE DEFINITION ----------",
+            "comments": "---------- ROLE DEFINITION > IMAGE BUILDER ----------",
             "type": "Microsoft.Authorization/roleDefinitions",
-            "name": "[variables('Role')]",
+            "name": "[variables('RoleImg')]",
             "apiVersion": "2017-09-01",
             "properties": {
                 "roleName": "Image Contributor",
-                "description": "Allow the Image Builder service to create and manage images",
+                "description": "Allow the creation and management of images",
                 "permissions": [
                     {
                         "actions": [
@@ -36,8 +37,30 @@
                             "Microsoft.Compute/galleries/images/versions/write",
                             "Microsoft.Compute/images/read",
                             "Microsoft.Compute/images/write",
-                            "Microsoft.Compute/images/delete",
-                            "Microsoft.Network/virtualNetworks/read"
+                            "Microsoft.Compute/images/delete"
+                        ],
+                        "notActions": []
+                    }
+                ],
+                "assignableScopes": [
+                    "[subscription().id]"
+                ]
+            }
+        },
+        {
+            "comments": "---------- ROLE DEFINITION > VNET JOIN ----------",
+            "type": "Microsoft.Authorization/roleDefinitions",
+            "name": "[variables('RoleVnet')]",
+            "apiVersion": "2017-09-01",
+            "properties": {
+                "roleName": "VNET Join",
+                "description": "Allow resources to join a subnet",
+                "permissions": [
+                    {
+                        "actions": [
+                            "Microsoft.Network/virtualNetworks/read",
+                            "Microsoft.Network/virtualNetworks/subnets/read",
+                            "Microsoft.Network/virtualNetworks/subnets/join/action"
                         ],
                         "notActions": []
                     }
@@ -54,7 +77,8 @@
             "apiVersion": "2019-10-01",
             "tags": {},
             "dependsOn": [
-                "[variables('Role')]"
+                "[variables('RoleImg')]",
+                "[variables('RoleVnet')]"
             ],
             "resourceGroup": "[concat('rg-shared-', parameters('Environment'),'-', parameters('Location'))]",
             "properties": {
@@ -69,8 +93,11 @@
                     "Location": {
                         "value": "[parameters('Location')]"
                     },
-                    "Role": {
-                        "value": "[variables('Role')]"
+                    "RoleImg": {
+                        "value": "[variables('RoleImg')]"
+                    },
+                    "RoleVnet": {
+                        "value": "[variables('RoleVnet')]"
                     },
                     "Timestamp": {
                         "value": "[parameters('Timestamp')]"

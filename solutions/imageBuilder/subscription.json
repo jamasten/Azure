@@ -79,7 +79,7 @@
                     }
                 },
                 "templateLink": {
-                    "uri": "https://raw.githubusercontent.com/jamasten/Azure/master/subscription/templates/network.json"
+                    "uri": "https://raw.githubusercontent.com/jamasten/Azure/master/solutions/imageBuilder/template.json"
                 }
             }
         }

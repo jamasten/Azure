@@ -27,7 +27,6 @@
             "properties": {
                 "roleName": "Image Contributor",
                 "description": "Allow the Image Builder service to create and manage images",
-                "type": "Microsoft.Authorization/roleDefinitions",
                 "permissions": [
                     {
                         "actions": [
@@ -37,11 +36,10 @@
                             "Microsoft.Compute/galleries/images/versions/write",
                             "Microsoft.Compute/images/read",
                             "Microsoft.Compute/images/write",
-                            "Microsoft.Compute/images/delete"
+                            "Microsoft.Compute/images/delete",
+                            "Microsoft.Network/virtualNetworks/read"
                         ],
-                        "notActions": [],
-                        "dataActions": [],
-                        "notDataActions": []
+                        "notActions": []
                     }
                 ],
                 "assignableScopes": [

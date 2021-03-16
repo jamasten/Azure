@@ -1,0 +1,88 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "Environment": {
+            "type": "string",
+            "defaultValue": "d"
+        },
+        "Location": {
+            "type": "string",
+            "defaultValue": "eastus"
+        },
+        "Timestamp": {
+            "type": "string",
+            "defaultValue": "[utcNow('yyyyMMddhhmmss')]"
+        }
+    },
+    "variables": {
+        "Role": "306df715-4b7f-4724-b11a-7cb70804e3ce"
+    },
+    "resources": [
+        {
+            "comments": "---------- ROLE DEFINITION ----------",
+            "type": "Microsoft.Authorization/roleDefinitions",
+            "name": "[variables('Role')]",
+            "apiVersion": "2017-09-01",
+            "properties": {
+                "roleName": "Image Contributor",
+                "description": "Allow the Image Builder service to create and manage images",
+                "type": "Microsoft.Authorization/roleDefinitions",
+                "permissions": [
+                    {
+                        "actions": [
+                            "Microsoft.Compute/galleries/read",
+                            "Microsoft.Compute/galleries/images/read",
+                            "Microsoft.Compute/galleries/images/versions/read",
+                            "Microsoft.Compute/galleries/images/versions/write",
+                            "Microsoft.Compute/images/read",
+                            "Microsoft.Compute/images/write",
+                            "Microsoft.Compute/images/delete"
+                        ],
+                        "notActions": [],
+                        "dataActions": [],
+                        "notDataActions": []
+                    }
+                ],
+                "assignableScopes": [
+                    "[subscription().id]"
+                ]
+            }
+        },
+        {
+            "comments": "---------- LINKED DEPLOYMENT > SHARED ----------",
+            "type": "Microsoft.Resources/deployments",
+            "name": "[parameters('Timestamp')]",
+            "apiVersion": "2019-10-01",
+            "tags": {},
+            "dependsOn": [
+                "[variables('Role')]"
+            ],
+            "resourceGroup": "[concat('rg-shared-', parameters('Environment'),'-', parameters('Location'))]",
+            "properties": {
+                "expressionEvaluationOptions": {
+                    "scope": "inner"
+                },
+                "mode": "Incremental",
+                "parameters": {
+                    "Environment": {
+                        "value": "[parameters('Environment')]"
+                    },
+                    "Location": {
+                        "value": "[parameters('Location')]"
+                    },
+                    "Role": {
+                        "value": "[variables('Role')]"
+                    },
+                    "Timestamp": {
+                        "value": "[parameters('Timestamp')]"
+                    }
+                },
+                "templateLink": {
+                    "uri": "https://raw.githubusercontent.com/jamasten/Azure/master/subscription/templates/network.json"
+                }
+            }
+        }
+    ],
+    "outputs": {}
+}

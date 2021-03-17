@@ -2,11 +2,19 @@
     "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
+        "Environment": {
+            "type": "string"
+        },
+        "Identity": {
+            "type": "string"
+        },
+        "Location": {
+            "type": "string"
+        },
         "Role": {
             "type": "string"
         }
     },
-    "variables": {},
     "resources": [
         {
             "comments": "---------- ROLE ASSIGNMENT ----------",
@@ -16,7 +24,7 @@
             "dependsOn": [],
             "properties": {
                 "roleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', parameters('Role'))]",
-                "principalId": "[reference(concat(variables('RgId'), '/providers/Microsoft.ManagedIdentity/userAssignedIdentities/uami-imageBuilder'), '2018-11-30', 'Full').properties.principalId]",
+                "principalId": "[reference(concat(subscription().id, '/resourceGroups/rg-shared-', parameters('Environment'), '-', parameters('Location'),'/providers/Microsoft.ManagedIdentity/userAssignedIdentities/', parameters('Identity')), '2018-11-30', 'Full').properties.principalId]",
                 "scope": "[resourceGroup().id]"
             }
         }

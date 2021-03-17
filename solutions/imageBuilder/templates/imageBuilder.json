@@ -5,13 +5,10 @@
         "Environment": {
             "type": "string"
         },
+        "Identity": {
+            "type": "string"
+        },
         "Location": {
-            "type": "string"
-        },
-        "RoleImg": {
-            "type": "string"
-        },
-        "RoleVnet": {
             "type": "string"
         },
         "Timestamp": {
@@ -19,8 +16,7 @@
         }
     },
     "variables": {
-        "RgId": "[resourceGroup().id]",
-        "Identity": "uami-imageBuilder",
+        
         "Gallery": "[concat('sig_', parameters('Environment'), '_', parameters('Location'))]",
         "Image": "Win10v20H2_Ent_Evd_O365",
         "SubnetRg": "[concat('rg-network-', parameters('Environment'), '-', parameters('Location'))]",
@@ -29,42 +25,6 @@
         "Version": "[concat('1.0.', parameters('Timestamp'))]"
     },
     "resources": [
-        {
-            "comments": "---------- USER ASSIGNED MANAGED IDENTITY ----------",
-            "type": "Microsoft.ManagedIdentity/userAssignedIdentities",
-            "name": "[variables('Identity')]",
-            "apiVersion": "2018-11-30",
-            "location": "[parameters('Location')]",
-            "dependsOn": []
-        },
-        {
-            "comments": "---------- ROLE ASSIGNMENT ----------",
-            "type": "Microsoft.Authorization/roleAssignments",
-            "apiVersion": "2017-09-01",
-            "name": "483faf2b-68d9-4b31-a890-b6394e949092",
-            "dependsOn": [
-                "[variables('Identity')]"
-            ],
-            "properties": {
-                "roleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', parameters('RoleImg'))]",
-                "principalId": "[reference(concat(variables('RgId'), '/providers/Microsoft.ManagedIdentity/userAssignedIdentities/uami-imageBuilder'), '2018-11-30', 'Full').properties.principalId]",
-                "scope": "[variables('RgId')]"
-            }
-        },
-        {
-            "comments": "---------- ROLE ASSIGNMENT ----------",
-            "type": "Microsoft.Authorization/roleAssignments",
-            "apiVersion": "2017-09-01",
-            "name": "8f86a747-5ec8-48bc-86d0-d0915160e07d",
-            "dependsOn": [
-                "[variables('Identity')]"
-            ],
-            "properties": {
-                "roleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', parameters('RoleVnet'))]",
-                "principalId": "[reference(concat(variables('RgId'), '/providers/Microsoft.ManagedIdentity/userAssignedIdentities/uami-imageBuilder'), '2018-11-30', 'Full').properties.principalId]",
-                "scope": "[variables('SubnetRg')]"
-            }
-        },
         {
             "comments": "---------- SHARED IMAGE GALLERY ----------",
             "name": "[variables('Gallery')]",
@@ -107,16 +67,13 @@
             "location": "[parameters('Location')]",
             "dependsOn": [
                 "[variables('Gallery')]",
-                "[variables('Image')]",
-                "[variables('Identity')]",
-                "483faf2b-68d9-4b31-a890-b6394e949092",
-                "8f86a747-5ec8-48bc-86d0-d0915160e07d"
+                "[variables('Image')]"
             ],
             "tags": {},
             "identity": {
                 "type": "UserAssigned",
                 "userAssignedIdentities": {
-                    "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('Identity'))]": {}
+                    "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', parameters('Identity'))]": {}
                 }
             },
             "properties": {
@@ -141,7 +98,7 @@
                         "name": "installFsLogix",
                         "runElevated": true,
                         "runAsSystem": true,
-                        "scriptUri": "https://raw.githubusercontent.com/jamasten/Azure/master/solutions/imageBuilder/0_installConfFsLogix.ps1"
+                        "scriptUri": "https://raw.githubusercontent.com/jamasten/Azure/master/solutions/imageBuilder/scripts/0_installConfFsLogix.ps1"
                     },
                     {
                         "type": "WindowsRestart",
@@ -153,7 +110,7 @@
                         "name": "Install Teams",
                         "runElevated": true,
                         "runAsSystem": true,
-                        "scriptUri": "https://raw.githubusercontent.com/jamasten/Azure/master/solutions/imageBuilder/2_installTeams.ps1"
+                        "scriptUri": "https://raw.githubusercontent.com/jamasten/Azure/master/solutions/imageBuilder/scripts/2_installTeams.ps1"
                     },
                     {
                         "type": "WindowsRestart",

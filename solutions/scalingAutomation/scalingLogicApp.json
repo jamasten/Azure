@@ -1,0 +1,203 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "automationConnectionName": {
+            "type": "string",
+            "metadata": {
+                "description": "Name of the Azure Automation Run As account"
+            },
+            "defaultValue": "AzureRunAsConnection"
+        },
+        "automationAccountName": {
+            "type": "String",
+            "metadata": {
+                "description": "The name of the automation account"
+            },
+            "defaultValue": "WVDAutoScaleAutomationAccount"
+        },
+        "beginPeakTime": {
+            "type": "string",
+            "metadata": {
+                "description": "Time when session hosts will scale up and continue to stay on to support peak demand; Format 24 hours, e.g. 9:00 for 9am"
+            },
+            "defaultValue": "09:00"
+        },
+        "cloudEnvironment": {
+            "type": "string",
+            "metadata": {
+                "description": "The Azure Cloud that will host this solution"
+            },
+            "allowedValues": [
+                "AzureChinaCloud",
+                "AzureCloud",
+                "AzureGermanCloud",
+                "AzureUSGovernment"
+            ]
+        },
+        "endPeakTime": {
+            "type": "string",
+            "metadata": {
+                "description": "Time when session hosts will scale down and stay off to support low demand; Format 24 hours, e.g. 17:00 for 5pm"
+            },
+            "defaultValue": "17:00"
+        },
+        "hostPoolName": {
+            "type": "string",
+            "metadata": {
+                "description": "Name of the WVD host pool to target for scaling"
+            }
+        },
+        "hostPoolResourceGroupName": {
+            "type": "string",
+            "metadata": {
+                "description": "Name of the resource group for the WVD host pool to target for scaling"
+            }
+        },
+        "limitSecondsToForceLogOffUser": {
+            "type": "string",
+            "metadata": {
+                "description": "The number of seconds to wait before automatically signing out users. If set to 0, any session host that has user sessions will be left untouched"
+            },
+            "defaultValue": "1"
+        },
+        "location": {
+            "type": "String",
+            "defaultValue": "[resourceGroup().location]",
+            "metadata": {
+                "description": "Location for all resources"
+            }
+        },
+        "logAnalyticsWorkspaceId": {
+            "type": "string",
+            "metadata": {
+                "description": "Log Analytics Workspace ID for sending log data"
+            }
+        },
+        "LogAnalyticsPrimaryKey": {
+            "type": "string",
+            "metadata": {
+                "description": "Log Analytics Primary Key for sending log data"
+            }
+        },
+        "logicAppName": {
+            "type": "string",
+            "metadata": {
+                "description": "The name of the logic app"
+            }
+        },
+        "logOffTitle": {
+            "type": "string",
+            "metadata": {
+                "description": "The title of the message sent to the user before they are forced to sign out"
+            }
+        },
+        "logOffMessage": {
+            "type": "string",
+            "metadata": {
+                "description": "The body of the message sent to the user before they are forced to sign out"
+            }
+        },
+        "maintenanceTagName": {
+            "type": "string",
+            "metadata": {
+                "description": "The name of the Tag associated with VMs you don't want to be managed by this scaling tool"
+            }
+        },
+        "minimumNumberOfRdsh": {
+            "type": "string",
+            "metadata": {
+                "description": "The minimum number of session host VMs to keep running during off-peak hours"
+            },
+            "defaultValue": "1"
+        },
+        "recurrenceInterval": {
+            "type": "int",
+            "defaultValue": 15,
+            "metadata": {
+                "description": "Specifies the recurrence interval of the job in minutes"
+            }
+        },
+        "sessionThresholdPerCPU": {
+            "type": "string",
+            "metadata": {
+                "description": "The maximum number of sessions per CPU that will be used as a threshold to determine when new session host VMs need to be started during peak hours"
+            },
+            "defaultValue": "1"
+        },
+        "timeDifference": {
+            "type": "string",
+            "metadata": {
+                "description": "Time zone off set for host pool location; Format 24 hours, e.g. -4:00 for Eastern Daylight Time"
+            },
+            "defaultValue": "-7:00"
+        },
+        "version": {
+            "type": "string",
+            "metadata": {
+                "description": "Determines if the solution will scale a Classic or ARM version of a WVD host pool"
+            },
+            "allowedValues": [
+                "Classic",
+                "ARM"
+            ]
+        }
+    },
+    "variables": {
+        "actionSettingsBody": {
+            "LogAnalyticsWorkspaceId": "[parameters('logAnalyticsWorkspaceId')]",
+            "LogAnalyticsPrimaryKey": "[parameters('LogAnalyticsPrimaryKey')]",
+            "ConnectionAssetName": "[parameters('automationConnectionName')]",
+            "AADTenantId": "[subscription().tenantId]",
+            "SubscriptionId": "[subscription().subscriptionId]",
+            "EnvironmentName": "[parameters('cloudEnvironment')]",     
+            "UseARMAPI": "[if(equals(parameters('version'), 'ARM'), 'true', 'false')]",
+            "ResourceGroupName": "[parameters('hostPoolResourceGroupName')]",
+            "HostPoolName": "[parameters('hostPoolName')]",
+            "MaintenanceTagName": "[parameters('maintenanceTagName')]",
+            "TimeDifference": "[parameters('timeDifference')]",
+            "BeginPeakTime": "[parameters('beginPeakTime')]",
+            "EndPeakTime": "[parameters('endPeakTime')]",
+            "SessionThresholdPerCPU": "[parameters('sessionThresholdPerCPU')]",
+            "MinimumNumberOfRDSH": "[parameters('minimumNumberOfRdsh')]",
+            "LimitSecondsToForceLogOffUser": "[parameters('limitSecondsToForceLogOffUser')]",
+            "LogOffMessageTitle": "[parameters('logOffTitle')]",
+            "LogOffMessageBody": "[parameters('logOffMessage')]"
+        },
+        "automationVariable": "[if(equals(parameters('version'), 'Classic'), 'WebhookURI', 'WebhookURIARMBased')]"
+    },
+    "resources": [
+        {
+            "comments": "---------- LOGIC APP ----------",
+            "type": "Microsoft.Logic/workflows",
+            "apiVersion": "2016-06-01",
+            "name": "[parameters('logicAppName')]",
+            "location": "[parameters('location')]",
+            "properties": {
+                "state": "Enabled",
+                "definition": {
+                    "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+                    "actions": {
+                        "HTTP": {
+                            "type": "Http",
+                            "inputs": {
+                                "method": "POST",
+                                "uri": "[reference(resourceId('Microsoft.Automation/automationAccounts/variables', parameters('automationAccountName'), variables('automationVariable')))]",
+                                "body": "[variables('actionSettingsBody')]"
+                            }
+                        }
+                    },
+                    "triggers": {
+                        "Recurrence": {
+                            "type": "Recurrence",
+                            "recurrence": {
+                                "frequency": "Minute",
+                                "interval": "[parameters('recurrenceInterval')]"
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    ]
+}

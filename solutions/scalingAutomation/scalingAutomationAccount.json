@@ -1,0 +1,151 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "automationAccountName": {
+            "type": "String",
+            "metadata": {
+                "description": "The name of the automation account"
+            },
+            "defaultValue": "WVDAutoScaleAutomationAccount"
+        },
+        "location": {
+            "type": "String",
+            "defaultValue": "[resourceGroup().location]",
+            "metadata": {
+                "description": "Location for all resources"
+            }
+        },
+        "timestamp": {
+            "type": "string",
+            "defaultValue": "[utcNow('u')]"
+        },
+        "version": {
+            "type": "string",
+            "metadata": {
+                "description": "Determines if the solution will scale a Classic or ARM version of a WVD host pool"
+            },
+            "allowedValues": [
+                "Classic",
+                "ARM"
+            ]
+        }
+    },
+    "variables": {
+        "automationVariable": "[if(equals(parameters('version'), 'Classic'), 'WebhookURI', 'WebhookURIARMBased')]",
+        "modules": [
+            {
+                "name": "Az.Accounts",
+                "uri": ""
+            },
+            {
+                "name": "Az.Compute",
+                "uri": ""
+            },
+            {
+                "name": "Az.Resources",
+                "uri": ""
+            },
+            {
+                "name": "Az.Automation",
+                "uri": ""
+            },
+            {
+                "name": "OMSIngestionAPI",
+                "uri": ""
+            },
+            {
+                "name": "Microsoft.RDInfra.RDPowershell",
+                "uri": ""
+            }
+        ],
+        "runbook": "[if(equals(parameters('version'), 'Classic'), 'WVDAutoScaleRunbook', 'WVDAutoScaleRunbookARMBased')]",
+        "runbookScript": "[if(equals(parameters('version'), 'Classic'), 'basicScaleClassic.ps1', 'basicScaleArm.ps1')]",
+        "runbookUri": "[concat('https://raw.githubusercontent.com/Azure/RDS-Templates/master/wvd-templates/wvd-scaling-script/scripts/', variables('runbookScript'))]",
+        "webhook": "[if(equals(parameters('version'), 'Classic'), 'WVDAutoScaleWebhook', 'WVDAutoScaleWebhookARMBased')]"
+    },
+    "resources": [
+        {
+            "comments": "---------- AUTOMATION ACCOUNT ----------",
+            "type": "Microsoft.Automation/automationAccounts",
+            "name": "[parameters('automationAccountName')]",
+            "apiVersion": "2015-10-31",
+            "location": "[parameters('location')]",
+            "properties": {
+                "sku": {
+                    "name": "Free"
+                }
+            }
+        },
+        {
+            "comments": "---------- AUTOMATION ACCOUNT > MODULES ----------",
+            "type": "Microsoft.Automation/automationAccounts/modules",
+            "apiVersion": "2015-10-31",
+            "name": "[concat(parameters('automationAccountName'), '/', variables('modules')[copyIndex()].name)]",
+            "location": "[parameters('location')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccountName'))]"
+            ],
+            "copy": {
+                "name": "modulesLoop",
+                "count": "[length(variables('modules'))]"
+            },
+            "properties": {
+                "contentLink": {
+                    "uri": "[variables('modules')[copyIndex()].uri]"
+                }
+            }
+        },
+        {
+            "comments": "---------- AUTOMATION ACCOUNT > RUNBOOK ----------",
+            "type": "Microsoft.Automation/automationAccounts/runbooks",
+            "name": "[concat(parameters('automationAccountName'), '/', variables('runbook'))]",
+            "apiVersion": "2015-10-31",
+            "location": "[parameters('location')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccountName'))]"
+            ],
+            "properties": {
+                "runbookType": "PowerShell",
+                "logProgress": false,
+                "logVerbose": false,
+                "publishContentLink": {
+                    "uri": "[variables('runbookUri')]",
+                    "version": "1.0.0.0"
+                }
+            }
+        },
+        {
+            "comments": "---------- AUTOMATION ACCOUNT > WEBHOOK ----------",
+            "type": "Microsoft.Automation/automationAccounts/webhooks",
+            "name": "[concat(parameters('automationAccountName'), '/', variables('webhook'))]",
+            "apiVersion": "2015-10-31",
+            "location": "[parameters('location')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccountName'))]",
+                "[resourceId('Microsoft.Automation/automationAccounts/runbooks', parameters('automationAccountName'), variables('runbook'))]"
+            ],
+            "properties": {
+                "isEnabled": true,
+                "expiryTime": "[dateTimeAdd(parameters('timestamp'), 'P5Y')]",
+                "runbook": {
+                    "name": "[variables('runbook')]"
+                }
+            }
+        },
+        {
+            "comments": "---------- AUTOMATION ACCOUNT > VARIABLE ----------",
+            "type": "Microsoft.Automation/automationAccounts/variables",
+            "name": "[variables('automationVariable')]",
+            "apiVersion": "2015-10-31",
+            "location": "[parameters('location')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccountName'))]"
+            ],
+            "properties": {
+                "value": "[reference(variables('webhook')).uri]",
+                "isEncrypted": false
+            }
+        }
+    ]
+}

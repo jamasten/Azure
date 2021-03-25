@@ -170,7 +170,7 @@
             }
         },
         {
-            "condition": "[not(equals(parameters('WorkspaceName'), ''))]",
+            "condition": "[not(empty(parameters('WorkspaceName')))]",
             "scope": "[concat('Microsoft.Automation/automationAccounts/', parameters('AutomationAccountName'))]",
             "type": "Microsoft.Insights/diagnosticsettings",
             "name": "diag-WVD-scaling-automation",

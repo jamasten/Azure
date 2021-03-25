@@ -61,7 +61,8 @@
         ],
         "runbook": "[if(equals(parameters('version'), 'Classic'), 'WVDAutoScaleRunbook', 'WVDAutoScaleRunbookARMBased')]",
         "runbookScript": "[if(equals(parameters('version'), 'Classic'), 'basicScaleClassic.ps1', 'basicScaleArm.ps1')]",
-        "runbookUri": "[concat('https://raw.githubusercontent.com/Azure/RDS-Templates/master/wvd-templates/wvd-scaling-script/scripts/', variables('runbookScript'))]",
+        "runbookUri": "[concat('https://raw.githubusercontent.com/jamasten/Azure/master/solutions/scalingAutomation/scripts/', variables('runbookScript'))]",
+        //"runbookUri": "[concat('https://raw.githubusercontent.com/Azure/RDS-Templates/master/wvd-templates/wvd-scaling-script/scripts/', variables('runbookScript'))]",
         "webhook": "[if(equals(parameters('version'), 'Classic'), 'WVDAutoScaleWebhook', 'WVDAutoScaleWebhookARMBased')]"
     },
     "resources": [
@@ -88,7 +89,8 @@
             ],
             "copy": {
                 "name": "modulesLoop",
-                "count": "[length(variables('modules'))]"
+                "count": "[length(variables('modules'))]",
+                "mode": "Serial"
             },
             "properties": {
                 "contentLink": {
@@ -136,14 +138,16 @@
         {
             "comments": "---------- AUTOMATION ACCOUNT > VARIABLE ----------",
             "type": "Microsoft.Automation/automationAccounts/variables",
-            "name": "[variables('automationVariable')]",
+            "name": "[concat(parameters('automationAccountName'), '/', variables('automationVariable'))]",
             "apiVersion": "2015-10-31",
             "location": "[parameters('location')]",
             "dependsOn": [
-                "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccountName'))]"
+                "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccountName'))]",
+                "[resourceId('Microsoft.Automation/automationAccounts/runbooks', parameters('automationAccountName'), variables('runbook'))]",
+                "[resourceId('Microsoft.Automation/automationAccounts/webhooks', parameters('automationAccountName'), variables('webhook'))]"
             ],
             "properties": {
-                "value": "[reference(variables('webhook')).uri]",
+                "value": "[concat('\"', reference(variables('webhook')).uri, '\"')]",
                 "isEncrypted": false
             }
         }

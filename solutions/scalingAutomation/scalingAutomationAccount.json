@@ -36,27 +36,27 @@
         "modules": [
             {
                 "name": "Az.Accounts",
-                "uri": ""
+                "uri": "https://www.powershellgallery.com/api/v2/package/Az.Accounts"
             },
             {
                 "name": "Az.Compute",
-                "uri": ""
+                "uri": "https://www.powershellgallery.com/api/v2/package/Az.Compute"
             },
             {
                 "name": "Az.Resources",
-                "uri": ""
+                "uri": "https://www.powershellgallery.com/api/v2/package/Az.Resources"
             },
             {
                 "name": "Az.Automation",
-                "uri": ""
+                "uri": "https://www.powershellgallery.com/api/v2/package/Az.Automation"
             },
             {
                 "name": "OMSIngestionAPI",
-                "uri": ""
+                "uri": "https://www.powershellgallery.com/api/v2/package/OMSIngestionAPI"
             },
             {
                 "name": "Microsoft.RDInfra.RDPowershell",
-                "uri": ""
+                "uri": "https://www.powershellgallery.com/api/v2/package/Microsoft.RDInfra.RDPowershell"
             }
         ],
         "runbook": "[if(equals(parameters('version'), 'Classic'), 'WVDAutoScaleRunbook', 'WVDAutoScaleRunbookARMBased')]",

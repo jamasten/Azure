@@ -2,133 +2,156 @@
     "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
-        "automationConnectionName": {
+        "AutomationConnectionName": {
             "type": "string",
             "metadata": {
                 "description": "Name of the Azure Automation Run As account"
             },
             "defaultValue": "AzureRunAsConnection"
         },
-        "automationAccountName": {
+        "AutomationAccountName": {
             "type": "String",
             "metadata": {
                 "description": "Name of the automation account"
             },
             "defaultValue": "WVDAutoScaleAutomationAccount"
         },
-        "automationAccountResourceGroupName": {
+        "AutomationAccountResourceGroupName": {
             "type": "string",
             "metadata": {
                 "description": "Name of the resource group for the automation account"
             }
         },
-        "beginPeakTime": {
+        "BeginPeakTime": {
             "type": "string",
             "metadata": {
                 "description": "Time when session hosts will scale up and continue to stay on to support peak demand; Format 24 hours, e.g. 9:00 for 9am"
             },
             "defaultValue": "09:00"
         },
-        "endPeakTime": {
+        "ClassicBrokerUrl": {
+            "type": "string",
+            "metadata": {
+                "description": "Broker URL for a Classic WVD deployment"
+            },
+            "defaultValue": "https://rdbroker.wvd.microsoft.com"
+        },
+        "ClassicTenantGroupName": {
+            "type": "string",
+            "metadata": {
+                "description": "Tenant Group Name for a Classic WVD deployment"
+            },
+            "defaultValue": "Default Tenant Group"
+        },
+        "ClassicTenantName": {
+            "type": "string",
+            "metadata": {
+                "description": "Tenant Name for a Classic WVD deployment"
+            },
+            "defaultValue": ""
+        },
+        "EndPeakTime": {
             "type": "string",
             "metadata": {
                 "description": "Time when session hosts will scale down and stay off to support low demand; Format 24 hours, e.g. 17:00 for 5pm"
             },
             "defaultValue": "17:00"
         },
-        "hostPoolName": {
+        "HostPoolName": {
             "type": "string",
             "metadata": {
                 "description": "Name of the WVD host pool to target for scaling"
             }
         },
-        "hostPoolResourceGroupName": {
+        "HostPoolResourceGroupName": {
             "type": "string",
             "metadata": {
                 "description": "Name of the resource group for the WVD host pool to target for scaling"
             }
         },
-        "limitSecondsToForceLogOffUser": {
+        "LimitSecondsToForceLogOffUser": {
             "type": "string",
             "metadata": {
                 "description": "The number of seconds to wait before automatically signing out users. If set to 0, any session host that has user sessions will be left untouched"
             },
             "defaultValue": "1"
         },
-        "location": {
+        "Location": {
             "type": "String",
             "metadata": {
                 "description": "Location for all resources"
             },
             "defaultValue": "[resourceGroup().location]"
         },
-        "logAnalyticsWorkspaceId": {
+        "LogAnalyticsWorkspaceId": {
             "type": "string",
             "metadata": {
                 "description": "Log Analytics Workspace ID for sending log data"
             },
             "defaultValue": ""
         },
-        "logAnalyticsPrimaryKey": {
+        "LogAnalyticsPrimaryKey": {
             "type": "string",
             "metadata": {
                 "description": "Log Analytics Primary Key for sending log data"
             },
             "defaultValue": ""
         },
-        "logicAppName": {
+        "LogicAppName": {
             "type": "string",
             "metadata": {
                 "description": "The name of the logic app"
             }
         },
-        "logOffTitle": {
+        "LogOffTitle": {
             "type": "string",
             "metadata": {
                 "description": "The title of the message sent to the user before they are forced to sign out"
-            }
+            },
+            "defaultValue": "Machine is about to shutdown."
         },
-        "logOffMessage": {
+        "LogOffMessage": {
             "type": "string",
             "metadata": {
                 "description": "The body of the message sent to the user before they are forced to sign out"
-            }
+            },
+            "defaultValue": "Your session will be logged off. Please save and close everything."
         },
-        "maintenanceTagName": {
+        "MaintenanceTagName": {
             "type": "string",
             "metadata": {
                 "description": "The name of the Tag associated with VMs you don't want to be managed by this scaling tool"
             }
         },
-        "minimumNumberOfRdsh": {
+        "MinimumNumberOfRdsh": {
             "type": "string",
             "metadata": {
                 "description": "The minimum number of session host VMs to keep running during off-peak hours"
             },
             "defaultValue": "1"
         },
-        "recurrenceInterval": {
+        "RecurrenceInterval": {
             "type": "int",
             "defaultValue": 15,
             "metadata": {
                 "description": "Specifies the recurrence interval of the job in minutes"
             }
         },
-        "sessionThresholdPerCPU": {
+        "SessionThresholdPerCPU": {
             "type": "string",
             "metadata": {
                 "description": "The maximum number of sessions per CPU that will be used as a threshold to determine when new session host VMs need to be started during peak hours"
             },
             "defaultValue": "1"
         },
-        "timeDifference": {
+        "TimeDifference": {
             "type": "string",
             "metadata": {
                 "description": "Time zone off set for host pool location; Format 24 hours, e.g. -4:00 for Eastern Daylight Time"
             },
             "defaultValue": "-7:00"
         },
-        "version": {
+        "Version": {
             "type": "string",
             "metadata": {
                 "description": "Determines if the solution will scale a Classic or ARM version of a WVD host pool"
@@ -140,35 +163,41 @@
         }
     },
     "variables": {
-        "actionSettingsBody": {
-            "LogAnalyticsWorkspaceId": "[parameters('logAnalyticsWorkspaceId')]",
+        "ActionSettingsBody": {
+            "LogAnalyticsWorkspaceId": "[parameters('LogAnalyticsWorkspaceId')]",
             "LogAnalyticsPrimaryKey": "[parameters('LogAnalyticsPrimaryKey')]",
-            "ConnectionAssetName": "[parameters('automationConnectionName')]",
+            "ConnectionAssetName": "[parameters('AutomationConnectionName')]",
             "AADTenantId": "[subscription().tenantId]",
             "SubscriptionId": "[subscription().subscriptionId]",
             "EnvironmentName": "[environment().name]",     
-            "UseARMAPI": "[if(equals(parameters('version'), 'ARM'), 'true', 'false')]",
-            "ResourceGroupName": "[parameters('hostPoolResourceGroupName')]",
-            "HostPoolName": "[parameters('hostPoolName')]",
-            "MaintenanceTagName": "[parameters('maintenanceTagName')]",
-            "TimeDifference": "[parameters('timeDifference')]",
-            "BeginPeakTime": "[parameters('beginPeakTime')]",
-            "EndPeakTime": "[parameters('endPeakTime')]",
-            "SessionThresholdPerCPU": "[parameters('sessionThresholdPerCPU')]",
-            "MinimumNumberOfRDSH": "[parameters('minimumNumberOfRdsh')]",
-            "LimitSecondsToForceLogOffUser": "[parameters('limitSecondsToForceLogOffUser')]",
-            "LogOffMessageTitle": "[parameters('logOffTitle')]",
-            "LogOffMessageBody": "[parameters('logOffMessage')]"
+            "UseARMAPI": "[if(equals(parameters('Version'), 'ARM'), 'true', 'false')]",
+            "ResourceGroupName": "[parameters('HostPoolResourceGroupName')]",
+            "HostPoolName": "[parameters('HostPoolName')]",
+            "MaintenanceTagName": "[parameters('MaintenanceTagName')]",
+            "TimeDifference": "[parameters('TimeDifference')]",
+            "BeginPeakTime": "[parameters('BeginPeakTime')]",
+            "EndPeakTime": "[parameters('EndPeakTime')]",
+            "SessionThresholdPerCPU": "[parameters('SessionThresholdPerCPU')]",
+            "MinimumNumberOfRDSH": "[parameters('MinimumNumberOfRdsh')]",
+            "LimitSecondsToForceLogOffUser": "[parameters('LimitSecondsToForceLogOffUser')]",
+            "LogOffMessageTitle": "[parameters('LogOffTitle')]",
+            "LogOffMessageBody": "[parameters('LogOffMessage')]"
         },
-        "automationVariable": "[if(equals(parameters('version'), 'Classic'), 'WebhookURI', 'WebhookURIARMBased')]"
+        "AutomationVariable": "[if(equals(parameters('Version'), 'Classic'), 'WebhookURI', 'WebhookURIARMBased')]",
+        "ClassicSettings": {
+            "RDBrokerURL": "[parameters('ClassicBrokerUrl')]",
+	        "TenantGroupName": "[parameters('ClassicTenantGroupName')]",
+	        "TenantName": "[parameters('ClassicTenantName')]"
+        },
+        "classicSettingsBody": "[union(variables('ActionSettingsBody'), variables('ClassicSettings'))]"
     },
     "resources": [
         {
             "comments": "---------- LOGIC APP ----------",
             "type": "Microsoft.Logic/workflows",
             "apiVersion": "2016-06-01",
-            "name": "[parameters('logicAppName')]",
-            "location": "[parameters('location')]",
+            "name": "[parameters('LogicAppName')]",
+            "location": "[parameters('Location')]",
             "properties": {
                 "state": "Enabled",
                 "definition": {
@@ -178,8 +207,8 @@
                             "type": "Http",
                             "inputs": {
                                 "method": "POST",
-                                "uri": "[replace(reference(resourceId(parameters('automationAccountResourceGroupName'), 'Microsoft.Automation/automationAccounts/variables', parameters('automationAccountName'), variables('automationVariable')), '2015-10-31', 'Full').properties.value, '\"', '')]",
-                                "body": "[variables('actionSettingsBody')]"
+                                "uri": "[replace(reference(resourceId(parameters('AutomationAccountResourceGroupName'), 'Microsoft.Automation/automationAccounts/variables', parameters('AutomationAccountName'), variables('AutomationVariable')), '2015-10-31', 'Full').properties.value, '\"', '')]",
+                                "body": "[if(equals(parameters('Version'), 'Classic'), variables('ClassicSettingsBody'), variables('ActionSettingsBody'))]"
                             }
                         }
                     },
@@ -188,7 +217,7 @@
                             "type": "Recurrence",
                             "recurrence": {
                                 "frequency": "Minute",
-                                "interval": "[parameters('recurrenceInterval')]"
+                                "interval": "[parameters('RecurrenceInterval')]"
                             }
                         }
                     }

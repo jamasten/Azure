@@ -12,9 +12,15 @@
         "automationAccountName": {
             "type": "String",
             "metadata": {
-                "description": "The name of the automation account"
+                "description": "Name of the automation account"
             },
             "defaultValue": "WVDAutoScaleAutomationAccount"
+        },
+        "automationAccountResourceGroupName": {
+            "type": "string",
+            "metadata": {
+                "description": "Name of the resource group for the automation account"
+            }
         },
         "beginPeakTime": {
             "type": "string",
@@ -51,22 +57,24 @@
         },
         "location": {
             "type": "String",
-            "defaultValue": "[resourceGroup().location]",
             "metadata": {
                 "description": "Location for all resources"
-            }
+            },
+            "defaultValue": "[resourceGroup().location]"
         },
         "logAnalyticsWorkspaceId": {
             "type": "string",
             "metadata": {
                 "description": "Log Analytics Workspace ID for sending log data"
-            }
+            },
+            "defaultValue": ""
         },
-        "LogAnalyticsPrimaryKey": {
+        "logAnalyticsPrimaryKey": {
             "type": "string",
             "metadata": {
                 "description": "Log Analytics Primary Key for sending log data"
-            }
+            },
+            "defaultValue": ""
         },
         "logicAppName": {
             "type": "string",
@@ -170,7 +178,7 @@
                             "type": "Http",
                             "inputs": {
                                 "method": "POST",
-                                "uri": "[reference(resourceId('Microsoft.Automation/automationAccounts/variables', parameters('automationAccountName'), variables('automationVariable')))]",
+                                "uri": "[replace(reference(resourceId(parameters('automationAccountResourceGroupName'), 'Microsoft.Automation/automationAccounts/variables', parameters('automationAccountName'), variables('automationVariable')), '2015-10-31', 'Full').properties.value, '\"', '')]",
                                 "body": "[variables('actionSettingsBody')]"
                             }
                         }

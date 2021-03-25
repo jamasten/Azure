@@ -78,7 +78,7 @@
             }
         ],
         "Runbook": "[if(equals(parameters('Version'), 'Classic'), 'WVDAutoScaleRunbook', 'WVDAutoScaleRunbookARMBased')]",
-        "RunbookScript": "[if(equals(parameters('Version'), 'Classic'), 'basicScaleClassic.ps1', 'basicScaleArm.ps1')]",
+        "RunbookScript": "[if(equals(parameters('Version'), 'Classic'), 'scaleClassic.ps1', 'scaleArm.ps1')]",
         "RunbookUri": "[concat('https://raw.githubusercontent.com/jamasten/Azure/master/solutions/scalingAutomation/scripts/', variables('RunbookScript'))]",
         //"RunbookUri": "[concat('https://raw.githubusercontent.com/Azure/RDS-Templates/master/wvd-templates/wvd-scaling-script/scripts/', variables('RunbookScript'))]",
         "Webhook": "[if(equals(parameters('Version'), 'Classic'), 'WVDAutoScaleWebhook', 'WVDAutoScaleWebhookARMBased')]"

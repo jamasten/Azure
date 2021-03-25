@@ -184,6 +184,10 @@
                     {
                         "category": "JobLogs",
                         "enabled": true
+                    },
+                    {
+                        "category": "JobStream",
+                        "enabled": true
                     }
                 ],
                 "workspaceId": "[resourceId(parameters('WorkspaceResourceGroupName'), 'Microsoft.OperationalInsights/workspaces', parameters('WorkspaceName'))]"

@@ -39,24 +39,28 @@
                 "uri": "https://www.powershellgallery.com/api/v2/package/Az.Accounts"
             },
             {
+                "name": "Az.Automation",
+                "uri": "https://www.powershellgallery.com/api/v2/package/Az.Automation"
+            },
+            {
                 "name": "Az.Compute",
                 "uri": "https://www.powershellgallery.com/api/v2/package/Az.Compute"
+            },
+            {
+                "name": "Az.DesktopVirtualization",
+                "uri": "https://www.powershellgallery.com/api/v2/package/Az.DesktopVirtualization"
             },
             {
                 "name": "Az.Resources",
                 "uri": "https://www.powershellgallery.com/api/v2/package/Az.Resources"
             },
             {
-                "name": "Az.Automation",
-                "uri": "https://www.powershellgallery.com/api/v2/package/Az.Automation"
+                "name": "Microsoft.RDInfra.RDPowershell",
+                "uri": "https://www.powershellgallery.com/api/v2/package/Microsoft.RDInfra.RDPowershell"
             },
             {
                 "name": "OMSIngestionAPI",
                 "uri": "https://www.powershellgallery.com/api/v2/package/OMSIngestionAPI"
-            },
-            {
-                "name": "Microsoft.RDInfra.RDPowershell",
-                "uri": "https://www.powershellgallery.com/api/v2/package/Microsoft.RDInfra.RDPowershell"
             }
         ],
         "runbook": "[if(equals(parameters('version'), 'Classic'), 'WVDAutoScaleRunbook', 'WVDAutoScaleRunbookARMBased')]",

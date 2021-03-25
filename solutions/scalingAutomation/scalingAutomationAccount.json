@@ -176,6 +176,9 @@
             "name": "diag-WVD-scaling-automation",
             "apiVersion": "2017-05-01-preview",
             "location": "[parameters('Location')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Automation/automationAccounts', parameters('AutomationAccountName'))]"
+            ],
             "properties": {
                 "logs": [
                     {

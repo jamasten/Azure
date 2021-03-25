@@ -23,18 +23,6 @@
             },
             "defaultValue": "09:00"
         },
-        "cloudEnvironment": {
-            "type": "string",
-            "metadata": {
-                "description": "The Azure Cloud that will host this solution"
-            },
-            "allowedValues": [
-                "AzureChinaCloud",
-                "AzureCloud",
-                "AzureGermanCloud",
-                "AzureUSGovernment"
-            ]
-        },
         "endPeakTime": {
             "type": "string",
             "metadata": {
@@ -150,7 +138,7 @@
             "ConnectionAssetName": "[parameters('automationConnectionName')]",
             "AADTenantId": "[subscription().tenantId]",
             "SubscriptionId": "[subscription().subscriptionId]",
-            "EnvironmentName": "[parameters('cloudEnvironment')]",     
+            "EnvironmentName": "[environment().name]",     
             "UseARMAPI": "[if(equals(parameters('version'), 'ARM'), 'true', 'false')]",
             "ResourceGroupName": "[parameters('hostPoolResourceGroupName')]",
             "HostPoolName": "[parameters('hostPoolName')]",

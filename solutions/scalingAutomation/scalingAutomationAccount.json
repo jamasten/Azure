@@ -2,25 +2,25 @@
     "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
-        "automationAccountName": {
+        "AutomationAccountName": {
             "type": "String",
             "metadata": {
                 "description": "The name of the automation account"
             },
             "defaultValue": "WVDAutoScaleAutomationAccount"
         },
-        "location": {
+        "Location": {
             "type": "String",
             "defaultValue": "[resourceGroup().location]",
             "metadata": {
                 "description": "Location for all resources"
             }
         },
-        "timestamp": {
+        "Timestamp": {
             "type": "string",
             "defaultValue": "[utcNow('u')]"
         },
-        "version": {
+        "Version": {
             "type": "string",
             "metadata": {
                 "description": "Determines if the solution will scale a Classic or ARM version of a WVD host pool"
@@ -29,11 +29,25 @@
                 "Classic",
                 "ARM"
             ]
+        },
+        "WorkspaceName": {
+            "type": "string",
+            "metadata": {
+                "description": "Name of the Log Analytics Workspace for storing job logs"
+            },
+            "defaultValue": ""
+        },
+        "WorkspaceResourceGroupName": {
+            "type": "string",
+            "metadata": {
+                "description": "Name of the Log Analytics Workspace Resource Group for storing job logs"
+            },
+            "defaultValue": ""
         }
     },
     "variables": {
-        "automationVariable": "[if(equals(parameters('version'), 'Classic'), 'WebhookURI', 'WebhookURIARMBased')]",
-        "modules": [
+        "AutomationVariable": "[if(equals(parameters('Version'), 'Classic'), 'WebhookURI', 'WebhookURIARMBased')]",
+        "Modules": [
             {
                 "name": "Az.Accounts",
                 "uri": "https://www.powershellgallery.com/api/v2/package/Az.Accounts"
@@ -63,19 +77,19 @@
                 "uri": "https://www.powershellgallery.com/api/v2/package/OMSIngestionAPI"
             }
         ],
-        "runbook": "[if(equals(parameters('version'), 'Classic'), 'WVDAutoScaleRunbook', 'WVDAutoScaleRunbookARMBased')]",
-        "runbookScript": "[if(equals(parameters('version'), 'Classic'), 'basicScaleClassic.ps1', 'basicScaleArm.ps1')]",
-        "runbookUri": "[concat('https://raw.githubusercontent.com/jamasten/Azure/master/solutions/scalingAutomation/scripts/', variables('runbookScript'))]",
-        //"runbookUri": "[concat('https://raw.githubusercontent.com/Azure/RDS-Templates/master/wvd-templates/wvd-scaling-script/scripts/', variables('runbookScript'))]",
-        "webhook": "[if(equals(parameters('version'), 'Classic'), 'WVDAutoScaleWebhook', 'WVDAutoScaleWebhookARMBased')]"
+        "Runbook": "[if(equals(parameters('Version'), 'Classic'), 'WVDAutoScaleRunbook', 'WVDAutoScaleRunbookARMBased')]",
+        "RunbookScript": "[if(equals(parameters('Version'), 'Classic'), 'basicScaleClassic.ps1', 'basicScaleArm.ps1')]",
+        "RunbookUri": "[concat('https://raw.githubusercontent.com/jamasten/Azure/master/solutions/scalingAutomation/scripts/', variables('RunbookScript'))]",
+        //"RunbookUri": "[concat('https://raw.githubusercontent.com/Azure/RDS-Templates/master/wvd-templates/wvd-scaling-script/scripts/', variables('RunbookScript'))]",
+        "Webhook": "[if(equals(parameters('Version'), 'Classic'), 'WVDAutoScaleWebhook', 'WVDAutoScaleWebhookARMBased')]"
     },
     "resources": [
         {
             "comments": "---------- AUTOMATION ACCOUNT ----------",
             "type": "Microsoft.Automation/automationAccounts",
-            "name": "[parameters('automationAccountName')]",
+            "name": "[parameters('AutomationAccountName')]",
             "apiVersion": "2015-10-31",
-            "location": "[parameters('location')]",
+            "location": "[parameters('Location')]",
             "properties": {
                 "sku": {
                     "name": "Free"
@@ -86,37 +100,37 @@
             "comments": "---------- AUTOMATION ACCOUNT > MODULES ----------",
             "type": "Microsoft.Automation/automationAccounts/modules",
             "apiVersion": "2015-10-31",
-            "name": "[concat(parameters('automationAccountName'), '/', variables('modules')[copyIndex()].name)]",
-            "location": "[parameters('location')]",
+            "name": "[concat(parameters('AutomationAccountName'), '/', variables('Modules')[copyIndex()].name)]",
+            "location": "[parameters('Location')]",
             "dependsOn": [
-                "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccountName'))]"
+                "[resourceId('Microsoft.Automation/automationAccounts', parameters('AutomationAccountName'))]"
             ],
             "copy": {
                 "name": "modulesLoop",
-                "count": "[length(variables('modules'))]",
+                "count": "[length(variables('Modules'))]",
                 "mode": "Serial"
             },
             "properties": {
                 "contentLink": {
-                    "uri": "[variables('modules')[copyIndex()].uri]"
+                    "uri": "[variables('Modules')[copyIndex()].uri]"
                 }
             }
         },
         {
             "comments": "---------- AUTOMATION ACCOUNT > RUNBOOK ----------",
             "type": "Microsoft.Automation/automationAccounts/runbooks",
-            "name": "[concat(parameters('automationAccountName'), '/', variables('runbook'))]",
+            "name": "[concat(parameters('AutomationAccountName'), '/', variables('Runbook'))]",
             "apiVersion": "2015-10-31",
-            "location": "[parameters('location')]",
+            "location": "[parameters('Location')]",
             "dependsOn": [
-                "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccountName'))]"
+                "[resourceId('Microsoft.Automation/automationAccounts', parameters('AutomationAccountName'))]"
             ],
             "properties": {
                 "runbookType": "PowerShell",
                 "logProgress": false,
                 "logVerbose": false,
                 "publishContentLink": {
-                    "uri": "[variables('runbookUri')]",
+                    "uri": "[variables('RunbookUri')]",
                     "version": "1.0.0.0"
                 }
             }
@@ -124,35 +138,52 @@
         {
             "comments": "---------- AUTOMATION ACCOUNT > WEBHOOK ----------",
             "type": "Microsoft.Automation/automationAccounts/webhooks",
-            "name": "[concat(parameters('automationAccountName'), '/', variables('webhook'))]",
+            "name": "[concat(parameters('AutomationAccountName'), '/', variables('Webhook'))]",
             "apiVersion": "2015-10-31",
-            "location": "[parameters('location')]",
+            "location": "[parameters('Location')]",
             "dependsOn": [
-                "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccountName'))]",
-                "[resourceId('Microsoft.Automation/automationAccounts/runbooks', parameters('automationAccountName'), variables('runbook'))]"
+                "[resourceId('Microsoft.Automation/automationAccounts', parameters('AutomationAccountName'))]",
+                "[resourceId('Microsoft.Automation/automationAccounts/runbooks', parameters('AutomationAccountName'), variables('Runbook'))]"
             ],
             "properties": {
                 "isEnabled": true,
-                "expiryTime": "[dateTimeAdd(parameters('timestamp'), 'P5Y')]",
+                "expiryTime": "[dateTimeAdd(parameters('Timestamp'), 'P5Y')]",
                 "runbook": {
-                    "name": "[variables('runbook')]"
+                    "name": "[variables('Runbook')]"
                 }
             }
         },
         {
             "comments": "---------- AUTOMATION ACCOUNT > VARIABLE ----------",
             "type": "Microsoft.Automation/automationAccounts/variables",
-            "name": "[concat(parameters('automationAccountName'), '/', variables('automationVariable'))]",
+            "name": "[concat(parameters('AutomationAccountName'), '/', variables('AutomationVariable'))]",
             "apiVersion": "2015-10-31",
-            "location": "[parameters('location')]",
+            "location": "[parameters('Location')]",
             "dependsOn": [
-                "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccountName'))]",
-                "[resourceId('Microsoft.Automation/automationAccounts/runbooks', parameters('automationAccountName'), variables('runbook'))]",
-                "[resourceId('Microsoft.Automation/automationAccounts/webhooks', parameters('automationAccountName'), variables('webhook'))]"
+                "[resourceId('Microsoft.Automation/automationAccounts', parameters('AutomationAccountName'))]",
+                "[resourceId('Microsoft.Automation/automationAccounts/runbooks', parameters('AutomationAccountName'), variables('Runbook'))]",
+                "[resourceId('Microsoft.Automation/automationAccounts/webhooks', parameters('AutomationAccountName'), variables('Webhook'))]"
             ],
             "properties": {
-                "value": "[concat('\"', reference(variables('webhook')).uri, '\"')]",
+                "value": "[concat('\"', reference(variables('Webhook')).uri, '\"')]",
                 "isEncrypted": false
+            }
+        },
+        {
+            "condition": "[not(equals(parameters('WorkspaceName'), ''))]",
+            "scope": "[concat('Microsoft.Automation/automationAccounts/', parameters('AutomationAccountName'))]",
+            "type": "Microsoft.Insights/diagnosticsettings",
+            "name": "diag-WVD-scaling-automation",
+            "apiVersion": "2017-05-01-preview",
+            "location": "[parameters('Location')]",
+            "properties": {
+                "logs": [
+                    {
+                        "category": "JobLogs",
+                        "enabled": true
+                    }
+                ],
+                "workspaceId": "[resourceId(parameters('WorkspaceResourceGroupName'), 'Microsoft.OperationalInsights/workspaces', parameters('WorkspaceName'))]"
             }
         }
     ]

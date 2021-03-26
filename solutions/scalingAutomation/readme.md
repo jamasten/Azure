@@ -139,7 +139,7 @@ az deployment group create \
     --resource-group '<Resource Group Name>' \
     --template-uri 'https://raw.githubusercontent.com/jamasten/Azure/master/solutions/scalingAutomation/scalingLogicApp.json' \
     --parameters \
-        AutomationConnectionName='Automation Run As Account Name' \ 
+        AutomationConnectionName='Automation Run As Account Name' \
         AutomationAccountName='<Automation Account Name>' \
         AutomationAccountResourceGroupName='<Automation Account Resource Group Name>' \
         BeginPeakTime='<Start of Peak Usage>' \

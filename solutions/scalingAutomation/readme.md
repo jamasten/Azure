@@ -48,11 +48,11 @@ New-AzResourceGroupDeployment `
 ````cli
 az deployment group create \
     --resource-group '<Resource Group Name>' \
-    --template-uri 'https://raw.githubusercontent.com/jamasten/Azure/master/solutions/scalingAutomation/scalingAutomationAccount.json' `
-    --AutomationAccountName '<Automation Account Name>' `
-    --Version '<ARM or Classic>' `
-    --WorkspaceName '<Log Analytics Workspace Name>' `
-    --WorkspaceResourceGroupName '<Log Analytics Workspace Resource Group Name>' `
+    --template-uri 'https://raw.githubusercontent.com/jamasten/Azure/master/solutions/scalingAutomation/scalingAutomationAccount.json' \
+    --AutomationAccountName '<Automation Account Name>' \
+    --Version '<ARM or Classic>' \
+    --WorkspaceName '<Log Analytics Workspace Name>' \
+    --WorkspaceResourceGroupName '<Log Analytics Workspace Resource Group Name>' \
     --verbose
 ````
 

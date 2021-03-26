@@ -5,7 +5,7 @@
         "AutomationAccountName": {
             "type": "String",
             "metadata": {
-                "description": "The name of the automation account"
+                "description": "The name of the Automation Account"
             },
             "defaultValue": "WVDAutoScaleAutomationAccount"
         },
@@ -13,17 +13,20 @@
             "type": "String",
             "defaultValue": "[resourceGroup().location]",
             "metadata": {
-                "description": "Location for all resources"
+                "description": "Deployment location for the resources"
             }
         },
         "Timestamp": {
             "type": "string",
+            "metadata": {
+                "description": "ISO 8601 timestamp used to help determine the webhook expiration date.  The webhook is hardcoded to expire 5 years after the timestamp."
+            },
             "defaultValue": "[utcNow('u')]"
         },
         "Version": {
             "type": "string",
             "metadata": {
-                "description": "Determines if the solution will scale a Classic or ARM version of a WVD host pool"
+                "description": "Determines which WVD version to scale"
             },
             "allowedValues": [
                 "Classic",
@@ -47,7 +50,7 @@
     },
     "variables": {
         "AutomationVariable": "[if(equals(parameters('Version'), 'Classic'), 'WebhookURI', 'WebhookURIARMBased')]",
-        "Modules": [
+        "ModulesBase": [
             {
                 "name": "Az.Accounts",
                 "uri": "https://www.powershellgallery.com/api/v2/package/Az.Accounts"
@@ -61,22 +64,27 @@
                 "uri": "https://www.powershellgallery.com/api/v2/package/Az.Compute"
             },
             {
-                "name": "Az.DesktopVirtualization",
-                "uri": "https://www.powershellgallery.com/api/v2/package/Az.DesktopVirtualization"
-            },
-            {
                 "name": "Az.Resources",
                 "uri": "https://www.powershellgallery.com/api/v2/package/Az.Resources"
-            },
-            {
-                "name": "Microsoft.RDInfra.RDPowershell",
-                "uri": "https://www.powershellgallery.com/api/v2/package/Microsoft.RDInfra.RDPowershell"
             },
             {
                 "name": "OMSIngestionAPI",
                 "uri": "https://www.powershellgallery.com/api/v2/package/OMSIngestionAPI"
             }
         ],
+        "ModuleArm": [
+            {
+                "name": "Az.DesktopVirtualization",
+                "uri": "https://www.powershellgallery.com/api/v2/package/Az.DesktopVirtualization"
+            }
+        ],
+        "ModuleClassic": [
+            {
+                "name": "Microsoft.RDInfra.RDPowershell",
+                "uri": "https://www.powershellgallery.com/api/v2/package/Microsoft.RDInfra.RDPowershell"
+            }
+        ],
+        "Modules": "[if(equals(parameters('Version'), 'Classic'), union(variables('ModulesBase'), variables('ModuleClassic')), union(variables('ModulesBase'), variables('ModuleArm')))]",
         "Runbook": "[if(equals(parameters('Version'), 'Classic'), 'WVDAutoScaleRunbook', 'WVDAutoScaleRunbookARMBased')]",
         "RunbookScript": "[if(equals(parameters('Version'), 'Classic'), 'scaleClassic.ps1', 'scaleArm.ps1')]",
         "RunbookUri": "[concat('https://raw.githubusercontent.com/jamasten/Azure/master/solutions/scalingAutomation/scripts/', variables('RunbookScript'))]",
@@ -170,10 +178,11 @@
             }
         },
         {
+            "comments": "---------- AUTOMATION ACCOUNT > DIAGNOSTIC SETTINGS ----------",
             "condition": "[not(empty(parameters('WorkspaceName')))]",
             "scope": "[concat('Microsoft.Automation/automationAccounts/', parameters('AutomationAccountName'))]",
             "type": "Microsoft.Insights/diagnosticsettings",
-            "name": "diag-WVD-scaling-automation",
+            "name": "[concat('diag-', parameters('AutomationAccountName'))]",
             "apiVersion": "2017-05-01-preview",
             "location": "[parameters('Location')]",
             "dependsOn": [
@@ -186,7 +195,7 @@
                         "enabled": true
                     },
                     {
-                        "category": "JobStream",
+                        "category": "JobStreams",
                         "enabled": true
                     }
                 ],

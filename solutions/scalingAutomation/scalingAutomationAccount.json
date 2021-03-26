@@ -31,7 +31,8 @@
             "allowedValues": [
                 "Classic",
                 "ARM"
-            ]
+            ],
+            "defaultValue": "ARM"
         },
         "WorkspaceName": {
             "type": "string",

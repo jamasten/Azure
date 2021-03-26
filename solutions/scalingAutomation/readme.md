@@ -93,8 +93,8 @@ This ARM template will deploy a Logic App to trigger the scaling runbook in Azur
 
 #### OPTIONAL
 
-* **LogAnalyticsWorkspaceId**: Log Analytics Workspace ID for sending log data
-* **LogAnalyticsPrimaryKey**: Log Analytics Primary Key for sending log data
+* **LogAnalyticsWorkspaceId**: Log Analytics Workspace ID for collecting log data
+* **LogAnalyticsPrimaryKey**: Log Analytics Primary Key for collecting log data
 * **LogOffTitle**: The title of the message sent to the user before they are forced to sign out
 * **LogOffMessage**: The body of the message sent to the user before they are forced to sign out
 

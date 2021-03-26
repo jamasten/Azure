@@ -35,7 +35,7 @@ This ARM template will deploy the following resources:
 ````powershell
 New-AzResourceGroupDeployment `
     -ResourceGroupName '<Resource Group Name>' `
-    -TemplateFile 'https://raw.githubusercontent.com/Azure/RDS-Templates/master/wvd-templates/wvd-scaling-script/scripts/scalingAutomationAccount.json' `
+    -TemplateFile 'https://raw.githubusercontent.com/jamasten/Azure/master/solutions/scalingAutomation/scalingAutomationAccount.json' `
     -AutomationAccountName '<Automation Account Name>' `
     -Version '<ARM or Classic>' `
     -WorkspaceName '<Log Analytics Workspace Name>' `
@@ -48,7 +48,7 @@ New-AzResourceGroupDeployment `
 ````cli
 az deployment group create \
     --resource-group '<Resource Group Name>' \
-    --template-uri 'https://raw.githubusercontent.com/Azure/RDS-Templates/master/wvd-templates/wvd-scaling-script/scripts/scalingAutomationAccount.json' `
+    --template-uri 'https://raw.githubusercontent.com/jamasten/Azure/master/solutions/scalingAutomation/scalingAutomationAccount.json' `
     --AutomationAccountName '<Automation Account Name>' `
     --Version '<ARM or Classic>' `
     --WorkspaceName '<Log Analytics Workspace Name>' `

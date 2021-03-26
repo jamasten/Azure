@@ -34,21 +34,21 @@
             "metadata": {
                 "description": "Broker URL for a Classic WVD deployment"
             },
-            "defaultValue": "https://rdbroker.wvd.microsoft.com"
+            "defaultValue": "Skip this input unless using Classic WVD"
         },
         "ClassicTenantGroupName": {
             "type": "string",
             "metadata": {
                 "description": "Tenant Group Name for a Classic WVD deployment"
             },
-            "defaultValue": "Default Tenant Group"
+            "defaultValue": "Skip this input unless using Classic WVD"
         },
         "ClassicTenantName": {
             "type": "string",
             "metadata": {
                 "description": "Tenant Name for a Classic WVD deployment"
             },
-            "defaultValue": ""
+            "defaultValue": "Skip this input unless using Classic WVD"
         },
         "EndPeakTime": {
             "type": "string",

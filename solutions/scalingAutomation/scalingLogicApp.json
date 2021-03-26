@@ -86,14 +86,14 @@
         "LogAnalyticsWorkspaceId": {
             "type": "string",
             "metadata": {
-                "description": "Log Analytics Workspace ID for sending log data"
+                "description": "Log Analytics Workspace ID for collecting log data"
             },
             "defaultValue": ""
         },
         "LogAnalyticsPrimaryKey": {
             "type": "string",
             "metadata": {
-                "description": "Log Analytics Primary Key for sending log data"
+                "description": "Log Analytics Primary Key for collecting log data"
             },
             "defaultValue": ""
         },
@@ -121,7 +121,8 @@
             "type": "string",
             "metadata": {
                 "description": "The name of the Tag associated with VMs you don't want to be managed by this scaling tool"
-            }
+            },
+            "defaultValue": ""
         },
         "MinimumNumberOfRdsh": {
             "type": "string",

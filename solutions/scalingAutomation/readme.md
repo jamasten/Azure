@@ -49,11 +49,11 @@ New-AzResourceGroupDeployment `
 az deployment group create \
     --resource-group '<Resource Group Name>' \
     --template-uri 'https://raw.githubusercontent.com/jamasten/Azure/master/solutions/scalingAutomation/scalingAutomationAccount.json' \
-    --AutomationAccountName '<Automation Account Name>' \
-    --Version '<ARM or Classic>' \
-    --WorkspaceName '<Log Analytics Workspace Name>' \
-    --WorkspaceResourceGroupName '<Log Analytics Workspace Resource Group Name>' \
-    --verbose
+    --parameters \
+        AutomationAccountName='<Automation Account Name>' \
+        Version='<ARM or Classic>' \
+        WorkspaceName='<Log Analytics Workspace Name>' \
+        WorkspaceResourceGroupName='<Log Analytics Workspace Resource Group Name>'
 ````
 
 ## STEP 2: Create a Run As Account
@@ -138,27 +138,27 @@ New-AzResourceGroupDeployment `
 az deployment group create \
     --resource-group '<Resource Group Name>' \
     --template-uri 'https://raw.githubusercontent.com/jamasten/Azure/master/solutions/scalingAutomation/scalingLogicApp.json' \
-    --AutomationConnectionName 'Automation Run As Account Name' \ 
-    --AutomationAccountName '<Automation Account Name>' \
-    --AutomationAccountResourceGroupName '<Automation Account Resource Group Name>' \
-    --BeginPeakTime '<Start of Peak Usage>' \
-    --ClassicBrokerUrl '<URL for WVD Classic Broker>' \
-    --ClassicTenantGroupName '<Tenant Group Name for WVD Classic>' \
-    --ClassicTenantName '<Tenant Name for WVD Classic>' \
-    --EndPeakTime '<End of Peak Usage>' \
-    --HostPoolName '<Host Pool Name>' \
-    --HostPoolResourceGroupName '<Host Pool Resource Group Name>' \
-    --LimitSecondsToForceLogOffUser '<Number of seconds>' \
-    --LogAnalyticsWorkspaceId '<Workspace ID>' \
-    --LogAnalyticsPrimaryKey '<Workspace Key>' \
-    --LogicAppName '<Name for the new or existing Logic App>' \
-    --LogOffTitle '<Notification Title for log off>' \
-    --LogOffMessage '<Notification Message for log off>' \
-    --MaintenanceTagName '<Tag name>' \
-    --MinimumNumberOfRdsh '<Number of Session Hosts>' \
-    --RecurrenceInterval '<Number of minutes for Logic App recurrence>' \
-    --SessionThresholdPerCPU '<Number of sessions>' \
-    --TimeDifference '<Time zone offset>' \
-    --Version '<ARM or Classic>' \
-    --verbose
+    --parameters \
+        AutomationConnectionName='Automation Run As Account Name' \ 
+        AutomationAccountName='<Automation Account Name>' \
+        AutomationAccountResourceGroupName='<Automation Account Resource Group Name>' \
+        BeginPeakTime='<Start of Peak Usage>' \
+        ClassicBrokerUrl='<URL for WVD Classic Broker>' \
+        ClassicTenantGroupName='<Tenant Group Name for WVD Classic>' \
+        ClassicTenantName='<Tenant Name for WVD Classic>' \
+        EndPeakTime='<End of Peak Usage>' \
+        HostPoolName='<Host Pool Name>' \
+        HostPoolResourceGroupName='<Host Pool Resource Group Name>' \
+        LimitSecondsToForceLogOffUser='<Number of seconds>' \
+        LogAnalyticsWorkspaceId='<Workspace ID>' \
+        LogAnalyticsPrimaryKey='<Workspace Key>' \
+        LogicAppName='<Name for the new or existing Logic App>' \
+        LogOffTitle='<Notification Title for log off>' \
+        LogOffMessage='<Notification Message for log off>' \
+        MaintenanceTagName='<Tag name>' \
+        MinimumNumberOfRdsh='<Number of Session Hosts>' \
+        RecurrenceInterval='<Number of minutes for Logic App recurrence>' \
+        SessionThresholdPerCPU='<Number of sessions>' \
+        TimeDifference='<Time zone offset>' \
+        Version='<ARM or Classic>'
 ````

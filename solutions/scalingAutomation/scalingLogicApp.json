@@ -12,14 +12,14 @@
         "AutomationAccountName": {
             "type": "String",
             "metadata": {
-                "description": "Name of the automation account"
+                "description": "Name of the Automation Account"
             },
             "defaultValue": "WVDAutoScaleAutomationAccount"
         },
         "AutomationAccountResourceGroupName": {
             "type": "string",
             "metadata": {
-                "description": "Name of the resource group for the automation account"
+                "description": "Name of the Resource Group for the Automation Account"
             }
         },
         "BeginPeakTime": {
@@ -100,7 +100,7 @@
         "LogicAppName": {
             "type": "string",
             "metadata": {
-                "description": "The name of the Logic App"
+                "description": "Name of the new or existing Logic App"
             }
         },
         "LogOffTitle": {

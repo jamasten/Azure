@@ -132,7 +132,8 @@
             "apiVersion": "2015-10-31",
             "location": "[parameters('Location')]",
             "dependsOn": [
-                "[resourceId('Microsoft.Automation/automationAccounts', parameters('AutomationAccountName'))]"
+                "[resourceId('Microsoft.Automation/automationAccounts', parameters('AutomationAccountName'))]",
+                "modulesLoop"
             ],
             "properties": {
                 "runbookType": "PowerShell",
@@ -152,6 +153,7 @@
             "location": "[parameters('Location')]",
             "dependsOn": [
                 "[resourceId('Microsoft.Automation/automationAccounts', parameters('AutomationAccountName'))]",
+                "modulesLoop",
                 "[resourceId('Microsoft.Automation/automationAccounts/runbooks', parameters('AutomationAccountName'), variables('Runbook'))]"
             ],
             "properties": {
@@ -170,6 +172,7 @@
             "location": "[parameters('Location')]",
             "dependsOn": [
                 "[resourceId('Microsoft.Automation/automationAccounts', parameters('AutomationAccountName'))]",
+                "modulesLoop",
                 "[resourceId('Microsoft.Automation/automationAccounts/runbooks', parameters('AutomationAccountName'), variables('Runbook'))]",
                 "[resourceId('Microsoft.Automation/automationAccounts/webhooks', parameters('AutomationAccountName'), variables('Webhook'))]"
             ],
@@ -187,7 +190,8 @@
             "apiVersion": "2017-05-01-preview",
             "location": "[parameters('Location')]",
             "dependsOn": [
-                "[resourceId('Microsoft.Automation/automationAccounts', parameters('AutomationAccountName'))]"
+                "[resourceId('Microsoft.Automation/automationAccounts', parameters('AutomationAccountName'))]",
+                "modulesLoop"
             ],
             "properties": {
                 "logs": [

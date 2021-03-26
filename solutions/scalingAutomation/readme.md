@@ -13,6 +13,8 @@ This ARM template will deploy the following resources:
 * Automation Account Variable
 * Diagnostic Settings for the Automation Account (Optional)
 
+By configuring the "workspace" parameters for this deployment, the Runbook job logs will be sent to a Log Analytics Workspace.  Review this Docs page, "[View Automation logs in Azure Monitor logs](https://docs.microsoft.com/en-us/azure/automation/automation-manage-send-joblogs-log-analytics#view-automation-logs-in-azure-monitor-logs)" for the KQL queries to view the log data and create alerts.
+
 ### Template Parameters
 
 #### REQUIRED
@@ -74,9 +76,9 @@ This ARM template will deploy a Logic App to trigger the scaling runbook in Azur
 * **AutomationAccountName**: Name of the Automation Account
 * **AutomationAccountResourceGroupName**: Name of the Resource Group for the Automation Account
 * **BeginPeakTime**: Time when session hosts will scale up and continue to stay on to support peak demand; Format 24 hours, e.g. 9:00 for 9am
-* **ClassicBrokerUrl**: Connection Broker URL for a Classic WVD deployment
-* **ClassicTenantGroupName**: Tenant Group Name for a Classic WVD deployment
-* **ClassicTenantName**: Tenant Name for a Classic WVD deployment
+* **ClassicBrokerUrl**: Connection Broker URL for a Classic WVD deployment only. For ARM, either leave the value blank or input any string.
+* **ClassicTenantGroupName**: Tenant Group Name for a Classic WVD deployment only. For ARM, either leave the value blank or input any string.
+* **ClassicTenantName**: Tenant Name for a Classic WVD deployment only.For ARM, either leave the value blank or input any string.
 * **EndPeakTime**: Time when session hosts will scale down and stay off to support low demand; Format 24 hours, e.g. 17:00 for 5pm
 * **HostPoolName**: Name of the WVD host pool to target for scaling
 * **HostPoolResourceGroupName**: Name of the resource group for the WVD host pool to target for scaling
@@ -111,9 +113,9 @@ New-AzResourceGroupDeployment `
     -AutomationAccountName '<Automation Account Name>' `
     -AutomationAccountResourceGroupName '<Automation Account Resource Group Name>' `
     -BeginPeakTime '<Start of Peak Usage>' `
-    -ClassicBrokerUrl '<URL for WVD Classic Broker>' `
-    -ClassicTenantGroupName '<Tenant Group Name for WVD Classic>' `
-    -ClassicTenantName '<Tenant Name for WVD Classic>' `
+    -ClassicBrokerUrl '<Broker URL for Classic WVD>' `
+    -ClassicTenantGroupName '<Tenant Group Name for Classic WVD>' `
+    -ClassicTenantName '<Tenant Name for Classic WVD>' `
     -EndPeakTime '<End of Peak Usage>' `
     -HostPoolName '<Host Pool Name>' `
     -HostPoolResourceGroupName '<Host Pool Resource Group Name>' `
@@ -143,9 +145,9 @@ az deployment group create \
         AutomationAccountName='<Automation Account Name>' \
         AutomationAccountResourceGroupName='<Automation Account Resource Group Name>' \
         BeginPeakTime='<Start of Peak Usage>' \
-        ClassicBrokerUrl='<URL for WVD Classic Broker>' \
-        ClassicTenantGroupName='<Tenant Group Name for WVD Classic>' \
-        ClassicTenantName='<Tenant Name for WVD Classic>' \
+        ClassicBrokerUrl='<Broker URL for Classic WVD>' \
+        ClassicTenantGroupName='<Tenant Group Name for Classic WVD>' \
+        ClassicTenantName='<Tenant Name for Classic WVD>' \
         EndPeakTime='<End of Peak Usage>' \
         HostPoolName='<Host Pool Name>' \
         HostPoolResourceGroupName='<Host Pool Resource Group Name>' \

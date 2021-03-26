@@ -13,7 +13,7 @@ This ARM template will deploy the following resources:
 * Automation Account Variable
 * Diagnostic Settings for the Automation Account (Optional)
 
-By configuring the "workspace" parameters for this deployment, the Runbook job logs will be sent to a Log Analytics Workspace.  Review this Docs page, "[View Automation logs in Azure Monitor logs](https://docs.microsoft.com/en-us/azure/automation/automation-manage-send-joblogs-log-analytics#view-automation-logs-in-azure-monitor-logs)" for the KQL queries to view the log data and create alerts.
+By configuring the "workspace" parameters for this deployment, the Runbook job logs will be sent to a Log Analytics Workspace.  Review this Docs page, "[View Automation logs in Azure Monitor logs](https://docs.microsoft.com/en-us/azure/automation/automation-manage-send-joblogs-log-analytics#view-automation-logs-in-azure-monitor-logs)", for the KQL queries to view the log data and create alerts.
 
 ### Template Parameters
 

@@ -1,0 +1,223 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "DomainAbbreviation": {
+            "type": "string"
+        },
+        "Environment": {
+            "type": "string",
+            "allowedValues": [
+                "d",
+                "p",
+                "t"
+            ],
+            "defaultValue": "d"
+        },
+        "HostPoolType": {
+            "type": "string",
+            "metadata": {
+                "description": "description"
+            },
+            "allowedValues": [
+                "Pooled",
+                "Personal"
+            ],
+            "defaultValue": "Pooled"
+        },
+        "Identifier": {
+            "type": "string",
+            "metadata": {
+                "description": "Unique value to define the project or purpose"
+            },
+            "defaultValue": "poc"
+        },
+        "Location": {
+            "type": "string",
+            "metadata": {
+                "description": "Location for Resource Groups & Resources."
+            },
+            "defaultValue": "eastus"
+        },
+        "MaxSessionLimit": {
+            "type": "int",
+            "metadata": {
+                "description": "Maximum sessions per host pool"
+            },
+            "defaultValue": 4
+        }
+    },
+    "variables": {
+        "LocationAbbr": {
+            "australiacentral": "ac",
+            "australiacentral2": "ac2",
+            "australiaeast": "ae",
+            "australiasoutheast": "ase",
+            "brazilsouth": "bs",
+            "brazilsoutheast": "bse",
+            "canadacentral": "cc",
+            "canadaeast": "ce",
+            "centralindia": "ci",
+            "centralus": "cus",
+            "eastasia": "ea",
+            "eastus": "eus",
+            "eastus2": "eus2",
+            "francecentral": "fc",
+            "francesouth": "fs",
+            "germanynorth": "gn",
+            "germanywestcentral": "gwc",
+            "japaneast": "je",
+            "japanwest": "jw",
+            "koreacentral": "kc",
+            "koreasouth": "ks",
+            "northcentralus": "ncus",
+            "northeurope": "ne",
+            "norwayeast": "noe",
+            "norwaywest": "now",
+            "southafricanorth": "san",
+            "southafricawest": "saw",
+            "southcentralus": "scus",
+            "southeastasia": "sea",
+            "southindia": "si",
+            "switzerlandnorth": "sn",
+            "switzerlandwest": "sw",
+            "uaecentral": "uaec",
+            "uaenorth": "uaen",
+            "uksouth": "uks",
+            "ukwest": "ukw",
+            "usdodcentral": "usdc",
+            "usdodeast": "usde",
+            "usgovarizona": "usga",
+            "usgoviowa": "usgi",
+            "usgovtexas": "usgt",
+            "usgovvirginia": "usgv",
+            "westcentralus": "wcus",
+            "westeurope": "we",
+            "westindia": "wi",
+            "westus": "wus",
+            "westus2": "wus2",
+            "westus3": "wus3"
+        },
+        "Location": "[variables('LocationAbbr')[parameters('Location')]]",
+        "HostPool": "[concat('hp-wvd-', parameters('Identifier'), '-', parameters('Environment'), '-', variables('Location'))]"
+    },
+    "resources": [
+        {
+            "comments": "---------- WVD HOST POOL ----------",
+            "type": "Microsoft.DesktopVirtualization/hostpools",
+            "apiVersion": "2019-12-10-preview",
+            "name": "[variables('HostPool')]",
+            "location": "[parameters('Location')]",
+            "properties": {
+                "description": "",
+                "hostPoolType": "[parameters('HostPoolType')]",
+                "maxSessionLimit": "[parameters('MaxSessionLimit')]",
+                "loadBalancerType": "DepthFirst",
+                "validationEnvironment": false,
+                "registrationInfo": {
+                    "registrationTokenOperation": "None"
+                },
+                "preferredAppGroupType": "Desktop"
+            }
+        },
+        {
+            "comments": "---------- WVD APP GROUP ----------",
+            "type": "Microsoft.DesktopVirtualization/applicationgroups",
+            "apiVersion": "2019-12-10-preview",
+            "name": "Desktops",
+            "location": "[parameters('Location')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.DesktopVirtualization/hostpools', concat('hp-wvd-', parameters('Environment'), '-', parameters('Location')))]"
+            ],
+            "kind": "Desktop",
+            "properties": {
+                "hostPoolArmPath": "[resourceId('Microsoft.DesktopVirtualization/hostpools', concat('hp-wvd-', parameters('Environment'), '-', parameters('Location')))]",
+                "description": "Desktop Application Group created through an ARM template",
+                "friendlyName": "Pooled Desktop",
+                "applicationGroupType": "Desktop"
+            }
+        },
+        {
+            "comments": "---------- WVD WORKSPACE ----------",
+            "type": "Microsoft.DesktopVirtualization/workspaces",
+            "apiVersion": "2019-12-10-preview",
+            "name": "[concat('ws-wvd-', parameters('Environment'), '-', parameters('Location'))]",
+            "location": "eastus",
+            "dependsOn": [
+                "[resourceId('Microsoft.DesktopVirtualization/applicationgroups', 'Desktops')]"
+            ],
+            "properties": {
+                "applicationGroupReferences": [
+                    "[resourceId('Microsoft.DesktopVirtualization/applicationgroups', 'Desktops')]"
+                ]
+            }
+        },
+        {
+            "comments": "---------- STORAGE ACCOUNT ----------",
+            "type": "Microsoft.Storage/storageAccounts",
+            "apiVersion": "2019-06-01",
+            "name": "[concat('stor', parameters('DomainAbbreviation'), 'wvd', parameters('Environment'), variables('Location'), 'p0')]",
+            "location": "[parameters('Location')]",
+            "sku": {
+                "name": "Premium_LRS",
+                "tier": "Premium"
+            },
+            "kind": "FileStorage",
+            "properties": {
+                "minimumTlsVersion": "TLS1_2",
+                "allowBlobPublicAccess": false,
+                "largeFileSharesState": "Enabled",
+                "networkAcls": {
+                    "bypass": "AzureServices",
+                    "virtualNetworkRules": [],
+                    "ipRules": [],
+                    "defaultAction": "Allow"
+                },
+                "supportsHttpsTrafficOnly": true,
+                "encryption": {
+                    "services": {
+                        "file": {
+                            "keyType": "Account",
+                            "enabled": true
+                        },
+                        "blob": {
+                            "keyType": "Account",
+                            "enabled": true
+                        }
+                    },
+                    "keySource": "Microsoft.Storage"
+                },
+                "accessTier": "Hot"
+            }
+        },
+        {
+            "comments": "---------- STORAGE ACCOUNT > FILE SERVICES ----------",
+            "type": "Microsoft.Storage/storageAccounts/fileServices",
+            "apiVersion": "2019-06-01",
+            "name": "[concat('stor', parameters('DomainAbbreviation'), 'wvd', parameters('Environment'), variables('Location'), 'p0/default')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Storage/storageAccounts', concat('stor', parameters('DomainAbbreviation'), 'wvd', parameters('Environment'), variables('Location'), 'p0'))]"
+            ],
+            "properties": {
+                "shareDeleteRetentionPolicy": {
+                    "enabled": false
+                }
+            }
+        },
+        {
+            "comments": "---------- STORAGE ACCOUNT > FILE SHARE ----------",
+            "type": "Microsoft.Storage/storageAccounts/fileServices/shares",
+            "apiVersion": "2020-08-01-preview",
+            "name": "[concat('stor', parameters('DomainAbbreviation'), 'wvd', parameters('Environment'), variables('Location'), 'p0/default/hp-wvd-d-eastus')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Storage/storageAccounts/fileServices', concat('stor', parameters('DomainAbbreviation'), 'wvd', parameters('Environment'), variables('Location'), 'p0'), 'default')]",
+                "[resourceId('Microsoft.Storage/storageAccounts', concat('stor', parameters('DomainAbbreviation'), 'wvd', parameters('Environment'), variables('Location'), 'p0'))]"
+            ],
+            "properties": {
+                "accessTier": "Premium",
+                "shareQuota": 100,
+                "enabledProtocols": "SMB"
+            }
+        }
+    ]
+}

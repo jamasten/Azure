@@ -67,11 +67,11 @@
             {
                 "name": "Az.Resources",
                 "uri": "https://www.powershellgallery.com/api/v2/package/Az.Resources"
-            }/*,
+            },
             {
                 "name": "OMSIngestionAPI",
                 "uri": "https://www.powershellgallery.com/api/v2/package/OMSIngestionAPI"
-            }*/
+            }
         ],
         "ModuleArm": [
             {

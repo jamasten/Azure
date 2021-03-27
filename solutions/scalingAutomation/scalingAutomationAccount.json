@@ -16,6 +16,13 @@
                 "description": "Deployment location for the resources"
             }
         },
+        "LogAnalyticsWorkspaceResourceId": {
+            "type": "string",
+            "metadata": {
+                "description": "Name of the Log Analytics Workspace for storing job logs"
+            },
+            "defaultValue": ""
+        },
         "Timestamp": {
             "type": "string",
             "metadata": {
@@ -33,20 +40,6 @@
                 "ARM"
             ],
             "defaultValue": "ARM"
-        },
-        "WorkspaceName": {
-            "type": "string",
-            "metadata": {
-                "description": "Name of the Log Analytics Workspace for storing job logs"
-            },
-            "defaultValue": ""
-        },
-        "WorkspaceResourceGroupName": {
-            "type": "string",
-            "metadata": {
-                "description": "Name of the Log Analytics Workspace Resource Group for storing job logs"
-            },
-            "defaultValue": ""
         }
     },
     "variables": {
@@ -67,7 +60,7 @@
             {
                 "name": "Az.Resources",
                 "uri": "https://www.powershellgallery.com/api/v2/package/Az.Resources"
-            }/*,
+            } /*,
             {
                 "name": "OMSIngestionAPI",
                 "uri": "https://www.powershellgallery.com/api/v2/package/OMSIngestionAPI"
@@ -183,7 +176,7 @@
         },
         {
             "comments": "---------- AUTOMATION ACCOUNT > DIAGNOSTIC SETTINGS ----------",
-            "condition": "[not(empty(parameters('WorkspaceName')))]",
+            "condition": "[not(empty(parameters('LogAnalyticsWorkspaceResourceId')))]",
             "scope": "[concat('Microsoft.Automation/automationAccounts/', parameters('AutomationAccountName'))]",
             "type": "Microsoft.Insights/diagnosticsettings",
             "name": "[concat('diag-', parameters('AutomationAccountName'))]",
@@ -204,7 +197,7 @@
                         "enabled": true
                     }
                 ],
-                "workspaceId": "[resourceId(parameters('WorkspaceResourceGroupName'), 'Microsoft.OperationalInsights/workspaces', parameters('WorkspaceName'))]"
+                "workspaceId": "[parameters('LogAnalyticsWorkspaceResourceId')]"
             }
         }
     ]

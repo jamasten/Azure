@@ -30,7 +30,7 @@
             },
             "defaultValue": "[utcNow('u')]"
         },
-        "Version": {
+        "WVDVersion": {
             "type": "string",
             "metadata": {
                 "description": "Determines which WVD version to scale"
@@ -43,7 +43,7 @@
         }
     },
     "variables": {
-        "AutomationVariable": "[if(equals(parameters('Version'), 'Classic'), 'WebhookURI', 'WebhookURIARMBased')]",
+        "AutomationVariable": "[if(equals(parameters('WVDVersion'), 'Classic'), 'WebhookURI', 'WebhookURIARMBased')]",
         "ModulesBase": [
             {
                 "name": "Az.Accounts",
@@ -78,12 +78,12 @@
                 "uri": "https://www.powershellgallery.com/api/v2/package/Microsoft.RDInfra.RDPowershell"
             }
         ],
-        "Modules": "[if(equals(parameters('Version'), 'Classic'), union(variables('ModulesBase'), variables('ModuleClassic')), union(variables('ModulesBase'), variables('ModuleArm')))]",
-        "Runbook": "[if(equals(parameters('Version'), 'Classic'), 'WVDAutoScaleRunbook', 'WVDAutoScaleRunbookARMBased')]",
-        "RunbookScript": "[if(equals(parameters('Version'), 'Classic'), 'scaleClassic.ps1', 'scaleArm.ps1')]",
+        "Modules": "[if(equals(parameters('WVDVersion'), 'Classic'), union(variables('ModulesBase'), variables('ModuleClassic')), union(variables('ModulesBase'), variables('ModuleArm')))]",
+        "Runbook": "[if(equals(parameters('WVDVersion'), 'Classic'), 'WVDAutoScaleRunbook', 'WVDAutoScaleRunbookARMBased')]",
+        "RunbookScript": "[if(equals(parameters('WVDVersion'), 'Classic'), 'scaleClassic.ps1', 'scaleArm.ps1')]",
         "RunbookUri": "[concat('https://raw.githubusercontent.com/jamasten/Azure/master/solutions/scalingAutomation/scripts/', variables('RunbookScript'))]",
         //"RunbookUri": "[concat('https://raw.githubusercontent.com/Azure/RDS-Templates/master/wvd-templates/wvd-scaling-script/scripts/', variables('RunbookScript'))]",
-        "Webhook": "[if(equals(parameters('Version'), 'Classic'), 'WVDAutoScaleWebhook', 'WVDAutoScaleWebhookARMBased')]"
+        "Webhook": "[if(equals(parameters('WVDVersion'), 'Classic'), 'WVDAutoScaleWebhook', 'WVDAutoScaleWebhookARMBased')]"
     },
     "resources": [
         {

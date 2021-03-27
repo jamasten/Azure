@@ -166,9 +166,7 @@
     },
     "variables": {
         "ActionSettingsBody": {
-            "LogAnalyticsWorkspaceId": "",
             //"LogAnalyticsWorkspaceId": "[parameters('LogAnalyticsWorkspaceId')]",
-            "LogAnalyticsPrimaryKey": "",
             //"LogAnalyticsPrimaryKey": "[parameters('LogAnalyticsPrimaryKey')]",
             "ConnectionAssetName": "[parameters('AutomationConnectionName')]",
             "AADTenantId": "[subscription().tenantId]",

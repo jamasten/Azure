@@ -63,8 +63,8 @@ try {
 		throw "Invalid values for the following $($InvalidParams.Count) params: $($InvalidParams -join ', ')"
 	}
 	
-	[string]$LogAnalyticsWorkspaceId = Get-PSObjectPropVal -Obj $RqtParams -Key 'LogAnalyticsWorkspaceId'
-	[string]$LogAnalyticsPrimaryKey = Get-PSObjectPropVal -Obj $RqtParams -Key 'LogAnalyticsPrimaryKey'
+	#[string]$LogAnalyticsWorkspaceId = Get-PSObjectPropVal -Obj $RqtParams -Key 'LogAnalyticsWorkspaceId'
+	#[string]$LogAnalyticsPrimaryKey = Get-PSObjectPropVal -Obj $RqtParams -Key 'LogAnalyticsPrimaryKey'
 	[string]$ConnectionAssetName = Get-PSObjectPropVal -Obj $RqtParams -Key 'ConnectionAssetName'
 	[string]$EnvironmentName = Get-PSObjectPropVal -Obj $RqtParams -Key 'EnvironmentName'
 	[string]$ResourceGroupName = $RqtParams.ResourceGroupName
@@ -346,10 +346,11 @@ try {
 
 	Write-Log -HostPoolName $HostPoolName -Message "Request params: $($RqtParams | Format-List -Force | Out-String)"
 
+	<#
 	if ($LogAnalyticsWorkspaceId -and $LogAnalyticsPrimaryKey) {
 		Write-Log -HostPoolName $HostPoolName -Message "Log ananlytics is enabled"
 	}
-
+	#>
 	#endregion
 
 

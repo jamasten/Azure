@@ -152,7 +152,7 @@
             },
             "defaultValue": "-7:00"
         },
-        "Version": {
+        "WVDVersion": {
             "type": "string",
             "metadata": {
                 "description": "Determines if the solution will scale a Classic or ARM version of a WVD host pool"
@@ -172,7 +172,7 @@
             "AADTenantId": "[subscription().tenantId]",
             "SubscriptionId": "[subscription().subscriptionId]",
             "EnvironmentName": "[environment().name]",     
-            "UseARMAPI": "[if(equals(parameters('Version'), 'ARM'), 'true', 'false')]",
+            "UseARMAPI": "[if(equals(parameters('WVDVersion'), 'ARM'), 'true', 'false')]",
             "ResourceGroupName": "[parameters('HostPoolResourceGroupName')]",
             "HostPoolName": "[parameters('HostPoolName')]",
             "MaintenanceTagName": "[parameters('MaintenanceTagName')]",
@@ -185,7 +185,7 @@
             "LogOffMessageTitle": "[parameters('LogOffTitle')]",
             "LogOffMessageBody": "[parameters('LogOffMessage')]"
         },
-        "AutomationVariable": "[if(equals(parameters('Version'), 'Classic'), 'WebhookURI', 'WebhookURIARMBased')]",
+        "AutomationVariable": "[if(equals(parameters('WVDVersion'), 'Classic'), 'WebhookURI', 'WebhookURIARMBased')]",
         "ClassicSettings": {
             "RDBrokerURL": "[parameters('ClassicBrokerUrl')]",
 	        "TenantGroupName": "[parameters('ClassicTenantGroupName')]",
@@ -210,7 +210,7 @@
                             "inputs": {
                                 "method": "POST",
                                 "uri": "[replace(reference(resourceId(parameters('AutomationAccountResourceGroupName'), 'Microsoft.Automation/automationAccounts/variables', parameters('AutomationAccountName'), variables('AutomationVariable')), '2015-10-31', 'Full').properties.value, '\"', '')]",
-                                "body": "[if(equals(parameters('Version'), 'Classic'), variables('ClassicSettingsBody'), variables('ActionSettingsBody'))]"
+                                "body": "[if(equals(parameters('WVDVersion'), 'Classic'), variables('ClassicSettingsBody'), variables('ActionSettingsBody'))]"
                             }
                         }
                     },

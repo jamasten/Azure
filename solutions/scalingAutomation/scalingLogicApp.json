@@ -83,20 +83,6 @@
             },
             "defaultValue": "[resourceGroup().location]"
         },
-        /*"LogAnalyticsWorkspaceId": {
-            "type": "string",
-            "metadata": {
-                "description": "Log Analytics Workspace ID for collecting log data"
-            },
-            "defaultValue": ""
-        },
-        "LogAnalyticsPrimaryKey": {
-            "type": "string",
-            "metadata": {
-                "description": "Log Analytics Primary Key for collecting log data"
-            },
-            "defaultValue": ""
-        },*/
         "LogicAppName": {
             "type": "string",
             "metadata": {
@@ -166,8 +152,6 @@
     },
     "variables": {
         "ActionSettingsBody": {
-            //"LogAnalyticsWorkspaceId": "[parameters('LogAnalyticsWorkspaceId')]",
-            //"LogAnalyticsPrimaryKey": "[parameters('LogAnalyticsPrimaryKey')]",
             "ConnectionAssetName": "[parameters('AutomationConnectionName')]",
             "AADTenantId": "[subscription().tenantId]",
             "SubscriptionId": "[subscription().subscriptionId]",

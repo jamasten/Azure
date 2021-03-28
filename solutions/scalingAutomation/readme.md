@@ -20,12 +20,11 @@ By configuring the "workspace" parameters for this deployment, the Runbook job l
 #### REQUIRED
 
 * **AutomationAccountName**: Name of an existing Automation Account or the desired name for a new Automation Account
-* **Version**: Choose between ARM and Classic version of WVD
+* **WVDVersion**: Choose between ARM and Classic version of WVD
 
 #### OPTIONAL
 
-* **WorkspaceName**: Name of the Log Analytics Workspace to use for logging the Runbook jobs in Azure Automation
-* **WorkspaceResourceGroupName**: Resource Group Name of the Log Analytics Workspace to use for logging the Runbook jobs in Azure Automation
+* **LogAnalyticsWorkspaceResourceId**: Resource ID of the Log Analytics Workspace to use for logging the Runbook jobs and job stream in Azure Automation
 
 ### Try with Azure Portal
 
@@ -39,9 +38,8 @@ New-AzResourceGroupDeployment `
     -ResourceGroupName '<Resource Group Name>' `
     -TemplateFile 'https://raw.githubusercontent.com/jamasten/Azure/master/solutions/scalingAutomation/scalingAutomationAccount.json' `
     -AutomationAccountName '<Automation Account Name>' `
-    -Version '<ARM or Classic>' `
-    -WorkspaceName '<Log Analytics Workspace Name>' `
-    -WorkspaceResourceGroupName '<Log Analytics Workspace Resource Group Name>' `
+    -LogAnalyticsWorkspaceResourceId '<Log Analytics Workspace Resource ID>' `
+    -WVDVersion '<ARM or Classic>' `
     -Verbose
 ````
 
@@ -53,9 +51,8 @@ az deployment group create \
     --template-uri 'https://raw.githubusercontent.com/jamasten/Azure/master/solutions/scalingAutomation/scalingAutomationAccount.json' \
     --parameters \
         AutomationAccountName='<Automation Account Name>' \
-        Version='<ARM or Classic>' \
-        WorkspaceName='<Log Analytics Workspace Name>' \
-        WorkspaceResourceGroupName='<Log Analytics Workspace Resource Group Name>'
+        LogAnalyticsWorkspaceResourceId='<Log Analytics Workspace Resource ID>' \
+        WVDVersion='<ARM or Classic>'
 ````
 
 ## STEP 2: Create a Run As Account
@@ -89,7 +86,7 @@ This ARM template will deploy a Logic App to trigger the scaling runbook in Azur
 * **RecurrenceInterval**: Specifies the recurrence interval of the job in minutes
 * **SessionThresholdPerCPU**: The maximum number of sessions per CPU that will be used as a threshold to determine when new session host VMs need to be started during peak hours
 * **TimeDifference**: Time zone off set for host pool location; Format 24 hours, e.g. -4:00 for Eastern Daylight Time
-* **Version**: Determines if the solution will scale a Classic or ARM version of a WVD host pool
+* **WVDVersion**: Determines if the solution will scale a Classic or ARM version of a WVD host pool
 
 #### OPTIONAL
 
@@ -128,7 +125,7 @@ New-AzResourceGroupDeployment `
     -RecurrenceInterval '<Number of minutes for Logic App recurrence>' `
     -SessionThresholdPerCPU '<Number of sessions>' `
     -TimeDifference '<Time zone offset>' `
-    -Version '<ARM or Classic>' `
+    -WVDVersion '<ARM or Classic>' `
     -Verbose
 ````
 
@@ -160,5 +157,5 @@ az deployment group create \
         RecurrenceInterval='<Number of minutes for Logic App recurrence>' \
         SessionThresholdPerCPU='<Number of sessions>' \
         TimeDifference='<Time zone offset>' \
-        Version='<ARM or Classic>'
+        WVDVersion='<ARM or Classic>'
 ````

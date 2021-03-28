@@ -60,11 +60,7 @@
             {
                 "name": "Az.Resources",
                 "uri": "https://www.powershellgallery.com/api/v2/package/Az.Resources"
-            } /*,
-            {
-                "name": "OMSIngestionAPI",
-                "uri": "https://www.powershellgallery.com/api/v2/package/OMSIngestionAPI"
-            }*/
+            }
         ],
         "ModuleArm": [
             {
@@ -80,9 +76,6 @@
         ],
         "Modules": "[if(equals(parameters('WVDVersion'), 'Classic'), union(variables('ModulesBase'), variables('ModuleClassic')), union(variables('ModulesBase'), variables('ModuleArm')))]",
         "Runbook": "[if(equals(parameters('WVDVersion'), 'Classic'), 'WVDAutoScaleRunbook', 'WVDAutoScaleRunbookARMBased')]",
-        "RunbookScript": "[if(equals(parameters('WVDVersion'), 'Classic'), 'scaleClassic.ps1', 'scaleArm.ps1')]",
-        "RunbookUri": "[concat('https://raw.githubusercontent.com/jamasten/Azure/master/solutions/scalingAutomation/scripts/', variables('RunbookScript'))]",
-        //"RunbookUri": "[concat('https://raw.githubusercontent.com/Azure/RDS-Templates/master/wvd-templates/wvd-scaling-script/scripts/', variables('RunbookScript'))]",
         "Webhook": "[if(equals(parameters('WVDVersion'), 'Classic'), 'WVDAutoScaleWebhook', 'WVDAutoScaleWebhookARMBased')]"
     },
     "resources": [
@@ -133,7 +126,8 @@
                 "logProgress": false,
                 "logVerbose": false,
                 "publishContentLink": {
-                    "uri": "[variables('RunbookUri')]",
+                    "uri": "https://raw.githubusercontent.com/jamasten/Azure/master/solutions/scalingAutomation/scale.ps1",
+                    //"uri": "https://raw.githubusercontent.com/Azure/RDS-Templates/master/wvd-templates/wvd-scaling-script/scale.ps1",
                     "version": "1.0.0.0"
                 }
             }

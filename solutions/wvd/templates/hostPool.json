@@ -124,7 +124,7 @@
                 "name": "[parameters('StorageSku')]",
                 "tier": "[split(parameters('StorageSku'), '_')[0]]"
             },
-            "kind": "FileStorage",
+            "kind": "[if(equals(split(parameters('StorageSku'), '_')[0], 'Standard'), 'StorageV2', 'FileStorage')]",
             "properties": {
                 "minimumTlsVersion": "TLS1_2",
                 "allowBlobPublicAccess": false,

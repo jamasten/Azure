@@ -66,19 +66,31 @@
             },
             "defaultValue": "FastTrack for Azure"
         },
-        "Domain": {
-            "type": "string",
-            "metadata": {
-                "description": "Name of the domain that provides ADDS to the WVD session hosts and is synchronized with Azure AD"
-            },
-            "defaultValue": "jasonmasten.com"
-        },
         "DomainAbbreviation": {
             "type": "string",
             "metadata": {
                 "description": "An abbreviation for your domain or organization to uniquely name your Azure Storage Accounts across all of Azure."
             },
             "defaultValue": "jm"
+        },
+        "DomainName": {
+            "type": "string",
+            "metadata": {
+                "description": "Name of the domain that provides ADDS to the WVD session hosts and is synchronized with Azure AD"
+            },
+            "defaultValue": "jasonmasten.com"
+        },
+        "DomainAdminPassword": {
+            "type": "string",
+            "metadata": {
+                "description": "description"
+            }
+        },
+        "DomainAdminUsername": {
+            "type": "string",
+            "metadata": {
+                "description": "description"
+            }
         },
         "Environment": {
             "type": "string",
@@ -188,6 +200,13 @@
                 "description": "Deployment number for WVD; determines which project or group this falls under"
             },
             "defaultValue": 0
+        },
+        "OuPath": {
+            "type": "string",
+            "metadata": {
+                "description": "Distinguished name for the target Organization Unit in Active Directory Domain Services"
+            },
+            "defaultValue": "CN=Computers,DC=jasonmasten,DC=com"
         },
         "Owner": {
             "type": "string",
@@ -356,7 +375,7 @@
             "Vm": "[concat('vmsh', substring(parameters('Identifier'), 0, 3), parameters('Environment'), variables('LocationAbbr'))]",
             "Workspace": "[concat('ws-', variables('NameSuffix'))]"
         },
-        "Netbios": "[split(parameters('Domain'), '.')[0]]",
+        "Netbios": "[split(parameters('DomainName'), '.')[0]]",
         "ResourceGroupType": [
             "wvd-infra",
             "wvd-hosts"
@@ -494,8 +513,14 @@
                     "DiskName": {
                         "value": "[variables('Names').Disk]"
                     },
-                    "Domain": {
-                        "value": "[parameters('Domain')]"
+                    "DomainAdminPassword": {
+                        "value": "[parameters('DomainAdminPassword')]"
+                    },
+                    "DomainAdminUsername": {
+                        "value": "[parameters('DomainAdminUsername')]"
+                    },
+                    "DomainName": {
+                        "value": "[parameters('DomainName')]"
                     },
                     "HostPoolName": {
                         "value": "[variables('Names').HostPool]"
@@ -523,6 +548,9 @@
                     },
                     "NicName": {
                         "value": "[variables('Names').Nic]"
+                    },
+                    "OuPath": {
+                        "value": "[parameters('OuPath')]"
                     },
                     "SessionHostCount": {
                         "value": "[parameters('SessionHostCount')]"

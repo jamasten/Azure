@@ -134,7 +134,7 @@
             "metadata": {
                 "description": "Deployment location for all resources"
             },
-            "defaultValue": "[resourceGroup().location]"
+            "defaultValue": "[deployment().location]"
         },
         "MaxSessionLimit": {
             "type": "int",

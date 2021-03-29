@@ -30,8 +30,27 @@
         "Classification": {
             "type": "string",
             "metadata": {
-                "description": "Input the data classification for the WVD resources.  This will be added to the tag for each resource."
-            }
+                "description": "Input the data classification for the WVD resources.  This will be added to a tag for each resource."
+            },
+            "allowedValues": [
+                "Public",
+                "Private",
+                "Confidential"
+            ],
+            "defaultValue": "Public"
+        },
+        "CriticalityLevel": {
+            "type": "int",
+            "metadata": {
+                "description": "Number defining the criticality of the WVD solution."
+            },
+            "allowedValues": [
+                1,
+                2,
+                3,
+                4
+            ],
+            "defaultValue": 1
         },
         "CustomRdpProperty": {
             "type": "string",
@@ -39,6 +58,13 @@
                 "description": "Input RDP properties to add or remove RDP functionality on the host pool"
             },
             "defaultValue": "audiocapturemode:i:1;camerastoredirect:s:*;use multimon:i:0;"
+        },
+        "Department": {
+            "type": "string",
+            "metadata": {
+                "description": "The department within your organization owning this WVD solution. This will be added to a tag for each resource."
+            },
+            "defaultValue": "FastTrack for Azure"
         },
         "Domain": {
             "type": "string",
@@ -188,6 +214,13 @@
             },
             "defaultValue": "Lab"
         },
+        "Region": {
+            "type": "string",
+            "metadata": {
+                "description": "Input the region of your office.  This will be added to a tag for each resource"
+            },
+            "defaultValue": "Americas"
+        },
         "SecurityPrincipalId": {
             "type": "string",
             "metadata": {
@@ -335,11 +368,14 @@
         },
         "Tags": {
             "Owner": "[parameters('Owner')]",
+            "Department": "[parameters('Department')]",
+            "Region": "[parameters('Region')]", 
             "Project": "[parameters('Project')]",
             "Purpose": "[parameters('Identifier')]",
             "Environment": "[variables('Environment')[parameters('Environment')]]",
             "Classification": "[parameters('Classification')]",
-            "CreatedTimestamp": "[parameters('Timestamp')]"
+            "CriticalityLevel": "[parameters('CriticalityLevel')]",
+            "Created": "[parameters('Timestamp')]"
         }
     },
     "resources": [

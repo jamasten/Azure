@@ -68,7 +68,7 @@
         {
             "comments": "---------- WVD HOST POOL ----------",
             "type": "Microsoft.DesktopVirtualization/hostpools",
-            "apiVersion": "2021-02-01-preview",
+            "apiVersion": "2019-12-10-preview",
             "name": "[parameters('HostPoolName')]",
             "location": "[parameters('Location')]",
             "tags": "[parameters('Tags')]",

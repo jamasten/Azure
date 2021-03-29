@@ -1,0 +1,478 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "AppGroupDescription": {
+            "type": "string",
+            "metadata": {
+                "description": ""
+            },
+            "defaultValue": ""
+        },
+        "AppGroupName": {
+            "type": "string",
+            "metadata": {
+                "description": ""
+            },
+            "defaultValue": "Desktops"
+        },
+        "AppGroupType": {
+            "type": "string",
+            "metadata": {
+                "description": ""
+            },
+            "allowedValues": [
+                "Desktop",
+                "RemoteApp"
+            ],
+            "defaultValue": "Desktop"
+        },
+        "CustomRdpProperty": {
+            "type": "string",
+            "metadata": {
+                "description": "Input RDP properties to add or remove RDP functionality on the host pool"
+            },
+            "defaultValue": "audiocapturemode:i:1;camerastoredirect:s:*;use multimon:i:0;"
+        },
+        "Domain": {
+            "type": "string",
+            "metadata": {
+                "description": "Name of the domain that provides ADDS to the WVD session hosts and is synchronized with Azure AD"
+            },
+            "defaultValue": "jasonmasten.com"
+        },
+        "DomainAbbreviation": {
+            "type": "string",
+            "metadata": {
+                "description": "An abbreviation for your domain or organization to uniquely name your Azure Storage Accounts across all of Azure."
+            },
+            "defaultValue": "jm"
+        },
+        "Environment": {
+            "type": "string",
+            "metadata": {
+                "description": "The environment for the deployed resources. Default is 'd' for 'Development'. 'p' is for 'Production'. 't' is for 'Test'."
+            },
+            "allowedValues": [
+                "d",
+                "p",
+                "t"
+            ],
+            "defaultValue": "d"
+        },
+        "FileShareQuota": {
+            "type": "int",
+            "metadata": {
+                "description": ""
+            },
+            "defaultValue": 100
+        },
+        "HostPoolDescription": {
+            "type": "string",
+            "metadata": {
+                "description": "Description of the host pool"
+            },
+            "defaultValue": ""
+        },
+        "HostPoolDisplayName": {
+            "type": "string",
+            "metadata": {
+                "description": "The friendly name for the host pool."
+            },
+            "defaultValue": ""
+        },
+        "HostPoolType": {
+            "type": "string",
+            "metadata": {
+                "description": "These options specify the host pool type and depending on the type, provides the load balancing options and assignment types."
+            },
+            "allowedValues": [
+                "Pooled DepthFirst",
+                "Pooled BreadthFirst",
+                "Personal Automatic",
+                "Personal Direct"
+            ],
+            "defaultValue": "Pooled DepthFirst"
+        },
+        "Identifier": {
+            "type": "string",
+            "metadata": {
+                "description": "Unique value to define the project or purpose"
+            },
+            "defaultValue": "poc"
+        },
+        "ImageOffer": {
+            "type": "string",
+            "metadata": {
+                "description": "Offer for the virtual machine image"
+            },
+            "defaultValue": "office-365"
+        },
+        "ImagePublisher": {
+            "type": "string",
+            "metadata": {
+                "description": "Publisher for the virtual machine image"
+            },
+            "defaultValue": "MicrosoftWindowsDesktop"
+        },
+        "ImageSku": {
+            "type": "string",
+            "metadata": {
+                "description": "SKU for the virtual machine image"
+            },
+            "defaultValue": "20h1-evd-o365pp"
+        },
+        "ImageVersion": {
+            "type": "string",
+            "metadata": {
+                "description": "Version for the virtual machine image"
+            },
+            "defaultValue": "latest"
+        },
+        "Location": {
+            "type": "string",
+            "metadata": {
+                "description": "Deployment location for all resources"
+            },
+            "defaultValue": "[resourceGroup().location]"
+        },
+        "MaxSessionLimit": {
+            "type": "int",
+            "metadata": {
+                "description": "Maximum sessions per WVD session host"
+            },
+            "defaultValue": 4
+        },
+        "newOrExisting": {
+            "type": "string",
+            "allowedValues": [
+                "new",
+                "existing"
+            ]
+        },
+        "Ordinal": {
+            "type": "int",
+            "metadata": {
+                "description": "Deployment number for WVD; determines which project or group this falls under"
+            },
+            "defaultValue": 0
+        },
+        "PreferredAppGroupType": {
+            "type": "string",
+            "metadata": {
+                "description": "The type of preferred application group type.  The default is Desktop which creates 'Desktop Application Group'"
+            },
+            "allowedValues": [
+                "Desktop",
+                "RailApplications"
+            ],
+            "defaultValue": "Desktop"
+        },
+        "SessionHostCount": {
+            "type": "int",
+            "metadata": {
+                "description": "Number of session hosts to deploy in the host pool"
+            },
+            "defaultValue": 1
+        },
+        "StorageSku": {
+            "type": "string",
+            "metadata": {
+                "description": "Storage SKU for the WVD session host disks"
+            },
+            "defaultValue": "Standard_LRS"
+        },
+        "Subnet": {
+            "type": "string",
+            "metadata": {
+                "description": "Subnet for the WVD session hosts"
+            },
+            "defaultValue": "snet-clients-d-eastus"
+        },
+        "Timestamp": {
+            "type": "string",
+            "defaultValue": "[utcNow('u')]"
+        },
+        "ValidationEnvironment": {
+            "type": "bool",
+            "metadata": {
+                "description": "The value determines whether the hostpool should receive early WVD updates for testing."
+            },
+            "defaultValue": false
+        },
+        "VirtualNetwork": {
+            "type": "string",
+            "metadata": {
+                "description": "Virtual network for the WVD sessions hosts"
+            },
+            "defaultValue": "vnet-d-eastus"
+        },
+        "VirtualNetworkResourceGroup": {
+            "type": "string",
+            "metadata": {
+                "description": "Virtual network resource group for the WVD sessions hosts"
+            },
+            "defaultValue": "rg-network-d-eastus"
+        },
+        "VmPassword": {
+            "type": "securestring",
+            "metadata": {
+                "description": "Local administrator password for the WVD session hosts"
+            }
+        },
+        "VmSize": {
+            "type": "string",
+            "metadata": {
+                "description": "Virtual machine SKU"
+            },
+            "defaultValue": "Standard_B2s"
+        },
+        "VmUsername": {
+            "type": "string",
+            "metadata": {
+                "description": "Local administrator username for the session hosts"
+            }
+        }
+    },
+    "variables": {
+        "LocationLookup": {
+            "australiacentral": "ac",
+            "australiacentral2": "ac2",
+            "australiaeast": "ae",
+            "australiasoutheast": "ase",
+            "brazilsouth": "bs",
+            "brazilsoutheast": "bse",
+            "canadacentral": "cc",
+            "canadaeast": "ce",
+            "centralindia": "ci",
+            "centralus": "cus",
+            "eastasia": "ea",
+            "eastus": "eus",
+            "eastus2": "eus2",
+            "francecentral": "fc",
+            "francesouth": "fs",
+            "germanynorth": "gn",
+            "germanywestcentral": "gwc",
+            "japaneast": "je",
+            "japanwest": "jw",
+            "koreacentral": "kc",
+            "koreasouth": "ks",
+            "northcentralus": "ncus",
+            "northeurope": "ne",
+            "norwayeast": "noe",
+            "norwaywest": "now",
+            "southafricanorth": "san",
+            "southafricawest": "saw",
+            "southcentralus": "scus",
+            "southeastasia": "sea",
+            "southindia": "si",
+            "switzerlandnorth": "sn",
+            "switzerlandwest": "sw",
+            "uaecentral": "uaec",
+            "uaenorth": "uaen",
+            "uksouth": "uks",
+            "ukwest": "ukw",
+            "usdodcentral": "usdc",
+            "usdodeast": "usde",
+            "usgovarizona": "usga",
+            "usgoviowa": "usgi",
+            "usgovtexas": "usgt",
+            "usgovvirginia": "usgv",
+            "westcentralus": "wcus",
+            "westeurope": "we",
+            "westindia": "wi",
+            "westus": "wus",
+            "westus2": "wus2",
+            "westus3": "wus3"
+        },
+        "LocationAbbr": "[variables('LocationLookup')[parameters('Location')]]",
+        "NameSuffix": "[concat(parameters('Identifier'), '-', parameters('Environment'), '-', variables('LocationAbbr'), '-', parameters('Ordinal'))]",
+        "Names": {
+            "AvailabilitySet": "[concat('as-', variables('NameSuffix'))]",
+            "Disk": "[concat('disk-sh-', parameters('Identifier'), '-', parameters('Environment'), '-', variables('LocationAbbr'), '-')]",
+            "HostPool": "[concat('hp-', variables('NameSuffix'))]",
+            "Nic": "[concat('nic-sh-', parameters('Identifier'), '-', parameters('Environment'), '-', variables('LocationAbbr'), '-')]",
+            "StorageAccount": "[concat('stor', substring(parameters('DomainAbbreviation'), 0, 2), substring(parameters('Identifier'), 0, 3), parameters('Environment'), variables('LocationAbbr'), parameters('Ordinal'))]",
+            "Vm": "[concat('vmsh', substring(parameters('Identifier'), 0, 3), parameters('Environment'), variables('LocationAbbr'))]",
+            "Workspace": "[concat('ws-', variables('NameSuffix'))]"
+        },
+        "Netbios": "[split(parameters('Domain'), '.')[0]]",
+        "ResourceGroupType": [
+            "wvd-infra",
+            "wvd-hosts"
+        ]
+    },
+    "resources": [
+        {
+            "comments": "---------- RESOURCE GROUPS ----------",
+            "condition": "[equals(parameters('newOrExisting'), 'new')]",
+            "name": "[concat('rg-', variables('ResourceGroupType')[copyIndex()],'-', parameters('Identifier'),'-', parameters('Environment'),'-', variables('LocationAbbr')[parameters('Location')], '-', parameters('Ordinal'))]",
+            "type": "Microsoft.Resources/resourceGroups",
+            "apiVersion": "2019-10-01",
+            "location": "[parameters('Location')]",
+            "tags": {},
+            "properties": {},
+            "copy": {
+                "name": "rgLoop",
+                "count": "[length(variables('ResourceGroupType'))]"
+            }
+        },
+        {
+            "comments": "---------- LINKED DEPLOYMENT > WVD HOST POOL ----------",
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2019-10-01",
+            "name": "[concat('HostPool_', parameters('Timestamp'))]",
+            "resourceGroup": "[concat('rg-infra-', parameters('Identifier'),'-', parameters('Environment'),'-', variables('LocationAbbr')[parameters('Location')], '-', parameters('Ordinal'))]",
+            "dependsOn": [
+                "rgLoop"
+            ],
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "https://raw.githubusercontent.com/jamasten/Azure/master/solutions/wvd/templates/hostPool.json",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "AppGroupDescription": {
+                        "value": "[parameters('AppGroupDescription')]"
+                    },
+                    "AppGroupName": {
+                        "value": "[parameters('AppGroupName')]"
+                    },
+                    "AppGroupType": {
+                        "value": "[parameters('AppGroupType')]"
+                    },
+                    "CustomRdpProperty": {
+                        "value": "[parameters('CustomRdpProperty')]"
+                    },
+                    "FileShareQuota": {
+                        "value": "[parameters('FileShareQuota')]"
+                    },
+                    "HostPoolDescription": {
+                        "value": "[parameters('HostPoolDescription')]"
+                    },
+                    "HostPoolDisplayName": {
+                        "value": "[parameters('HostPoolDisplayName')]"
+                    },
+                    "HostPoolName": {
+                        "value": "[variables('Names').HostPool]"
+                    },
+                    "HostPoolType": {
+                        "value": "[parameters('HostPoolType')]"
+                    },
+                    "Location": {
+                        "value": "[parameters('Location')]"
+                    },
+                    "MaxSessionLimit": {
+                        "value": "[parameters('MaxSessionLimit')]"
+                    },
+                    "newOrExisting": {
+                        "value": "[parameters('newOrExisting')]"
+                    },
+                    "PreferredAppGroupType": {
+                        "value": "[parameters('PreferredAppGroupType')]"
+                    },
+                    "StorageAccountName": {
+                        "value": "[variables('Names').StorageAccount]"
+                    },
+                    "StorageSku": {
+                        "value": "[parameters('StorageSku')]"
+                    },
+                    "Timestamp": {
+                        "value": "[parameters('Timestamp')]"
+                    },
+                    "ValidationEnvironment": {
+                        "value": "[parameters('ValidationEnvironment')]"
+                    },
+                    "WorkspaceName": {
+                        "value": "[variables('Names').Workspace]"
+                    }
+                }
+            }
+        },
+        {
+            "comments": "---------- LINKED DEPLOYMENT > WVD SESSION HOSTS ----------",
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2019-10-01",
+            "name": "[concat('SessionHosts_', parameters('Timestamp'))]",
+            "resourceGroup": "[concat('rg-hosts-', parameters('Identifier'),'-', parameters('Environment'),'-', variables('LocationAbbr')[parameters('Location')], '-', parameters('Ordinal'))]",
+            "dependsOn": [
+                "rgLoop",
+                "[concat('HostPool_', parameters('Timestamp'))]"
+            ],
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "https://raw.githubusercontent.com/jamasten/Azure/master/solutions/wvd/templates/sessionHosts.json",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "AvailabilitySetName": {
+                        "value": "[variables('Names').AvailabilitySet]"
+                    },
+                    "DiskName": {
+                        "value": "[variables('Names').Disk]"
+                    },
+                    "Domain": {
+                        "value": "[parameters('Domain')]"
+                    },
+                    "HostPoolName": {
+                        "value": "[variables('Names').HostPool]"
+                    },
+                    "ImageOffer": {
+                        "value": "[parameters('ImageOffer')]"
+                    },
+                    "ImagePublisher": {
+                        "value": "[parameters('ImagePublisher')]"
+                    },
+                    "ImageSku": {
+                        "value": "[parameters('ImageSku')]"
+                    },
+                    "ImageVersion": {
+                        "value": "[parameters('ImageVersion')]"
+                    },
+                    "Location": {
+                        "value": "[parameters('Location')]"
+                    },
+                    "Netbios": {
+                        "value": "[variables('Netbios')]"
+                    },
+                    "NicName": {
+                        "value": "[variables('Names').Nic]"
+                    },
+                    "SessionHostCount": {
+                        "value": "[parameters('SessionHostCount')]"
+                    },
+                    "StorageSku": {
+                        "value": "[parameters('StorageSku')]"
+                    },
+                    "Subnet": {
+                        "value": "[parameters('Subnet')]"
+                    },
+                    "Timestamp": {
+                        "value": "[parameters('Timestamp')]"
+                    },
+                    "VirtualNetwork": {
+                        "value": "[parameters('VirtualNetwork')]"
+                    },
+                    "VirtualNetworkResourceGroup": {
+                        "value": "[parameters('VirtualNetworkResourceGroup')]"
+                    },
+                    "VmName": {
+                        "value": "[variables('Names').Vm]"
+                    },
+                    "VmPassword": {
+                        "value": "[parameters('VmPassword')]"
+                    },
+                    "VmSize": {
+                        "value": "[parameters('VmSize')]"
+                    },
+                    "VmUsername": {
+                        "value": "[parameters('VmUsername')]"
+                    }
+
+                }
+            }
+        }
+    ]
+}

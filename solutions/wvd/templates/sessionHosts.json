@@ -1,0 +1,235 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "AvailabilitySetName": {
+            "type": "string"
+        },
+        "DiskName": {
+            "type": "string"
+        },
+        "Domain": {
+            "type": "string"
+        },
+        "HostPoolName": {
+            "type": "string"
+        },
+        "ImageOffer": {
+            "type": "string"
+        },
+        "ImagePublisher": {
+            "type": "string"
+        },
+        "ImageSku": {
+            "type": "string"
+        },
+        "ImageVersion": {
+            "type": "string"
+        },
+        "Location": {
+            "type": "string"
+        },
+        "Netbios": {
+            "type": "string"
+        },
+        "NicName": {
+            "type": "string"
+        },
+        "SessionHostCount": {
+            "type": "int"
+        },
+        "StorageSku": {
+            "type": "string"
+        },
+        "Subnet": {
+            "type": "string"
+        },
+        "Timestamp": {
+            "type": "string"
+        },
+        "VirtualNetwork": {
+            "type": "string"
+        },
+        "VirtualNetworkResourceGroup": {
+            "type": "string"
+        },
+        "VmName": {
+            "type": "string"
+        },
+        "VmPassword": {
+            "type": "securestring"
+        },
+        "VmSize": {
+            "type": "string"
+        },
+        "VmUsername": {
+            "type": "string"
+        }
+    },
+    "resources": [
+        {
+            "comments": "---------- AVAILABILITY SET ----------",
+            "type": "Microsoft.Compute/availabilitySets",
+            "apiVersion": "2019-07-01",
+            "name": "[parameters('AvailabilitySetName')]",
+            "location": "[parameters('Location')]",
+            "dependsOn": [],
+            "sku": {
+                "name": "Aligned"
+            },
+            "properties": {
+                "platformUpdateDomainCount": 5,
+                "platformFaultDomainCount": 2
+            }
+        },
+        {
+            "comments": "---------- NETWORK INTERFACES ----------",
+            "type": "Microsoft.Network/networkInterfaces",
+            "apiVersion": "2020-05-01",
+            "name": "[concat(parameters('NicName'), padLeft(copyIndex(), 3, '0'))]",
+            "location": "[parameters('Location')]",
+            "copy": {
+                "name": "nicLoop",
+                "count": "[parameters('SessionHostCount')]"
+            },
+            "properties": {
+                "ipConfigurations": [
+                    {
+                        "name": "ipconfig",
+                        "properties": {
+                            "privateIPAllocationMethod": "Dynamic",
+                            "subnet": {
+                                "id": "[resourceId(subscription().subscriptionId, parameters('VirtualNetworkResourceGroup'), 'Microsoft.Network/virtualNetworks/subnets', parameters('VirtualNetwork'), parameters('Subnet'))]"
+                            },
+                            "primary": true,
+                            "privateIPAddressVersion": "IPv4"
+                        }
+                    }
+                ],
+                "enableAcceleratedNetworking": false,
+                "enableIPForwarding": false
+            }
+        },
+        {
+            "comments": "---------- VIRTUAL MACHINES ----------",
+            "type": "Microsoft.Compute/virtualMachines",
+            "apiVersion": "2019-07-01",
+            "name": "[concat(parameters('VmName'), padLeft(copyIndex(), 3, '0'))]",
+            "location": "[parameters('Location')]",
+            "dependsOn": [
+                "[parameters('AvailabilitySetName')]",
+                "nicLoop"
+            ],
+            "copy": {
+                "name": "vmLoop",
+                "count": "[parameters('SessionHostCount')]"
+            },
+            "properties": {
+                "availabilitySet": {
+                    "id": "[resourceId('Microsoft.Compute/availabilitySets', parameters('AvailabilitySetName'))]"
+                },
+                "hardwareProfile": {
+                    "vmSize": "[parameters('VmSize')]"
+                },
+                "storageProfile": {
+                    "imageReference": {
+                        "publisher": "[parameters('ImagePublisher')]",
+                        "offer": "[parameters('ImageOffer')]",
+                        "sku": "[parameters('ImageSku')]",
+                        "version": "[parameters('ImageVersion')]"
+                    },
+                    "osDisk": {
+                        "osType": "Windows",
+                        "name": "[concat(parameters('DiskName'), padLeft(copyIndex(), 3, '0'), '-0')]",
+                        "createOption": "FromImage",
+                        "caching": "None",
+                        "managedDisk": {
+                            "storageAccountType": "[parameters('StorageSku')]"
+                        },
+                        "diskSizeGB": 127
+                    },
+                    "dataDisks": []
+                },
+                "osProfile": {
+                    "computerName": "[concat(parameters('VmName'), padLeft(copyIndex(), 3, '0'))]",
+                    "adminUsername": "[parameters('VmUsername')]",
+                    "adminPassword": "[parameters('VmPassword')]",
+                    "windowsConfiguration": {
+                        "provisionVMAgent": true,
+                        "enableAutomaticUpdates": true
+                    },
+                    "secrets": [],
+                    "allowExtensionOperations": true
+                },
+                "networkProfile": {
+                    "networkInterfaces": [
+                        {
+                            "id": "[resourceId('Microsoft.Network/networkInterfaces', concat(parameters('NicName'), padLeft(copyIndex(), 3, '0')))]"
+                        }
+                    ]
+                },
+                "diagnosticsProfile": {
+                    "bootDiagnostics": {
+                        "enabled": false
+                    }
+                },
+                "licenseType": "Windows_Client"
+            },
+            "resources": [
+                {
+                    "comments": "---------- DESIRED STATE CONFIGURATION EXTENSION ----------",
+                    "type": "extensions",
+                    "apiVersion": "2019-07-01",
+                    "name": "DSC",
+                    "location": "[parameters('Location')]",
+                    "dependsOn": [
+                        "[concat(parameters('VmName'), padLeft(copyIndex(), 3, '0'))]"
+                    ],
+                    "properties": {
+                        "forceUpdateTag": "[parameters('Timestamp')]",
+                        "autoUpgradeMinorVersion": true,
+                        "publisher": "Microsoft.Powershell",
+                        "type": "DSC",
+                        "typeHandlerVersion": "2.73",
+                        "settings": {
+                            "modulesUrl": "https://wvdportalstorageblob.blob.core.windows.net/galleryartifacts/Configuration_7-20-2020.zip",
+                            "configurationFunction": "Configuration.ps1\\AddSessionHost",
+                            "properties": {
+                                "hostPoolName": "[parameters('HostPoolName')]",
+                                "registrationInfoToken": "[resourceId('Microsoft.DesktopVirtualization/hostpools', parameters('HostPoolName')).registrationInfo.token]"
+                            }
+                        },
+                        "protectedSettings": {}
+                    }
+                },
+                {
+                    "comments": "---------- DOMAIN JOIN EXTENSION ----------",
+                    "apiVersion": "2019-07-01",
+                    "type": "extensions",
+                    "name": "JsonADDomainExtension",
+                    "location": "[parameters('Location')]",
+                    "dependsOn": [
+                        "[concat(parameters('VmName'), padLeft(copyIndex(), 3, '0'))]",
+                        "Dsc"
+                    ],
+                    "properties": {
+                        "forceUpdateTag": "[parameters('Timestamp')]",
+                        "publisher": "Microsoft.Compute",
+                        "type": "JsonADDomainExtension",
+                        "typeHandlerVersion": "1.3",
+                        "autoUpgradeMinorVersion": true,
+                        "settings": {
+                            "Name": "[parameters('Domain')]",
+                            "User": "[concat(parameters('Netbios'), '\\', parameters('VmUsername'))]",
+                            "Restart": "true",
+                            "Options": "3"
+                        },
+                        "protectedSettings": {
+                            "Password": "[parameters('VmPassword')]"
+                        }
+                    }
+                }
+            ]
+        }
+    ]
+}

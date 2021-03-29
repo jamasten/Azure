@@ -108,7 +108,7 @@
                 {
                     "comments": "---------- ROLE ASSIGNMENT ----------",
                     "type": "Microsoft.DesktopVirtualization/applicationgroups/providers/roleAssignments",
-                    "apiVersion": "2017-09-01",
+                    "apiVersion": "2018-01-01-preview",
                     "name": "[concat(parameters('AppGroupName'), '/Microsoft.Authorization/657e86ff-0078-40b8-941e-c2a3a016f740')]",
                     "dependsOn": [
                         "[resourceId('Microsoft.DesktopVirtualization/applicationgroups', parameters('AppGroupName'))]"

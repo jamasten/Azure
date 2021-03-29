@@ -157,6 +157,13 @@
             },
             "defaultValue": 0
         },
+        "Owner": {
+            "type": "string",
+            "metadata": {
+                "description": "Name of the person responsible for this solution"
+            },
+            "defaultValue": "Jason Masten"
+        },
         "PreferredAppGroupType": {
             "type": "string",
             "metadata": {
@@ -307,7 +314,18 @@
         "ResourceGroupType": [
             "wvd-infra",
             "wvd-hosts"
-        ]
+        ],
+        "Environment": {
+            "d": "Development",
+            "p": "Production",
+            "t": "Test"
+        },
+        "Tags": {
+            "Owner": "[parameters('Owner')]",
+            "Purpose": "[parameters('Identifier')]", 
+            "Environment": "[variables('Environment')[parameters('Environment')]]",
+            "CreatedTimestamp": "[parameters('Timestamp')]"
+        }
     },
     "resources": [
         {
@@ -317,7 +335,7 @@
             "type": "Microsoft.Resources/resourceGroups",
             "apiVersion": "2019-10-01",
             "location": "[parameters('Location')]",
-            "tags": {},
+            "tags": "[variables('Tags')]",
             "properties": {},
             "copy": {
                 "name": "rgLoop",
@@ -329,6 +347,7 @@
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2019-10-01",
             "name": "[concat('HostPool_', parameters('Timestamp'))]",
+            "tags": "[variables('Tags')]",
             "resourceGroup": "[concat('rg-wvd-infra-', parameters('Identifier'),'-', parameters('Environment'),'-', variables('LocationAbbr'), '-', parameters('Ordinal'))]",
             "dependsOn": [
                 "rgLoop"
@@ -388,6 +407,9 @@
                     "StorageSku": {
                         "value": "[parameters('StorageSku')]"
                     },
+                    "Tags": {
+                        "value": "[variables('Tags')]"
+                    },
                     "ValidationEnvironment": {
                         "value": "[parameters('ValidationEnvironment')]"
                     },
@@ -402,6 +424,7 @@
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2019-10-01",
             "name": "[concat('SessionHosts_', parameters('Timestamp'))]",
+            "tags": "[variables('Tags')]",
             "resourceGroup": "[concat('rg-wvd-hosts-', parameters('Identifier'),'-', parameters('Environment'),'-', variables('LocationAbbr'), '-', parameters('Ordinal'))]",
             "dependsOn": [
                 "rgLoop",
@@ -455,6 +478,9 @@
                     },
                     "Subnet": {
                         "value": "[parameters('Subnet')]"
+                    },
+                    "Tags": {
+                        "value": "[variables('Tags')]"
                     },
                     "Timestamp": {
                         "value": "[parameters('Timestamp')]"

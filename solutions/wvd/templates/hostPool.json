@@ -49,7 +49,10 @@
         },
         "StorageSku": {
             "type": "string"
-        },        
+        }, 
+        "Tags": {
+            "type": "object"
+        },
         "Timestamp": {
             "type": "string",
             "defaultValue": "[utcNow('u')]"
@@ -68,6 +71,7 @@
             "apiVersion": "2021-02-01-preview",
             "name": "[parameters('HostPoolName')]",
             "location": "[parameters('Location')]",
+            "tags": "[parameters('Tags')]",
             "properties": {
                 "description": "[parameters('HostPoolDescription')]",
                 "hostPoolType": "[split(parameters('HostPoolType'), ' ')[0]]",
@@ -91,6 +95,7 @@
             "apiVersion": "2019-12-10-preview",
             "name": "[parameters('AppGroupName')]",
             "location": "[parameters('Location')]",
+            "tags": "[parameters('Tags')]",
             "dependsOn": [
                 "[parameters('HostPoolName')]"
             ],
@@ -120,6 +125,7 @@
             "apiVersion": "2019-12-10-preview",
             "name": "[parameters('WorkspaceName')]",
             "location": "[parameters('Location')]",
+            "tags": "[parameters('Tags')]",
             "dependsOn": [
                 "[parameters('HostPoolName')]",
                 "[resourceId('Microsoft.DesktopVirtualization/applicationgroups', parameters('AppGroupName'))]"
@@ -137,6 +143,7 @@
             "apiVersion": "2019-06-01",
             "name": "[parameters('StorageAccountName')]",
             "location": "[parameters('Location')]",
+            "tags": "[parameters('Tags')]",
             "sku": {
                 "name": "[parameters('StorageSku')]",
                 "tier": "[split(parameters('StorageSku'), '_')[0]]"
@@ -174,6 +181,7 @@
             "type": "Microsoft.Storage/storageAccounts/fileServices",
             "apiVersion": "2019-06-01",
             "name": "[concat(parameters('StorageAccountName'), '/default')]",
+            "tags": "[parameters('Tags')]",
             "dependsOn": [
                 "[parameters('StorageAccountName')]"
             ],
@@ -189,6 +197,7 @@
             "type": "Microsoft.Storage/storageAccounts/fileServices/shares",
             "apiVersion": "2020-08-01-preview",
             "name": "[concat(parameters('StorageAccountName'), '/default/', parameters('HostPoolName'))]",
+            "tags": "[parameters('Tags')]",
             "dependsOn": [
                 "[parameters('StorageAccountName')]",
                 "[resourceId('Microsoft.Storage/storageAccounts/fileServices', parameters('StorageAccountName'), 'default')]"

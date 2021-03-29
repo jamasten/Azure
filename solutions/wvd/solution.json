@@ -369,7 +369,7 @@
         "Tags": {
             "Owner": "[parameters('Owner')]",
             "Department": "[parameters('Department')]",
-            "Region": "[parameters('Region')]", 
+            "Region": "[parameters('Region')]",
             "Project": "[parameters('Project')]",
             "Purpose": "[parameters('Identifier')]",
             "Environment": "[variables('Environment')[parameters('Environment')]]",
@@ -499,6 +499,9 @@
                     },
                     "HostPoolName": {
                         "value": "[variables('Names').HostPool]"
+                    },
+                    "HostPoolResourceGroupName": {
+                        "value": "[concat('rg-wvd-infra-', parameters('Identifier'),'-', parameters('Environment'),'-', variables('LocationAbbr'), '-', parameters('Ordinal'))]"
                     },
                     "ImageOffer": {
                         "value": "[parameters('ImageOffer')]"

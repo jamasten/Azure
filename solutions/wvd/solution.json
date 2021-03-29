@@ -306,7 +306,7 @@
         {
             "comments": "---------- RESOURCE GROUPS ----------",
             "condition": "[equals(parameters('newOrExisting'), 'new')]",
-            "name": "[concat('rg-', variables('ResourceGroupType')[copyIndex()],'-', parameters('Identifier'),'-', parameters('Environment'),'-', variables('LocationAbbr')[parameters('Location')], '-', parameters('Ordinal'))]",
+            "name": "[concat('rg-', variables('ResourceGroupType')[copyIndex()],'-', parameters('Identifier'),'-', parameters('Environment'),'-', variables('LocationAbbr'), '-', parameters('Ordinal'))]",
             "type": "Microsoft.Resources/resourceGroups",
             "apiVersion": "2019-10-01",
             "location": "[parameters('Location')]",
@@ -322,7 +322,7 @@
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2019-10-01",
             "name": "[concat('HostPool_', parameters('Timestamp'))]",
-            "resourceGroup": "[concat('rg-infra-', parameters('Identifier'),'-', parameters('Environment'),'-', variables('LocationAbbr')[parameters('Location')], '-', parameters('Ordinal'))]",
+            "resourceGroup": "[concat('rg-infra-', parameters('Identifier'),'-', parameters('Environment'),'-', variables('LocationAbbr'), '-', parameters('Ordinal'))]",
             "dependsOn": [
                 "rgLoop"
             ],
@@ -395,7 +395,7 @@
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2019-10-01",
             "name": "[concat('SessionHosts_', parameters('Timestamp'))]",
-            "resourceGroup": "[concat('rg-hosts-', parameters('Identifier'),'-', parameters('Environment'),'-', variables('LocationAbbr')[parameters('Location')], '-', parameters('Ordinal'))]",
+            "resourceGroup": "[concat('rg-hosts-', parameters('Identifier'),'-', parameters('Environment'),'-', variables('LocationAbbr'), '-', parameters('Ordinal'))]",
             "dependsOn": [
                 "rgLoop",
                 "[concat('HostPool_', parameters('Timestamp'))]"

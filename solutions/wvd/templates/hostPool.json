@@ -15,7 +15,7 @@
             "type": "string"
         },
         "FileShareQuota": {
-            "type": "string"
+            "type": "int"
         },
         "HostPoolDescription": {
             "type": "string"

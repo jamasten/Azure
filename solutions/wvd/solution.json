@@ -168,6 +168,13 @@
             ],
             "defaultValue": "Desktop"
         },
+        "SecurityPrincipalId": {
+            "type": "string",
+            "metadata": {
+                "description": "The Object ID for the Security Principal to assign to the WVD Application Group.  This Security Principal will be assigned the Desktop Virtualization User role on the Application Group."
+            },
+            "defaultValue": "5c55bf93-86ee-4e1d-a81a-3a78402e6077"
+        },
         "SessionHostCount": {
             "type": "int",
             "metadata": {
@@ -371,6 +378,9 @@
                     },
                     "PreferredAppGroupType": {
                         "value": "[parameters('PreferredAppGroupType')]"
+                    },
+                    "SecurityPrincipalId": {
+                        "value": "[parameters('SecurityPrincipalId')]"
                     },
                     "StorageAccountName": {
                         "value": "[variables('Names').StorageAccount]"

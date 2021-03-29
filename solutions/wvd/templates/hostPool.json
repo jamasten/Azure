@@ -41,6 +41,9 @@
         "PreferredAppGroupType": {
             "type": "string"
         },
+        "SecurityPrincipalId": {
+            "type": "string"
+        },
         "StorageAccountName": {
             "type": "string"
         },
@@ -95,6 +98,20 @@
                 "hostPoolArmPath": "[resourceId('Microsoft.DesktopVirtualization/hostpools', parameters('HostPoolName'))]",
                 "description": "[parameters('AppGroupDescription')]",
                 "applicationGroupType": "[parameters('AppGroupType')]"
+            }
+        },
+        {
+            "comments": "---------- ROLE ASSIGNMENT > APP GROUP ----------",
+            "type": "Microsoft.Authorization/roleAssignments",
+            "apiVersion": "2017-09-01",
+            "name": "657e86ff-0078-40b8-941e-c2a3a016f740",
+            "dependsOn": [
+                "[resourceId('Microsoft.DesktopVirtualization/applicationgroups', parameters('AppGroupName'))]"
+            ],
+            "properties": {
+                "roleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', '1d18fff3-a72a-46b5-b4a9-0b38a3cd7e63')]",
+                "principalId": "[parameters('SecurityPrincipalId')]",
+                "scope": "[resourceId('Microsoft.DesktopVirtualization/applicationgroups', parameters('AppGroupName'))]"
             }
         },
         {

@@ -148,7 +148,7 @@
                     },
                     "osDisk": {
                         "osType": "Windows",
-                        "name": "[concat(parameters('DiskName'), padLeft(copyIndex(), 3, '0'), '-0')]",
+                        "name": "[concat(parameters('DiskName'), padLeft(copyIndex(), 3, '0'))]",
                         "createOption": "FromImage",
                         "caching": "None",
                         "managedDisk": {

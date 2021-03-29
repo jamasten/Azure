@@ -205,7 +205,7 @@
                             "configurationFunction": "Configuration.ps1\\AddSessionHost",
                             "properties": {
                                 "hostPoolName": "[parameters('HostPoolName')]",
-                                "registrationInfoToken": "[reference(resourceId(parameters('HostPoolResourceGroupName'), resourceId('Microsoft.DesktopVirtualization/hostpools', parameters('HostPoolName')))).registrationInfo.token]"
+                                "registrationInfoToken": "[reference(resourceId(parameters('HostPoolResourceGroupName'), 'Microsoft.DesktopVirtualization/hostpools', parameters('HostPoolName'))).registrationInfo.token]"
                             }
                         }
                     }

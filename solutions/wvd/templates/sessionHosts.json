@@ -12,7 +12,7 @@
             "type": "string"
         },
         "DomainAdminPassword": {
-            "type": "string"
+            "type": "securestring"
         },
         "DomainAdminUsername": {
             "type": "string"

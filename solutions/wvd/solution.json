@@ -81,15 +81,15 @@
             "defaultValue": "jasonmasten.com"
         },
         "DomainAdminPassword": {
-            "type": "string",
+            "type": "securestring",
             "metadata": {
-                "description": "description"
+                "description": "Input your domain administrator password to join the WVD session hosts to your domain"
             }
         },
         "DomainAdminUsername": {
             "type": "string",
             "metadata": {
-                "description": "description"
+                "description": "Input your domain administrator username to join the WVD session hosts to your domain. Only the username is required. Do not add the Netbios value."
             }
         },
         "Environment": {

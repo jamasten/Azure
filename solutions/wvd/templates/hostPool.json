@@ -46,9 +46,10 @@
         },
         "StorageSku": {
             "type": "string"
-        },
+        },        
         "Timestamp": {
-            "type": "string"
+            "type": "string",
+            "defaultValue": "[utcNow('u')]"
         },
         "ValidationEnvironment": {
             "type": "bool"

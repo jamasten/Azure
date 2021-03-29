@@ -191,7 +191,7 @@
         },
         "Timestamp": {
             "type": "string",
-            "defaultValue": "[utcNow('u')]"
+            "defaultValue": "[utcNow('yyyyMMddhhmmss')]"
         },
         "ValidationEnvironment": {
             "type": "bool",
@@ -377,9 +377,6 @@
                     },
                     "StorageSku": {
                         "value": "[parameters('StorageSku')]"
-                    },
-                    "Timestamp": {
-                        "value": "[parameters('Timestamp')]"
                     },
                     "ValidationEnvironment": {
                         "value": "[parameters('ValidationEnvironment')]"

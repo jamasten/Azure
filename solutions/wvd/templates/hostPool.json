@@ -57,9 +57,6 @@
             "type": "string"
         }
     },
-    "variables": {
-
-    },
     "resources": [
         {
             "comments": "---------- WVD HOST POOL ----------",

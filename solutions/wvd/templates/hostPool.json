@@ -175,7 +175,7 @@
             "name": "[concat(parameters('StorageAccountName'), '/default/', parameters('HostPoolName'))]",
             "dependsOn": [
                 "[parameters('StorageAccountName')]",
-                "[concat(parameters('StorageAccountName'), '/default')]"
+                "[resourceId('Microsoft.Storage/storageAccounts/fileServices', parameters('StorageAccountName'), 'default')]"
             ],
             "properties": {
                 "accessTier": "TransactionOptimized",

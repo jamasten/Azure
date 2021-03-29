@@ -27,6 +27,12 @@
             ],
             "defaultValue": "Desktop"
         },
+        "Classification": {
+            "type": "string",
+            "metadata": {
+                "description": "Input the data classification for the WVD resources.  This will be added to the tag for each resource."
+            }
+        },
         "CustomRdpProperty": {
             "type": "string",
             "metadata": {
@@ -97,7 +103,7 @@
         "Identifier": {
             "type": "string",
             "metadata": {
-                "description": "Unique value to define the project or purpose"
+                "description": "Unique value to define the purpose of this solution. This will be used in resource naming and added as a tag to each resource."
             },
             "defaultValue": "poc"
         },
@@ -160,7 +166,7 @@
         "Owner": {
             "type": "string",
             "metadata": {
-                "description": "Name of the person responsible for this solution"
+                "description": "Name of the person responsible for this solution.  This will be added to a tag for each resource."
             },
             "defaultValue": "Jason Masten"
         },
@@ -174,6 +180,13 @@
                 "RailApplications"
             ],
             "defaultValue": "Desktop"
+        },
+        "Project": {
+            "type": "string",
+            "metadata": {
+                "description": "Input the project associated with this WVD solution.  This will be added to a tag for each resource."
+            },
+            "defaultValue": "Lab"
         },
         "SecurityPrincipalId": {
             "type": "string",
@@ -322,8 +335,10 @@
         },
         "Tags": {
             "Owner": "[parameters('Owner')]",
-            "Purpose": "[parameters('Identifier')]", 
+            "Project": "[parameters('Project')]",
+            "Purpose": "[parameters('Identifier')]",
             "Environment": "[variables('Environment')[parameters('Environment')]]",
+            "Classification": "[parameters('Classification')]",
             "CreatedTimestamp": "[parameters('Timestamp')]"
         }
     },

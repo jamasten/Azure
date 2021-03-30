@@ -206,7 +206,7 @@
             "metadata": {
                 "description": "Distinguished name for the target Organization Unit in Active Directory Domain Services"
             },
-            "defaultValue": "OU=WVD,DC=jasonmasten,DC=com"
+            "defaultValue": ""
         },
         "Owner": {
             "type": "string",

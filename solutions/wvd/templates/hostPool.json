@@ -217,7 +217,7 @@
                     "dependsOn": [
                         "[parameters('StorageAccountName')]",
                         "[resourceId('Microsoft.Storage/storageAccounts/fileServices', parameters('StorageAccountName'), 'default')]",
-                        "[resourceId('Microsoft.Storage/storageAccounts/fileServices/shares', parameters('StorageAccountName'), '/default/', parameters('HostPoolName'))]"
+                        "[resourceId('Microsoft.Storage/storageAccounts/fileServices/shares', parameters('StorageAccountName'), 'default', parameters('HostPoolName'))]"
                     ],
                     "properties": {
                         "roleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', '0c867c2a-1d8c-454a-a3db-ab2ea1bdc8bb')]",

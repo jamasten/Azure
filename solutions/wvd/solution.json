@@ -111,20 +111,6 @@
             },
             "defaultValue": 100
         },
-        "HostPoolDescription": {
-            "type": "string",
-            "metadata": {
-                "description": "Description of the host pool"
-            },
-            "defaultValue": ""
-        },
-        "HostPoolDisplayName": {
-            "type": "string",
-            "metadata": {
-                "description": "The friendly name for the host pool."
-            },
-            "defaultValue": ""
-        },
         "HostPoolType": {
             "type": "string",
             "metadata": {
@@ -443,12 +429,6 @@
                     },
                     "FileShareQuota": {
                         "value": "[parameters('FileShareQuota')]"
-                    },
-                    "HostPoolDescription": {
-                        "value": "[parameters('HostPoolDescription')]"
-                    },
-                    "HostPoolDisplayName": {
-                        "value": "[parameters('HostPoolDisplayName')]"
                     },
                     "HostPoolName": {
                         "value": "[variables('Names').HostPool]"

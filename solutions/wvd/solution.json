@@ -240,6 +240,13 @@
             },
             "defaultValue": 1
         },
+        "SessionHostIndex": {
+            "type": "int",
+            "metadata": {
+                "description": "The session host number to begin with for the deployment. This is important when adding VM's to ensure the names do not conflict."
+            },
+            "defaultValue": 0
+        },
         "StorageSku": {
             "type": "string",
             "metadata": {
@@ -534,6 +541,9 @@
                     },
                     "SessionHostCount": {
                         "value": "[parameters('SessionHostCount')]"
+                    },
+                    "SessionHostIndex": {
+                        "value": "[parameters('SessionHostIndex')]"
                     },
                     "StorageSku": {
                         "value": "[parameters('StorageSku')]"

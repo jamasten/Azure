@@ -50,6 +50,9 @@
         "SessionHostCount": {
             "type": "int"
         },
+        "SessionHostIndex": {
+            "type": "int"
+        },
         "StorageSku": {
             "type": "string"
         },
@@ -101,7 +104,7 @@
             "comments": "---------- NETWORK INTERFACES ----------",
             "type": "Microsoft.Network/networkInterfaces",
             "apiVersion": "2020-05-01",
-            "name": "[concat(parameters('NicName'), padLeft(copyIndex(), 3, '0'))]",
+            "name": "[concat(parameters('NicName'), padLeft(copyIndex(parameters('SessionHostIndex')), 3, '0'))]",
             "location": "[parameters('Location')]",
             "tags": "[parameters('Tags')]",
             "copy": {
@@ -130,7 +133,7 @@
             "comments": "---------- VIRTUAL MACHINES ----------",
             "type": "Microsoft.Compute/virtualMachines",
             "apiVersion": "2019-07-01",
-            "name": "[concat(parameters('VmName'), padLeft(copyIndex(), 3, '0'))]",
+            "name": "[concat(parameters('VmName'), padLeft(copyIndex(parameters('SessionHostIndex')), 3, '0'))]",
             "location": "[parameters('Location')]",
             "tags": "[parameters('Tags')]",
             "dependsOn": [
@@ -157,7 +160,7 @@
                     },
                     "osDisk": {
                         "osType": "Windows",
-                        "name": "[concat(parameters('DiskName'), padLeft(copyIndex(), 3, '0'))]",
+                        "name": "[concat(parameters('DiskName'), padLeft(copyIndex(parameters('SessionHostIndex')), 3, '0'))]",
                         "createOption": "FromImage",
                         "caching": "None",
                         "managedDisk": {
@@ -168,7 +171,7 @@
                     "dataDisks": []
                 },
                 "osProfile": {
-                    "computerName": "[concat(parameters('VmName'), padLeft(copyIndex(), 3, '0'))]",
+                    "computerName": "[concat(parameters('VmName'), padLeft(copyIndex(parameters('SessionHostIndex')), 3, '0'))]",
                     "adminUsername": "[parameters('VmUsername')]",
                     "adminPassword": "[parameters('VmPassword')]",
                     "windowsConfiguration": {
@@ -181,7 +184,7 @@
                 "networkProfile": {
                     "networkInterfaces": [
                         {
-                            "id": "[resourceId('Microsoft.Network/networkInterfaces', concat(parameters('NicName'), padLeft(copyIndex(), 3, '0')))]"
+                            "id": "[resourceId('Microsoft.Network/networkInterfaces', concat(parameters('NicName'), padLeft(copyIndex(parameters('SessionHostIndex')), 3, '0')))]"
                         }
                     ]
                 },
@@ -201,7 +204,7 @@
                     "location": "[parameters('Location')]",
                     "tags": "[parameters('Tags')]",
                     "dependsOn": [
-                        "[concat(parameters('VmName'), padLeft(copyIndex(), 3, '0'))]"
+                        "[concat(parameters('VmName'), padLeft(copyIndex(parameters('SessionHostIndex')), 3, '0'))]"
                     ],
                     "properties": {
                         "forceUpdateTag": "[parameters('Timestamp')]",
@@ -227,7 +230,7 @@
                     "location": "[parameters('Location')]",
                     "tags": "[parameters('Tags')]",
                     "dependsOn": [
-                        "[concat(parameters('VmName'), padLeft(copyIndex(), 3, '0'))]",
+                        "[concat(parameters('VmName'), padLeft(copyIndex(parameters('SessionHostIndex')), 3, '0'))]",
                         "Dsc"
                     ],
                     "properties": {

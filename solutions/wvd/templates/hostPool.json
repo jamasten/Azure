@@ -217,7 +217,6 @@
                     "dependsOn": [
                         "[concat(parameters('StorageAccountName'), '/default/', parameters('HostPoolName'))]"
                     ],
-                    
                     "properties": {
                         "roleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', '0c867c2a-1d8c-454a-a3db-ab2ea1bdc8bb')]",
                         "principalId": "[parameters('SecurityPrincipalId')]"

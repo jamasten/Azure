@@ -207,24 +207,7 @@
                 "accessTier": "TransactionOptimized",
                 "shareQuota": "[parameters('FileShareQuota')]",
                 "enabledProtocols": "SMB"
-            },
-            "resources": [
-                {
-                    "comments": "---------- ROLE ASSIGNMENT ----------",
-                    "type": "Microsoft.Storage/storageAccounts/fileServices/shares/providers/roleAssignments",
-                    "apiVersion": "2018-01-01-preview",
-                    "name": "[concat(parameters('StorageAccountName'), '/default/', parameters('HostPoolName'), '/Microsoft.Authorization/9051df11-578f-4a06-b3e7-0fa589491b40')]",
-                    "dependsOn": [
-                        "[parameters('StorageAccountName')]",
-                        "[resourceId('Microsoft.Storage/storageAccounts/fileServices', parameters('StorageAccountName'), 'default')]",
-                        "[resourceId('Microsoft.Storage/storageAccounts/fileServices/shares', parameters('StorageAccountName'), 'default', parameters('HostPoolName'))]"
-                    ],
-                    "properties": {
-                        "roleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', '0c867c2a-1d8c-454a-a3db-ab2ea1bdc8bb')]",
-                        "principalId": "[parameters('SecurityPrincipalId')]"
-                    }
-                }
-            ]
+            }
         }
     ]
 }

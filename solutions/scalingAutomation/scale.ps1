@@ -712,7 +712,7 @@ try {
 			if ($SessionHost.Status -in $DesiredRunningStates -and $SessionHost.AllowNewSession) {
 				++$nRunningVMs
 				$nRunningCores += $VMSizeCores[$VMInstance.HardwareProfile.VmSize]
-				if($ARM)
+				if($ARM -eq 'true')
 				{
 					$nUserSessionsFromAllRunningVMs += $SessionHost.Session
 				}

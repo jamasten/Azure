@@ -204,7 +204,7 @@
         "OuPath": {
             "type": "string",
             "metadata": {
-                "description": "Distinguished name for the target Organization Unit in Active Directory Domain Services"
+                "description": "Distinguished name for the target Organization Unit in Active Directory Domain Services. Leave blank for the Computers OU. Example: OU=Pooled,OU=WVD,DC=jasonmasten,DC=com"
             },
             "defaultValue": ""
         },

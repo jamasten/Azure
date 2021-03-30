@@ -37,7 +37,7 @@
                 "Private",
                 "Confidential"
             ],
-            "defaultValue": "Public"
+            "defaultValue": "Private"
         },
         "CriticalityLevel": {
             "type": "int",

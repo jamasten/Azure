@@ -11,11 +11,10 @@ param (
 	# Note: optional for simulating user sessions
 	[System.Nullable[int]]$OverrideNUserSessions
 )
-try {
-	[version]$Version = '0.1.38'
-	#region set err action preference, extract & validate input rqt params
 
-	# Setting ErrorActionPreference to stop script execution when error occurs
+try {
+	
+	[version]$Version = '0.1.38'
 	$ErrorActionPreference = 'Stop'
 	# Note: this is to force cast in case it's not of the desired type. Specifying this type inside before the param inside param () doesn't work because it still accepts other types and doesn't cast it to this type
 	$WebHookData = [PSCustomObject]$WebHookData
@@ -45,16 +44,32 @@ try {
 		throw 'RequestBody of WebHookData is empty'
 	}
 
-	[string[]]$RequiredStrParams = @(
-		'ResourceGroupName'
-		'HostPoolName'
-		'TimeDifference'
-		'BeginPeakTime'
-		'EndPeakTime'
-	)
+	[string]$ARM = Get-PSObjectPropVal -Obj $RqtParams -Key 'UseARMAPI'
+	if($ARM -eq 'true')
+	{
+		[string[]]$RequiredStrParams = @(
+			'ResourceGroupName'
+			'HostPoolName'
+			'TimeDifference'
+			'BeginPeakTime'
+			'EndPeakTime'
+		)
+	}
+	else
+	{
+		[string[]]$RequiredStrParams = @(
+			'TenantName'
+			'HostPoolName'
+			'TimeDifference'
+			'BeginPeakTime'
+			'EndPeakTime'
+		)
+	}
+
 	if (Get-PSObjectPropVal -Obj $RqtParams -Key 'LimitSecondsToForceLogOffUser') {
 		$RequiredStrParams += @('LogOffMessageTitle', 'LogOffMessageBody')
 	}
+	
 	[string[]]$RequiredParams = @('SessionThresholdPerCPU', 'MinimumNumberOfRDSH', 'LimitSecondsToForceLogOffUser')
 	[string[]]$InvalidParams = @($RequiredStrParams | Where-Object { [string]::IsNullOrWhiteSpace((Get-PSObjectPropVal -Obj $RqtParams -Key $_)) })
 	[string[]]$InvalidParams += @($RequiredParams | Where-Object { $null -eq (Get-PSObjectPropVal -Obj $RqtParams -Key $_) })
@@ -81,7 +96,6 @@ try {
 	[int]$LimitSecondsToForceLogOffUser = $RqtParams.LimitSecondsToForceLogOffUser
 	[string]$LogOffMessageTitle = Get-PSObjectPropVal -Obj $RqtParams -Key 'LogOffMessageTitle'
 	[string]$LogOffMessageBody = Get-PSObjectPropVal -Obj $RqtParams -Key 'LogOffMessageBody'
-	[string]$ARM = Get-PSObjectPropVal -Obj $RqtParams -Key 'UseARMAPI'
 
 	# Note: if this is enabled, the script will assume that all the authentication is already done in current or parent scope before calling this script
 	[bool]$SkipAuth = !!(Get-PSObjectPropVal -Obj $RqtParams -Key 'SkipAuth')
@@ -283,7 +297,8 @@ try {
 			[string]$SessionHostName = $VM.SessionHostName
 			Write-Log -HostPoolName $HostPoolName -Message "Update session host '$SessionHostName' to set allow new sessions to $AllowNewSession"
 			if ($PSCmdlet.ShouldProcess($SessionHostName, "Update session host to set allow new sessions to $AllowNewSession")) {
-				try {
+				try 
+				{
 					if($ARM -eq 'true')
 					{
 						$SessionHost = $VM.SessionHost = Update-AzWvdSessionHost -ResourceGroupName $ResourceGroupName -Name $SessionHostName -AllowNewSession:$AllowNewSession
@@ -292,11 +307,14 @@ try {
 					{
 						$SessionHost = $VM.SessionHost = Set-RdsSessionHost -TenantName $TenantName -HostPoolName $HostPoolName -Name $SessionHostName -AllowNewSession:$AllowNewSession
 					}
-					if ($SessionHost.AllowNewSession -ne $AllowNewSession) {
+
+					if ($SessionHost.AllowNewSession -ne $AllowNewSession) 
+					{
 						throw $SessionHost
 					}
 				}
-				catch {
+				catch 
+				{
 					Write-Log -HostPoolName $HostPoolName -Warn -Message "Failed to update the session host '$SessionHostName' to set allow new sessions to $($AllowNewSession): $($PSItem | Format-List -Force | Out-String)"
 				}
 			}
@@ -449,6 +467,23 @@ try {
 				Write-Log -HostPoolName $HostPoolName -Message "Successfully set the Azure context with the tenant ID, subscription ID: $($AzContext | Format-List -Force | Out-String)"
 			}
 		}
+
+		if($ARM -eq 'false')
+		{
+			# WVD auth
+			try 
+			{
+				$WVDContext = Add-RdsAccount -DeploymentUrl $RDBrokerURL -ApplicationId $ConnectionAsset.ApplicationId -CertificateThumbprint $ConnectionAsset.CertificateThumbprint -AADTenantId $ConnectionAsset.TenantId
+				if (!$WVDContext) {
+					throw $WVDContext
+				}
+			}
+			catch 
+			{
+				throw [System.Exception]::new("Failed to authenticate WVD with application ID, AAD tenant ID, deloyment URL: '$RDBrokerURL'", $PSItem.Exception)
+			}
+			Write-Log "Successfully authenticated with WVD using service principal: $($WVDContext | Format-List -Force | Out-String)"
+		}
 	}
 	else 
 	{
@@ -552,13 +587,13 @@ try {
 	if (!$SkipUpdateLoadBalancerType -and $HostPool.LoadBalancerType -ine 'BreadthFirst') {
 		Write-Log -HostPoolName $HostPoolName -Message "Update HostPool with 'BreadthFirst' load balancer type (current: '$($HostPool.LoadBalancerType)')"
 		if ($PSCmdlet.ShouldProcess($HostPoolName, "Update HostPool with BreadthFirstLoadBalancer type (current: '$($HostPool.LoadBalancerType)')")) {
-			$HostPool = if($ARM -eq 'true')
+			if($ARM -eq 'true')
 			{
-				Update-AzWvdHostPool -ResourceGroupName $ResourceGroupName -Name $HostPoolName -LoadBalancerType 'BreadthFirst'
+				$HostPool = Update-AzWvdHostPool -ResourceGroupName $ResourceGroupName -Name $HostPoolName -LoadBalancerType 'BreadthFirst'
 			}
 			else
 			{
-				Set-RdsHostPool -TenantName $TenantName -Name $HostPoolName -BreadthFirstLoadBalancer
+				$HostPool = Set-RdsHostPool -TenantName $TenantName -Name $HostPoolName -BreadthFirstLoadBalancer
 			}
 		}
 	}
@@ -634,10 +669,21 @@ try {
 
 		$VM = $VMs[$VMName]
 		$SessionHost = $VM.SessionHost
-		if ((Get-PSObjectPropVal -Obj $SessionHost -Key 'VirtualMachineId') -and $VMInstance.VmId -ine $SessionHost.VirtualMachineId) {
-			# This VM is not a WVD session host
-			continue
+		if($ARM -eq 'true')
+		{
+			if ((Get-PSObjectPropVal -Obj $SessionHost -Key 'VirtualMachineId') -and $VMInstance.VmId -ine $SessionHost.VirtualMachineId) {
+				# This VM is not a WVD session host
+				continue
+			}
 		}
+		else
+		{
+			if ((Get-PSObjectPropVal -Obj $SessionHost -Key 'AzureVmId') -and $VMInstance.VmId -ine $SessionHost.AzureVmId) {
+				# This VM is not a WVD session host
+				continue
+			}
+		}
+
 		if ($VM.Instance) {
 			throw "More than 1 VM found in Azure with same session host name '$($VM.SessionHostName)' (This is not supported): $($VMInstance | Format-List -Force | Out-String)$($VM.Instance | Format-List -Force | Out-String)"
 		}
@@ -666,7 +712,14 @@ try {
 			if ($SessionHost.Status -in $DesiredRunningStates -and $SessionHost.AllowNewSession) {
 				++$nRunningVMs
 				$nRunningCores += $VMSizeCores[$VMInstance.HardwareProfile.VmSize]
-				$nUserSessionsFromAllRunningVMs += $SessionHost.Session
+				if($ARM)
+				{
+					$nUserSessionsFromAllRunningVMs += $SessionHost.Session
+				}
+				else
+				{
+					$nUserSessionsFromAllRunningVMs += $SessionHost.Sessions
+				}
 			}
 		}
 		else {

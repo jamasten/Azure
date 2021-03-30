@@ -1,5 +1,10 @@
 # Create or Update a WVD deployment
 
+## Prerequisites
+
+- Setup an OU in ADDS for your WVD Session Hosts. Make note of its Distinguished Name
+- Create Security Groups in ADDS for your WVD users and administrators.  Once these objects have synchronized to Azure AD, make note of their Object ID's in Azure AD.
+
 ## Template Parameters
 
 ### REQUIRED

@@ -241,8 +241,8 @@
                             "User": "[concat(parameters('Netbios'), '\\', parameters('DomainAdminUsername'))]",
                             "Restart": "true",
                             "Options": "3",
-                            //"OUPath": "[concat('\"', parameters('OuPath'), '\"')]"
-                            "OUPath": "[parameters('OuPath')]"
+                            "OUPath": "[concat('\"', parameters('OuPath'), '\"')]"
+                            //"OUPath": "[parameters('OuPath')]"
                         },
                         "protectedSettings": {
                             "Password": "[parameters('DomainAdminPassword')]"

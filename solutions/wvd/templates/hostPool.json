@@ -2,9 +2,6 @@
     "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
-        "AppGroupDescription": {
-            "type": "string"
-        },
         "AppGroupName": {
             "type": "string"
         },
@@ -93,7 +90,6 @@
             ],
             "properties": {
                 "hostPoolArmPath": "[resourceId('Microsoft.DesktopVirtualization/hostpools', parameters('HostPoolName'))]",
-                "description": "[parameters('AppGroupDescription')]",
                 "applicationGroupType": "[parameters('AppGroupType')]"
             },
             "resources": [

@@ -2,13 +2,6 @@
     "$schema": "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
-        "AppGroupDescription": {
-            "type": "string",
-            "metadata": {
-                "description": ""
-            },
-            "defaultValue": ""
-        },
         "AppGroupName": {
             "type": "string",
             "metadata": {
@@ -422,9 +415,6 @@
                     "contentVersion": "1.0.0.0"
                 },
                 "parameters": {
-                    "AppGroupDescription": {
-                        "value": "[parameters('AppGroupDescription')]"
-                    },
                     "AppGroupName": {
                         "value": "[parameters('AppGroupName')]"
                     },

@@ -1,8 +1,11 @@
-# Scale WVD Session Hosts using Azure Automation
+# Scale Automation solution
 
 ## STEP 1: Deploy the Automation Account
 
 ### Description
+
+<details>
+<summary>Click to expand</summary>
 
 This ARM template will deploy the following resources:
 
@@ -15,7 +18,12 @@ This ARM template will deploy the following resources:
 
 By configuring the "workspace" parameters for this deployment, the Runbook job logs will be sent to a Log Analytics Workspace.  Review this Docs page, "[View Automation logs in Azure Monitor logs](https://docs.microsoft.com/en-us/azure/automation/automation-manage-send-joblogs-log-analytics#view-automation-logs-in-azure-monitor-logs)", for the KQL queries to view the log data and create alerts.
 
+</details>
+
 ### Template Parameters
+
+<details>
+<summary>Click to expand</summary>
 
 #### REQUIRED
 
@@ -25,6 +33,8 @@ By configuring the "workspace" parameters for this deployment, the Runbook job l
 #### OPTIONAL
 
 * **LogAnalyticsWorkspaceResourceId**: Resource ID of the Log Analytics Workspace to use for logging the Runbook jobs and job stream in Azure Automation
+
+</details>
 
 ### Try with Azure Portal
 
@@ -63,9 +73,17 @@ https://docs.microsoft.com/en-us/azure/virtual-desktop/set-up-scaling-script#cre
 
 ### Description
 
+<details>
+<summary>Click to expand</summary>
+
 This ARM template will deploy a Logic App to trigger the scaling runbook in Azure Automation.
 
+</details>
+
 ### Template Parameters
+
+<details>
+<summary>Click to expand</summary>
 
 #### REQUIRED
 
@@ -92,6 +110,8 @@ This ARM template will deploy a Logic App to trigger the scaling runbook in Azur
 
 * **LogOffTitle**: The title of the message sent to the user before they are forced to sign out
 * **LogOffMessage**: The body of the message sent to the user before they are forced to sign out
+
+</details>
 
 ### Try with Azure Portal
 

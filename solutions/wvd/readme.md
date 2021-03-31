@@ -14,10 +14,6 @@
 
 - **AppGroupName**: The name of the WVD application group
 - **AppGroupType**: The type of the WVD application group
-- **Classification**: The data classification for the WVD resources.  This will be added to a tag for each resource.
-- **CriticalityLevel**: Number defining the criticality of the WVD solution.
-- **CustomRdpProperty**: The RDP properties to add or remove RDP functionality on the host pool. [Settings reference](https://docs.microsoft.com/en-us/windows-server/remote/remote-desktop-services/clients/rdp-files?context=/azure/virtual-desktop/context/context)
-- **Department**: The department within your organization owning this WVD solution. This will be added to a tag for each resource.
 - **DiskSku**: Storage SKU for the WVD session host disks
 - **DomainAbbreviation**: An abbreviation for your domain or organization to uniquely name your Azure Storage Accounts across all of Azure.
 - **DomainName**: Name of the domain that provides ADDS to the WVD session hosts and is synchronized with Azure AD
@@ -35,17 +31,12 @@
 - **MaxSessionLimit**: Maximum sessions per WVD session host
 - **newOrExisting**: This value determines if you are deploying the whole solution or redeploying to add session hosts to the host pool.
 - **Ordinal**: Deployment number for WVD; determines which project or group this falls under
-- **OuPath**: Distinguished name for the target Organization Unit in Active Directory Domain Services. Leave blank for the Computers OU. Example: OU=Pooled,OU=WV- DC=jasonmasten,DC=com**
-- **Owner**: Name of the person responsible for this solution.  This will be added to a tag for each resource.
 - **PreferredAppGroupType**: The type of preferred application group type.  The default is Desktop which creates 'Desktop Application Group'
-- **Project**: Input the project associated with this WVD solution.  This will be added to a tag for each resource.
-- **Region**: Input the region of your office.  This will be added to a tag for each resource
 - **SecurityPrincipalId**: The Object ID for the Security Principal to assign to the WVD Application Group.  This Security Principal will be assigned the Desktop Virtualization User role on the Application Group.
 - **SessionHostCount**: Number of session hosts to deploy in the host pool
 - **SessionHostIndex**: The session host number to begin with for the deployment. This is important when adding VM's to ensure the names do not conflict.
 - **StorageAccountSku**: Storage SKU for the WVD session host disks
 - **Subnet**: Subnet for the WVD session hosts
-- **Timestamp**: This value is used to rerun the DSC and Domain Join extensions when the template needs to be redeployed due to an error.
 - **ValidationEnvironment**: The value determines whether the host pool should receive early WVD updates for testing.
 - **VirtualNetwork**: Virtual network for the WVD sessions hosts
 - **VirtualNetworkResourceGroup**: Virtual network resource group for the WVD sessions hosts
@@ -54,6 +45,16 @@
 - **VmUsername**: Local administrator username for the session hosts
 
 ### OPTIONAL
+
+- **Classification**: The data classification for the WVD resources.  This will be added to a tag for each resource.
+- **CriticalityLevel**: Number defining the criticality of the WVD solution.
+- **CustomRdpProperty**: The RDP properties to add or remove RDP functionality on the host pool. [Settings reference](https://docs.microsoft.com/en-us/windows-server/remote/remote-desktop-services/clients/rdp-files?context=/azure/virtual-desktop/context/context)
+- **Department**: The department within your organization owning this WVD solution. This will be added to a tag for each resource.
+- **OuPath**: Distinguished name for the target Organization Unit in Active Directory Domain Services. Leave blank for the Computers OU. Example: OU=Pooled,OU=WV- DC=jasonmasten,DC=com**
+- **Owner**: Name of the person responsible for this solution.  This will be added to a tag for each resource.
+- **Project**: Input the project associated with this WVD solution.  This will be added to a tag for each resource.
+- **Region**: Input the region of your office.  This will be added to a tag for each resource
+- **Timestamp**: This value is used to rerun the DSC and Domain Join extensions when the template needs to be redeployed due to an error.
 
 </details>
 

@@ -7,7 +7,6 @@
 
 ## ARM Template Parameters
 
-----
 <details>
 <summary>Click to expand</summary>
 

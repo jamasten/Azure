@@ -38,7 +38,7 @@
         "StorageAccountName": {
             "type": "string"
         },
-        "StorageSku": {
+        "StorageAccountSku": {
             "type": "string"
         },
         "Tags": {
@@ -74,7 +74,7 @@
                 },
                 "preferredAppGroupType": "[parameters('PreferredAppGroupType')]",
                 "customRdpProperty": "[parameters('CustomRdpProperty')]",
-                "personalDesktopAssignmentType": "[if(contains(parameters('HostPoolType'), 'Personal'), split(parameters('HostPoolType'), ' ')[1], null())]",
+                "personalDesktopAssignmentType": "[if(contains(parameters('HostPoolType'), 'Personal'), split(parameters('HostPoolType'), ' ')[1], null())]"
             }
         },
         {
@@ -134,10 +134,10 @@
             "location": "[parameters('Location')]",
             "tags": "[parameters('Tags')]",
             "sku": {
-                "name": "[parameters('StorageSku')]",
-                "tier": "[split(parameters('StorageSku'), '_')[0]]"
+                "name": "[parameters('StorageAccountSku')]",
+                "tier": "[split(parameters('StorageAccountSku'), '_')[0]]"
             },
-            "kind": "[if(equals(split(parameters('StorageSku'), '_')[0], 'Standard'), 'StorageV2', 'FileStorage')]",
+            "kind": "[if(equals(split(parameters('StorageAccountSku'), '_')[0], 'Standard'), 'StorageV2', 'FileStorage')]",
             "properties": {
                 "minimumTlsVersion": "TLS1_2",
                 "allowBlobPublicAccess": false,

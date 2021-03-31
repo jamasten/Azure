@@ -8,6 +8,9 @@
         "DiskName": {
             "type": "string"
         },
+        "DiskSku": {
+            "type": "string"
+        },
         "DomainName": {
             "type": "string"
         },
@@ -52,9 +55,6 @@
         },
         "SessionHostIndex": {
             "type": "int"
-        },
-        "StorageSku": {
-            "type": "string"
         },
         "Subnet": {
             "type": "string"
@@ -164,7 +164,7 @@
                         "createOption": "FromImage",
                         "caching": "None",
                         "managedDisk": {
-                            "storageAccountType": "[parameters('StorageSku')]"
+                            "storageAccountType": "[parameters('DiskSku')]"
                         },
                         "diskSizeGB": 127
                     },

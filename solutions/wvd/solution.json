@@ -48,7 +48,7 @@
         "CustomRdpProperty": {
             "type": "string",
             "metadata": {
-                "description": "Input RDP properties to add or remove RDP functionality on the host pool"
+                "description": "Input RDP properties to add or remove RDP functionality on the host pool. Settings reference: https://docs.microsoft.com/en-us/windows-server/remote/remote-desktop-services/clients/rdp-files?context=/azure/virtual-desktop/context/context"
             },
             "defaultValue": "audiocapturemode:i:1;camerastoredirect:s:*;use multimon:i:0;"
         },
@@ -58,6 +58,18 @@
                 "description": "The department within your organization owning this WVD solution. This will be added to a tag for each resource."
             },
             "defaultValue": "FastTrack for Azure"
+        },
+        "DiskSku": {
+            "type": "string",
+            "metadata": {
+                "description": "Storage SKU for the WVD session host disks"
+            },
+            "allowedValues": [
+                "Standard_LRS",
+                "StandardSSD_LRS",
+                "Premium_LRS"
+            ],
+            "defaultValue": "Standard_LRS"
         },
         "DomainAbbreviation": {
             "type": "string",
@@ -240,11 +252,15 @@
             },
             "defaultValue": 0
         },
-        "StorageSku": {
+        "StorageAccountSku": {
             "type": "string",
             "metadata": {
                 "description": "Storage SKU for the WVD session host disks"
             },
+            "allowedValues": [
+                "Standard_LRS",
+                "Premium_LRS"
+            ],
             "defaultValue": "Standard_LRS"
         },
         "Subnet": {
@@ -300,6 +316,7 @@
         }
     },
     "variables": {
+        "Identifier": "[toLower(parameters('Identifier'))]",
         "LocationLookup": {
             "australiacentral": "ac",
             "australiacentral2": "ac2",
@@ -351,14 +368,14 @@
             "westus3": "wus3"
         },
         "LocationAbbr": "[variables('LocationLookup')[parameters('Location')]]",
-        "NameSuffix": "[concat(parameters('Identifier'), '-', parameters('Environment'), '-', variables('LocationAbbr'), '-', parameters('Ordinal'))]",
+        "NameSuffix": "[concat(variables('Identifier'), '-', parameters('Environment'), '-', variables('LocationAbbr'), '-', parameters('Ordinal'))]",
         "Names": {
             "AvailabilitySet": "[concat('as-', variables('NameSuffix'))]",
-            "Disk": "[concat('disk-sh-', parameters('Identifier'), '-', parameters('Environment'), '-', variables('LocationAbbr'), '-')]",
+            "Disk": "[concat('disk-sh-', variables('Identifier'), '-', parameters('Environment'), '-', variables('LocationAbbr'), '-')]",
             "HostPool": "[concat('hp-', variables('NameSuffix'))]",
-            "Nic": "[concat('nic-sh-', parameters('Identifier'), '-', parameters('Environment'), '-', variables('LocationAbbr'), '-')]",
-            "StorageAccount": "[concat('stor', substring(parameters('DomainAbbreviation'), 0, 2), substring(parameters('Identifier'), 0, 3), parameters('Environment'), variables('LocationAbbr'), parameters('Ordinal'))]",
-            "Vm": "[concat('vmsh', substring(parameters('Identifier'), 0, 3), parameters('Environment'), variables('LocationAbbr'))]",
+            "Nic": "[concat('nic-sh-', variables('Identifier'), '-', parameters('Environment'), '-', variables('LocationAbbr'), '-')]",
+            "StorageAccount": "[concat('stor', substring(parameters('DomainAbbreviation'), 0, 2), substring(variables('Identifier'), 0, 3), parameters('Environment'), variables('LocationAbbr'), parameters('Ordinal'))]",
+            "Vm": "[concat('vmsh', substring(variables('Identifier'), 0, 3), parameters('Environment'), variables('LocationAbbr'))]",
             "Workspace": "[concat('ws-', variables('NameSuffix'))]"
         },
         "Netbios": "[split(parameters('DomainName'), '.')[0]]",
@@ -387,7 +404,7 @@
         {
             "comments": "---------- RESOURCE GROUPS ----------",
             "condition": "[equals(parameters('newOrExisting'), 'new')]",
-            "name": "[concat('rg-', variables('ResourceGroupType')[copyIndex()],'-', parameters('Identifier'),'-', parameters('Environment'),'-', variables('LocationAbbr'), '-', parameters('Ordinal'))]",
+            "name": "[concat('rg-', variables('ResourceGroupType')[copyIndex()],'-', variables('Identifier'),'-', parameters('Environment'),'-', variables('LocationAbbr'), '-', parameters('Ordinal'))]",
             "type": "Microsoft.Resources/resourceGroups",
             "apiVersion": "2019-10-01",
             "location": "[parameters('Location')]",
@@ -404,7 +421,7 @@
             "apiVersion": "2019-10-01",
             "name": "[concat('HostPool_', parameters('Timestamp'))]",
             "tags": "[variables('Tags')]",
-            "resourceGroup": "[concat('rg-wvd-infra-', parameters('Identifier'),'-', parameters('Environment'),'-', variables('LocationAbbr'), '-', parameters('Ordinal'))]",
+            "resourceGroup": "[concat('rg-wvd-infra-', variables('Identifier'),'-', parameters('Environment'),'-', variables('LocationAbbr'), '-', parameters('Ordinal'))]",
             "dependsOn": [
                 "rgLoop"
             ],
@@ -451,8 +468,8 @@
                     "StorageAccountName": {
                         "value": "[variables('Names').StorageAccount]"
                     },
-                    "StorageSku": {
-                        "value": "[parameters('StorageSku')]"
+                    "StorageAccountSku": {
+                        "value": "[parameters('StorageAccountSku')]"
                     },
                     "Tags": {
                         "value": "[variables('Tags')]"
@@ -472,7 +489,7 @@
             "apiVersion": "2019-10-01",
             "name": "[concat('SessionHosts_', parameters('Timestamp'))]",
             "tags": "[variables('Tags')]",
-            "resourceGroup": "[concat('rg-wvd-hosts-', parameters('Identifier'),'-', parameters('Environment'),'-', variables('LocationAbbr'), '-', parameters('Ordinal'))]",
+            "resourceGroup": "[concat('rg-wvd-hosts-', variables('Identifier'),'-', parameters('Environment'),'-', variables('LocationAbbr'), '-', parameters('Ordinal'))]",
             "dependsOn": [
                 "rgLoop",
                 "[concat('HostPool_', parameters('Timestamp'))]"
@@ -503,7 +520,7 @@
                         "value": "[variables('Names').HostPool]"
                     },
                     "HostPoolResourceGroupName": {
-                        "value": "[concat('rg-wvd-infra-', parameters('Identifier'),'-', parameters('Environment'),'-', variables('LocationAbbr'), '-', parameters('Ordinal'))]"
+                        "value": "[concat('rg-wvd-infra-', variables('Identifier'),'-', parameters('Environment'),'-', variables('LocationAbbr'), '-', parameters('Ordinal'))]"
                     },
                     "ImageOffer": {
                         "value": "[parameters('ImageOffer')]"
@@ -535,8 +552,8 @@
                     "SessionHostIndex": {
                         "value": "[parameters('SessionHostIndex')]"
                     },
-                    "StorageSku": {
-                        "value": "[parameters('StorageSku')]"
+                    "DiskSku": {
+                        "value": "[parameters('DiskSku')]"
                     },
                     "Subnet": {
                         "value": "[parameters('Subnet')]"

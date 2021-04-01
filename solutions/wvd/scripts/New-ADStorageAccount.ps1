@@ -47,6 +47,8 @@ Write-Log -Message "Secure string conversion succeeded" -Type INFO
 
 $SPN = 'cifs/' + $StorageAccountName + $Suffix
 
+$Description = "Computer account object for Azure storage account $($StorageAccountName)."
+
 $Test = Get-ADComputer -Identity $StorageAccountName -ErrorAction SilentlyContinue
 if(!$Test)
 {
@@ -59,6 +61,7 @@ if(!$Test)
                 -ServicePrincipalNames $SPN `
                 -AccountPassword $Password `
                 -KerberosEncryptionType $KerberosEncryptionType `
+                -Description $Description `
                 -ErrorAction Stop
         } 
         else 
@@ -68,6 +71,7 @@ if(!$Test)
                 -ServicePrincipalNames $SPN `
                 -AccountPassword $Password `
                 -KerberosEncryptionType $KerberosEncryptionType `
+                -Description $Description `
                 -Path $OuPath `
                 -ErrorAction Stop
         }

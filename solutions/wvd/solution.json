@@ -620,6 +620,12 @@
                     "contentVersion": "1.0.0.0"
                 },
                 "parameters": {
+                    "DomainAdminPassword": {
+                        "value": "[parameters('DomainAdminPassword')]"
+                    },
+                    "DomainAdminUsername": {
+                        "value": "[parameters('DomainAdminUsername')]"
+                    },
                     "DomainControllerName": {
                         "value": "[parameters('DomainControllerName')]"
                     },

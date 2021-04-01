@@ -87,6 +87,7 @@ if(!$Test)
 
 $Domain = Get-ADDomain -ErrorAction Stop
 Write-Log -Message "Domain info collection succeeded" -Type INFO
+
 $ComputerSid = (Get-ADComputer -Identity $StorageAccountName -ErrorAction Stop).SID.Value
 Write-Log -Message "Computer object info collection succeeded" -Type INFO
 

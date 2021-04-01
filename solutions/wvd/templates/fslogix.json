@@ -178,15 +178,15 @@
                     $DomainArray = $DomainInfo.Split(',')
 
                     Set-AzStorageAccount `
-                            -ResourceGroupName $ResourceGroupName `
-                            -Name $StorageAccountName `
-                            -EnableActiveDirectoryDomainServicesForFile $true `
-                            -ActiveDirectoryDomainName $DomainName `
-                            -ActiveDirectoryNetBiosDomainName $Netbios `
-                            -ActiveDirectoryForestName $DomainName `
-                            -ActiveDirectoryDomainGuid $DomainArray[1] `
-                            -ActiveDirectoryDomainsid $DomainArray[2] `
-                            -ActiveDirectoryAzureStorageSid $DomainArray[3]
+                        -ResourceGroupName $ResourceGroupName `
+                        -Name $StorageAccountName `
+                        -EnableActiveDirectoryDomainServicesForFile $true `
+                        -ActiveDirectoryDomainName $DomainName `
+                        -ActiveDirectoryNetBiosDomainName $Netbios `
+                        -ActiveDirectoryForestName $DomainName `
+                        -ActiveDirectoryDomainGuid $DomainArray[1] `
+                        -ActiveDirectoryDomainsid $DomainArray[2] `
+                        -ActiveDirectoryAzureStorageSid $DomainArray[3]
                 ",
                 "arguments": "[format(' -StorageAccountName {0} -ResourceGroup {1} -DomainName {2} -Netbios {3} -DomainInfo {4}', parameters('StorageAccountName'), variables('ResourceGroupName'), parameters('DomainName'), parameters('Netbios'), reference('CustomScriptExtensionDeployment').outputs.DomainInfo.value)]",
                 "forceUpdateTag": "[parameters('Timestamp')]",

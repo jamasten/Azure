@@ -49,7 +49,7 @@ $SPN = 'cifs/' + $StorageAccountName + $Suffix
 
 $Description = "Computer account object for Azure storage account $($StorageAccountName)."
 
-$Test = Get-ADComputer -Identity $StorageAccountName -ErrorAction SilentlyContinue
+$Test = Get-ADComputer -Filter {Name -eq $StorageAccountName}
 if(!$Test)
 {
     try

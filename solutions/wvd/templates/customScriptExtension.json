@@ -43,7 +43,7 @@
                 "autoUpgradeMinorVersion": true,
                 "settings": {
                     "fileUris": [ "https://raw.githubusercontent.com/jamasten/Azure/master/solutions/wvd/scripts/New-ADStorageAccount.ps1" ],
-                    "commandToExecute": "[concat('powershell -ExecutionPolicy Unrestricted -File New-ADStorageAccount.ps1 -Environment ''', environment().name, ''' -KerberosEncryptionType ''', parameters('KerberosEncryptionType'), ''' -Key ''', parameters('KerberosKey'), ''' -OuPath ''', parameters('OuPath'), ''' -StorageAccountName ''', parameters('StorageAccountName'), '''')]",
+                    "commandToExecute": "[concat('powershell -ExecutionPolicy Unrestricted -File New-ADStorageAccount.ps1 -Environment ''', environment().name, ''' -KerberosEncryptionType ', parameters('KerberosEncryptionType'), ' -Key ''', parameters('KerberosKey'), ''' -OuPath ''', parameters('OuPath'), ''' -StorageAccountName ''', parameters('StorageAccountName'), '''')]",
                     "timestamp": "[parameters('Timestamp')]"
                 },
                 "protectedSettings": {}

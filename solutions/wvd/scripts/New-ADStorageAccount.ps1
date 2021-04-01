@@ -7,7 +7,7 @@ param
     [String]$KerberosEncryptionType,
 
     [Parameter(Mandatory)]
-    [SecureString]$Key,
+    [String]$Key,
 
     [Parameter(Mandatory=$false)]
     [String]$OuPath,
@@ -22,9 +22,11 @@ $Suffix = switch($Environment)
     AzureUSGovernment {'.file.core.usgovcloudapi.net'}
 }
 
+$Password = ConvertTo-SecureString -String $Key -AsPlainText -Force
+
 $SPN = 'cifs/' + $StorageAccountName + $Suffix
 
-$Test = Get-ADComputer -Identity $StorageAccountName
+$Test = (Get-ADComputer -Identity $StorageAccountName).SID.Value
 if(!$Test)
 {
     if(!$OuPath)
@@ -32,18 +34,17 @@ if(!$Test)
         New-ADComputer `
             -Name $StorageAccountName `
             -ServicePrincipalNames $SPN `
-            -AccountPassword $Key `
+            -AccountPassword $Password `
             -KerberosEncryptionType $KerberosEncryptionType
-
-    } else {
-
+    } 
+    else 
+    {
         New-ADComputer `
             -Name $StorageAccountName `
             -ServicePrincipalNames $SPN `
-            -AccountPassword $Key `
+            -AccountPassword $Password `
             -KerberosEncryptionType $KerberosEncryptionType `
             -Path $OuPath
-
     }
 }
 

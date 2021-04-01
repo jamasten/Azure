@@ -2,12 +2,6 @@
     "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
-        "DomainAdminPassword": {
-            "type": "string"
-        },
-        "DomainAdminUsername": {
-            "type": "string"
-        },
         "DomainControllerName": {
             "type": "string"
         },
@@ -125,17 +119,8 @@
                     "contentVersion": "1.0.0.0"
                 },
                 "parameters": {
-                    "DomainAdminPassword": {
-                        "value": "[parameters('DomainAdminPassword')]"
-                    },
-                    "DomainAdminUsername": {
-                        "value": "[parameters('DomainAdminUsername')]"
-                    },
                     "DomainControllerName": {
                         "value": "[parameters('DomainControllerName')]"
-                    },
-                    "DomainName": {
-                        "value": "[parameters('DomainName')]"
                     },
                     "KerberosEncryptionType": {
                         "value": "[parameters('KerberosEncryptionType')]"

@@ -1,5 +1,11 @@
 # Windows Virtual Desktop solution
 
+This solution will deploy Windows Virtual Desktop in an Azure subscription.    To successfully deploy the solution, you will need to ensure your scenario matches the assumptions below.  Also, you will need to complete some manual prerequisites before deploying the solution.
+
+## Assumptions
+
+- Domain Controllers are deployed in an Azure subscription that matches the target subscription for WVD
+
 ## Prerequisites
 
 - Setup an OU in ADDS for your WVD Session Hosts. Make note of its Distinguished Name

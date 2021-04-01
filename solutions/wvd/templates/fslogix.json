@@ -1,0 +1,184 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "DomainControllerName": {
+            "type": "string"
+        },
+        "DomainName": {
+            "type": "string"
+        },
+        "KerberosEncryptionType": {
+            "type": "string"
+        },
+        "Location": {
+            "type": "string"
+        },
+        "Netbios": {
+            "type": "string"
+        },
+        "OuPath": {
+            "type": "string"
+        },
+        "StorageAccountName": {
+            "type": "string"
+        },
+        "Tags": {
+            "type": "object"
+        },
+        "Timestamp": {
+            "type": "string"
+        }
+    },
+    "functions": [],
+    "variables": {
+        "ManagedID": "uami-fslogix",
+        "ResourceGroupName": "[resourceGroup().name]"
+    },
+    "resources": [
+        {
+            "comments": "---------- USER ASSIGNED MANAGED IDENTITY ----------",
+            "type": "Microsoft.ManagedIdentity/userAssignedIdentities",
+            "name": "[variables('ManagedID')]",
+            "apiVersion": "2018-11-30",
+            "location": "[parameters('Location')]",
+            "tags": "[parameters('Tags')]"
+        },
+        {
+            "comments": "---------- ROLE ASSIGNMENT > USER ASSIGNED MANAGED IDENTITY > STORAGE ACCOUNT KEY OPERATOR SERVICE ROLE ----------",
+            "type": "Microsoft.Authorization/roleAssignments",
+            "apiVersion": "2020-04-01-preview",
+            "name": "d42f2db4-0105-4cef-8ff5-2c9c25088a5d",
+            "dependsOn": [
+                "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('ManagedID'))]"
+            ],
+            "properties": {
+                "roleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', '81a9662b-bebf-436f-a333-f67b29880f12')]",
+                "principalId": "[reference(concat(subscription().id, '/resourceGroups/', variables('ResourceGroupName'), '/providers/Microsoft.ManagedIdentity/userAssignedIdentities/', variables('ManagedID')), '2018-11-30', 'Full').properties.principalId]",
+                "scope": "[resourceGroup().id]"
+            }
+        },
+        {
+            "comments": "---------- DEPLOYMENT SCRIPT > STORAGE ACCOUNT KERBEROS KEY ----------",
+            "name": "ds-kerberosKey",
+            "type": "Microsoft.Resources/deploymentScripts",
+            "apiVersion": "2019-10-01-preview",
+            "identity": {
+                "type": "UserAssigned",
+                "userAssignedIdentities": {
+                    "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('ManagedID'))]": {}
+                }
+            },
+            "location": "[parameters('Location')]",
+            "kind": "AzurePowerShell",
+            "tags": "[parameters('Tags')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('ManagedID'))]",
+                "[resourceId('Microsoft.Authorization/roleAssignments', 'd42f2db4-0105-4cef-8ff5-2c9c25088a5d')]"
+            ],
+            "properties": {
+                "azPowerShellVersion": "3.0.0",
+                "cleanupPreference": "OnSuccess",
+                "scriptContent": "
+                    param(
+                        [string] [Parameter(Mandatory=$true)] $StorageAccountName,
+                        [string] [Parameter(Mandatory=$true)] $ResourceGroupName
+                    )
+                    $Test = (Get-AzStorageAccountKey -ResourceGroupName $ResourceGroupName -Name $StorageAccountName -ListKerbKey | Where-Object {$_.Keyname -contains 'kerb1'}).Value
+                    if(!$Test)
+                    {
+                        New-AzStorageAccountKey -ResourceGroupName $ResourceGroupName -Name $StorageAccountName -KeyName kerb1
+                        $Output = (Get-AzStorageAccountKey -ResourceGroupName $ResourceGroupName -Name $StorageAccountName -ListKerbKey | Where-Object {$_.Keyname -contains 'kerb1'}).Value
+                    } else {
+                        $Output = $Test
+                    }
+                    Write-Output $Output
+                    $DeploymentScriptOutputs = @{}
+                    $DeploymentScriptOutputs['text'] = $Output
+                ",
+                "arguments": "[format(' -StorageAccountName {0} -ResourceGroup {1}', parameters('StorageAccountName'), variables('ResourceGroupName'))]",
+                "forceUpdateTag": "[parameters('Timestamp')]",
+                "retentionInterval": "P1D",
+                "timeout": "PT30M"
+            }
+        },
+        {
+            "comments": "----------  ----------",
+            "type": "Microsoft.Compute/virtualMachines/extensions",
+            "apiVersion": "2017-03-30",
+            "name": "[concat(parameters('DomainControllerName'), '/CustomScriptExtension')]",
+            "location": "[parameters('location')]",
+            "tags": "[parameters('Tags')]",
+            "dependsOn": [],
+            "properties": {
+                "publisher": "Microsoft.Compute",
+                "type": "CustomScriptExtension",
+                "typeHandlerVersion": "1.8",
+                "autoUpgradeMinorVersion": true,
+                "settings": {
+                    "fileUris": ["https://raw.githubusercontent.com/jamasten/Azure/master/solutions/wvd/scripts/New-ADStorageAccount.ps1"],
+                    "commandToExecute": "[concat('powershell -ExecutionPolicy Unrestricted -File New-ADStorageAccount.ps1 ', environment().name, ' ', parameters('KerberosEncryptionType'), ' ', reference('ds-kerberosKey').outputs.text, ' ', parameters('OuPath'), ' ', parameters('StorageAccountName'))]"
+                },
+                "protectedSettings": {
+                }
+            }
+        },
+        {
+            "comments": "---------- DEPLOYMENT SCRIPT > ENABLE AD AUTH ON STORAGE ACCOUNT ----------",
+            "name": "ds-",
+            "type": "Microsoft.Resources/deploymentScripts",
+            "apiVersion": "2019-10-01-preview",
+            "identity": {
+                "type": "UserAssigned",
+                "userAssignedIdentities": {
+                    "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities','uami-registrationToken')]": {}
+                }
+            },
+            "location": "[parameters('Location')]",
+            "kind": "AzurePowerShell",
+            "tags": "[parameters('Tags')]",
+            "dependsOn": [
+            ],
+            "properties": {
+                "azPowerShellVersion": "3.0.0",
+                "cleanupPreference": "OnSuccess",
+                "scriptContent": "
+                    param(
+                        [string] [Parameter(Mandatory=$true)] $StorageAccountName,
+                        [string] [Parameter(Mandatory=$true)] $ResourceGroupName,
+                        [string] [Parameter(Mandatory=$true)] $DomainName,
+                        [string] [Parameter(Mandatory=$true)] $Netbios,
+                        [string] [Parameter(Mandatory=$true)] $DomainInfo,
+                    )
+                    
+                    $DomainArray = $DomainInfo.Split(',')
+
+                    Set-AzStorageAccount `
+                            -ResourceGroupName $ResourceGroupName `
+                            -Name $StorageAccountName `
+                            -EnableActiveDirectoryDomainServicesForFile $true `
+                            -ActiveDirectoryDomainName $DomainName `
+                            -ActiveDirectoryNetBiosDomainName $Netbios `
+                            -ActiveDirectoryForestName $DomainName `
+                            -ActiveDirectoryDomainGuid $DomainArray[1] `
+                            -ActiveDirectoryDomainsid $DomainArray[2] `
+                            -ActiveDirectoryAzureStorageSid $DomainArray[3]
+                ",
+                "arguments": "[format(' -StorageAccountName {0} -ResourceGroup {1} -DomainName {2} -Netbios {3} -DomainInfo {4}', parameters('StorageAccountName'), variables('ResourceGroupName'), parameters('DomainName'), parameters('Netbios'), reference(concat(parameters('DomainControllerName'), '/CustomScriptExtension')).outputs.instanceView.value.statuses[0].message)]",
+                "forceUpdateTag": "[parameters('Timestamp')]",
+                "retentionInterval": "P1D",
+                "timeout": "PT30M"
+            }
+        }
+    ],
+    "outputs": {
+        "KerberosKey": {
+            "type": "string",
+            "value": "[reference('ds-kerberosKey').outputs.text]"
+        },
+        "DomainInfo": {
+            "type": "string",
+            "value": "[reference(concat(parameters('DomainControllerName'), '/CustomScriptExtension')).outputs.instanceView.value.statuses[0].message]"
+        }
+    }
+}

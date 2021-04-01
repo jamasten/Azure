@@ -1,0 +1,55 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "DomainControllerName": {
+            "type": "string"
+        },
+        "KerberosEncryptionType": {
+            "type": "string"
+        },
+        "KerberosKey": {
+            "type": "string"
+        },
+        "Location": {
+            "type": "string"
+        },
+        "OuPath": {
+            "type": "string"
+        },
+        "StorageAccountName": {
+            "type": "string"
+        },
+        "Tags": {
+            "type": "object"
+        }
+    },
+    "functions": [],
+    "variables": {},
+    "resources": [
+        {
+            "type": "Microsoft.Compute/virtualMachines/extensions",
+            "apiVersion": "2020-12-01",
+            "name": "[concat(parameters('DomainControllerName'), '/CustomScriptExtension')]",
+            "location": "[parameters('location')]",
+            "tags": "[parameters('Tags')]",
+            "properties": {
+                "publisher": "Microsoft.Compute",
+                "type": "CustomScriptExtension",
+                "typeHandlerVersion": "1.8",
+                "autoUpgradeMinorVersion": true,
+                "settings": {
+                    "fileUris": [ "https://raw.githubusercontent.com/jamasten/Azure/master/solutions/wvd/scripts/New-ADStorageAccount.ps1" ],
+                    "commandToExecute": "[concat('powershell -ExecutionPolicy Unrestricted -File New-ADStorageAccount.ps1 ', environment().name, ' ', parameters('KerberosEncryptionType'), ' ', parameters('KerberosKey'), ' ', parameters('OuPath'), ' ', parameters('StorageAccountName'))]"
+                },
+                "protectedSettings": {}
+            }
+        }
+    ],
+    "outputs": {
+        "DomainInfo": {
+            "type": "string",
+            "value": "[reference(resourceId('Microsoft.Compute/virtualMachines/extensions', parameters('DomainControllerName'), 'CustomScriptExtension')).outputs.instanceView.value.statuses[0].message]"
+        }
+    }
+}

@@ -46,4 +46,4 @@ if(!$OuPath)
 $Domain = Get-ADDomain
 $ComputerSid = (Get-ADComputer -Identity $StorageAccountName).SID.Value
 
-Write-Host "$($Domain.ObjectGUID),$($Domain.DomainSID),$($ComputerSid)"
+Write-Host ",$($Domain.ObjectGUID),$($Domain.DomainSID),$($ComputerSid),"

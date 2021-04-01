@@ -24,23 +24,27 @@ $Suffix = switch($Environment)
 
 $SPN = 'cifs/' + $StorageAccountName + $Suffix
 
-if(!$OuPath)
+$Test = Get-ADComputer -Identity $StorageAccountName
+if(!$Test)
 {
-    New-ADComputer `
-        -Name $StorageAccountName `
-        -ServicePrincipalNames $SPN `
-        -AccountPassword $Key `
-        -KerberosEncryptionType $KerberosEncryptionType
+    if(!$OuPath)
+    {
+        New-ADComputer `
+            -Name $StorageAccountName `
+            -ServicePrincipalNames $SPN `
+            -AccountPassword $Key `
+            -KerberosEncryptionType $KerberosEncryptionType
 
-} else {
+    } else {
 
-    New-ADComputer `
-        -Name $StorageAccountName `
-        -ServicePrincipalNames $SPN `
-        -AccountPassword $Key `
-        -KerberosEncryptionType $KerberosEncryptionType `
-        -Path $OuPath
+        New-ADComputer `
+            -Name $StorageAccountName `
+            -ServicePrincipalNames $SPN `
+            -AccountPassword $Key `
+            -KerberosEncryptionType $KerberosEncryptionType `
+            -Path $OuPath
 
+    }
 }
 
 $Domain = Get-ADDomain

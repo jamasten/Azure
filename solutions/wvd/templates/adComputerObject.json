@@ -2,7 +2,16 @@
     "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
+        "DomainAdminPassword": {
+            "type": "string"
+        },
+        "DomainAdminUsername": {
+            "type": "string"
+        },
         "DomainControllerName": {
+            "type": "string"
+        },
+        "DomainName": {
             "type": "string"
         },
         "KerberosEncryptionType": {
@@ -30,6 +39,42 @@
     "functions": [],
     "variables": {},
     "resources": [
+        {
+            "comments": "---------- DSC EXTENSION ----------",
+            "type": "Microsoft.Compute/virtualMachines/extensions",
+            "name": "[concat(parameters('DomainControllerName'), '/DSC')]",
+            "apiVersion": "2019-07-01",
+            "location": "[parameters('Location')]",
+            "dependsOn": [
+                "vmLoop"
+            ],
+            "properties": {
+                "publisher": "Microsoft.Powershell",
+                "type": "DSC",
+                "typeHandlerVersion": "2.77",
+                "autoUpgradeMinorVersion": true,
+                "forceUpdateTag": "[parameters('Timestamp')]",
+                "protectedSettings": {
+                    "Items": {
+                        "VmPassword": "[parameters('DomainAdminPassword')]"
+                    }
+                },
+                "settings": {
+                    "wmfVersion": "latest",
+                    "modulesUrl": "https://github.com/jamasten/WhatTheHack/blob/main/dsc/ActiveDirectoryForest.zip?raw=true",
+                    "configurationFunction": "ActiveDirectoryForest.ps1\\ActiveDirectoryForest",
+                    "properties": {
+                        "DomainName": "[parameters('DomainName')]",
+                        "DomainCreds": {
+                            "UserName": "[parameters('DomainAdminUsername')]",
+                            "Password": "PrivateSettingsRef:VmPassword"
+                        },
+                        "Environment": "[environment().name]",
+                        "StorageAccountName": "[parameters('StorageAccountName')]"
+                    }
+                }
+            }
+        },
         {
             "type": "Microsoft.Compute/virtualMachines/extensions",
             "apiVersion": "2020-12-01",

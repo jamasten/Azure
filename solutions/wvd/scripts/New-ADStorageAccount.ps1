@@ -49,7 +49,7 @@ $SPN = 'cifs/' + $StorageAccountName + $Suffix
 
 $Description = "Computer account object for Azure storage account $($StorageAccountName)."
 
-$Test = Get-ADComputer -Identity $StorageAccountName -ErrorAction SilentlyContinue
+$Test = Get-ADComputer -Identity $StorageAccountName -ErrorAction Ignore
 if(!$Test)
 {
     try
@@ -82,6 +82,7 @@ if(!$Test)
         Write-Log -Message "Failed to create computer object" -Type ERROR
         $String = $_ | Select-Object * | Out-String
         Write-Log -Message $String -Type ERROR
+        throw $_
     }
 }
 
@@ -91,4 +92,6 @@ Write-Log -Message "Domain info collection succeeded" -Type INFO
 $ComputerSid = (Get-ADComputer -Identity $StorageAccountName -ErrorAction Stop).SID.Value
 Write-Log -Message "Computer object info collection succeeded" -Type INFO
 
-Write-Host ",$($Domain.ObjectGUID),$($Domain.DomainSID),$($ComputerSid),"
+$Output = ",$($Domain.ObjectGUID),$($Domain.DomainSID),$($ComputerSid),"
+Write-Log -Message $Output -Type INFO
+Write-Host $Output

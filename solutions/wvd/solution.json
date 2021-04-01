@@ -71,6 +71,12 @@
             ],
             "defaultValue": "Standard_LRS"
         },
+        "DomainControllerName": {
+            "type": "string",
+            "metadata": {
+                "description": "Name of an Azure Domain Controller for joining the Azure Storage Account to the domain"
+            }
+        },
         "DomainAbbreviation": {
             "type": "string",
             "metadata": {
@@ -163,6 +169,17 @@
                 "description": "Version for the virtual machine image"
             },
             "defaultValue": "latest"
+        },
+        "KerberosEncryptionType": {
+            "type": "string",
+            "metadata": {
+                "description": "Active Directory Computer Object Kerberos Encryption Type"
+            },
+            "allowedValues": [
+                "RC4",
+                "AES256"
+            ],
+            "defaultValue": "RC4"
         },
         "Location": {
             "type": "string",
@@ -582,7 +599,54 @@
                     "VmUsername": {
                         "value": "[parameters('VmUsername')]"
                     }
-
+                }
+            }
+        },
+        {
+            "comments": "---------- LINKED DEPLOYMENT > WVD SESSION HOSTS ----------",
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2019-10-01",
+            "name": "[concat('FSLogix_', parameters('Timestamp'))]",
+            "tags": "[variables('Tags')]",
+            "resourceGroup": "[concat('rg-wvd-infra-', variables('Identifier'),'-', parameters('Environment'),'-', variables('LocationAbbr'), '-', parameters('Ordinal'))]",
+            "dependsOn": [
+                "rgLoop",
+                "[concat('HostPool_', parameters('Timestamp'))]"
+            ],
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "https://raw.githubusercontent.com/jamasten/Azure/master/solutions/wvd/templates/fslogix.json",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "DomainControllerName": {
+                        "value": "[parameters('DomainControllerName')]"
+                    },
+                    "DomainName": {
+                        "value": "[parameters('DomainName')]"
+                    },
+                    "Netbios": {
+                        "value": "[variables('Netbios')]"
+                    },
+                    "KerberosEncryptionType": {
+                        "value": "[parameters('KerberosEncryptionType')]"
+                    },
+                    "Location": {
+                        "value": "[parameters('Location')]"
+                    },
+                    "OuPath": {
+                        "value": "[parameters('OuPath')]"
+                    },
+                    "StorageAccountName": {
+                        "value": "[variables('Names').StorageAccount]"
+                    },
+                    "Tags": {
+                        "value": "[variables('Tags')]"
+                    },
+                    "Timestamp": {
+                        "value": "[parameters('Timestamp')]"
+                    }
                 }
             }
         }

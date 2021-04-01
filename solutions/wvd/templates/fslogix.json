@@ -5,6 +5,9 @@
         "DomainControllerName": {
             "type": "string"
         },
+        "DomainControllerResourceGroupName": {
+            "type": "string"
+        },
         "DomainName": {
             "type": "string"
         },
@@ -53,7 +56,7 @@
                 "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('ManagedID'))]"
             ],
             "properties": {
-                "roleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', '81a9662b-bebf-436f-a333-f67b29880f12')]",
+                "roleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', 'b24988ac-6180-42a0-ab88-20f7382dd24c')]",
                 "principalId": "[reference(concat(subscription().id, '/resourceGroups/', variables('ResourceGroupName'), '/providers/Microsoft.ManagedIdentity/userAssignedIdentities/', variables('ManagedID')), '2018-11-30', 'Full').properties.principalId]",
                 "scope": "[resourceGroup().id]"
             }
@@ -62,7 +65,7 @@
             "comments": "---------- DEPLOYMENT SCRIPT > STORAGE ACCOUNT KERBEROS KEY ----------",
             "name": "ds-kerberosKey",
             "type": "Microsoft.Resources/deploymentScripts",
-            "apiVersion": "2019-10-01-preview",
+            "apiVersion": "2020-10-01",
             "identity": {
                 "type": "UserAssigned",
                 "userAssignedIdentities": {
@@ -77,7 +80,7 @@
                 "[resourceId('Microsoft.Authorization/roleAssignments', 'd42f2db4-0105-4cef-8ff5-2c9c25088a5d')]"
             ],
             "properties": {
-                "azPowerShellVersion": "3.0.0",
+                "azPowerShellVersion": "5.6.0",
                 "cleanupPreference": "OnSuccess",
                 "scriptContent": "
                     param(
@@ -89,7 +92,9 @@
                     {
                         New-AzStorageAccountKey -ResourceGroupName $ResourceGroupName -Name $StorageAccountName -KeyName kerb1
                         $Output = (Get-AzStorageAccountKey -ResourceGroupName $ResourceGroupName -Name $StorageAccountName -ListKerbKey | Where-Object {$_.Keyname -contains 'kerb1'}).Value
-                    } else {
+                    } 
+                    else 
+                    {
                         $Output = $Test
                     }
                     Write-Output $Output
@@ -103,29 +108,47 @@
             }
         },
         {
-            "comments": "----------  ----------",
-            "type": "Microsoft.Compute/virtualMachines/extensions",
-            "apiVersion": "2017-03-30",
-            "name": "[concat(parameters('DomainControllerName'), '/CustomScriptExtension')]",
-            "location": "[parameters('location')]",
-            "tags": "[parameters('Tags')]",
-            "dependsOn": [],
+            "name": "CustomScriptExtensionDeployment",
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2020-10-01",
+            "resourceGroup": "[parameters('DomainControllerResourceGroupName')]",
             "properties": {
-                "publisher": "Microsoft.Compute",
-                "type": "CustomScriptExtension",
-                "typeHandlerVersion": "1.8",
-                "autoUpgradeMinorVersion": true,
-                "settings": {
-                    "fileUris": ["https://raw.githubusercontent.com/jamasten/Azure/master/solutions/wvd/scripts/New-ADStorageAccount.ps1"],
-                    "commandToExecute": "[concat('powershell -ExecutionPolicy Unrestricted -File New-ADStorageAccount.ps1 ', environment().name, ' ', parameters('KerberosEncryptionType'), ' ', reference('ds-kerberosKey').outputs.text, ' ', parameters('OuPath'), ' ', parameters('StorageAccountName'))]"
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "https://raw.githubusercontent.com/jamasten/Azure/master/solutions/wvd/templates/customScriptExtension.json",
+                    "contentVersion": "1.0.0.0"
                 },
-                "protectedSettings": {
+                "parameters": {
+                    "DomainControllerName": {
+                        "value": "[parameters('DomainControllerName')]"
+                    },
+                    "KerberosEncryptionType": {
+                        "value": "[parameters('KerberosEncryptionType')]"
+                    },
+                    "KerberosKey": {
+                        "value": "[reference('ds-kerberosKey').outputs.text]"
+                    },
+                    "Location": {
+                        "value": "[parameters('Location')]"
+                    },
+                    "OuPath": {
+                        "value": "[parameters('OuPath')]"
+                    },
+                    "StorageAccountName": {
+                        "value": "[parameters('StorageAccountName')]"
+                    },
+                    "Tags": {
+                        "value": "[parameters('Tags')]"
+                    },
+                    "Timestamp": {
+                        "value": "[parameters('Timestamp')]"
+                    }
                 }
             }
         },
         {
             "comments": "---------- DEPLOYMENT SCRIPT > ENABLE AD AUTH ON STORAGE ACCOUNT ----------",
-            "name": "ds-",
+            "name": "ds-enableAuth",
             "type": "Microsoft.Resources/deploymentScripts",
             "apiVersion": "2019-10-01-preview",
             "identity": {
@@ -138,9 +161,10 @@
             "kind": "AzurePowerShell",
             "tags": "[parameters('Tags')]",
             "dependsOn": [
+                "CustomScriptExtensionDeployment"
             ],
             "properties": {
-                "azPowerShellVersion": "3.0.0",
+                "azPowerShellVersion": "5.6.0",
                 "cleanupPreference": "OnSuccess",
                 "scriptContent": "
                     param(
@@ -164,7 +188,7 @@
                             -ActiveDirectoryDomainsid $DomainArray[2] `
                             -ActiveDirectoryAzureStorageSid $DomainArray[3]
                 ",
-                "arguments": "[format(' -StorageAccountName {0} -ResourceGroup {1} -DomainName {2} -Netbios {3} -DomainInfo {4}', parameters('StorageAccountName'), variables('ResourceGroupName'), parameters('DomainName'), parameters('Netbios'), reference(concat(parameters('DomainControllerName'), '/CustomScriptExtension')).outputs.instanceView.value.statuses[0].message)]",
+                "arguments": "[format(' -StorageAccountName {0} -ResourceGroup {1} -DomainName {2} -Netbios {3} -DomainInfo {4}', parameters('StorageAccountName'), variables('ResourceGroupName'), parameters('DomainName'), parameters('Netbios'), reference('CustomScriptExtensionDeployment').outputs.DomainInfo.value)]",
                 "forceUpdateTag": "[parameters('Timestamp')]",
                 "retentionInterval": "P1D",
                 "timeout": "PT30M"
@@ -178,7 +202,7 @@
         },
         "DomainInfo": {
             "type": "string",
-            "value": "[reference(concat(parameters('DomainControllerName'), '/CustomScriptExtension')).outputs.instanceView.value.statuses[0].message]"
+            "value": "[reference('CustomScriptExtensionDeployment').outputs.DomainInfo.value]"
         }
     }
 }

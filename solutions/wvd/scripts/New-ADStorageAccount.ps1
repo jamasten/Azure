@@ -19,15 +19,18 @@ param
 function Write-Log
 {
     param(
-        [parameter][string]$Message,
-        [parameter][string]$Type
+        [parameter(Mandatory)]
+        [string]$Message,
+        
+        [parameter(Mandatory)]
+        [string]$Type
     )
     $Path = 'C:\cse.log'
-    if(Test-Path -Path C:\cse.log)
+    if(!(Test-Path -Path C:\cse.log))
     {
         New-Item -Path C:\ -Name cse.log
     }
-    $Timestamp = Get-Date -Format 'mm/dd/yyyy HH:mm:ss.ff'
+    $Timestamp = Get-Date -Format 'MM/dd/yyyy HH:mm:ss.ff'
     $Entry = '[' + $Timestamp + '] [' + $Type + '] ' + $Message
     $Entry | Out-File -FilePath $Path -Append
 }

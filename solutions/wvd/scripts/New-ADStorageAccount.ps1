@@ -34,7 +34,7 @@ function Write-Log
     $Entry = '[' + $Timestamp + '] [' + $Type + '] ' + $Message
     $Entry | Out-File -FilePath $Path -Append
 }
-
+<#
 $Suffix = switch($Environment)
 {
     AzureCloud {'.file.core.windows.net'}
@@ -85,7 +85,7 @@ if(!$Test)
         throw $_
     }
 }
-
+#>
 $Domain = Get-ADDomain -ErrorAction Stop
 Write-Log -Message "Domain info collection succeeded" -Type INFO
 

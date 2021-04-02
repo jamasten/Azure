@@ -61,7 +61,7 @@
     "outputs": {
         "DomainInfo": {
             "type": "string",
-            "value": "[reference(resourceId('Microsoft.Compute/virtualMachines/extensions', parameters('DomainControllerName'), 'CustomScriptExtension')).instanceView.statuses[0].message]"
+            "value": "[reference(resourceId('Microsoft.Compute/virtualMachines/extensions', parameters('DomainControllerName'), 'CustomScriptExtension')).instanceView.SubStatuses[0].message]"
         }
     }
 }

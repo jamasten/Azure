@@ -53,7 +53,7 @@
                     "timestamp": "[parameters('Timestamp')]"
                 },
                 "protectedSettings": {
-                    "commandToExecute": "[concat('powershell -ExecutionPolicy Unrestricted -File New-ADStorageAccount.ps1 -DomainAdminPassword ', parameters('DomainAdminPassword'), ' -DomainAdminUsername ', parameters('DomainAdminUsername'), ' -DomainControllerName ', parameters('DomainControllerName'), ' -Environment ', environment().name, ' -KerberosEncryptionType ', parameters('KerberosEncryptionType'), ' -Key ''', parameters('KerberosKey'), ''' -Netbios ', parameters('Netbios'),' -OuPath ''', parameters('OuPath'), ''' -StorageAccountName ', parameters('StorageAccountName'))]"
+                    "commandToExecute": "[concat('powershell -ExecutionPolicy Unrestricted -File New-ADStorageAccount.ps1 -DomainAdminPassword ', parameters('DomainAdminPassword'), ' -DomainAdminUsername ', parameters('DomainAdminUsername'), ' -DomainControllerName ', parameters('DomainControllerName'), ' -Environment ', environment().name, ' -KerberosEncryptionType ', parameters('KerberosEncryptionType'), ' -Key ''', parameters('KerberosKey'), ''' -Netbios ', parameters('Netbios'),' -OuPath ', parameters('OuPath'), ' -StorageAccountName ', parameters('StorageAccountName'))]"
                 }
             }
         }

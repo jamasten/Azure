@@ -84,13 +84,6 @@
             },
             "defaultValue": "jm"
         },
-        "DomainName": {
-            "type": "string",
-            "metadata": {
-                "description": "Name of the domain that provides ADDS to the WVD session hosts and is synchronized with Azure AD"
-            },
-            "defaultValue": "jasonmasten.com"
-        },
         "DomainAdminPassword": {
             "type": "securestring",
             "metadata": {
@@ -102,6 +95,13 @@
             "metadata": {
                 "description": "Input your domain administrator username to join the WVD session hosts to your domain. Only the username is required. Do not add the Netbios value."
             }
+        },
+        "DomainName": {
+            "type": "string",
+            "metadata": {
+                "description": "Name of the domain that provides ADDS to the WVD session hosts and is synchronized with Azure AD"
+            },
+            "defaultValue": "jasonmasten.com"
         },
         "Environment": {
             "type": "string",
@@ -620,6 +620,12 @@
                     "contentVersion": "1.0.0.0"
                 },
                 "parameters": {
+                    "DomainAdminPassword": {
+                        "value": "[parameters('DomainAdminPassword')]"
+                    },
+                    "DomainAdminUsername": {
+                        "value": "[parameters('DomainAdminUsername')]"
+                    },
                     "DomainControllerName": {
                         "value": "[parameters('DomainControllerName')]"
                     },

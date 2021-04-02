@@ -2,6 +2,12 @@
     "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
+        "DomainAdminPassword": {
+            "type": "securestring"
+        },
+        "DomainAdminUsername": {
+            "type": "string"
+        },
         "DomainControllerName": {
             "type": "string"
         },
@@ -12,6 +18,9 @@
             "type": "string"
         },
         "Location": {
+            "type": "string"
+        },
+        "Netbios": {
             "type": "string"
         },
         "OuPath": {
@@ -27,8 +36,6 @@
             "type": "string"
         }
     },
-    "functions": [],
-    "variables": {},
     "resources": [
         {
             "type": "Microsoft.Compute/virtualMachines/extensions",
@@ -43,7 +50,7 @@
                 "autoUpgradeMinorVersion": true,
                 "settings": {
                     "fileUris": [ "https://raw.githubusercontent.com/jamasten/Azure/master/solutions/wvd/scripts/New-ADStorageAccount.ps1" ],
-                    "commandToExecute": "[concat('powershell -ExecutionPolicy Unrestricted -File New-ADStorageAccount.ps1 -Environment ''', environment().name, ''' -KerberosEncryptionType ', parameters('KerberosEncryptionType'), ' -Key ''', parameters('KerberosKey'), ''' -OuPath ''', parameters('OuPath'), ''' -StorageAccountName ''', parameters('StorageAccountName'), '''')]",
+                    "commandToExecute": "[concat('powershell -ExecutionPolicy Unrestricted -File New-ADStorageAccount.ps1 -DomainAdminPassword', parameters('DomainAdminPassword'), ' -DomainAdminUsername ', parameters('DomainAdminUsername'), ' -Environment ', environment().name, ' -KerberosEncryptionType ', parameters('KerberosEncryptionType'), ' -Key ''', parameters('KerberosKey'), ''' -Netbios ', parameters('Netbios'),' -OuPath ''', parameters('OuPath'), ''' -StorageAccountName ', parameters('StorageAccountName'))]",
                     "timestamp": "[parameters('Timestamp')]"
                 },
                 "protectedSettings": {}

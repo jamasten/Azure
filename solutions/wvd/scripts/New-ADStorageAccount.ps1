@@ -1,6 +1,12 @@
 param 
 ( 
     [Parameter(Mandatory)]
+    [SecureString]$DomainAdminPassword,    
+    
+    [Parameter(Mandatory)]
+    [String]$DomainAdminUsername,
+
+    [Parameter(Mandatory)]
     [String]$Environment,
 
     [Parameter(Mandatory)]
@@ -8,6 +14,9 @@ param
 
     [Parameter(Mandatory)]
     [String]$Key,
+
+    [Parameter(Mandatory)]
+    [String]$Netbios,
 
     [Parameter(Mandatory=$false)]
     [String]$OuPath,
@@ -35,6 +44,9 @@ function Write-Log
     $Entry | Out-File -FilePath $Path -Append
 }
 
+$Username = $Netbios + '\' + $DomainAdminUsername
+[pscredential]$Credential = New-Object System.Management.Automation.PSCredential ($Username, $DomainAdminPassword)
+
 $Suffix = switch($Environment)
 {
     AzureCloud {'.file.core.windows.net'}
@@ -56,24 +68,28 @@ if(!$Test)
     {
         if(!$OuPath)
         {
-            New-ADComputer `
-                -Name $StorageAccountName `
-                -ServicePrincipalNames $SPN `
-                -AccountPassword $Password `
-                -KerberosEncryptionType $KerberosEncryptionType `
-                -Description $Description `
-                -ErrorAction Stop
+            Invoke-Command -Credential $Credential -ScriptBlock {
+                New-ADComputer `
+                    -Name $Using:StorageAccountName `
+                    -ServicePrincipalNames $Using:SPN `
+                    -AccountPassword $Using:Password `
+                    -KerberosEncryptionType $Using:KerberosEncryptionType `
+                    -Description $Using:Description `
+                    -ErrorAction Stop
+            }
         } 
         else 
         {
-            New-ADComputer `
-                -Name $StorageAccountName `
-                -ServicePrincipalNames $SPN `
-                -AccountPassword $Password `
-                -KerberosEncryptionType $KerberosEncryptionType `
-                -Description $Description `
-                -Path $OuPath `
-                -ErrorAction Stop
+            Invoke-Command -Credential $Credential -ScriptBlock {
+                New-ADComputer `
+                    -Name $Using:StorageAccountName `
+                    -ServicePrincipalNames $Using:SPN `
+                    -AccountPassword $Using:Password `
+                    -KerberosEncryptionType $Using:KerberosEncryptionType `
+                    -Description $Using:Description `
+                    -Path $Using:OuPath `
+                    -ErrorAction Stop
+            }
         }
         Write-Log -Message "Computer object creation succeeded" -Type INFO
     }

@@ -138,7 +138,7 @@
             "tags": "[parameters('Tags')]"
         },
         {
-            "comments": "---------- ROLE ASSIGNMENT > USER ASSIGNED MANAGED IDENTITY > STORAGE ACCOUNT KEY OPERATOR SERVICE ROLE ----------",
+            "comments": "---------- ROLE ASSIGNMENT > USER ASSIGNED MANAGED IDENTITY > CONTRIBUTOR ----------",
             "type": "Microsoft.Authorization/roleAssignments",
             "apiVersion": "2020-04-01-preview",
             "name": "d42f2db4-0105-4cef-8ff5-2c9c25088a5d",
@@ -289,6 +289,20 @@
                 "forceUpdateTag": "[parameters('Timestamp')]",
                 "retentionInterval": "P1D",
                 "timeout": "PT30M"
+            }
+        },
+        {
+            "comments": "---------- ROLE ASSIGNMENT > FILE SHARE > Storage File Data SMB Share Contributor ----------",
+            "scope": "",
+            "type": "Microsoft.Authorization/roleAssignments",
+            "apiVersion": "2020-04-01-preview",
+            "name": "deb6f557-7e50-4881-bfff-e8e2b5d597e2",
+            "dependsOn": [
+                "ds-enableAuth"
+            ],
+            "properties": {
+                "roleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', '0c867c2a-1d8c-454a-a3db-ab2ea1bdc8bb')]",
+                "principalId": ""
             }
         }
     ]

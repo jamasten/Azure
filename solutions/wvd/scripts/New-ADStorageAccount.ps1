@@ -1,7 +1,7 @@
 param 
 ( 
     [Parameter(Mandatory)]
-    [SecureString]$DomainAdminPassword,    
+    [String]$DomainAdminPassword,    
     
     [Parameter(Mandatory)]
     [String]$DomainAdminUsername,
@@ -45,6 +45,7 @@ function Write-Log
 }
 
 $Username = $Netbios + '\' + $DomainAdminUsername
+$Password = ConvertTo-SecureString -String $DomainAdminPassword -AsPlainText -Force
 [pscredential]$Credential = New-Object System.Management.Automation.PSCredential ($Username, $DomainAdminPassword)
 
 $Suffix = switch($Environment)

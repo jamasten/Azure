@@ -458,9 +458,6 @@
                     "CustomRdpProperty": {
                         "value": "[parameters('CustomRdpProperty')]"
                     },
-                    "FileShareQuota": {
-                        "value": "[parameters('FileShareQuota')]"
-                    },
                     "HostPoolName": {
                         "value": "[variables('Names').HostPool]"
                     },
@@ -473,20 +470,11 @@
                     "MaxSessionLimit": {
                         "value": "[parameters('MaxSessionLimit')]"
                     },
-                    "newOrExisting": {
-                        "value": "[parameters('newOrExisting')]"
-                    },
                     "PreferredAppGroupType": {
                         "value": "[parameters('PreferredAppGroupType')]"
                     },
                     "SecurityPrincipalId": {
                         "value": "[parameters('SecurityPrincipalId')]"
-                    },
-                    "StorageAccountName": {
-                        "value": "[variables('Names').StorageAccount]"
-                    },
-                    "StorageAccountSku": {
-                        "value": "[parameters('StorageAccountSku')]"
                     },
                     "Tags": {
                         "value": "[variables('Tags')]"
@@ -603,7 +591,8 @@
             }
         },
         {
-            "comments": "---------- LINKED DEPLOYMENT > WVD SESSION HOSTS ----------",
+            "comments": "---------- LINKED DEPLOYMENT > FSLOGIX ----------",
+            "condition": "[equals(split(parameters('HostPoolType'), ' ')[0], 'Pooled')]",
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2019-10-01",
             "name": "[concat('FSLogix_', parameters('Timestamp'))]",
@@ -632,8 +621,11 @@
                     "DomainName": {
                         "value": "[parameters('DomainName')]"
                     },
-                    "Netbios": {
-                        "value": "[variables('Netbios')]"
+                    "FileShareQuota": {
+                        "value": "[parameters('FileShareQuota')]"
+                    },
+                    "HostPoolName": {
+                        "value": "[variables('Names').HostPool]"
                     },
                     "KerberosEncryptionType": {
                         "value": "[parameters('KerberosEncryptionType')]"
@@ -641,11 +633,20 @@
                     "Location": {
                         "value": "[parameters('Location')]"
                     },
+                    "Netbios": {
+                        "value": "[variables('Netbios')]"
+                    },
+                    "newOrExisting": {
+                        "value": "[parameters('newOrExisting')]"
+                    },
                     "OuPath": {
                         "value": "[parameters('OuPath')]"
                     },
                     "StorageAccountName": {
                         "value": "[variables('Names').StorageAccount]"
+                    },
+                    "StorageAccountSku": {
+                        "value": "[parameters('StorageAccountSku')]"
                     },
                     "Tags": {
                         "value": "[variables('Tags')]"

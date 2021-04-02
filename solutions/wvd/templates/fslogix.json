@@ -17,6 +17,12 @@
         "DomainName": {
             "type": "string"
         },
+        "FileShareQuota": {
+            "type": "int"
+        },
+        "HostPoolName": {
+            "type": "string"
+        },
         "KerberosEncryptionType": {
             "type": "string"
         },
@@ -26,10 +32,16 @@
         "Netbios": {
             "type": "string"
         },
+        "newOrExisting": {
+            "type": "string"
+        },
         "OuPath": {
             "type": "string"
         },
         "StorageAccountName": {
+            "type": "string"
+        },
+        "StorageAccountSku": {
             "type": "string"
         },
         "Tags": {
@@ -45,6 +57,78 @@
         "ResourceGroupName": "[resourceGroup().name]"
     },
     "resources": [
+        {
+            "comments": "---------- STORAGE ACCOUNT ----------",
+            "condition": "[equals(parameters('newOrExisting'), 'new')]",
+            "type": "Microsoft.Storage/storageAccounts",
+            "apiVersion": "2019-06-01",
+            "name": "[parameters('StorageAccountName')]",
+            "location": "[parameters('Location')]",
+            "tags": "[parameters('Tags')]",
+            "sku": {
+                "name": "[parameters('StorageAccountSku')]",
+                "tier": "[split(parameters('StorageAccountSku'), '_')[0]]"
+            },
+            "kind": "[if(equals(split(parameters('StorageAccountSku'), '_')[0], 'Standard'), 'StorageV2', 'FileStorage')]",
+            "properties": {
+                "minimumTlsVersion": "TLS1_2",
+                "allowBlobPublicAccess": false,
+                "largeFileSharesState": "Enabled",
+                "networkAcls": {
+                    "bypass": "AzureServices",
+                    "virtualNetworkRules": [],
+                    "ipRules": [],
+                    "defaultAction": "Allow"
+                },
+                "supportsHttpsTrafficOnly": true,
+                "encryption": {
+                    "services": {
+                        "file": {
+                            "keyType": "Account",
+                            "enabled": true
+                        },
+                        "blob": {
+                            "keyType": "Account",
+                            "enabled": true
+                        }
+                    },
+                    "keySource": "Microsoft.Storage"
+                }
+            }
+        },
+        {
+            "comments": "---------- STORAGE ACCOUNT > FILE SERVICES ----------",
+            "condition": "[equals(parameters('newOrExisting'), 'new')]",
+            "type": "Microsoft.Storage/storageAccounts/fileServices",
+            "apiVersion": "2019-06-01",
+            "name": "[concat(parameters('StorageAccountName'), '/default')]",
+            "tags": "[parameters('Tags')]",
+            "dependsOn": [
+                "[parameters('StorageAccountName')]"
+            ],
+            "properties": {
+                "shareDeleteRetentionPolicy": {
+                    "enabled": false
+                }
+            }
+        },
+        {
+            "comments": "---------- STORAGE ACCOUNT > FILE SHARE ----------",
+            "condition": "[equals(parameters('newOrExisting'), 'new')]",
+            "type": "Microsoft.Storage/storageAccounts/fileServices/shares",
+            "apiVersion": "2020-08-01-preview",
+            "name": "[concat(parameters('StorageAccountName'), '/default/', parameters('HostPoolName'))]",
+            "tags": "[parameters('Tags')]",
+            "dependsOn": [
+                "[parameters('StorageAccountName')]",
+                "[resourceId('Microsoft.Storage/storageAccounts/fileServices', parameters('StorageAccountName'), 'default')]"
+            ],
+            "properties": {
+                "accessTier": "TransactionOptimized",
+                "shareQuota": "[parameters('FileShareQuota')]",
+                "enabledProtocols": "SMB"
+            }
+        },
         {
             "comments": "---------- USER ASSIGNED MANAGED IDENTITY ----------",
             "type": "Microsoft.ManagedIdentity/userAssignedIdentities",

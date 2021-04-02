@@ -60,7 +60,7 @@ $Suffix = switch($Environment)
 }
 Write-Log -Message "Storage Account Suffix = $Suffix" -Type INFO
 
-$ComputerPassword = ConvertTo-SecureString -String $Key -AsPlainText -Force -ErrorAction Stop
+$ComputerPassword = ConvertTo-SecureString -String $Key.Replace("'","") -AsPlainText -Force -ErrorAction Stop
 Write-Log -Message "Secure string conversion succeeded" -Type INFO
 
 $SPN = 'cifs/' + $StorageAccountName + $Suffix

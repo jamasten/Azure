@@ -203,21 +203,11 @@
                         -ActiveDirectoryDomainsid $DomainArray[2] `
                         -ActiveDirectoryAzureStorageSid $DomainArray[3]
                 ",
-                "arguments": "[format(' -StorageAccountName {0} -ResourceGroup {1} -DomainName {2} -Netbios {3} -DomainInfo {4}', parameters('StorageAccountName'), variables('ResourceGroupName'), parameters('DomainName'), parameters('Netbios'), reference('CustomScriptExtensionDeployment').outputs.DomainInfo.value)]",
+                "arguments": "[format(' -StorageAccountName {0} -ResourceGroup {1} -DomainName {2} -Netbios {3} -DomainInfo {4}', parameters('StorageAccountName'), variables('ResourceGroupName'), parameters('DomainName'), parameters('Netbios'), reference(concat('ADComputerObject_', parameters('Timestamp'))).outputs.DomainInfo.value)]",
                 "forceUpdateTag": "[parameters('Timestamp')]",
                 "retentionInterval": "P1D",
                 "timeout": "PT30M"
             }
         }
-    ],
-    "outputs": {
-        "KerberosKey": {
-            "type": "string",
-            "value": "[reference('ds-kerberosKey').outputs.text]"
-        },
-        "DomainInfo": {
-            "type": "string",
-            "value": "[reference('CustomScriptExtensionDeployment').outputs.DomainInfo.value]"
-        }
-    }
+    ]
 }

@@ -72,11 +72,11 @@ if(!$Test)
     {
         if(!$OuPath)
         {
-            Invoke-Command -Credential $Credential -ComputerName $DomainControllerName -ScriptBlock {New-ADComputer -Name $Using:StorageAccountName -ServicePrincipalNames $Using:SPN -AccountPassword $Using:ComputerPassword -KerberosEncryptionType $Using:KerberosEncryptionType -Description $Using:Description -ErrorAction Stop}
+            Invoke-Command -Credential $Credential -ComputerName $DomainControllerName -ScriptBlock {New-ADComputer -Name $Using:StorageAccountName -ServicePrincipalNames $Using:SPN -AccountPassword $Using:ComputerPassword -KerberosEncryptionType $Using:KerberosEncryptionType -Description $Using:Description -ErrorAction Stop} -ErrorAction Stop
         } 
         else 
         {
-            Invoke-Command -Credential $Credential -ComputerName $DomainControllerName -ScriptBlock {New-ADComputer -Name $Using:StorageAccountName -ServicePrincipalNames $Using:SPN -AccountPassword $Using:ComputerPassword -KerberosEncryptionType $Using:KerberosEncryptionType -Description $Using:Description -Path $Using:OuPath -ErrorAction Stop}
+            Invoke-Command -Credential $Credential -ComputerName $DomainControllerName -ScriptBlock {New-ADComputer -Name $Using:StorageAccountName -ServicePrincipalNames $Using:SPN -AccountPassword $Using:ComputerPassword -KerberosEncryptionType $Using:KerberosEncryptionType -Description $Using:Description -Path $Using:OuPath -ErrorAction Stop} -ErrorAction Stop
         }
         Write-Log -Message "Computer object creation succeeded" -Type INFO
     }

@@ -97,6 +97,6 @@ Write-Log -Message "Domain info collection succeeded" -Type INFO
 $ComputerSid = (Get-ADComputer -Identity $StorageAccountName -ErrorAction Stop).SID.Value
 Write-Log -Message "Computer object info collection succeeded" -Type INFO
 
-$Output = ",$($Domain.ObjectGUID),$($Domain.DomainSID),$($ComputerSid),"
+$Output = "$($Domain.ObjectGUID),$($Domain.DomainSID),$($ComputerSid)"
 Write-Log -Message $Output -Type INFO
 Write-Host $Output

@@ -187,10 +187,8 @@
                         [string] [Parameter(Mandatory=$true)] $ResourceGroupName,
                         [string] [Parameter(Mandatory=$true)] $DomainName,
                         [string] [Parameter(Mandatory=$true)] $Netbios,
-                        [string] [Parameter(Mandatory=$true)] $DomainInfo,
+                        [array] [Parameter(Mandatory=$true)] $DomainInfo
                     )
-                    
-                    $DomainArray = $DomainInfo.Split(',')
 
                     Set-AzStorageAccount `
                         -ResourceGroupName $ResourceGroupName `
@@ -199,9 +197,9 @@
                         -ActiveDirectoryDomainName $DomainName `
                         -ActiveDirectoryNetBiosDomainName $Netbios `
                         -ActiveDirectoryForestName $DomainName `
-                        -ActiveDirectoryDomainGuid $DomainArray[1] `
-                        -ActiveDirectoryDomainsid $DomainArray[2] `
-                        -ActiveDirectoryAzureStorageSid $DomainArray[3]
+                        -ActiveDirectoryDomainGuid $DomainInfo[0] `
+                        -ActiveDirectoryDomainsid $DomainInfo[1] `
+                        -ActiveDirectoryAzureStorageSid $DomainInfo[2]
                 ",
                 "arguments": "[format(' -StorageAccountName {0} -ResourceGroup {1} -DomainName {2} -Netbios {3} -DomainInfo {4}', parameters('StorageAccountName'), variables('ResourceGroupName'), parameters('DomainName'), parameters('Netbios'), reference(concat('ADComputerObject_', parameters('Timestamp'))).outputs.DomainInfo.value)]",
                 "forceUpdateTag": "[parameters('Timestamp')]",

@@ -46,7 +46,7 @@ function Write-Log
 
 $Username = $Netbios + '\' + $DomainAdminUsername
 $Password = ConvertTo-SecureString -String $DomainAdminPassword -AsPlainText -Force
-[pscredential]$Credential = New-Object System.Management.Automation.PSCredential ($Username, $DomainAdminPassword)
+[pscredential]$Credential = New-Object System.Management.Automation.PSCredential ($Username, $Password)
 
 $Suffix = switch($Environment)
 {
@@ -55,7 +55,7 @@ $Suffix = switch($Environment)
 }
 Write-Log -Message "Storage Account Suffix = $Suffix" -Type INFO
 
-$Password = ConvertTo-SecureString -String $Key -AsPlainText -Force -ErrorAction Stop
+$ComputerPassword = ConvertTo-SecureString -String $Key -AsPlainText -Force -ErrorAction Stop
 Write-Log -Message "Secure string conversion succeeded" -Type INFO
 
 $SPN = 'cifs/' + $StorageAccountName + $Suffix
@@ -73,7 +73,7 @@ if(!$Test)
                 New-ADComputer `
                     -Name $Using:StorageAccountName `
                     -ServicePrincipalNames $Using:SPN `
-                    -AccountPassword $Using:Password `
+                    -AccountPassword $Using:ComputerPassword `
                     -KerberosEncryptionType $Using:KerberosEncryptionType `
                     -Description $Using:Description `
                     -ErrorAction Stop
@@ -85,7 +85,7 @@ if(!$Test)
                 New-ADComputer `
                     -Name $Using:StorageAccountName `
                     -ServicePrincipalNames $Using:SPN `
-                    -AccountPassword $Using:Password `
+                    -AccountPassword $Using:ComputerPassword `
                     -KerberosEncryptionType $Using:KerberosEncryptionType `
                     -Description $Using:Description `
                     -Path $Using:OuPath `

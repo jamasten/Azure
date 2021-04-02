@@ -46,7 +46,7 @@
             "properties": {
                 "publisher": "Microsoft.Compute",
                 "type": "CustomScriptExtension",
-                "typeHandlerVersion": "1.8",
+                "typeHandlerVersion": "1.10",
                 "autoUpgradeMinorVersion": true,
                 "settings": {
                     "fileUris": [ "https://raw.githubusercontent.com/jamasten/Azure/master/solutions/wvd/scripts/New-ADStorageAccount.ps1" ],

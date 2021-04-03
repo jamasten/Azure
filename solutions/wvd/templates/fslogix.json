@@ -38,6 +38,9 @@
         "OuPath": {
             "type": "string"
         },
+        "SecurityPrincipalId": {
+            "type": "string"
+        },
         "StorageAccountName": {
             "type": "string"
         },
@@ -293,16 +296,17 @@
         },
         {
             "comments": "---------- ROLE ASSIGNMENT > FILE SHARE > Storage File Data SMB Share Contributor ----------",
-            "scope": "",
+            "scope": "[resourceId('Microsoft.Storage/storageAccounts/fileServices/shares', parameters('StorageAccountName'), 'default', parameters('HostPoolName'))]",
             "type": "Microsoft.Authorization/roleAssignments",
             "apiVersion": "2020-04-01-preview",
             "name": "deb6f557-7e50-4881-bfff-e8e2b5d597e2",
             "dependsOn": [
+                "[resourceId('Microsoft.Storage/storageAccounts/fileServices/shares', parameters('StorageAccountName'), 'default', parameters('HostPoolName'))]",
                 "ds-enableAuth"
             ],
             "properties": {
                 "roleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', '0c867c2a-1d8c-454a-a3db-ab2ea1bdc8bb')]",
-                "principalId": ""
+                "principalId": "[parameters('SecurityPrincipalId')]"
             }
         }
     ]

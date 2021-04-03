@@ -520,6 +520,9 @@
                     "DiskName": {
                         "value": "[variables('Names').Disk]"
                     },
+                    "DiskSku": {
+                        "value": "[parameters('DiskSku')]"
+                    },
                     "DomainAdminPassword": {
                         "value": "[parameters('DomainAdminPassword')]"
                     },
@@ -564,9 +567,6 @@
                     },
                     "SessionHostIndex": {
                         "value": "[parameters('SessionHostIndex')]"
-                    },
-                    "DiskSku": {
-                        "value": "[parameters('DiskSku')]"
                     },
                     "Subnet": {
                         "value": "[parameters('Subnet')]"
@@ -652,6 +652,9 @@
                     },
                     "OuPath": {
                         "value": "[parameters('OuPath')]"
+                    },
+                    "SecurityPrincipalId": {
+                        "value": "[parameters('SecurityPrincipalId')]"
                     },
                     "StorageAccountName": {
                         "value": "[variables('Names').StorageAccount]"

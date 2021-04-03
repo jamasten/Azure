@@ -5,6 +5,7 @@ This solution will deploy Windows Virtual Desktop in an Azure subscription.    T
 ## Assumptions
 
 - Domain Controllers are deployed in an Azure subscription that matches the target subscription for WVD
+- Pooled host pools will use Azure Files to store user profiles using FSLogix
 
 ## Prerequisites
 

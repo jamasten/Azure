@@ -37,7 +37,7 @@ function Write-Log
     $Path = 'C:\cse.log'
     if(!(Test-Path -Path C:\cse.log))
     {
-        New-Item -Path C:\ -Name cse.log
+        New-Item -Path C:\ -Name cse.log | Out-Null
     }
     $Timestamp = Get-Date -Format 'MM/dd/yyyy HH:mm:ss.ff'
     $Entry = '[' + $Timestamp + '] [' + $Type + '] ' + $Message

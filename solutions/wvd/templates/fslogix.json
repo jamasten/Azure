@@ -61,12 +61,37 @@
     },
     "resources": [
         {
+            "comments": "---------- USER ASSIGNED MANAGED IDENTITY ----------",
+            "type": "Microsoft.ManagedIdentity/userAssignedIdentities",
+            "name": "[variables('ManagedID')]",
+            "apiVersion": "2018-11-30",
+            "location": "[parameters('Location')]",
+            "tags": "[parameters('Tags')]"
+        },
+        {
+            "comments": "---------- ROLE ASSIGNMENT > USER ASSIGNED MANAGED IDENTITY > CONTRIBUTOR ----------",
+            "type": "Microsoft.Authorization/roleAssignments",
+            "apiVersion": "2020-04-01-preview",
+            "name": "d42f2db4-0105-4cef-8ff5-2c9c25088a5d",
+            "dependsOn": [
+                "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('ManagedID'))]"
+            ],
+            "properties": {
+                "roleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', 'b24988ac-6180-42a0-ab88-20f7382dd24c')]",
+                "principalId": "[reference(concat(subscription().id, '/resourceGroups/', variables('ResourceGroupName'), '/providers/Microsoft.ManagedIdentity/userAssignedIdentities/', variables('ManagedID')), '2018-11-30', 'Full').properties.principalId]",
+                "principalType": "ServicePrincipal"
+            }
+        },
+        {
             "comments": "---------- STORAGE ACCOUNT ----------",
             "condition": "[equals(parameters('newOrExisting'), 'new')]",
             "type": "Microsoft.Storage/storageAccounts",
             "apiVersion": "2019-06-01",
             "name": "[parameters('StorageAccountName')]",
             "location": "[parameters('Location')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Authorization/roleAssignments', 'd42f2db4-0105-4cef-8ff5-2c9c25088a5d')]"
+            ],
             "tags": "[parameters('Tags')]",
             "sku": {
                 "name": "[parameters('StorageAccountSku')]",
@@ -107,6 +132,7 @@
             "name": "[concat(parameters('StorageAccountName'), '/default')]",
             "tags": "[parameters('Tags')]",
             "dependsOn": [
+                "[resourceId('Microsoft.Authorization/roleAssignments', 'd42f2db4-0105-4cef-8ff5-2c9c25088a5d')]",
                 "[parameters('StorageAccountName')]"
             ],
             "properties": {
@@ -123,6 +149,7 @@
             "name": "[concat(parameters('StorageAccountName'), '/default/', parameters('HostPoolName'))]",
             "tags": "[parameters('Tags')]",
             "dependsOn": [
+                "[resourceId('Microsoft.Authorization/roleAssignments', 'd42f2db4-0105-4cef-8ff5-2c9c25088a5d')]",
                 "[parameters('StorageAccountName')]",
                 "[resourceId('Microsoft.Storage/storageAccounts/fileServices', parameters('StorageAccountName'), 'default')]"
             ],
@@ -130,28 +157,6 @@
                 "accessTier": "TransactionOptimized",
                 "shareQuota": "[parameters('FileShareQuota')]",
                 "enabledProtocols": "SMB"
-            }
-        },
-        {
-            "comments": "---------- USER ASSIGNED MANAGED IDENTITY ----------",
-            "type": "Microsoft.ManagedIdentity/userAssignedIdentities",
-            "name": "[variables('ManagedID')]",
-            "apiVersion": "2018-11-30",
-            "location": "[parameters('Location')]",
-            "tags": "[parameters('Tags')]"
-        },
-        {
-            "comments": "---------- ROLE ASSIGNMENT > USER ASSIGNED MANAGED IDENTITY > CONTRIBUTOR ----------",
-            "type": "Microsoft.Authorization/roleAssignments",
-            "apiVersion": "2020-04-01-preview",
-            "name": "d42f2db4-0105-4cef-8ff5-2c9c25088a5d",
-            "dependsOn": [
-                "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('ManagedID'))]"
-            ],
-            "properties": {
-                "roleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', 'b24988ac-6180-42a0-ab88-20f7382dd24c')]",
-                "principalId": "[reference(concat(subscription().id, '/resourceGroups/', variables('ResourceGroupName'), '/providers/Microsoft.ManagedIdentity/userAssignedIdentities/', variables('ManagedID')), '2018-11-30', 'Full').properties.principalId]",
-                "principalType": "ServicePrincipal"
             }
         },
         {
@@ -204,6 +209,9 @@
             "name": "[concat('ADComputerObject_', parameters('Timestamp'))]",
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2020-10-01",
+            "dependsOn": [
+                "[resourceId('Microsoft.Authorization/roleAssignments', 'd42f2db4-0105-4cef-8ff5-2c9c25088a5d')]"
+            ],
             "resourceGroup": "[parameters('DomainControllerResourceGroupName')]",
             "properties": {
                 "mode": "Incremental",
@@ -263,6 +271,7 @@
             "kind": "AzurePowerShell",
             "tags": "[parameters('Tags')]",
             "dependsOn": [
+                "[resourceId('Microsoft.Authorization/roleAssignments', 'd42f2db4-0105-4cef-8ff5-2c9c25088a5d')]",
                 "[concat('ADComputerObject_', parameters('Timestamp'))]"
             ],
             "properties": {
@@ -301,6 +310,7 @@
             "apiVersion": "2020-04-01-preview",
             "name": "deb6f557-7e50-4881-bfff-e8e2b5d597e2",
             "dependsOn": [
+                "[resourceId('Microsoft.Authorization/roleAssignments', 'd42f2db4-0105-4cef-8ff5-2c9c25088a5d')]",
                 "[resourceId('Microsoft.Storage/storageAccounts/fileServices/shares', parameters('StorageAccountName'), 'default', parameters('HostPoolName'))]",
                 "ds-enableAuth"
             ],

@@ -8,8 +8,7 @@ This solution will deploy Windows Virtual Desktop in an Azure subscription.    T
 
 ## Prerequisites
 
-- Setup an OU in ADDS for your WVD Session Hosts. Make note of its Distinguished Name
-- Create Security Groups in ADDS for your WVD users and administrators.  Once these objects have synchronized to Azure AD, make note of their Object ID's in Azure AD.
+- Create a Security Group in ADDS for your WVD users.  Once the object has synchronized to Azure AD, make note of the Object ID in Azure AD.  This is needed to deploy the solution.
 
 ## ARM Template Parameters
 

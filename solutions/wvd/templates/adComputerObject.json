@@ -33,11 +33,6 @@
             "type": "string"
         }
     },
-    "variables": {
-        "DomainCount": "[split(parameters('DomainName'), '.')]",
-        
-        "OuPath": "[if(empty(parameters('OuPath')), concat('OU=Computers, '), '')]"
-    },
     "resources": [
         {
             "type": "Microsoft.Compute/virtualMachines/extensions",

@@ -75,7 +75,15 @@
             "type": "string",
             "metadata": {
                 "description": "Name of an Azure Domain Controller for joining the Azure Storage Account to the domain"
-            }
+            },
+            "defaultValue": "vm-dc-d-eus-0"
+        },
+        "DomainControllerResourceGroupName": {
+            "type": "string",
+            "metadata": {
+                "description": "Name of an Azure Domain Controller for joining the Azure Storage Account to the domain"
+            },
+            "defaultValue": "rg-identity-d-eastus"
         },
         "DomainAbbreviation": {
             "type": "string",
@@ -617,6 +625,9 @@
                     },
                     "DomainControllerName": {
                         "value": "[parameters('DomainControllerName')]"
+                    },
+                    "DomainControllerResourceGroupName": {
+                        "value": "[parameters('DomainControllerResourceGroupName')]"
                     },
                     "DomainName": {
                         "value": "[parameters('DomainName')]"

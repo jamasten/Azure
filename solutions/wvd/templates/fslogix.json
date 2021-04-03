@@ -35,9 +35,6 @@
         "newOrExisting": {
             "type": "string"
         },
-        "OuPath": {
-            "type": "string"
-        },
         "SecurityPrincipalId": {
             "type": "string"
         },
@@ -240,9 +237,6 @@
                     },
                     "Netbios": {
                         "value": "[parameters('Netbios')]"
-                    },
-                    "OuPath": {
-                        "value": "[parameters('OuPath')]"
                     },
                     "StorageAccountName": {
                         "value": "[parameters('StorageAccountName')]"

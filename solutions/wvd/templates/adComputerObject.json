@@ -23,9 +23,6 @@
         "Netbios": {
             "type": "string"
         },
-        "OuPath": {
-            "type": "string"
-        },
         "StorageAccountName": {
             "type": "string"
         },
@@ -35,6 +32,11 @@
         "Timestamp": {
             "type": "string"
         }
+    },
+    "variables": {
+        "DomainCount": "[split(parameters('DomainName'), '.')]",
+        
+        "OuPath": "[if(empty(parameters('OuPath')), concat('OU=Computers, '), '')]"
     },
     "resources": [
         {
@@ -53,7 +55,7 @@
                     "timestamp": "[parameters('Timestamp')]"
                 },
                 "protectedSettings": {
-                    "commandToExecute": "[concat('powershell -ExecutionPolicy Unrestricted -File New-ADStorageAccount.ps1 -DomainAdminPassword ', parameters('DomainAdminPassword'), ' -DomainAdminUsername ', parameters('DomainAdminUsername'), ' -DomainControllerName ', parameters('DomainControllerName'), ' -Environment ', environment().name, ' -KerberosEncryptionType ', parameters('KerberosEncryptionType'), ' -Key ''', parameters('KerberosKey'), ''' -Netbios ', parameters('Netbios'),' -OuPath ', parameters('OuPath'), ' -StorageAccountName ', parameters('StorageAccountName'))]"
+                    "commandToExecute": "[concat('powershell -ExecutionPolicy Unrestricted -File New-ADStorageAccount.ps1 -DomainAdminPassword ', parameters('DomainAdminPassword'), ' -DomainAdminUsername ', parameters('DomainAdminUsername'), ' -DomainControllerName ', parameters('DomainControllerName'), ' -Environment ', environment().name, ' -KerberosEncryptionType ', parameters('KerberosEncryptionType'), ' -Key ''', parameters('KerberosKey'), ''' -Netbios ', parameters('Netbios'), ' -StorageAccountName ', parameters('StorageAccountName'))]"
                 }
             }
         }

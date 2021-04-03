@@ -47,9 +47,6 @@
         "NicName": {
             "type": "string"
         },
-        "OuPath": {
-            "type": "string"
-        },
         "SessionHostCount": {
             "type": "int"
         },
@@ -243,8 +240,7 @@
                             "Name": "[parameters('DomainName')]",
                             "User": "[concat(parameters('Netbios'), '\\', parameters('DomainAdminUsername'))]",
                             "Restart": "true",
-                            "Options": "3",
-                            "OUPath": "[parameters('OuPath')]"
+                            "Options": "3"
                         },
                         "protectedSettings": {
                             "Password": "[parameters('DomainAdminPassword')]"

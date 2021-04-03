@@ -217,13 +217,6 @@
             },
             "defaultValue": 0
         },
-        "OuPath": {
-            "type": "string",
-            "metadata": {
-                "description": "Distinguished name for the target Organization Unit in Active Directory Domain Services. Leave blank for the Computers OU. Example: OU=Pooled,OU=WVD,DC=jasonmasten,DC=com"
-            },
-            "defaultValue": ""
-        },
         "Owner": {
             "type": "string",
             "metadata": {
@@ -559,9 +552,6 @@
                     "NicName": {
                         "value": "[variables('Names').Nic]"
                     },
-                    "OuPath": {
-                        "value": "[parameters('OuPath')]"
-                    },
                     "SessionHostCount": {
                         "value": "[parameters('SessionHostCount')]"
                     },
@@ -649,9 +639,6 @@
                     },
                     "newOrExisting": {
                         "value": "[parameters('newOrExisting')]"
-                    },
-                    "OuPath": {
-                        "value": "[parameters('OuPath')]"
                     },
                     "SecurityPrincipalId": {
                         "value": "[parameters('SecurityPrincipalId')]"

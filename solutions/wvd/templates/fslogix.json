@@ -151,7 +151,7 @@
             "properties": {
                 "roleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', 'b24988ac-6180-42a0-ab88-20f7382dd24c')]",
                 "principalId": "[reference(concat(subscription().id, '/resourceGroups/', variables('ResourceGroupName'), '/providers/Microsoft.ManagedIdentity/userAssignedIdentities/', variables('ManagedID')), '2018-11-30', 'Full').properties.principalId]",
-                "scope": "[resourceGroup().id]"
+                "principalType": "ServicePrincipal"
             }
         },
         {

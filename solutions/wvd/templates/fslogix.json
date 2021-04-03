@@ -296,7 +296,7 @@
         },
         {
             "comments": "---------- ROLE ASSIGNMENT > FILE SHARE > Storage File Data SMB Share Contributor ----------",
-            "scope": "[resourceId('Microsoft.Storage/storageAccounts/fileServices/shares', parameters('StorageAccountName'), 'default', parameters('HostPoolName'))]",
+            "scope": "[concat('Microsoft.Storage/storageAccounts/', parameters('StorageAccountName'),'/fileServices/default/shares', parameters('HostPoolName'))]",
             "type": "Microsoft.Authorization/roleAssignments",
             "apiVersion": "2020-04-01-preview",
             "name": "deb6f557-7e50-4881-bfff-e8e2b5d597e2",

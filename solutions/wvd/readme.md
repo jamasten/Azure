@@ -1,11 +1,12 @@
 # Windows Virtual Desktop solution
 
-This solution will deploy Windows Virtual Desktop in an Azure subscription.    To successfully deploy the solution, you will need to ensure your scenario matches the assumptions below.  Also, you will need to complete some manual prerequisites before deploying the solution.
+This solution will deploy Windows Virtual Desktop in an Azure subscription.  Depending on the options selected with the template parameters, either a "personal" or "pooled" host pool can be deployed with this solution.  The Pooled option will deploy an App Group with a role assignment and completely configure a storage account for FSLogix.  To successfully deploy the solution, you will need to ensure your scenario matches the assumptions below.  Also, you will need to complete some manual prerequisites before deploying the solution.  This solution will make the role assignment for your file share, however the assignment will not appear in the Portal.  This is a bug.
+
+The "newOrExisting" parameter determines whether the solution was previously deployed or not.  Choosing "new" will deploy everything.  Choosing "existing" will redeploy the hostpool to get a new registration token and create or add session hosts.
 
 ## Assumptions
 
 - Domain Controllers are deployed in an Azure subscription that matches the target subscription for WVD
-- Pooled host pools will use Azure Files to store user profiles using FSLogix
 
 ## Prerequisites
 

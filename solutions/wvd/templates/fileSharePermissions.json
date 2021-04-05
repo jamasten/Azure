@@ -47,7 +47,7 @@
                 "typeHandlerVersion": "1.10",
                 "autoUpgradeMinorVersion": true,
                 "settings": {
-                    "fileUris": [ "" ],
+                    "fileUris": [ "https://raw.githubusercontent.com/jamasten/Azure/master/solutions/wvd/scripts/Set-FileSharePermissions.ps1" ],
                     "timestamp": "[parameters('Timestamp')]"
                 },
                 "protectedSettings": {

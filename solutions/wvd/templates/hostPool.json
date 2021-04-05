@@ -23,6 +23,9 @@
         "MaxSessionLimit": {
             "type": "int"
         },
+        "newOrExisting": {
+            "type": "string"
+        },
         "PreferredAppGroupType": {
             "type": "string"
         },
@@ -67,7 +70,7 @@
         },
         {
             "comments": "---------- WVD APP GROUP ----------",
-            "condition": "[equals(split(parameters('HostPoolType'), ' ')[0], 'Pooled')]",
+            "condition": "[equals(parameters('newOrExisting'), 'New')]",
             "type": "Microsoft.DesktopVirtualization/applicationgroups",
             "apiVersion": "2019-12-10-preview",
             "name": "[parameters('AppGroupName')]",
@@ -83,6 +86,7 @@
             "resources": [
                 {
                     "comments": "---------- ROLE ASSIGNMENT ----------",
+                    "condition": "[equals(parameters('newOrExisting'), 'New')]",
                     "type": "Microsoft.DesktopVirtualization/applicationgroups/providers/roleAssignments",
                     "apiVersion": "2018-01-01-preview",
                     "name": "[concat(parameters('AppGroupName'), '/Microsoft.Authorization/657e86ff-0078-40b8-941e-c2a3a016f740')]",
@@ -98,6 +102,7 @@
         },
         {
             "comments": "---------- WVD WORKSPACE ----------",
+            "condition": "[equals(parameters('newOrExisting'), 'New')]",
             "type": "Microsoft.DesktopVirtualization/workspaces",
             "apiVersion": "2019-12-10-preview",
             "name": "[parameters('WorkspaceName')]",

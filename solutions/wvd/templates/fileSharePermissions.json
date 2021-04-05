@@ -1,0 +1,59 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "HostPoolName": {
+            "type": "string"
+        },
+        "Location": {
+            "type": "string"
+        },
+        "Netbios": {
+            "type": "string"
+        },
+        "newOrExisting": {
+            "type": "string"
+        },
+        "SecurityPrincipalName": {
+            "type": "string"
+        },
+        "SessionHostIndex": {
+            "type": "int"
+        },
+        "StorageAccountName": {
+            "type": "string"
+        },
+        "Tags": {
+            "type": "object"
+        },
+        "Timestamp": {
+            "type": "string"
+        },
+        "VmName": {
+            "type": "string"
+        }
+    },
+    "resources": [
+        {
+            "type": "Microsoft.Compute/virtualMachines/extensions",
+            "condition": "[equals(parameters('newOrExisting'), 'new')]",
+            "apiVersion": "2020-12-01",
+            "name": "[concat(parameters('VmName'), padLeft(parameters('SessionHostIndex'), 3, '0'), '/CustomScriptExtension')]",
+            "location": "[parameters('location')]",
+            "tags": "[parameters('Tags')]",
+            "properties": {
+                "publisher": "Microsoft.Compute",
+                "type": "CustomScriptExtension",
+                "typeHandlerVersion": "1.10",
+                "autoUpgradeMinorVersion": true,
+                "settings": {
+                    "fileUris": [ "" ],
+                    "timestamp": "[parameters('Timestamp')]"
+                },
+                "protectedSettings": {
+                    "commandToExecute": "[concat('powershell -ExecutionPolicy Unrestricted -File Set-FileSharePermissions.ps1 -Environment ', environment().name, ' -HostPoolName ', parameters('HostPoolName'), ' -Netbios ', parameters('Netbios'), ' -SecurityPrincipalName ', parameters('SecurityPrincipalName'), ' -StorageAccountName ', parameters('StorageAccountName'))]"
+                }
+            }
+        }
+    ]
+}

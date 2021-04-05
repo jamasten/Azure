@@ -256,6 +256,13 @@
             },
             "defaultValue": "5c55bf93-86ee-4e1d-a81a-3a78402e6077"
         },
+        "SecurityPrincipalName": {
+            "type": "string",
+            "metadata": {
+                "description": "The Name for the Security Principal to assign NTFS permissions on the Azure File Share to support FSLogix.  Any value can be input in this field if performing a deployment update or choosing a personl host pool."
+            },
+            "defaultValue": "wvd_users"
+        },
         "SessionHostCount": {
             "type": "int",
             "metadata": {
@@ -471,6 +478,9 @@
                     "MaxSessionLimit": {
                         "value": "[parameters('MaxSessionLimit')]"
                     },
+                    "newOrExisting": {
+                        "value": "[parameters('newOrExisting')]"
+                    },
                     "PreferredAppGroupType": {
                         "value": "[parameters('PreferredAppGroupType')]"
                     },
@@ -657,6 +667,60 @@
                     },
                     "Timestamp": {
                         "value": "[parameters('Timestamp')]"
+                    }
+                }
+            }
+        },
+        {
+            "comments": "---------- LINKED DEPLOYMENT > FILE SHARE NTFS PERMISSIONS ----------",
+            "condition": "[equals(split(parameters('HostPoolType'), ' ')[0], 'Pooled')]",
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2019-10-01",
+            "name": "[concat('FileSharePermissions_', parameters('Timestamp'))]",
+            "tags": "[variables('Tags')]",
+            "resourceGroup": "[concat('rg-wvd-hosts-', variables('Identifier'),'-', parameters('Environment'),'-', variables('LocationAbbr'), '-', parameters('Ordinal'))]",
+            "dependsOn": [
+                "rgLoop",
+                "[concat('HostPool_', parameters('Timestamp'))]",
+                "[concat('SessionHosts_', parameters('Timestamp'))]",
+                "[concat('FSLogix_', parameters('Timestamp'))]"
+            ],
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "https://raw.githubusercontent.com/jamasten/Azure/master/solutions/wvd/templates/fileSharePermissions.json",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "HostPoolName": {
+                        "value": "[variables('Names').HostPool]"
+                    },
+                    "Location": {
+                        "value": "[parameters('Location')]"
+                    },
+                    "Netbios": {
+                        "value": "[variables('Netbios')]"
+                    },
+                    "newOrExisting": {
+                        "value": "[parameters('newOrExisting')]"
+                    },
+                    "SecurityPrincipalName": {
+                        "value": "[parameters('SecurityPrincipalName')]"
+                    },
+                    "SessionHostIndex": {
+                        "value": "[parameters('SessionHostIndex')]"
+                    },
+                    "StorageAccountName": {
+                        "value": "[variables('Names').StorageAccount]"
+                    },
+                    "Tags": {
+                        "value": "[variables('Tags')]"
+                    },
+                    "Timestamp": {
+                        "value": "[parameters('Timestamp')]"
+                    },
+                    "VmName": {
+                        "value": "[variables('Names').Vm]"
                     }
                 }
             }

@@ -558,6 +558,9 @@
                     "SessionHostIndex": {
                         "value": "[parameters('SessionHostIndex')]"
                     },
+                    "StorageAccountName": {
+                        "value": "[variables('Names').StorageAccount]"
+                    },
                     "Subnet": {
                         "value": "[parameters('Subnet')]"
                     },

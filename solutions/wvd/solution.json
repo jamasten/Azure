@@ -713,6 +713,9 @@
                     "StorageAccountName": {
                         "value": "[variables('Names').StorageAccount]"
                     },
+                    "StorageAccountResourceGroupName": {
+                        "value": "[concat('rg-wvd-infra-', variables('Identifier'),'-', parameters('Environment'),'-', variables('LocationAbbr'), '-', parameters('Ordinal'))]"
+                    },
                     "Tags": {
                         "value": "[variables('Tags')]"
                     },

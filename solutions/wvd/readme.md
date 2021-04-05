@@ -1,16 +1,18 @@
 # Windows Virtual Desktop solution
 
-This solution will deploy Windows Virtual Desktop in an Azure subscription.  Depending on the options selected with the template parameters, either a "personal" or "pooled" host pool can be deployed with this solution.  The Pooled option will deploy an App Group with a role assignment and completely configure a storage account for FSLogix.  To successfully deploy the solution, you will need to ensure your scenario matches the assumptions below.  Also, you will need to complete some manual prerequisites before deploying the solution.  This solution will make the role assignment for your file share, however the assignment will not appear in the Portal.  This is a bug.
-
-The "newOrExisting" parameter determines whether the solution was previously deployed or not.  Choosing "new" will deploy everything.  Choosing "existing" will redeploy the hostpool to get a new registration token and create or add session hosts.
+This solution will deploy Windows Virtual Desktop in an Azure subscription.  Depending on the options selected with the template parameters, either a personal or pooled host pool can be deployed with this solution.  The pooled option will deploy an App Group with a role assignment and mostly configure a storage account for FSLogix. There is one manual task that must be completed post deployment, a role assignment on the file share.  It does not work in an ARM Template, whether using a role assignment resource or a deployment script.  To successfully deploy the solution, you will need to ensure your scenario matches the assumptions below and you will need to complete the prerequisites.
 
 ## Assumptions
 
-- Domain Controllers are deployed in an Azure subscription that matches the target subscription for WVD
+- Licensing for the operating system you choose to deploy
+- Landing zone deployed in Azure:
+  - Virtual network and subnet(s)
+  - ADDS synchronized with Azure AD
+- Domain Controllers are deployed in an Azure subscription that matches the target subscription for WVD.  This is only required for a pooled scenario so the Azure Storage Account can be domain joined using the Custom Script Extension (this requirement will not be necessary in a future release).
 
 ## Prerequisites
 
-- Create a Security Group in ADDS for your WVD users.  Once the object has synchronized to Azure AD, make note of the Object ID in Azure AD.  This is needed to deploy the solution.
+- Create a Security Group in ADDS for your WVD users.  Once the object has synchronized to Azure AD, make note of the name and object ID in Azure AD.  This will be needed to deploy the solution.
 
 ## ARM Template Parameters
 

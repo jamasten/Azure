@@ -59,6 +59,7 @@
     "resources": [
         {
             "comments": "---------- USER ASSIGNED MANAGED IDENTITY ----------",
+            "condition": "[equals(parameters('newOrExisting'), 'new')]",
             "type": "Microsoft.ManagedIdentity/userAssignedIdentities",
             "name": "[variables('ManagedID')]",
             "apiVersion": "2018-11-30",
@@ -67,6 +68,7 @@
         },
         {
             "comments": "---------- ROLE ASSIGNMENT > USER ASSIGNED MANAGED IDENTITY > CONTRIBUTOR ----------",
+            "condition": "[equals(parameters('newOrExisting'), 'new')]",
             "type": "Microsoft.Authorization/roleAssignments",
             "apiVersion": "2020-04-01-preview",
             "name": "d42f2db4-0105-4cef-8ff5-2c9c25088a5d",
@@ -158,6 +160,7 @@
         },
         {
             "comments": "---------- DEPLOYMENT SCRIPT > STORAGE ACCOUNT KERBEROS KEY ----------",
+            "condition": "[equals(parameters('newOrExisting'), 'new')]",
             "name": "ds-kerberosKey",
             "type": "Microsoft.Resources/deploymentScripts",
             "apiVersion": "2020-10-01",
@@ -203,6 +206,8 @@
             }
         },
         {
+            "comments": "---------- LINKED DEPLOYMENT > CUSTOM SCRIPT EXTENSION > AD COMPUTER OBJECT ----------",
+            "condition": "[equals(parameters('newOrExisting'), 'new')]",
             "name": "[concat('ADComputerObject_', parameters('Timestamp'))]",
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2020-10-01",
@@ -252,6 +257,7 @@
         },
         {
             "comments": "---------- DEPLOYMENT SCRIPT > ENABLE AD AUTH ON STORAGE ACCOUNT ----------",
+            "condition": "[equals(parameters('newOrExisting'), 'new')]",
             "name": "ds-enableAuth",
             "type": "Microsoft.Resources/deploymentScripts",
             "apiVersion": "2019-10-01-preview",
@@ -299,6 +305,7 @@
         },
         {
             "comments": "---------- ROLE ASSIGNMENT > FILE SHARE > Storage File Data SMB Share Contributor ----------",
+            "condition": "[equals(parameters('newOrExisting'), 'new')]",
             "scope": "[concat('Microsoft.Storage/storageAccounts/', parameters('StorageAccountName'),'/fileServices/default/shares/', parameters('HostPoolName'))]",
             "type": "Microsoft.Authorization/roleAssignments",
             "apiVersion": "2020-04-01-preview",

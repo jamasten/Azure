@@ -302,8 +302,9 @@
                 "retentionInterval": "P1D",
                 "timeout": "PT30M"
             }
-        },
-        {
+        }
+        // Setting the role assignment on the file share currently does not work and must be manually set after the deployment.
+        /*{
             "comments": "---------- ROLE ASSIGNMENT > FILE SHARE > Storage File Data SMB Share Contributor ----------",
             "condition": "[equals(parameters('newOrExisting'), 'new')]",
             "scope": "[concat('Microsoft.Storage/storageAccounts/', parameters('StorageAccountName'),'/fileServices/default/shares/', parameters('HostPoolName'))]",
@@ -319,6 +320,6 @@
                 "roleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', '0c867c2a-1d8c-454a-a3db-ab2ea1bdc8bb')]",
                 "principalId": "[parameters('SecurityPrincipalId')]"
             }
-        }
+        }*/
     ]
 }

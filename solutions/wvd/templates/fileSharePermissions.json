@@ -51,7 +51,7 @@
                     "timestamp": "[parameters('Timestamp')]"
                 },
                 "protectedSettings": {
-                    "commandToExecute": "[concat('powershell -ExecutionPolicy Unrestricted -File Set-FileSharePermissions.ps1 -Environment ', environment().name, ' -HostPoolName ', parameters('HostPoolName'), ' -Netbios ', parameters('Netbios'), ' -SecurityPrincipalName ', parameters('SecurityPrincipalName'), ' -StorageAccountName ', parameters('StorageAccountName'))]"
+                    "commandToExecute": "[concat('powershell -ExecutionPolicy Unrestricted -File Set-FileSharePermissions.ps1 -Environment ', environment().name, ' -HostPoolName ', parameters('HostPoolName'), ' -Netbios ', parameters('Netbios'), ' -SecurityPrincipalName ', parameters('SecurityPrincipalName'), ' -StorageAccountName ', parameters('StorageAccountName'), ' -StorageKey ', listKeys(resourceId('Microsoft.Storage/storageAccounts', parameters('StorageAccountName')), '2019-06-01').keys[0].value)]"
                 }
             }
         }

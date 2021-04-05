@@ -272,7 +272,7 @@
                             "timestamp": "[parameters('Timestamp')]"
                         },
                         "protectedSettings": {
-                            "commandToExecute": "[concat('powershell -ExecutionPolicy Unrestricted -File Add-FslogixSettings.ps1 -Environment', environment().name, ' -HostPoolName ', parameters('HostPoolName'), ' -StorageAccountName ', parameters('StorageAccountName'))]"
+                            "commandToExecute": "[concat('powershell -ExecutionPolicy Unrestricted -File Add-FslogixSettings.ps1 -Environment ', environment().name, ' -HostPoolName ', parameters('HostPoolName'), ' -StorageAccountName ', parameters('StorageAccountName'))]"
                         }
                     }
                 }

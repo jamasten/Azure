@@ -541,6 +541,9 @@
                     "HostPoolResourceGroupName": {
                         "value": "[concat('rg-wvd-infra-', variables('Identifier'),'-', parameters('Environment'),'-', variables('LocationAbbr'), '-', parameters('Ordinal'))]"
                     },
+                    "HostPoolType": {
+                        "value": "[parameters('HostPoolType')]"
+                    },
                     "ImageOffer": {
                         "value": "[parameters('ImageOffer')]"
                     },

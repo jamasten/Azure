@@ -26,6 +26,9 @@
         "HostPoolResourceGroupName": {
             "type": "string"
         },
+        "HostPoolType": {
+            "type": "string"
+        },
         "ImageOffer": {
             "type": "string"
         },
@@ -252,6 +255,7 @@
                 },
                 {
                     "comments": "---------- CUSTOM SCRIPT EXTENSION ----------",
+                    "condition": "[equals(split(parameters('HostPoolType'), ' ')[0], 'Pooled')]",
                     "type": "extensions",
                     "apiVersion": "2020-12-01",
                     "name": "CustomScriptExtension",

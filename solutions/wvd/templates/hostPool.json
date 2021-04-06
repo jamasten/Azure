@@ -17,9 +17,6 @@
         "HostPoolType": {
             "type": "string"
         },
-        "Identifier": {
-            "type": "string"
-        },
         "Location": {
             "type": "string"
         },
@@ -28,9 +25,6 @@
         },
         "newOrExisting": {
             "type": "string"
-        },
-        "Ordinal": {
-            "type": "int"
         },
         "PreferredAppGroupType": {
             "type": "string"
@@ -95,7 +89,7 @@
                     "condition": "[equals(parameters('newOrExisting'), 'new')]",
                     "type": "Microsoft.DesktopVirtualization/applicationgroups/providers/roleAssignments",
                     "apiVersion": "2018-01-01-preview",
-                    "name": "[concat(parameters('AppGroupName'), '/Microsoft.Authorization/657e86ff-0078-40b8-941e-c2a3a016', substring(parameters('Identifier'), 0, 3), parameters('Ordinal'))]",
+                    "name": "[concat(parameters('AppGroupName'), '/Microsoft.Authorization/', guid(parameters('HostPoolName')))]",
                     "dependsOn": [
                         "[resourceId('Microsoft.DesktopVirtualization/applicationgroups', parameters('AppGroupName'))]"
                     ],

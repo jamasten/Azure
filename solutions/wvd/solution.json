@@ -472,6 +472,9 @@
                     "HostPoolType": {
                         "value": "[parameters('HostPoolType')]"
                     },
+                    "Identifier": {
+                        "value": "[variables('Identifier')]"
+                    },
                     "Location": {
                         "value": "[parameters('Location')]"
                     },
@@ -480,6 +483,9 @@
                     },
                     "newOrExisting": {
                         "value": "[parameters('newOrExisting')]"
+                    },
+                    "Ordinal": {
+                        "value": "[parameters('Ordinal')]"
                     },
                     "PreferredAppGroupType": {
                         "value": "[parameters('PreferredAppGroupType')]"

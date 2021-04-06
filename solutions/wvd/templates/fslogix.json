@@ -54,7 +54,8 @@
     "functions": [],
     "variables": {
         "ManagedID": "uami-fslogix",
-        "ResourceGroupName": "[resourceGroup().name]"
+        "ResourceGroupName": "[resourceGroup().name]",
+        "RoleAssignmentName": "[guid(parameters('StorageAccountName'), 0)]"
     },
     "resources": [
         {
@@ -71,7 +72,7 @@
             "condition": "[equals(parameters('newOrExisting'), 'new')]",
             "type": "Microsoft.Authorization/roleAssignments",
             "apiVersion": "2020-04-01-preview",
-            "name": "d42f2db4-0105-4cef-8ff5-2c9c25088a5d",
+            "name": "[variables('RoleAssignmentName')]",
             "dependsOn": [
                 "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('ManagedID'))]"
             ],
@@ -89,7 +90,7 @@
             "name": "[parameters('StorageAccountName')]",
             "location": "[parameters('Location')]",
             "dependsOn": [
-                "[resourceId('Microsoft.Authorization/roleAssignments', 'd42f2db4-0105-4cef-8ff5-2c9c25088a5d')]"
+                "[resourceId('Microsoft.Authorization/roleAssignments', variables('RoleAssignmentName'))]"
             ],
             "tags": "[parameters('Tags')]",
             "sku": {
@@ -131,7 +132,7 @@
             "name": "[concat(parameters('StorageAccountName'), '/default')]",
             "tags": "[parameters('Tags')]",
             "dependsOn": [
-                "[resourceId('Microsoft.Authorization/roleAssignments', 'd42f2db4-0105-4cef-8ff5-2c9c25088a5d')]",
+                "[resourceId('Microsoft.Authorization/roleAssignments', variables('RoleAssignmentName'))]",
                 "[parameters('StorageAccountName')]"
             ],
             "properties": {
@@ -148,7 +149,7 @@
             "name": "[concat(parameters('StorageAccountName'), '/default/', parameters('HostPoolName'))]",
             "tags": "[parameters('Tags')]",
             "dependsOn": [
-                "[resourceId('Microsoft.Authorization/roleAssignments', 'd42f2db4-0105-4cef-8ff5-2c9c25088a5d')]",
+                "[resourceId('Microsoft.Authorization/roleAssignments', variables('RoleAssignmentName'))]",
                 "[parameters('StorageAccountName')]",
                 "[resourceId('Microsoft.Storage/storageAccounts/fileServices', parameters('StorageAccountName'), 'default')]"
             ],
@@ -175,7 +176,7 @@
             "tags": "[parameters('Tags')]",
             "dependsOn": [
                 "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('ManagedID'))]",
-                "[resourceId('Microsoft.Authorization/roleAssignments', 'd42f2db4-0105-4cef-8ff5-2c9c25088a5d')]"
+                "[resourceId('Microsoft.Authorization/roleAssignments', variables('RoleAssignmentName'))]"
             ],
             "properties": {
                 "azPowerShellVersion": "5.6.0",
@@ -212,7 +213,7 @@
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2020-10-01",
             "dependsOn": [
-                "[resourceId('Microsoft.Authorization/roleAssignments', 'd42f2db4-0105-4cef-8ff5-2c9c25088a5d')]"
+                "[resourceId('Microsoft.Authorization/roleAssignments', variables('RoleAssignmentName'))]"
             ],
             "resourceGroup": "[parameters('DomainControllerResourceGroupName')]",
             "properties": {
@@ -271,7 +272,7 @@
             "kind": "AzurePowerShell",
             "tags": "[parameters('Tags')]",
             "dependsOn": [
-                "[resourceId('Microsoft.Authorization/roleAssignments', 'd42f2db4-0105-4cef-8ff5-2c9c25088a5d')]",
+                "[resourceId('Microsoft.Authorization/roleAssignments', variables('RoleAssignmentName'))]",
                 "[concat('ADComputerObject_', parameters('Timestamp'))]"
             ],
             "properties": {
@@ -312,7 +313,7 @@
             "apiVersion": "2020-04-01-preview",
             "name": "deb6f557-7e50-4881-bfff-e8e2b5d597e2",
             "dependsOn": [
-                "[resourceId('Microsoft.Authorization/roleAssignments', 'd42f2db4-0105-4cef-8ff5-2c9c25088a5d')]",
+                "[resourceId('Microsoft.Authorization/roleAssignments', '[variables('RoleAssignmentName')]')]",
                 "[resourceId('Microsoft.Storage/storageAccounts/fileServices/shares', parameters('StorageAccountName'), 'default', parameters('HostPoolName'))]",
                 "ds-enableAuth"
             ],

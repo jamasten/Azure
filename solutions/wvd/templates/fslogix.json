@@ -55,7 +55,7 @@
     "variables": {
         "ManagedID": "uami-fslogix",
         "ResourceGroupName": "[resourceGroup().name]",
-        "RoleAssignmentName": "[guid(parameters('StorageAccountName'), 0)]"
+        "RoleAssignmentName": "[guid(parameters('StorageAccountName'), '0')]"
     },
     "resources": [
         {

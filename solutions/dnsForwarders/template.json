@@ -16,6 +16,18 @@
             },
             "defaultValue": "disk-dns-p-eus-"
         },
+        "DiskSku": {
+            "type": "string",
+            "metadata": {
+                "description": "Storage SKU for the disks on the virtual machines."
+            },
+            "allowedValues": [
+                "Standard_LRS",
+                "StandardSSD_LRS",
+                "Premium_LRS"
+            ],
+            "defaultValue": "Standard_LRS"
+        },
         "DnsForwarderIPAddress": {
             "type": "array",
             "metadata": {
@@ -229,7 +241,7 @@
                         "createOption": "FromImage",
                         "caching": "ReadWrite",
                         "managedDisk": {
-                            "storageAccountType": "Premium_LRS"
+                            "storageAccountType": "[parameters('DiskSku')]"
                         },
                         "diskSizeGB": 127
                     },

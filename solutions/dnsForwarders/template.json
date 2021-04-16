@@ -178,11 +178,9 @@
         {
             "type": "Microsoft.Network/networkInterfaces",
             "apiVersion": "2020-05-01",
-            "name": "[concat(parameters('NicNamePrefix'),copyIndex())]",
+            "name": "[concat(parameters('NicNamePrefix'),copyIndex(1))]",
             "location": "[parameters('Location')]",
-            "dependsOn": [
-
-            ],
+            "dependsOn": [],
             "copy": {
                 "name": "nicLoop",
                 "count": 2
@@ -212,10 +210,11 @@
         {
             "type": "Microsoft.Compute/virtualMachines",
             "apiVersion": "2019-07-01",
-            "name": "[concat(parameters('VmNamePrefix'), copyIndex())]",
+            "name": "[concat(parameters('VmNamePrefix'), copyIndex(1))]",
             "location": "[parameters('Location')]",
             "dependsOn": [
-                "nicLoop"
+                "nicLoop",
+                "[parameters('AvSetName')]"
             ],
             "copy": {
                 "name": "VmLoop",
@@ -237,7 +236,7 @@
                     },
                     "osDisk": {
                         "osType": "Windows",
-                        "name": "[concat(parameters('DiskNamePrefix'), copyIndex())]",
+                        "name": "[concat(parameters('DiskNamePrefix'), copyIndex(1))]",
                         "createOption": "FromImage",
                         "caching": "ReadWrite",
                         "managedDisk": {
@@ -248,7 +247,7 @@
                     "dataDisks": []
                 },
                 "osProfile": {
-                    "computerName": "[concat(parameters('VmNamePrefix'), copyIndex())]",
+                    "computerName": "[concat(parameters('VmNamePrefix'), copyIndex(1))]",
                     "adminUsername": "[parameters('VmUsername')]",
                     "adminPassword": "[parameters('VmPassword')]",
                     "windowsConfiguration": {
@@ -261,7 +260,7 @@
                 "networkProfile": {
                     "networkInterfaces": [
                         {
-                            "id": "[resourceId('Microsoft.Network/networkInterfaces', concat(parameters('NicNamePrefix'),copyIndex()))]"
+                            "id": "[resourceId('Microsoft.Network/networkInterfaces', concat(parameters('NicNamePrefix'),copyIndex(1)))]"
                         }
                     ]
                 },
@@ -275,7 +274,7 @@
                     "name": "JsonADDomainExtension",
                     "location": "[parameters('Location')]",
                     "dependsOn": [
-                        "[concat(parameters('VmNamePrefix'), copyIndex())]"
+                        "[concat(parameters('VmNamePrefix'), copyIndex(1))]"
                     ],
                     "properties": {
                         "forceUpdateTag": "[parameters('Timestamp')]",
@@ -301,7 +300,7 @@
                     "apiVersion": "2019-07-01",
                     "location": "[parameters('Location')]",
                     "dependsOn": [
-                        "[concat(parameters('VmNamePrefix'), copyIndex())]",
+                        "[concat(parameters('VmNamePrefix'), copyIndex(1))]",
                         "JsonADDomainExtension"
                     ],
                     "properties": {

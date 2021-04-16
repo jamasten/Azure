@@ -7,32 +7,41 @@
             "metadata": {
                 "description": "Prefix for the availability set name"
             },
-            "defaultValue": "av-dns-p-eastus"
+            "defaultValue": "av-dns-p-eus"
         },
         "DiskNamePrefix": {
             "type": "string",
             "metadata": {
-                "description": "Prefix for the virtual machine's disk names"
+                "description": "Name prefix for the disks on the virtual machines. A number will be added as a suffix based on the copy loop number."
             },
-            "defaultValue": "disk-dns-p-eastus-"
+            "defaultValue": "disk-dns-p-eus-"
+        },
+        "DnsForwarderIPAddress": {
+            "type": "array",
+            "metadata": {
+                "description": "Forwarder IP Address for the DNS servers."
+            },
+            "defaultValue": [
+                "10.0.0.4"
+            ]
         },
         "DomainName": {
             "type": "string",
             "metadata": {
-                "description": "The domain name used to join virtual machines to the domain"
+                "description": "The domain name used to join virtual machines to the domain."
             },
             "defaultValue": "jasonmasten.com"
         },
-        "Image": {
-            "type": "object",
+        "DomainPassword": {
+            "type": "securestring",
             "metadata": {
-                "description": "Required values needed to define an OS image in the virtual machine resource"
-            },
-            "defaultValue": {
-                "Offer": "WindowsServer",
-                "Publisher": "MicrosoftWindowsServer",
-                "Sku": "2019-Datacenter-Core",
-                "Version": "latest"
+                "description": "Password for the privileged account to domain join virtual machines."
+            }
+        },
+        "DomainUsername": {
+            "type": "string",
+            "metadata": {
+                "description": "Username for the privileged account to domain join virtual machines."
             }
         },
         "HybridUseBenefit": {
@@ -46,6 +55,34 @@
             ],
             "defaultValue": "no"
         },
+        "ImagePublisher": {
+            "type": "string",
+            "metadata": {
+                "description": "The publisher of the OS image to use for the virtual machine resource"
+            },
+            "defaultValue": "MicrosoftWindowsServer"
+        },
+        "ImageOffer": {
+            "type": "string",
+            "metadata": {
+                "description": "The offer of the OS image to use for the virtual machine resource"
+            },
+            "defaultValue": "WindowsServer"
+        },
+        "ImageSku": {
+            "type": "string",
+            "metadata": {
+                "description": "The sku of the OS image to use for the virtual machine resource"
+            },
+            "defaultValue": "2019-Datacenter-Core"
+        },
+        "ImageVersion": {
+            "type": "string",
+            "metadata": {
+                "description": "The version of the OS image to use for the virtual machine resource"
+            },
+            "defaultValue": "latest"
+        },
         "IPAddresses": {
             "type": "array",
             "metadata": {
@@ -56,21 +93,19 @@
                 "10.0.1.5"
             ]
         },
+        "Location": {
+            "type": "string",
+            "metadata": {
+                "description": "Location to deploy the Azure resources."
+            },
+            "defaultValue": "[resourceGroup().location]"
+        },
         "NicNamePrefix": {
             "type": "string",
             "metadata": {
-                "description": "Prefix for the virtual machine names"
+                "description": "Name prefix for the NIC's on the virtual machines. A number will be added as a suffix based on the copy loop number."
             },
-            "defaultValue": "nic-dns-p-eastus-"
-        },
-        "OnPremDnsServers": {
-            "type": "array",
-            "metadata": {
-                "description": "On premise DNS servers used to setup DNS forwarding"
-            },
-            "defaultValue": [
-                "10.0.0.4"
-            ]
+            "defaultValue": "nic-dns-p-eus-"
         },
         "SubnetId": {
             "type": "string",
@@ -85,7 +120,7 @@
         "VmNamePrefix": {
             "type": "string",
             "metadata": {
-                "description": "Prefix for the virtual machine names"
+                "description": "Name prefix for the virtual machines.  A number will be added as a suffix based on the copy loop number."
             },
             "defaultValue": "vm-dns-p-eus-"
         },
@@ -117,7 +152,7 @@
             "type": "Microsoft.Compute/availabilitySets",
             "apiVersion": "2019-07-01",
             "name": "[parameters('AvSetName')]",
-            "location": "[resourceGroup().location]",
+            "location": "[parameters('Location')]",
             "dependsOn": [],
             "sku": {
                 "name": "Aligned"
@@ -132,7 +167,7 @@
             "type": "Microsoft.Network/networkInterfaces",
             "apiVersion": "2020-05-01",
             "name": "[concat(parameters('NicNamePrefix'),copyIndex())]",
-            "location": "[resourceGroup().location]",
+            "location": "[parameters('Location')]",
             "dependsOn": [
 
             ],
@@ -166,7 +201,7 @@
             "type": "Microsoft.Compute/virtualMachines",
             "apiVersion": "2019-07-01",
             "name": "[concat(parameters('VmNamePrefix'), copyIndex())]",
-            "location": "[resourceGroup().location]",
+            "location": "[parameters('Location')]",
             "dependsOn": [
                 "nicLoop"
             ],
@@ -183,10 +218,10 @@
                 },
                 "storageProfile": {
                     "imageReference": {
-                        "publisher": "[parameters('Image').Publisher]",
-                        "offer": "[parameters('Image').Offer]",
-                        "sku": "[parameters('Image').Sku]",
-                        "version": "[parameters('Image').Version]"
+                        "publisher": "[parameters('ImagePublisher')]",
+                        "offer": "[parameters('ImageOffer')]",
+                        "sku": "[parameters('ImageSku')]",
+                        "version": "[parameters('ImageVersion')]"
                     },
                     "osDisk": {
                         "osType": "Windows",
@@ -226,7 +261,7 @@
                     "apiVersion": "2019-07-01",
                     "type": "extensions",
                     "name": "JsonADDomainExtension",
-                    "location": "[resourceGroup().location]",
+                    "location": "[parameters('Location')]",
                     "dependsOn": [
                         "[concat(parameters('VmNamePrefix'), copyIndex())]"
                     ],
@@ -238,12 +273,12 @@
                         "autoUpgradeMinorVersion": true,
                         "settings": {
                             "Name": "[parameters('DomainName')]",
-                            "User": "[concat(variables('Netbios'), '\\', parameters('VmUsername'))]",
+                            "User": "[concat(variables('Netbios'), '\\', parameters('DomainUsername'))]",
                             "Restart": "true",
                             "Options": "3"
                         },
                         "protectedSettings": {
-                            "Password": "[parameters('VmPassword')]"
+                            "Password": "[parameters('DomainPassword')]"
                         }
                     }
                 },
@@ -252,7 +287,7 @@
                     "type": "extensions",
                     "name": "DSC",
                     "apiVersion": "2019-07-01",
-                    "location": "[resourceGroup().location]",
+                    "location": "[parameters('Location')]",
                     "dependsOn": [
                         "[concat(parameters('VmNamePrefix'), copyIndex())]",
                         "JsonADDomainExtension"
@@ -270,12 +305,12 @@
                                 "ActionAfterReboot": "ContinueConfiguration",
                                 "ConfigurationMode": "ApplyandAutoCorrect",
                                 "RebootNodeIfNeeded": true,
-                                "IPAddresses": "[parameters('OnPremDnsServers')]"
+                                "IPAddresses": "[parameters('DnsForwarderIPAddress')]"
                             },
                             "properties": [
                                 {
                                     "Name": "IPAddresses",
-                                    "Value": "[parameters('OnPremDnsServers')]",
+                                    "Value": "[parameters('DnsForwarderIPAddress')]",
                                     "TypeName": "System.Array"
                                 }
                             ]

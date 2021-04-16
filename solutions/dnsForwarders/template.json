@@ -5,14 +5,14 @@
         "AvSetName": {
             "type": "string",
             "metadata": {
-                "description": "Prefix for the availability set name"
+                "description": "The name for the availability set"
             },
             "defaultValue": "av-dns-p-eus"
         },
         "DiskNamePrefix": {
             "type": "string",
             "metadata": {
-                "description": "Name prefix for the disks on the virtual machines. A number will be added as a suffix based on the copy loop number."
+                "description": "The name prefix for the disks on the virtual machines. A number will be added as a suffix based on the copy loop number."
             },
             "defaultValue": "disk-dns-p-eus-"
         },
@@ -59,7 +59,7 @@
         "HybridUseBenefit": {
             "type": "string",
             "metadata": {
-                "description": "Conditionally deploys the VM with the Hybrid Use Benefit for Windows Server"
+                "description": "Conditionally deploys the VM with the Hybrid Use Benefit for Windows Server."
             },
             "allowedValues": [
                 "yes",
@@ -67,38 +67,38 @@
             ],
             "defaultValue": "no"
         },
-        "ImagePublisher": {
-            "type": "string",
-            "metadata": {
-                "description": "The publisher of the OS image to use for the virtual machine resource"
-            },
-            "defaultValue": "MicrosoftWindowsServer"
-        },
         "ImageOffer": {
             "type": "string",
             "metadata": {
-                "description": "The offer of the OS image to use for the virtual machine resource"
+                "description": "The offer of the OS image to use for the virtual machine resource."
             },
             "defaultValue": "WindowsServer"
+        },
+        "ImagePublisher": {
+            "type": "string",
+            "metadata": {
+                "description": "The publisher of the OS image to use for the virtual machine resource."
+            },
+            "defaultValue": "MicrosoftWindowsServer"
         },
         "ImageSku": {
             "type": "string",
             "metadata": {
-                "description": "The sku of the OS image to use for the virtual machine resource"
+                "description": "The sku of the OS image to use for the virtual machine resource."
             },
             "defaultValue": "2019-Datacenter-Core"
-        },
+        },        
         "ImageVersion": {
             "type": "string",
             "metadata": {
-                "description": "The version of the OS image to use for the virtual machine resource"
+                "description": "The version of the OS image to use for the virtual machine resource."
             },
             "defaultValue": "latest"
         },
         "IPAddresses": {
             "type": "array",
             "metadata": {
-                "description": "IP addresses for the DNS servers"
+                "description": "IP addresses for the DNS servers."
             },
             "defaultValue": [
                 "10.0.1.4",
@@ -122,11 +122,14 @@
         "SubnetId": {
             "type": "string",
             "metadata": {
-                "description": "The resource ID for the subnet of the DNS servers"
+                "description": "The resource ID for the subnet of the DNS servers."
             }
         },
         "Timestamp": {
             "type": "string",
+            "metadata": {
+                "description": "The timestamp is used to rerun VM extensions when the template needs to be redeployed due to an error or update."
+            },
             "defaultValue": "[utcNow()]"
         },
         "VmNamePrefix": {
@@ -139,20 +142,20 @@
         "VmPassword": {
             "type": "securestring",
             "metadata": {
-                "description": "The local admin password for virtual machines"
+                "description": "The local administrator password for virtual machines."
             }
         },
         "VmSize": {
             "type": "string",
             "metadata": {
-                "description": "This value determine the size of the virtual machine"
+                "description": "The size of the virtual machine."
             },
             "defaultValue": "Standard_D2s_v4"
         },
         "VmUsername": {
             "type": "string",
             "metadata": {
-                "description": "The local admin username for virtual machines"
+                "description": "The local administrator username for virtual machines."
             }
         }
     },

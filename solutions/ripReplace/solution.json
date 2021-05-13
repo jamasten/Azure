@@ -6,8 +6,7 @@
             "type": "string",
             "metadata": {
                 "description": "Input RDP properties to add or remove RDP functionality on the host pool. Settings reference: https://docs.microsoft.com/en-us/windows-server/remote/remote-desktop-services/clients/rdp-files?context=/azure/virtual-desktop/context/context"
-            },
-            "defaultValue": "audiocapturemode:i:1;camerastoredirect:s:*;use multimon:i:0;drivestoredirect:s:;"
+            }
         },
         "DiskSku": {
             "type": "string",
@@ -18,8 +17,7 @@
                 "Standard_LRS",
                 "StandardSSD_LRS",
                 "Premium_LRS"
-            ],
-            "defaultValue": "Standard_LRS"
+            ]
         },
         "DomainAdminPassword": {
             "type": "securestring",
@@ -37,8 +35,7 @@
             "type": "string",
             "metadata": {
                 "description": "Name of the domain that provides ADDS to the WVD session hosts and is synchronized with Azure AD"
-            },
-            "defaultValue": "jasonmasten.com"
+            }
         },
         "HostPoolType": {
             "type": "string",
@@ -92,8 +89,7 @@
             "type": "int",
             "metadata": {
                 "description": "The maximum number of sessions per WVD session host"
-            },
-            "defaultValue": 4
+            }
         },
         "PreferredAppGroupType": {
             "type": "string",
@@ -103,8 +99,7 @@
             "allowedValues": [
                 "Desktop",
                 "RailApplications"
-            ],
-            "defaultValue": "Desktop"
+            ]
         },
         "ResourceGroups": {
             "type": "array",
@@ -116,22 +111,19 @@
             "type": "int",
             "metadata": {
                 "description": "Number of session hosts to deploy in the host pool"
-            },
-            "defaultValue": 1
+            }
         },
         "SessionHostIndex": {
             "type": "int",
             "metadata": {
                 "description": "The session host number to begin with for the deployment. This is important when adding VM's to ensure the names do not conflict."
-            },
-            "defaultValue": 0
+            }
         },
         "Subnet": {
             "type": "string",
             "metadata": {
                 "description": "Subnet for the WVD session hosts"
-            },
-            "defaultValue": "snet-clients-d-eastus"
+            }
         },
         "Timestamp": {
             "type": "string",
@@ -141,22 +133,19 @@
             "type": "bool",
             "metadata": {
                 "description": "The value determines whether the hostpool should receive early WVD updates for testing."
-            },
-            "defaultValue": false
+            }
         },
         "VirtualNetwork": {
             "type": "string",
             "metadata": {
                 "description": "Virtual network for the WVD sessions hosts"
-            },
-            "defaultValue": "vnet-d-eastus"
+            }
         },
         "VirtualNetworkResourceGroup": {
             "type": "string",
             "metadata": {
                 "description": "Virtual network resource group for the WVD sessions hosts"
-            },
-            "defaultValue": "rg-network-d-eastus"
+            }
         },
         "VmPassword": {
             "type": "securestring",
@@ -206,12 +195,6 @@
             "metadata": {
                 "description": "The Name Prefix for the Session Hosts.  During deployment a 3 digit number will be added to each Session Host to complete the name."
             }
-        },
-        "WorkspaceName": {
-            "type": "string",
-            "metadata": {
-                "description": "The Name of the WVD Workspace."
-            }
         }
     },
     "variables": {
@@ -231,7 +214,7 @@
             "properties": {
                 "mode": "Incremental",
                 "templateLink": {
-                    "uri": "",
+                    "uri": "https://raw.githubusercontent.com/jamasten/Azure/master/solutions/ripReplace/templates/hostPool.json",
                     "contentVersion": "1.0.0.0"
                 },
                 "parameters": {
@@ -258,9 +241,6 @@
                     },
                     "ValidationEnvironment": {
                         "value": "[parameters('ValidationEnvironment')]"
-                    },
-                    "WorkspaceName": {
-                        "value": "[parameters('WorkspaceName')]"
                     }
                 }
             }
@@ -278,7 +258,7 @@
             "properties": {
                 "mode": "Incremental",
                 "templateLink": {
-                    "uri": "",
+                    "uri": "https://raw.githubusercontent.com/jamasten/Azure/master/solutions/ripReplace/templates/sessionHosts.json",
                     "contentVersion": "1.0.0.0"
                 },
                 "parameters": {

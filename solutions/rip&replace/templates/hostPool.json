@@ -1,0 +1,57 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "CustomRdpProperty": {
+            "type": "string"
+        },
+        "HostPoolName": {
+            "type": "string"
+        },
+        "HostPoolType": {
+            "type": "string"
+        },
+        "Location": {
+            "type": "string"
+        },
+        "MaxSessionLimit": {
+            "type": "int"
+        },
+        "PreferredAppGroupType": {
+            "type": "string"
+        },
+        "Tags": {
+            "type": "object"
+        },
+        "Timestamp": {
+            "type": "string",
+            "defaultValue": "[utcNow('u')]"
+        },
+        "ValidationEnvironment": {
+            "type": "bool"
+        }
+    },
+    "resources": [
+        {
+            "comments": "---------- WVD HOST POOL ----------",
+            "type": "Microsoft.DesktopVirtualization/hostpools",
+            "apiVersion": "2019-12-10-preview",
+            "name": "[parameters('HostPoolName')]",
+            "location": "[parameters('Location')]",
+            "tags": "[parameters('Tags')]",
+            "properties": {
+                "hostPoolType": "[split(parameters('HostPoolType'), ' ')[0]]",
+                "maxSessionLimit": "[parameters('MaxSessionLimit')]",
+                "loadBalancerType": "[if(contains(parameters('HostPoolType'), 'Pooled'), split(parameters('HostPoolType'), ' ')[1], null())]",
+                "validationEnvironment": "[parameters('ValidationEnvironment')]",
+                "registrationInfo": {
+                    "expirationTime": "[dateTimeAdd(parameters('Timestamp'), 'PT2H')]",
+                    "registrationTokenOperation": "Update"
+                },
+                "preferredAppGroupType": "[parameters('PreferredAppGroupType')]",
+                "customRdpProperty": "[parameters('CustomRdpProperty')]",
+                "personalDesktopAssignmentType": "[if(contains(parameters('HostPoolType'), 'Personal'), split(parameters('HostPoolType'), ' ')[1], null())]"
+            }
+        }
+    ]
+}

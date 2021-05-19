@@ -26,9 +26,6 @@
         "HostPoolResourceGroupName": {
             "type": "string"
         },
-        "HostPoolType": {
-            "type": "string"
-        },
         "ImageOffer": {
             "type": "string"
         },
@@ -55,9 +52,6 @@
         },
         "SessionHostIndex": {
             "type": "int"
-        },
-        "StorageAccountName": {
-            "type": "string"
         },
         "Subnet": {
             "type": "string"
@@ -250,33 +244,6 @@
                         },
                         "protectedSettings": {
                             "Password": "[parameters('DomainAdminPassword')]"
-                        }
-                    }
-                },
-                {
-                    "comments": "---------- CUSTOM SCRIPT EXTENSION ----------",
-                    "condition": "[equals(split(parameters('HostPoolType'), ' ')[0], 'Pooled')]",
-                    "type": "extensions",
-                    "apiVersion": "2020-12-01",
-                    "name": "CustomScriptExtension",
-                    "location": "[parameters('location')]",
-                    "dependsOn": [
-                        "[concat(parameters('VmName'), padLeft(copyIndex(parameters('SessionHostIndex')), 3, '0'))]",
-                        "Dsc",
-                        "JsonADDomainExtension"
-                    ],
-                    "tags": "[parameters('Tags')]",
-                    "properties": {
-                        "publisher": "Microsoft.Compute",
-                        "type": "CustomScriptExtension",
-                        "typeHandlerVersion": "1.10",
-                        "autoUpgradeMinorVersion": true,
-                        "settings": {
-                            "fileUris": [ "https://raw.githubusercontent.com/jamasten/Azure/master/solutions/wvd/scripts/Add-FslogixSettings.ps1" ],
-                            "timestamp": "[parameters('Timestamp')]"
-                        },
-                        "protectedSettings": {
-                            "commandToExecute": "[concat('powershell -ExecutionPolicy Unrestricted -File Add-FslogixSettings.ps1 -Environment ', environment().name, ' -HostPoolName ', parameters('HostPoolName'), ' -StorageAccountName ', parameters('StorageAccountName'))]"
                         }
                     }
                 }

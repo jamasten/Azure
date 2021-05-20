@@ -5,7 +5,7 @@
         "AvailabilitySetName": {
             "type": "string"
         },
-        "DiskName": {
+        "DiskNamePrefix": {
             "type": "string"
         },
         "DiskSku": {
@@ -45,6 +45,9 @@
             "type": "string"
         },
         "NicName": {
+            "type": "string"
+        },
+        "OuPath": {
             "type": "string"
         },
         "SessionHostCount": {
@@ -157,7 +160,7 @@
                     },
                     "osDisk": {
                         "osType": "Windows",
-                        "name": "[concat(parameters('DiskName'), padLeft(copyIndex(parameters('SessionHostIndex')), 3, '0'))]",
+                        "name": "[concat(parameters('DiskNamePrefix'), padLeft(copyIndex(parameters('SessionHostIndex')), 3, '0'))]",
                         "createOption": "FromImage",
                         "caching": "None",
                         "managedDisk": {
@@ -240,7 +243,8 @@
                             "Name": "[parameters('DomainName')]",
                             "User": "[concat(parameters('Netbios'), '\\', parameters('DomainAdminUsername'))]",
                             "Restart": "true",
-                            "Options": "3"
+                            "Options": "3",
+                            "OUPath": "[parameters('OuPath')]"
                         },
                         "protectedSettings": {
                             "Password": "[parameters('DomainAdminPassword')]"

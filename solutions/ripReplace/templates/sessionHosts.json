@@ -26,6 +26,9 @@
         "HostPoolResourceGroupName": {
             "type": "string"
         },
+        "HostPoolType": {
+            "type": "string"
+        },
         "ImageOffer": {
             "type": "string"
         },
@@ -87,6 +90,7 @@
     "resources": [
         {
             "comments": "---------- AVAILABILITY SET ----------",
+            "condition": "[equals(split(parameters('HostPoolType'), ' ')[0], 'Pooled')]",
             "type": "Microsoft.Compute/availabilitySets",
             "apiVersion": "2019-07-01",
             "name": "[parameters('AvailabilitySetName')]",

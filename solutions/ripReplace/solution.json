@@ -2,10 +2,22 @@
     "$schema": "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
+        "AvailabilitySetName": {
+            "type": "string",
+            "metadata": {
+                "description": "The name for the Availability Set for the WVD Session Hosts."
+            }
+        },
         "CustomRdpProperty": {
             "type": "string",
             "metadata": {
                 "description": "Input RDP properties to add or remove RDP functionality on the host pool. Settings reference: https://docs.microsoft.com/en-us/windows-server/remote/remote-desktop-services/clients/rdp-files?context=/azure/virtual-desktop/context/context"
+            }
+        },
+        "DiskNamePrefix": {
+            "type": "string",
+            "metadata": {
+                "description": "The name for the OS disk on the Session Hosts."
             }
         },
         "DiskSku": {
@@ -35,6 +47,12 @@
             "type": "string",
             "metadata": {
                 "description": "Name of the domain that provides ADDS to the WVD session hosts and is synchronized with Azure AD"
+            }
+        },
+        "HostPoolName": {
+            "type": "string",
+            "metadata": {
+                "description": "The name for the WVD Host Pool."
             }
         },
         "HostPoolType": {
@@ -91,6 +109,18 @@
                 "description": "The maximum number of sessions per WVD session host"
             }
         },
+        "NicNamePrefix": {
+            "type": "string",
+            "metadata": {
+                "description": "The Name Prefix for the Network Interfaces on the Session Hosts.  During deployment a 3 digit number will be added to each NIC to complete the name."
+            }
+        },
+        "OuPath": {
+            "type": "string",
+            "metadata": {
+                "description": "Organizational Unit in Active Directory for Computer Objects."
+            }
+        },
         "PreferredAppGroupType": {
             "type": "string",
             "metadata": {
@@ -105,6 +135,12 @@
             "type": "array",
             "metadata": {
                 "description": "The Names of the resource groups for the WVD Host Pool and Session Hosts."
+            }
+        },
+        "SasToken": {
+            "type": "securestring",
+            "metadata": {
+                "description": "SAS Token for linked template files in an Azure Storage Account"
             }
         },
         "SessionHostCount": {
@@ -147,6 +183,12 @@
                 "description": "Virtual network resource group for the WVD sessions hosts"
             }
         },
+        "VmNamePrefix": {
+            "type": "string",
+            "metadata": {
+                "description": "The Name Prefix for the Session Hosts.  During deployment a 3 digit number will be added to each Session Host to complete the name."
+            }
+        },
         "VmPassword": {
             "type": "securestring",
             "metadata": {
@@ -164,36 +206,6 @@
             "type": "string",
             "metadata": {
                 "description": "The Local Administrator Username for the Session Hosts"
-            }
-        },
-        "AvailabilitySetName": {
-            "type": "string",
-            "metadata": {
-                "description": "The name for the Availability Set for the WVD Session Hosts."
-            }
-        },
-        "DiskName": {
-            "type": "string",
-            "metadata": {
-                "description": "The name for the OS disk on the Session Hosts."
-            }
-        },
-        "HostPoolName": {
-            "type": "string",
-            "metadata": {
-                "description": "The name for the WVD Host Pool."
-            }
-        },
-        "NicNamePrefix": {
-            "type": "string",
-            "metadata": {
-                "description": "The Name Prefix for the Network Interfaces on the Session Hosts.  During deployment a 3 digit number will be added to each NIC to complete the name."
-            }
-        },
-        "VmNamePrefix": {
-            "type": "string",
-            "metadata": {
-                "description": "The Name Prefix for the Session Hosts.  During deployment a 3 digit number will be added to each Session Host to complete the name."
             }
         }
     },
@@ -214,7 +226,7 @@
             "properties": {
                 "mode": "Incremental",
                 "templateLink": {
-                    "uri": "https://raw.githubusercontent.com/jamasten/Azure/master/solutions/ripReplace/templates/hostPool.json",
+                    "uri": "[concat('https://storjmdeastuss.blob.core.windows.net/templates/hostPool.json', parameters('SasToken'))]",
                     "contentVersion": "1.0.0.0"
                 },
                 "parameters": {
@@ -258,15 +270,15 @@
             "properties": {
                 "mode": "Incremental",
                 "templateLink": {
-                    "uri": "https://raw.githubusercontent.com/jamasten/Azure/master/solutions/ripReplace/templates/sessionHosts.json",
+                    "uri": "[concat('https://storjmdeastuss.blob.core.windows.net/templates/sessionHosts.json', parameters('SasToken'))]",
                     "contentVersion": "1.0.0.0"
                 },
                 "parameters": {
                     "AvailabilitySetName": {
                         "value": "[parameters('AvailabilitySetName')]"
                     },
-                    "DiskName": {
-                        "value": "[parameters('DiskName')]"
+                    "DiskNamePrefix": {
+                        "value": "[parameters('DiskNamePrefix')]"
                     },
                     "DiskSku": {
                         "value": "[parameters('DiskSku')]"
@@ -285,9 +297,6 @@
                     },
                     "HostPoolResourceGroupName": {
                         "value": "[parameters('ResourceGroups')[0]]"
-                    },
-                    "HostPoolType": {
-                        "value": "[parameters('HostPoolType')]"
                     },
                     "ImageOffer": {
                         "value": "[parameters('ImageOffer')]"
@@ -309,6 +318,9 @@
                     },
                     "NicName": {
                         "value": "[parameters('NicNamePrefix')]"
+                    },
+                    "OuPath": {
+                        "value": "[parameters('OuPath')]"
                     },
                     "SessionHostCount": {
                         "value": "[parameters('SessionHostCount')]"

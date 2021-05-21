@@ -116,7 +116,7 @@
             }
         },
         "Optimizations": {
-            "type": "string",
+            "type": "array",
             "metadata": {
                 "description": "WVD Optimizations to implement on the Session Hosts. "
             },

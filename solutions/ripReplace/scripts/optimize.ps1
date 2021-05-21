@@ -25,7 +25,7 @@ Param (
 ################################
 New-Item -Path C:\ -Name Optimize -ItemType Directory -ErrorAction SilentlyContinue
 $LocalPath = "C:\Optimize\"
-$WVDOptimizeURL = 'https://github.com/The-Virtual-Desktop-Team/Virtual-Desktop-Optimization-Tool/archive/master.zip'
+$WVDOptimizeURL = 'https://github.com/The-Virtual-Desktop-Team/Virtual-Desktop-Optimization-Tool/archive/refs/heads/main.zip'
 $WVDOptimizeInstaller = "Windows_10_VDI_Optimize-master.zip"
 Invoke-WebRequest `
     -Uri $WVDOptimizeURL `

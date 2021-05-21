@@ -6,9 +6,10 @@
 #******************************************************************************************************************
 # Date                         Version      Changes
 #-----------------------------------------------------------------------------------------------------------------
-# 05/20/2021 (Jason Masten)     1.1        Removed WindowsVersion parameter since the value is auto collected
-#                                          Added parameter to Accept EULA
-#                                          Added parameter & param block to allow Optimization choices
+# 05/20/2021 (Jason Masten)     1.1         Removed WindowsVersion parameter since the value is auto collected
+#                                           Added parameter to Accept EULA
+#                                           Added parameter & param block to allow Optimization choices
+#                                           Fixed zip file changes
 #
 # 07/09/2020                     1.0        Intial Version
 #******************************************************************************************************************
@@ -40,7 +41,6 @@ Expand-Archive `
     -DestinationPath "$Localpath" `
     -Force `
     -Verbose
-Set-Location -Path C:\Optimize\Virtual-Desktop-Optimization-Tool-master
 
 
 #################################
@@ -49,4 +49,4 @@ Set-Location -Path C:\Optimize\Virtual-Desktop-Optimization-Tool-master
 New-Item -Path C:\Optimize\ -Name install.log -ItemType File -Force
 Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Force -Verbose
 add-content c:\Optimize\install.log "Starting Optimizations"  
-.\Win10_VirtualDesktop_Optimize.ps1 -Optimizations $Optimizations -Restart -AcceptEULA -Verbose
+& C:\Optimize\Virtual-Desktop-Optimization-Tool-main\Win10_VirtualDesktop_Optimize.ps1 -Optimizations $Optimizations -Restart -AcceptEULA -Verbose

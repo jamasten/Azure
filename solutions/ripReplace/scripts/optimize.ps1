@@ -3,13 +3,22 @@
 # Usage        : Windows Virtual Desktop Optimization Script
 # All code that this script executes is created and provided by THE VDI GUYS
 # You can download the code here  --  https://github.com/The-Virtual-Desktop-Team/Virtual-Desktop-Optimization-Tool
-#********************************************************************************
+#******************************************************************************************************************
 # Date                         Version      Changes
-#------------------------------------------------------------------------
-# 05/20/2021                     1.1        Removed WindowsVersion parameter (by Jason Masten)
+#-----------------------------------------------------------------------------------------------------------------
+# 05/20/2021 (Jason Masten)     1.1        Removed WindowsVersion parameter since the value is auto collected
+#                                          Added parameter to Accept EULA
+#                                          Added parameter & param block to allow Optimization choices
+#
 # 07/09/2020                     1.0        Intial Version
-#*********************************************************************************
+#******************************************************************************************************************
 
+[Cmdletbinding()]
+Param (
+    [ValidateSet('All','WindowsMediaPlayer','AppxPackages','ScheduledTasks','DefaultUserSettings','Autologgers','Services','NetworkOptimizations','LGPO','DiskCleanup')] 
+    [String[]]
+    $Optimizations = "All",
+)
 
 ################################
 #    Download WVD Optimizer    #
@@ -40,4 +49,4 @@ Set-Location -Path C:\Optimize\Virtual-Desktop-Optimization-Tool-master
 New-Item -Path C:\Optimize\ -Name install.log -ItemType File -Force
 Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Force -Verbose
 add-content c:\Optimize\install.log "Starting Optimizations"  
-.\Win10_VirtualDesktop_Optimize.ps1 -Restart -Verbose
+.\Win10_VirtualDesktop_Optimize.ps1 -Optimizations $Optimizations -Restart -AcceptEULA -Verbose

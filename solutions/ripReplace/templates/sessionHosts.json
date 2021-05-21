@@ -51,7 +51,7 @@
             "type": "string"
         },
         "Optimizations": {
-            "type": "string"
+            "type": "array"
         },
         "OuPath": {
             "type": "string"

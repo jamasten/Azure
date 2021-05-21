@@ -116,22 +116,10 @@
             }
         },
         "Optimizations": {
-            "type": "array",
+            "type": "string",
             "metadata": {
-                "description": "WVD Optimizations to implement on the Session Hosts. "
-            },
-            "allowedValues": [
-                "All",
-                "WindowsMediaPlayer",
-                "AppxPackages",
-                "ScheduledTasks",
-                "DefaultUserSettings",
-                "Autologgers",
-                "Services",
-                "NetworkOptimizations",
-                "LGPO",
-                "DiskCleanup"
-            ]
+                "description": "WVD Optimizations to implement on the Session Hosts. Input a string array with any of the following values: 'All','WindowsMediaPlayer','AppxPackages','ScheduledTasks','DefaultUserSettings','Autologgers','Services','NetworkOptimizations','LGPO','DiskCleanup'"
+            }
         },
         "OuPath": {
             "type": "string",

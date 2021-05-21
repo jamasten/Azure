@@ -217,6 +217,19 @@
     },
     "resources": [
         {
+            "comments": "---------- RESOURCE GROUPS ----------",
+            "name": "[parameters('ResourceGroups')[copyIndex()]]",
+            "type": "Microsoft.Resources/resourceGroups",
+            "apiVersion": "2019-10-01",
+            "location": "[parameters('Location')]",
+            "tags": "[variables('Tags')]",
+            "properties": {},
+            "copy": {
+                "name": "rgLoop",
+                "count": "[length(parameters('ResourceGroups'))]"
+            }
+        },
+        {
             "comments": "---------- LINKED DEPLOYMENT > WVD HOST POOL ----------",
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2019-10-01",

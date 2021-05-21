@@ -115,6 +115,24 @@
                 "description": "The Name Prefix for the Network Interfaces on the Session Hosts.  During deployment a 3 digit number will be added to each NIC to complete the name."
             }
         },
+        "Optimizations": {
+            "type": "string",
+            "metadata": {
+                "description": "WVD Optimizations to implement on the Session Hosts. "
+            },
+            "allowedValues": [
+                "All",
+                "WindowsMediaPlayer",
+                "AppxPackages",
+                "ScheduledTasks",
+                "DefaultUserSettings",
+                "Autologgers",
+                "Services",
+                "NetworkOptimizations",
+                "LGPO",
+                "DiskCleanup"
+            ]
+        },
         "OuPath": {
             "type": "string",
             "metadata": {
@@ -334,6 +352,9 @@
                     },
                     "NicName": {
                         "value": "[parameters('NicNamePrefix')]"
+                    },
+                    "Optimizations": {
+                        "value": "[parameters('Optimizations')]"
                     },
                     "OuPath": {
                         "value": "[parameters('OuPath')]"

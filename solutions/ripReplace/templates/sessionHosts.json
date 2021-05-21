@@ -50,6 +50,9 @@
         "NicName": {
             "type": "string"
         },
+        "Optimizations": {
+            "type": "string"
+        },
         "OuPath": {
             "type": "string"
         },
@@ -278,7 +281,7 @@
                             "timestamp": "[parameters('Timestamp')]"
                         },
                         "protectedSettings": {
-                            "commandToExecute": "powershell -ExecutionPolicy Unrestricted -File optimize.ps1"
+                            "commandToExecute": "[concat('powershell -ExecutionPolicy Unrestricted -File optimize.ps1 -Optimizations ', parameters('Optimizations'))]"
                         }
                     }
                 }

@@ -1,0 +1,307 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {},
+    "functions": [],
+    "variables": {},
+    "resources": [
+        {
+            "name": "string",
+            "type": "Microsoft.Compute/disks",
+            "apiVersion": "2020-12-01",
+            "location": "string",
+            "tags": {},
+            "sku": {
+                "name": "string"
+            },
+            "zones": [
+                "string"
+            ],
+            "extendedLocation": {
+                "name": "string",
+                "type": "EdgeZone"
+            },
+            "properties": {
+                "osType": "string",
+                "hyperVGeneration": "string",
+                "purchasePlan": {
+                    "name": "string",
+                    "publisher": "string",
+                    "product": "string",
+                    "promotionCode": "string"
+                },
+                "creationData": {
+                    "createOption": "string",
+                    "storageAccountId": "string",
+                    "imageReference": {
+                        "id": "string",
+                        "lun": "integer"
+                    },
+                    "galleryImageReference": {
+                        "id": "string",
+                        "lun": "integer"
+                    },
+                    "sourceUri": "string",
+                    "sourceResourceId": "string",
+                    "uploadSizeBytes": "integer",
+                    "logicalSectorSize": "integer"
+                },
+                "diskSizeGB": "integer",
+                "encryptionSettingsCollection": {
+                    "enabled": "boolean",
+                    "encryptionSettings": [
+                        {
+                            "diskEncryptionKey": {
+                                "sourceVault": {
+                                    "id": "string"
+                                },
+                                "secretUrl": "string"
+                            },
+                            "keyEncryptionKey": {
+                                "sourceVault": {
+                                    "id": "string"
+                                },
+                                "keyUrl": "string"
+                            }
+                        }
+                    ],
+                    "encryptionSettingsVersion": "string"
+                },
+                "diskIOPSReadWrite": "integer",
+                "diskMBpsReadWrite": "integer",
+                "diskIOPSReadOnly": "integer",
+                "diskMBpsReadOnly": "integer",
+                "diskState": "string",
+                "encryption": {
+                    "diskEncryptionSetId": "string",
+                    "type": "string"
+                },
+                "maxShares": "integer",
+                "networkAccessPolicy": "string",
+                "diskAccessId": "string",
+                "tier": "string",
+                "burstingEnabled": "boolean",
+                "supportsHibernation": "boolean",
+                "securityProfile": {
+                    "securityType": "TrustedLaunch"
+                }
+            }
+        },
+        {
+            "name": "string",
+            "type": "Microsoft.Compute/virtualMachines",
+            "apiVersion": "2020-12-01",
+            "location": "string",
+            "tags": {},
+            "plan": {
+                "name": "string",
+                "publisher": "string",
+                "product": "string",
+                "promotionCode": "string"
+            },
+            "properties": {
+                "hardwareProfile": {
+                    "vmSize": "string"
+                },
+                "storageProfile": {
+                    "imageReference": {
+                        "id": "string",
+                        "publisher": "string",
+                        "offer": "string",
+                        "sku": "string",
+                        "version": "string"
+                    },
+                    "osDisk": {
+                        "osType": "string",
+                        "encryptionSettings": {
+                            "diskEncryptionKey": {
+                                "secretUrl": "string",
+                                "sourceVault": {
+                                    "id": "string"
+                                }
+                            },
+                            "keyEncryptionKey": {
+                                "keyUrl": "string",
+                                "sourceVault": {
+                                    "id": "string"
+                                }
+                            },
+                            "enabled": "boolean"
+                        },
+                        "name": "string",
+                        "vhd": {
+                            "uri": "string"
+                        },
+                        "image": {
+                            "uri": "string"
+                        },
+                        "caching": "string",
+                        "writeAcceleratorEnabled": "boolean",
+                        "diffDiskSettings": {
+                            "option": "Local",
+                            "placement": "string"
+                        },
+                        "createOption": "string",
+                        "diskSizeGB": "integer",
+                        "managedDisk": {
+                            "id": "string",
+                            "storageAccountType": "string",
+                            "diskEncryptionSet": {
+                                "id": "string"
+                            }
+                        }
+                    },
+                    "dataDisks": [
+                        {
+                            "lun": "integer",
+                            "name": "string",
+                            "vhd": {
+                                "uri": "string"
+                            },
+                            "image": {
+                                "uri": "string"
+                            },
+                            "caching": "string",
+                            "writeAcceleratorEnabled": "boolean",
+                            "createOption": "string",
+                            "diskSizeGB": "integer",
+                            "managedDisk": {
+                                "id": "string",
+                                "storageAccountType": "string",
+                                "diskEncryptionSet": {
+                                    "id": "string"
+                                }
+                            },
+                            "toBeDetached": "boolean",
+                            "detachOption": "ForceDetach"
+                        }
+                    ]
+                },
+                "additionalCapabilities": {
+                    "ultraSSDEnabled": "boolean"
+                },
+                "osProfile": {
+                    "computerName": "string",
+                    "adminUsername": "string",
+                    "adminPassword": "string",
+                    "customData": "string",
+                    "windowsConfiguration": {
+                        "provisionVMAgent": "boolean",
+                        "enableAutomaticUpdates": "boolean",
+                        "timeZone": "string",
+                        "additionalUnattendContent": [
+                            {
+                                "passName": "OobeSystem",
+                                "componentName": "Microsoft-Windows-Shell-Setup",
+                                "settingName": "string",
+                                "content": "string"
+                            }
+                        ],
+                        "patchSettings": {
+                            "patchMode": "string",
+                            "enableHotpatching": "boolean"
+                        },
+                        "winRM": {
+                            "listeners": [
+                                {
+                                    "protocol": "string",
+                                    "certificateUrl": "string"
+                                }
+                            ]
+                        }
+                    },
+                    "linuxConfiguration": {
+                        "disablePasswordAuthentication": "boolean",
+                        "ssh": {
+                            "publicKeys": [
+                                {
+                                    "path": "string",
+                                    "keyData": "string"
+                                }
+                            ]
+                        },
+                        "provisionVMAgent": "boolean",
+                        "patchSettings": {
+                            "patchMode": "string"
+                        }
+                    },
+                    "secrets": [
+                        {
+                            "sourceVault": {
+                                "id": "string"
+                            },
+                            "vaultCertificates": [
+                                {
+                                    "certificateUrl": "string",
+                                    "certificateStore": "string"
+                                }
+                            ]
+                        }
+                    ],
+                    "allowExtensionOperations": "boolean",
+                    "requireGuestProvisionSignal": "boolean"
+                },
+                "networkProfile": {
+                    "networkInterfaces": [
+                        {
+                            "id": "string",
+                            "properties": {
+                                "primary": "boolean"
+                            }
+                        }
+                    ]
+                },
+                "securityProfile": {
+                    "uefiSettings": {
+                        "secureBootEnabled": "boolean",
+                        "vTpmEnabled": "boolean"
+                    },
+                    "encryptionAtHost": "boolean",
+                    "securityType": "TrustedLaunch"
+                },
+                "diagnosticsProfile": {
+                    "bootDiagnostics": {
+                        "enabled": "boolean",
+                        "storageUri": "string"
+                    }
+                },
+                "availabilitySet": {
+                    "id": "string"
+                },
+                "virtualMachineScaleSet": {
+                    "id": "string"
+                },
+                "proximityPlacementGroup": {
+                    "id": "string"
+                },
+                "priority": "string",
+                "evictionPolicy": "string",
+                "billingProfile": {
+                    "maxPrice": "number"
+                },
+                "host": {
+                    "id": "string"
+                },
+                "hostGroup": {
+                    "id": "string"
+                },
+                "licenseType": "string",
+                "extensionsTimeBudget": "string",
+                "platformFaultDomain": "integer"
+            },
+            "identity": {
+                "type": "string",
+                "userAssignedIdentities": {}
+            },
+            "zones": [
+                "string"
+            ],
+            "extendedLocation": {
+                "name": "string",
+                "type": "EdgeZone"
+            },
+            "resources": []
+        }
+    ],
+    "outputs": {}
+}

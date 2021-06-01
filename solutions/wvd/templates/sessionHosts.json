@@ -5,7 +5,7 @@
         "AvailabilitySetName": {
             "type": "string"
         },
-        "DiskName": {
+        "DiskNamePrefix": {
             "type": "string"
         },
         "DiskSku": {
@@ -47,7 +47,13 @@
         "Netbios": {
             "type": "string"
         },
-        "NicName": {
+        "NicNamePrefix": {
+            "type": "string"
+        },
+        "Optimizations": {
+            "type": "string"
+        },
+        "OuPath": {
             "type": "string"
         },
         "SessionHostCount": {
@@ -74,7 +80,7 @@
         "VirtualNetworkResourceGroup": {
             "type": "string"
         },
-        "VmName": {
+        "VmNamePrefix": {
             "type": "string"
         },
         "VmPassword": {
@@ -108,7 +114,7 @@
             "comments": "---------- NETWORK INTERFACES ----------",
             "type": "Microsoft.Network/networkInterfaces",
             "apiVersion": "2020-05-01",
-            "name": "[concat(parameters('NicName'), padLeft(copyIndex(parameters('SessionHostIndex')), 3, '0'))]",
+            "name": "[concat(parameters('NicNamePrefix'), padLeft(copyIndex(parameters('SessionHostIndex')), 3, '0'))]",
             "location": "[parameters('Location')]",
             "tags": "[parameters('Tags')]",
             "copy": {
@@ -137,7 +143,7 @@
             "comments": "---------- VIRTUAL MACHINES ----------",
             "type": "Microsoft.Compute/virtualMachines",
             "apiVersion": "2019-07-01",
-            "name": "[concat(parameters('VmName'), padLeft(copyIndex(parameters('SessionHostIndex')), 3, '0'))]",
+            "name": "[concat(parameters('VmNamePrefix'), padLeft(copyIndex(parameters('SessionHostIndex')), 3, '0'))]",
             "location": "[parameters('Location')]",
             "tags": "[parameters('Tags')]",
             "dependsOn": [
@@ -164,7 +170,7 @@
                     },
                     "osDisk": {
                         "osType": "Windows",
-                        "name": "[concat(parameters('DiskName'), padLeft(copyIndex(parameters('SessionHostIndex')), 3, '0'))]",
+                        "name": "[concat(parameters('DiskNamePrefix'), padLeft(copyIndex(parameters('SessionHostIndex')), 3, '0'))]",
                         "createOption": "FromImage",
                         "caching": "None",
                         "managedDisk": {
@@ -175,7 +181,7 @@
                     "dataDisks": []
                 },
                 "osProfile": {
-                    "computerName": "[concat(parameters('VmName'), padLeft(copyIndex(parameters('SessionHostIndex')), 3, '0'))]",
+                    "computerName": "[concat(parameters('VmNamePrefix'), padLeft(copyIndex(parameters('SessionHostIndex')), 3, '0'))]",
                     "adminUsername": "[parameters('VmUsername')]",
                     "adminPassword": "[parameters('VmPassword')]",
                     "windowsConfiguration": {
@@ -188,7 +194,7 @@
                 "networkProfile": {
                     "networkInterfaces": [
                         {
-                            "id": "[resourceId('Microsoft.Network/networkInterfaces', concat(parameters('NicName'), padLeft(copyIndex(parameters('SessionHostIndex')), 3, '0')))]"
+                            "id": "[resourceId('Microsoft.Network/networkInterfaces', concat(parameters('NicNamePrefix'), padLeft(copyIndex(parameters('SessionHostIndex')), 3, '0')))]"
                         }
                     ]
                 },
@@ -208,7 +214,7 @@
                     "location": "[parameters('Location')]",
                     "tags": "[parameters('Tags')]",
                     "dependsOn": [
-                        "[concat(parameters('VmName'), padLeft(copyIndex(parameters('SessionHostIndex')), 3, '0'))]"
+                        "[concat(parameters('VmNamePrefix'), padLeft(copyIndex(parameters('SessionHostIndex')), 3, '0'))]"
                     ],
                     "properties": {
                         "forceUpdateTag": "[parameters('Timestamp')]",
@@ -223,7 +229,8 @@
                                 "hostPoolName": "[parameters('HostPoolName')]",
                                 "registrationInfoToken": "[reference(resourceId(parameters('HostPoolResourceGroupName'), 'Microsoft.DesktopVirtualization/hostpools', parameters('HostPoolName')), '2019-12-10-preview').registrationInfo.token]"
                             }
-                        }
+                        },
+                        "protectedSettings": {}
                     }
                 },
                 {
@@ -234,7 +241,7 @@
                     "location": "[parameters('Location')]",
                     "tags": "[parameters('Tags')]",
                     "dependsOn": [
-                        "[concat(parameters('VmName'), padLeft(copyIndex(parameters('SessionHostIndex')), 3, '0'))]",
+                        "[concat(parameters('VmNamePrefix'), padLeft(copyIndex(parameters('SessionHostIndex')), 3, '0'))]",
                         "Dsc"
                     ],
                     "properties": {
@@ -247,7 +254,8 @@
                             "Name": "[parameters('DomainName')]",
                             "User": "[concat(parameters('Netbios'), '\\', parameters('DomainAdminUsername'))]",
                             "Restart": "true",
-                            "Options": "3"
+                            "Options": "3",
+                            "OUPath": "[parameters('OuPath')]"
                         },
                         "protectedSettings": {
                             "Password": "[parameters('DomainAdminPassword')]"
@@ -262,7 +270,7 @@
                     "name": "CustomScriptExtension",
                     "location": "[parameters('location')]",
                     "dependsOn": [
-                        "[concat(parameters('VmName'), padLeft(copyIndex(parameters('SessionHostIndex')), 3, '0'))]",
+                        "[concat(parameters('VmNamePrefix'), padLeft(copyIndex(parameters('SessionHostIndex')), 3, '0'))]",
                         "Dsc",
                         "JsonADDomainExtension"
                     ],
@@ -273,11 +281,15 @@
                         "typeHandlerVersion": "1.10",
                         "autoUpgradeMinorVersion": true,
                         "settings": {
-                            "fileUris": [ "https://raw.githubusercontent.com/jamasten/Azure/master/solutions/wvd/scripts/Add-FslogixSettings.ps1" ],
+                            "fileUris": [ 
+                                "https://raw.githubusercontent.com/jamasten/Azure/master/solutions/wvd/scripts/Add-FslogixSettings.ps1",
+                                "https://raw.githubusercontent.com/jamasten/Azure/master/solutions/wvd/scripts/Run-SessionHostScripts.ps1",
+                                "https://raw.githubusercontent.com/jamasten/Azure/master/solutions/wvd/scripts/Set-WvdOptimizations.ps1"
+                            ],
                             "timestamp": "[parameters('Timestamp')]"
                         },
                         "protectedSettings": {
-                            "commandToExecute": "[concat('powershell -ExecutionPolicy Unrestricted -File Add-FslogixSettings.ps1 -Environment ', environment().name, ' -HostPoolName ', parameters('HostPoolName'), ' -StorageAccountName ', parameters('StorageAccountName'))]"
+                            "commandToExecute": "[concat('powershell -ExecutionPolicy Unrestricted -File Run-SessionHostScripts.ps1 -Environment ', environment().name, ' -HostPoolName ', parameters('HostPoolName'), ' -Optimizations ', parameters('Optimizations'), ' -StorageAccountName ', parameters('StorageAccountName'))]"
                         }
                     }
                 }

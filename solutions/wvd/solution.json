@@ -462,9 +462,7 @@
                             "Microsoft.Compute/virtualMachines/start/action",
                             "Microsoft.Compute/virtualMachines/read"
                         ],
-                        "notActions": [],
-                        "dataActions": [],
-                        "notDataActions": []
+                        "notActions": []
                     }
                 ],
                 "assignableScopes": [

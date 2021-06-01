@@ -277,6 +277,12 @@
             },
             "defaultValue": 0
         },
+        "StartVmOnConnect": {
+            "type": "bool",
+            "metadata": {
+                "description": "Enable the 'Start VM On Connect' feature. https://docs.microsoft.com/en-us/azure/virtual-desktop/start-virtual-machine-connect"
+            }
+        },
         "StorageAccountSku": {
             "type": "string",
             "metadata": {
@@ -441,6 +447,47 @@
             }
         },
         {
+            "comments": "---------- CUSTOM ROLE > START VM ON CONNECT ----------",
+            "condition": "[parameters('StartVmOnConnect')]",
+            "name": "[guid(subscription().id, 'StartVmOnConnect')]",
+            "type": "Microsoft.Authorization/roleDefinitions",
+            "apiVersion": "2017-09-01",
+            "properties": {
+                "roleName": "StartVmOnConnect",
+                "description": "Allow WVD session hosts to be started when needed.",
+                "type": "customRole",
+                "permissions": [
+                    {
+                        "actions": [
+                            "Microsoft.Compute/virtualMachines/start/action",
+                            "Microsoft.Compute/virtualMachines/read"
+                        ],
+                        "notActions": [],
+                        "dataActions": [],
+                        "notDataActions": []
+                    }
+                ],
+                "assignableScopes": [
+                    "[subscription().id]"
+                ]
+            }
+        },
+        {
+            "comments": "---------- ROLE ASSIGNMENT > WINDOWS VIRTUAL DESKTOP ----------",
+            "condition": "[parameters('StartVmOnConnect')]",
+            "type": "Microsoft.Authorization/roleAssignments",
+            "apiVersion": "2017-09-01",
+            "name": "[guid(subscription().id, 'WindowsVirtualDesktop')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Authorization/roleDefinitions', guid(subscription().id, 'StartVmOnConnect'))]"
+            ],
+            "properties": {
+                "roleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', guid(subscription().id, string(parameters('ResourceGroups'))))]",
+                "principalId": "cdcfb416-e2fe-41e2-be12-33813c1cd427",
+                "scope": "[subscription().id]"
+            }
+        },
+        {
             "comments": "---------- LINKED DEPLOYMENT > WVD HOST POOL ----------",
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2019-10-01",
@@ -486,6 +533,9 @@
                     },
                     "SecurityPrincipalId": {
                         "value": "[parameters('SecurityPrincipalId')]"
+                    },
+                    "StartVmOnConnect": {
+                        "value": "[parameters('StartVmOnConnect')]"
                     },
                     "Tags": {
                         "value": "[variables('Tags')]"

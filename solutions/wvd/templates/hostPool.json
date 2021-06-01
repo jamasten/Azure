@@ -32,6 +32,9 @@
         "SecurityPrincipalId": {
             "type": "string"
         },
+        "StartVmOnConnect": {
+            "type": "bool"
+        },
         "Tags": {
             "type": "object"
         },
@@ -65,7 +68,8 @@
                 },
                 "preferredAppGroupType": "[parameters('PreferredAppGroupType')]",
                 "customRdpProperty": "[parameters('CustomRdpProperty')]",
-                "personalDesktopAssignmentType": "[if(contains(parameters('HostPoolType'), 'Personal'), split(parameters('HostPoolType'), ' ')[1], null())]"
+                "personalDesktopAssignmentType": "[if(contains(parameters('HostPoolType'), 'Personal'), split(parameters('HostPoolType'), ' ')[1], null())]",
+                "startVMOnConnect": "[parameters('StartVmOnConnect')]"
             }
         },
         {

@@ -266,7 +266,7 @@
                 },
                 {
                     "comments": "---------- CUSTOM SCRIPT EXTENSION ----------",
-                    "condition": "[equals(split(parameters('HostPoolType'), ' ')[0], 'Pooled')]",
+                    "condition": "[variables('PooledHostPool')]",
                     "type": "extensions",
                     "apiVersion": "2020-12-01",
                     "name": "CustomScriptExtension",

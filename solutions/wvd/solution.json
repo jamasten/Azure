@@ -343,6 +343,12 @@
                 "description": "The name of the WVD workspace."
             },
             "defaultValue": "ws-wvd-poc-d-eus-000"
+        },
+        "WvdObjectId": {
+            "type": "string",
+            "metadata": {
+                "description": "The Object ID for the WVD Enterprise Application in Azure AD.  The Object ID can found by selecting 'Microsoft Applications' using the 'Application type' filter in the Enterprise Applications blade of Azure AD."
+            }
         }
     },
     "variables": {
@@ -400,7 +406,7 @@
             ],
             "properties": {
                 "roleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', variables('RoleDefinitionName'))]",
-                "principalId": "cdcfb416-e2fe-41e2-be12-33813c1cd427",
+                "principalId": "[parameters('WvdObjectId')]",
                 "scope": "[subscription().id]"
             }
         },

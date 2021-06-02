@@ -86,7 +86,7 @@ To successfully deploy this solution, you will need to ensure your scenario matc
 
 ````powershell
 New-AzDeployment `
-    -Location '<Azure Datacenter region>' `
+    -Location '<Azure location>' `
     -TemplateFile 'https://raw.githubusercontent.com/jamasten/Azure/master/solutions/wvd/solution.json' `
     -Verbose
 ````
@@ -94,7 +94,7 @@ New-AzDeployment `
 ### Try with CLI
 
 ````cli
-az deployment create \
-    --location '<Azure Datacenter region>' \
+az deployment sub create \
+    --location '<Azure location>' \
     --template-uri 'https://raw.githubusercontent.com/jamasten/Azure/master/solutions/wvd/solution.json'
 ````

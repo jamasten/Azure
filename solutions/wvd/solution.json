@@ -25,7 +25,7 @@
             "metadata": {
                 "description": "The name for the Availability Set for the WVD Session Hosts."
             },
-            "defaultValue": "as-wvd-poc-eus-000"
+            "defaultValue": "as-wvd-poc-d-eus-000"
         },
         "CustomRdpProperty": {
             "type": "string",
@@ -39,7 +39,7 @@
             "metadata": {
                 "description": "The name for the OS disk on the Session Hosts."
             },
-            "defaultValue": "disk-wvd-poc-eus-"
+            "defaultValue": "disk-wvd-poc-d-eus-"
         },
         "DiskSku": {
             "type": "string",
@@ -98,7 +98,7 @@
             "metadata": {
                 "description": "The name for the WVD Host Pool."
             },
-            "defaultValue": "hp-wvd-poc-eus-000"
+            "defaultValue": "hp-wvd-poc-d-eus-000"
         },
         "HostPoolType": {
             "type": "string",
@@ -178,7 +178,7 @@
             "metadata": {
                 "description": "The Name Prefix for the Network Interfaces on the Session Hosts.  During deployment a 3 digit number will be added to each NIC to complete the name."
             },
-            "defaultValue": "nic-wvd-poc-eus-"
+            "defaultValue": "nic-wvd-poc-d-eus-"
         },
         "Optimizations": {
             "type": "string",
@@ -211,8 +211,8 @@
                 "description": "The Names of the resource groups for the WVD Host Pool and Session Hosts."
             },
             "defaultValue": [
-                "rg-wvd-poc-infra-eus-000",
-                "rg-wvd-poc-hosts-eus-000"
+                "rg-wvd-poc-infra-d-eus-000",
+                "rg-wvd-poc-hosts-d-eus-000"
             ]
         },
         "SecurityPrincipalId": {
@@ -255,7 +255,7 @@
             "metadata": {
                 "description": "The Storage Account Name for the WVD user profile storage."
             },
-            "defaultValue": "stjmwvdpoceus0"
+            "defaultValue": "stjmwvdpocdeus0"
         },
         "StorageAccountSku": {
             "type": "string",
@@ -294,7 +294,8 @@
             "type": "bool",
             "metadata": {
                 "description": "The value determines whether the hostpool should receive early WVD updates for testing."
-            }
+            },
+            "defaultValue": false
         },
         "VirtualNetwork": {
             "type": "string",
@@ -315,7 +316,7 @@
             "metadata": {
                 "description": "The Name Prefix for the Session Hosts.  During deployment a 3 digit number will be added to each Session Host to complete the name."
             },
-            "defaultValue": "vmwvdpoceus"
+            "defaultValue": "vmwvdpocdeus"
         },
         "VmPassword": {
             "type": "securestring",
@@ -341,7 +342,7 @@
             "metadata": {
                 "description": "The name of the WVD workspace."
             },
-            "defaultValue": "ws-wvd-poc-eus-000"
+            "defaultValue": "ws-wvd-poc-d-eus-000"
         }
     },
     "variables": {

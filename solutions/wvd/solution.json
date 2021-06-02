@@ -30,21 +30,21 @@
         "CustomRdpProperty": {
             "type": "string",
             "metadata": {
-                "description": "Input RDP properties to add or remove RDP functionality on the host pool. Settings reference: https://docs.microsoft.com/en-us/windows-server/remote/remote-desktop-services/clients/rdp-files?context=/azure/virtual-desktop/context/context"
+                "description": "Input RDP properties to add or remove RDP functionality on the WVD host pool. Settings reference: https://docs.microsoft.com/en-us/windows-server/remote/remote-desktop-services/clients/rdp-files?context=/azure/virtual-desktop/context/context"
             },
             "defaultValue": "audiocapturemode:i:1;camerastoredirect:s:*;use multimon:i:0;drivestoredirect:s:;"
         },
         "DiskNamePrefix": {
             "type": "string",
             "metadata": {
-                "description": "The name for the OS disk on the Session Hosts."
+                "description": "The name for the OS disk on the WVD session hosts."
             },
             "defaultValue": "disk-wvd-poc-d-eus-"
         },
         "DiskSku": {
             "type": "string",
             "metadata": {
-                "description": "Storage SKU for the WVD session host disks"
+                "description": "The storage SKU for the WVD session host disks."
             },
             "allowedValues": [
                 "Standard_LRS",
@@ -56,33 +56,33 @@
         "DomainAdminPassword": {
             "type": "securestring",
             "metadata": {
-                "description": "Input your domain administrator password to join the WVD session hosts to your domain"
+                "description": "The domain administrator password to join the WVD session hosts to your domain"
             }
         },
         "DomainAdminUsername": {
             "type": "string",
             "metadata": {
-                "description": "Input your domain administrator username to join the WVD session hosts to your domain. Only the username is required. Do not add the Netbios value."
+                "description": "The domain administrator username to join the WVD session hosts to your domain. Only the username is required. Do not add the Netbios value."
             }
         },
         "DomainControllerName": {
             "type": "string",
             "metadata": {
-                "description": "Name of an Azure Domain Controller for joining the Azure Storage Account to the domain"
+                "description": "The name of a Domain Controller in Azure for joining the Azure Storage Account to the domain."
             },
             "defaultValue": "vm-dc-d-eus-0"
         },
         "DomainControllerResourceGroupName": {
             "type": "string",
             "metadata": {
-                "description": "Name of an Azure Domain Controller for joining the Azure Storage Account to the domain"
+                "description": "The resource group name of a Domain Controller in Azure for joining the Azure Storage Account to the domain."
             },
             "defaultValue": "rg-identity-d-eastus"
         },
         "DomainName": {
             "type": "string",
             "metadata": {
-                "description": "Name of the domain that provides ADDS to the WVD session hosts and is synchronized with Azure AD"
+                "description": "The name of the domain that provides ADDS to the WVD session hosts and is synchronized with Azure AD"
             },
             "defaultValue": "jasonmasten.com"
         },
@@ -144,7 +144,7 @@
         "KerberosEncryptionType": {
             "type": "string",
             "metadata": {
-                "description": "Active Directory Computer Object Kerberos Encryption Type"
+                "description": "The Active Directory computer object Kerberos encryption type for the Azure Storage Account."
             },
             "allowedValues": [
                 "RC4",
@@ -155,14 +155,14 @@
         "Location": {
             "type": "string",
             "metadata": {
-                "description": "Deployment location for all resources"
+                "description": "The deployment location for all the resources in this template."
             },
             "defaultValue": "[deployment().location]"
         },
         "MaxSessionLimit": {
             "type": "int",
             "metadata": {
-                "description": "The maximum number of sessions per WVD session host"
+                "description": "The maximum number of sessions per WVD session host."
             },
             "defaultValue": 2
         },
@@ -176,21 +176,21 @@
         "NicNamePrefix": {
             "type": "string",
             "metadata": {
-                "description": "The Name Prefix for the Network Interfaces on the Session Hosts.  During deployment a 3 digit number will be added to each NIC to complete the name."
+                "description": "The name prefix for the Network Interfaces on the Session Hosts.  During deployment a 3 digit number will be added to each NIC to complete the name."
             },
             "defaultValue": "nic-wvd-poc-d-eus-"
         },
         "Optimizations": {
             "type": "string",
             "metadata": {
-                "description": "WVD Optimizations to implement on the Session Hosts using the optimization script. Input a string array with any of the following values: 'All','WindowsMediaPlayer','AppxPackages','ScheduledTasks','DefaultUserSettings','Autologgers','Services','NetworkOptimizations','LGPO','DiskCleanup'"
+                "description": "The WVD optimizations to implement on the Session Hosts using the optimization script. Input a string array with any of the following values: 'All','WindowsMediaPlayer','AppxPackages','ScheduledTasks','DefaultUserSettings','Autologgers','Services','NetworkOptimizations','LGPO','DiskCleanup'"
             },
             "defaultValue": "All"
         },
         "OuPath": {
             "type": "string",
             "metadata": {
-                "description": "Distinguished name for the target Organization Unit in Active Directory Domain Services."
+                "description": "The distinguished name for the target Organization Unit in Active Directory Domain Services."
             },
             "defaultValue": "OU=Pooled,OU=WVD,DC=jasonmasten,DC=com"
         },
@@ -208,7 +208,7 @@
         "ResourceGroups": {
             "type": "array",
             "metadata": {
-                "description": "The Names of the resource groups for the WVD Host Pool and Session Hosts."
+                "description": "The names of the resource groups for the WVD Host Pool and Session Hosts.  The first resource group will be dedicated to the WVD infrastructure.  The second resource group will be dedicated to the WVD session hosts."
             },
             "defaultValue": [
                 "rg-wvd-poc-infra-d-eus-000",
@@ -225,14 +225,14 @@
         "SecurityPrincipalName": {
             "type": "string",
             "metadata": {
-                "description": "The Name for the Security Principal to assign NTFS permissions on the Azure File Share to support FSLogix.  Any value can be input in this field if performing a deployment update or choosing a personl host pool."
+                "description": "The name for the Security Principal to assign NTFS permissions on the Azure File Share to support FSLogix.  Any value can be input in this field if performing a deployment update or choosing a personal host pool."
             },
             "defaultValue": "wvd_users"
         },
         "SessionHostCount": {
             "type": "int",
             "metadata": {
-                "description": "Number of session hosts to deploy in the host pool"
+                "description": "The number of session hosts to deploy in the host pool"
             },
             "defaultValue": 2
         },
@@ -253,14 +253,14 @@
         "StorageAccountName": {
             "type": "string",
             "metadata": {
-                "description": "The Storage Account Name for the WVD user profile storage."
+                "description": "The name for the Azure storage account containing the WVD user profile data."
             },
             "defaultValue": "stjmwvdpocdeus0"
         },
         "StorageAccountSku": {
             "type": "string",
             "metadata": {
-                "description": "The Storage Account SKU for the WVD user profile storage."
+                "description": "The SKU for the Azure storage account containing the WVD user profile data."
             },
             "allowedValues": [
                 "Standard_LRS",
@@ -271,7 +271,7 @@
         "Subnet": {
             "type": "string",
             "metadata": {
-                "description": "Subnet for the WVD session hosts"
+                "description": "The subnet for the WVD session hosts."
             },
             "defaultValue": "snet-clients-d-eastus"
         },
@@ -314,7 +314,7 @@
         "VmNamePrefix": {
             "type": "string",
             "metadata": {
-                "description": "The Name Prefix for the Session Hosts.  During deployment a 3 digit number will be added to each Session Host to complete the name."
+                "description": "The name prefix for the WVD session hosts.  During deployment a 3 digit number will be added to each session host to complete the name."
             },
             "defaultValue": "vmwvdpocdeus"
         },
@@ -327,7 +327,7 @@
         "VmSize": {
             "type": "string",
             "metadata": {
-                "description": "Virtual machine SKU"
+                "description": "The VM SKU for the WVD session hosts."
             },
             "defaultValue": "Standard_B2s"
         },

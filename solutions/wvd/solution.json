@@ -25,7 +25,7 @@
             "metadata": {
                 "description": "The name for the Availability Set for the WVD Session Hosts."
             },
-            "defaultValue": "as-wvd-poc-eus-"
+            "defaultValue": "as-wvd-poc-eus-000"
         },
         "CustomRdpProperty": {
             "type": "string",
@@ -192,7 +192,7 @@
             "metadata": {
                 "description": "Distinguished name for the target Organization Unit in Active Directory Domain Services."
             },
-            "defaultValue": ""
+            "defaultValue": "OU=Pooled,OU=WVD,DC=jasonmasten,DC=com"
         },
         "PreferredAppGroupType": {
             "type": "string",
@@ -300,19 +300,22 @@
             "type": "string",
             "metadata": {
                 "description": "Virtual network for the WVD sessions hosts"
-            }
+            },
+            "defaultValue": "vnet-d-eastus"
         },
         "VirtualNetworkResourceGroup": {
             "type": "string",
             "metadata": {
                 "description": "Virtual network resource group for the WVD sessions hosts"
-            }
+            },
+            "defaultValue": "rg-network-d-eastus"
         },
         "VmNamePrefix": {
             "type": "string",
             "metadata": {
                 "description": "The Name Prefix for the Session Hosts.  During deployment a 3 digit number will be added to each Session Host to complete the name."
-            }
+            },
+            "defaultValue": "vmwvdpoceus"
         },
         "VmPassword": {
             "type": "securestring",
@@ -337,7 +340,8 @@
             "type": "string",
             "metadata": {
                 "description": "The name of the WVD workspace."
-            }
+            },
+            "defaultValue": "ws-wvd-poc-eus-000"
         }
     },
     "variables": {

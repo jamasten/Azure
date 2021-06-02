@@ -345,7 +345,9 @@
         }
     },
     "variables": {
-        "Netbios": "[split(parameters('DomainName'), '.')[0]]"
+        "Netbios": "[split(parameters('DomainName'), '.')[0]]",
+        "RoleAssignmentName": "[guid(subscription().id, 'WindowsVirtualDesktop')]",
+        "RoleDefinitionName": "[guid(subscription().id, 'StartVmOnConnect')]"
     },
     "resources": [
         {
@@ -365,7 +367,7 @@
         {
             "comments": "---------- CUSTOM ROLE > START VM ON CONNECT ----------",
             "condition": "[parameters('StartVmOnConnect')]",
-            "name": "[guid(subscription().id, 'StartVmOnConnect')]",
+            "name": "[variables('RoleDefinitionName')]",
             "type": "Microsoft.Authorization/roleDefinitions",
             "apiVersion": "2017-09-01",
             "properties": {
@@ -391,12 +393,12 @@
             "condition": "[parameters('StartVmOnConnect')]",
             "type": "Microsoft.Authorization/roleAssignments",
             "apiVersion": "2017-09-01",
-            "name": "[guid(subscription().id, 'WindowsVirtualDesktop')]",
+            "name": "[variables('RoleAssignmentName')]",
             "dependsOn": [
-                "[resourceId('Microsoft.Authorization/roleDefinitions', guid(subscription().id, 'StartVmOnConnect'))]"
+                "[resourceId('Microsoft.Authorization/roleDefinitions', variables('RoleDefinitionName'))]"
             ],
             "properties": {
-                "roleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', guid(subscription().id, 'StartVmOnConnect'), '2017-09-01', 'Full').properties.principalId]",
+                "roleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', variables('RoleDefinitionName'))]",
                 "principalId": "cdcfb416-e2fe-41e2-be12-33813c1cd427",
                 "scope": "[subscription().id]"
             }

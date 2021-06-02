@@ -1,4 +1,4 @@
-# Scale Automation solution
+# WVD Scaling Automation Solution
 
 ## STEP 1: Deploy the Automation Account
 

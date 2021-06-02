@@ -93,10 +93,14 @@
             "type": "string"
         }
     },
+    "variables": {
+        "AvailabilitySetId": {"id": "[resourceId('Microsoft.Compute/availabilitySets', parameters('AvailabilitySetName'))]"},
+        "PooledHostPool": "[equals(split(parameters('HostPoolType'), ' ')[0], 'Pooled')]"
+    },
     "resources": [
         {
             "comments": "---------- AVAILABILITY SET ----------",
-            "condition": "[equals(split(parameters('HostPoolType'), ' ')[0], 'Pooled')]",
+            "condition": "[variables('PooledHostPool')]",
             "type": "Microsoft.Compute/availabilitySets",
             "apiVersion": "2019-07-01",
             "name": "[parameters('AvailabilitySetName')]",
@@ -155,9 +159,7 @@
                 "count": "[parameters('SessionHostCount')]"
             },
             "properties": {
-                "availabilitySet": {
-                    "id": "[resourceId('Microsoft.Compute/availabilitySets', parameters('AvailabilitySetName'))]"
-                },
+                "availabilitySet": "[if(variables('PooledHostPool'), variables('AvailabilitySetId'), null())]",
                 "hardwareProfile": {
                     "vmSize": "[parameters('VmSize')]"
                 },

@@ -127,7 +127,6 @@
                 "logVerbose": false,
                 "publishContentLink": {
                     "uri": "https://raw.githubusercontent.com/jamasten/Azure/master/solutions/scalingAutomation/scale.ps1",
-                    //"uri": "https://raw.githubusercontent.com/Azure/RDS-Templates/master/wvd-templates/wvd-scaling-script/scale.ps1",
                     "version": "1.0.0.0"
                 }
             }

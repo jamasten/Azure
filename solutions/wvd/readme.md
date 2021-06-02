@@ -71,6 +71,7 @@ To successfully deploy this solution, you will need to ensure your scenario matc
 - **VmPassword**: The local administrator password for the WVD session hosts.
 - **VmSize**: The VM SKU for the WVD session hosts.
 - **VmUsername**: The local administrator username for the WVD session hosts.
+- **WvdObjectId**: The Object ID for the WVD Enterprise Application in Azure AD.  The Object ID can found by selecting 'Microsoft Applications' using the 'Application type' filter in the Enterprise Applications blade of Azure AD.
 
 </details>
 

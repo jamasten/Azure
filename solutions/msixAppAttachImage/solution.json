@@ -1,0 +1,184 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "DiskName": {
+            "type": "string",
+            "defaultValue": "disk-msix-d-eus"
+        },
+        "DiskSku": {
+            "type": "string",
+            "defaultValue": "Premium_LRS"
+        },
+        "ImageOffer": {
+            "type": "string",
+            "defaultValue": "Windows-10"
+        },
+        "ImagePublisher": {
+            "type": "string",
+            "defaultValue": "MicrosoftWindowsDesktop"
+        },
+        "ImageSku": {
+            "type": "string",
+            "defaultValue": "21h1-ent"
+        },
+        "ImageVersion": {
+            "type": "string",
+            "defaultValue": "latest"
+        },
+        "Location": {
+            "type": "string",
+            "defaultValue": "eastus"
+        },
+        "NicName": {
+            "type": "string",
+            "defaultValue": "nic-msix-d-eus"
+        },
+        "SubnetName": {
+            "type": "string",
+            "defaultValue": "snet-shared-d-eastus"
+        },
+        "Tags": {
+            "type": "object",
+            "defaultValue": {}
+        },
+        "Timestamp": {
+            "type": "string",
+            "defaultValue": "[utcNow('yyyyMMddhhmmss')]"
+        },
+        "VirtualNetworkName": {
+            "type": "string",
+            "defaultValue": "vnet-d-eastus"
+        },
+        "VirtualNetworkResourceGroupName": {
+            "type": "string",
+            "defaultValue": "rg-network-d-eastus"
+        },
+        "VmName": {
+            "type": "string",
+            "defaultValue": "vm-msix-d-eus"
+        },
+        "VmPassword": {
+            "type": "securestring"
+        },
+        "VmSize": {
+            "type": "string",
+            "defaultValue": "Standard_B2s"
+        },
+        "VmUsername": {
+            "type": "string"
+        }
+    },
+    "resources": [
+        {
+            "comments": "---------- NETWORK INTERFACES ----------",
+            "type": "Microsoft.Network/networkInterfaces",
+            "apiVersion": "2020-05-01",
+            "name": "[parameters('NicName')]",
+            "location": "[parameters('Location')]",
+            "tags": "[parameters('Tags')]",
+            "properties": {
+                "ipConfigurations": [
+                    {
+                        "name": "ipconfig",
+                        "properties": {
+                            "privateIPAllocationMethod": "Dynamic",
+                            "subnet": {
+                                "id": "[resourceId(subscription().subscriptionId, parameters('VirtualNetworkResourceGroupName'), 'Microsoft.Network/virtualNetworks/subnets', parameters('VirtualNetworkName'), parameters('SubnetName'))]"
+                            },
+                            "primary": true,
+                            "privateIPAddressVersion": "IPv4"
+                        }
+                    }
+                ],
+                "enableAcceleratedNetworking": false,
+                "enableIPForwarding": false
+            }
+        },
+        {
+            "comments": "---------- VIRTUAL MACHINES ----------",
+            "type": "Microsoft.Compute/virtualMachines",
+            "apiVersion": "2019-07-01",
+            "name": "[parameters('VmName')]",
+            "location": "[parameters('Location')]",
+            "tags": "[parameters('Tags')]",
+            "dependsOn": [
+                "nic-msix-d-eus"
+            ],
+            "properties": {
+                "hardwareProfile": {
+                    "vmSize": "[parameters('VmSize')]"
+                },
+                "storageProfile": {
+                    "imageReference": {
+                        "publisher": "[parameters('ImagePublisher')]",
+                        "offer": "[parameters('ImageOffer')]",
+                        "sku": "[parameters('ImageSku')]",
+                        "version": "[parameters('ImageVersion')]"
+                    },
+                    "osDisk": {
+                        "osType": "Windows",
+                        "name": "[parameters('DiskName')]",
+                        "createOption": "FromImage",
+                        "caching": "None",
+                        "managedDisk": {
+                            "storageAccountType": "[parameters('DiskSku')]"
+                        },
+                        "diskSizeGB": 127
+                    },
+                    "dataDisks": []
+                },
+                "osProfile": {
+                    "computerName": "[parameters('VmName')]",
+                    "adminUsername": "[parameters('VmUsername')]",
+                    "adminPassword": "[parameters('VmPassword')]",
+                    "windowsConfiguration": {
+                        "provisionVMAgent": true,
+                        "enableAutomaticUpdates": true
+                    },
+                    "secrets": [],
+                    "allowExtensionOperations": true
+                },
+                "networkProfile": {
+                    "networkInterfaces": [
+                        {
+                            "id": "[resourceId('Microsoft.Network/networkInterfaces', parameters('NicName'))]"
+                        }
+                    ]
+                },
+                "diagnosticsProfile": {
+                    "bootDiagnostics": {
+                        "enabled": false
+                    }
+                },
+                "licenseType": "Windows_Client"
+            },
+            "resources": [
+                {
+                    "comments": "---------- CUSTOM SCRIPT EXTENSION ----------",
+                    "type": "extensions",
+                    "apiVersion": "2020-12-01",
+                    "name": "CustomScriptExtension",
+                    "location": "[parameters('location')]",
+                    "dependsOn": [
+                        "[parameters('VmName')]"
+                    ],
+                    "tags": "[parameters('Tags')]",
+                    "properties": {
+                        "publisher": "Microsoft.Compute",
+                        "type": "CustomScriptExtension",
+                        "typeHandlerVersion": "1.10",
+                        "autoUpgradeMinorVersion": true,
+                        "settings": {
+                            "fileUris": [ "https://raw.githubusercontent.com/jamasten/Azure/master/solutions/msixAppAttachImage/scripts/New-AzureMsixAppAttachImage.ps1" ],
+                            "timestamp": "[parameters('Timestamp')]"
+                        },
+                        "protectedSettings": {
+                            "commandToExecute": "[concat('powershell -ExecutionPolicy Unrestricted -File New-AzureMsixAppAttachImage.ps1 -Optimizations ', parameters('Optimizations'))]"
+                        }
+                    }
+                }
+            ]
+        }
+    ]
+}

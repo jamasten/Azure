@@ -2,12 +2,6 @@
     "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
-        "GalleryName": {
-            "type": "string",
-            "metadata": {
-                "description": "The name of the Azure Shared Image Gallery."
-            }
-        },
         "IdentityName": {
             "type": "string",
             "metadata": {
@@ -20,6 +14,35 @@
                 "description": "The name of the Image Definition in the Shared Image Gallery."
             }
         },
+        "ImageDefinitionOffer": {
+            "type": "string",
+            "metadata": {
+                "description": "The offer of the Image Definition in the Shared Image Gallery."
+            }
+        },
+        "ImageDefinitionPublisher": {
+            "type": "string",
+            "metadata": {
+                "description": "The publisher of the Image Definition in the Shared Image Gallery."
+            }
+        },
+        "ImageDefinitionSku": {
+            "type": "string",
+            "metadata": {
+                "description": "The SKU of the Image Definition in the Shared Image Gallery."
+            }
+        },
+        "ImageStorageAccountType": {
+            "type": "string",
+            "metadata": {
+                "description": "The storage SKU for the image version replica in the Shared Image Gallery."
+            },
+            "allowedValues": [
+                "Standard_LRS",
+                "Standard_ZRS"
+            ],
+            "defaultValue": "Standard_LRS"
+        },
         "ImageTemplateName": {
             "type": "string",
             "metadata": {
@@ -29,6 +52,12 @@
         "Location": {
             "type": "string",
             "defaultValue": "[resourceGroup().location]"
+        },
+        "SharedImageGalleryName": {
+            "type": "string",
+            "metadata": {
+                "description": "The name of the Azure Shared Image Gallery."
+            }
         },
         "SubnetId": {
             "type": "string",
@@ -50,7 +79,7 @@
     "resources": [
         {
             "comments": "---------- SHARED IMAGE GALLERY ----------",
-            "name": "[parameters('GalleryName')]",
+            "name": "[parameters('SharedImageGalleryName')]",
             "type": "Microsoft.Compute/galleries",
             "apiVersion": "2019-03-01",
             "location": "[parameters('Location')]",
@@ -67,16 +96,16 @@
                     "apiVersion": "2019-03-01",
                     "location": "[parameters('Location')]",
                     "dependsOn": [
-                        "[parameters('GalleryName')]"
+                        "[parameters('SharedImageGalleryName')]"
                     ],
                     "tags": {},
                     "properties": {
                         "osType": "Windows",
                         "osState": "Generalized",
                         "identifier": {
-                            "publisher": "MicrosoftWindowsDesktop",
-                            "offer": "office-365",
-                            "sku": "20h2-evd-o365pp"
+                            "publisher": "[parameters('ImageDefinitionPublisher')]",
+                            "offer": "[parameters('ImageDefinitionOffer')]",
+                            "sku": "[parameters('ImageDefinitionSku')]"
                         }
                     }
                 }
@@ -89,7 +118,7 @@
             "apiVersion": "2020-02-14",
             "location": "[parameters('Location')]",
             "dependsOn": [
-                "[parameters('GalleryName')]",
+                "[parameters('SharedImageGalleryName')]",
                 "[parameters('ImageDefinitionName')]"
             ],
             "tags": {},
@@ -103,7 +132,6 @@
                 "buildTimeoutInMinutes": 120,
                 "vmProfile": {
                     "vmSize": "Standard_D2_v2",
-                    "osDiskSizeGB": 127,
                     "vnetConfig": "[variables('VnetConfig')]"
                 },
                 "source": {
@@ -139,13 +167,13 @@
                 "distribute": [
                     {
                         "type": "SharedImage",
-                        "galleryImageId": "[concat(subscription().id, '/resourceGroups/rg-shared-d-eastus/providers/Microsoft.Compute/galleries/', parameters('GalleryName'),'/images/', parameters('ImageDefinitionName'))]",
+                        "galleryImageId": "[concat(subscription().id, '/resourceGroups/rg-shared-d-eastus/providers/Microsoft.Compute/galleries/', parameters('SharedImageGalleryName'),'/images/', parameters('ImageDefinitionName'))]",
                         "runOutputName": "[parameters('Timestamp')]",
                         "artifactTags": {},
                         "replicationRegions": [
                             "[parameters('Location')]"
                         ],
-                        "storageAccountType": "Standard_LRS"
+                        "storageAccountType": "[parameters('ImageStorageAccountType')]"
                     }
                 ]
             }

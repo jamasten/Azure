@@ -30,6 +30,18 @@
             "type": "string",
             "defaultValue": "latest"
         },
+        "KeyVaultResourceId": {
+            "type": "string",
+            "metadata": {
+                "description": "The resource ID for the Key Vault containing the code signing certificate."
+            }
+        },
+        "KeyVaultSecretUrl": {
+            "type": "string",
+            "metadata": {
+                "description": "The Key Vault secret URL for the code signing certificate stored as a base64 secret."
+            }
+        },
         "Location": {
             "type": "string",
             "defaultValue": "eastus"
@@ -114,7 +126,7 @@
             "location": "[parameters('Location')]",
             "tags": "[parameters('Tags')]",
             "dependsOn": [
-                "nic-msix-d-eus"
+                "[parameters('NicName')]"
             ],
             "properties": {
                 "hardwareProfile": {
@@ -147,7 +159,19 @@
                         "provisionVMAgent": true,
                         "enableAutomaticUpdates": true
                     },
-                    "secrets": [],
+                    "secrets": [
+                        {
+                            "sourceVault": {
+                                "id": "[parameters('KeyVaultResourceId')]"
+                            },
+                            "vaultCertificates": [
+                                {
+                                    "certificateUrl": "[parameters('KeyVaultSecretUrl')]",
+                                    "certificateStore": "My"
+                                }
+                            ]
+                        }
+                    ],
                     "allowExtensionOperations": true
                 },
                 "networkProfile": {
@@ -185,7 +209,7 @@
                             "timestamp": "[parameters('Timestamp')]"
                         },
                         "protectedSettings": {
-                            "commandToExecute": "[concat('powershell -ExecutionPolicy Unrestricted -File New-AzureMsixAppAttachImage.ps1 -Optimizations ', parameters('Optimizations'))]"
+                            "commandToExecute": "[concat('powershell -ExecutionPolicy Unrestricted -File New-AzureMsixAppAttachImage.ps1 -FileShareName ', parameters('FileShareName'), ' -StorageAccountKey ', parameters('StorageAccountKey'), ' -StorageAccountName ', parameters('StorageAccountName'))]"
                         }
                     }
                 }

@@ -10,6 +10,10 @@
             "type": "string",
             "defaultValue": "Premium_LRS"
         },
+        "FileShareName": {
+            "type": "string",
+            "defaultValue": "hp-wvd-poc-d-eus-000-msix"
+        },
         "ImageOffer": {
             "type": "string",
             "defaultValue": "Windows-10"
@@ -33,6 +37,13 @@
         "NicName": {
             "type": "string",
             "defaultValue": "nic-msix-d-eus"
+        },
+        "StorageAccountKey": {
+            "type": "securestring"
+        },
+        "StorageAccountName": {
+            "type": "string",
+            "defaultValue": "stjmwvdpocdeus0"
         },
         "SubnetName": {
             "type": "string",

@@ -2,32 +2,55 @@
     "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
-        "Environment": {
-            "type": "string"
+        "GalleryName": {
+            "type": "string",
+            "metadata": {
+                "description": "The name of the Azure Shared Image Gallery."
+            }
         },
-        "Identity": {
-            "type": "string"
+        "IdentityName": {
+            "type": "string",
+            "metadata": {
+                "description": "The name of the user assigned managed identity with the Azure Image Builder permissions."
+            }
+        },
+        "ImageDefinitionName": {
+            "type": "string",
+            "metadata": {
+                "description": "The name of the Image Definition in the Shared Image Gallery."
+            }
+        },
+        "ImageTemplateName": {
+            "type": "string",
+            "metadata": {
+                "description": "The name of the Image Template for Azure Image Builder."
+            }
         },
         "Location": {
-            "type": "string"
+            "type": "string",
+            "defaultValue": "[resourceGroup().location]"
+        },
+        "SubnetId": {
+            "type": "string",
+            "metadata": {
+                "description": "The resource ID of the target Azure Subnet."
+            }
         },
         "Timestamp": {
-            "type": "string"
+            "type": "string",
+            "defaultValue": "[utcNow('yyyyMMddhhmmss')]"
         }
     },
     "variables": {
-        
-        "Gallery": "[concat('sig_', parameters('Environment'), '_', parameters('Location'))]",
-        "Image": "Win10v20H2_Ent_Evd_O365",
-        "SubnetRg": "[concat('rg-network-', parameters('Environment'), '-', parameters('Location'))]",
-        "Vnet": "[concat('vnet-', parameters('Environment'), '-', parameters('Location'))]",
-        "Subnet": "[concat('snet-clients-', parameters('Environment'), '-', parameters('Location'))]",
-        "Version": "[concat('1.0.', parameters('Timestamp'))]"
+        "SubnetId": {
+            "subnetId": "[parameters('SubnetId')]"
+        },
+        "VnetConfig": "[if(equals(parameters('SubnetId'), json('null')), json('null'), variables('SubnetId'))]"
     },
     "resources": [
         {
             "comments": "---------- SHARED IMAGE GALLERY ----------",
-            "name": "[variables('Gallery')]",
+            "name": "[parameters('GalleryName')]",
             "type": "Microsoft.Compute/galleries",
             "apiVersion": "2019-03-01",
             "location": "[parameters('Location')]",
@@ -39,12 +62,12 @@
             "resources": [
                 {
                     "comments": "---------- IMAGE DEFINITION ----------",
-                    "name": "[variables('Image')]",
+                    "name": "[parameters('ImageDefinitionName')]",
                     "type": "images",
                     "apiVersion": "2019-03-01",
                     "location": "[parameters('Location')]",
                     "dependsOn": [
-                        "[variables('Gallery')]"
+                        "[parameters('GalleryName')]"
                     ],
                     "tags": {},
                     "properties": {
@@ -53,7 +76,7 @@
                         "identifier": {
                             "publisher": "MicrosoftWindowsDesktop",
                             "offer": "office-365",
-                            "sku": "20h1-evd-o365pp"
+                            "sku": "20h2-evd-o365pp"
                         }
                     }
                 }
@@ -62,18 +85,18 @@
         {
             "comments": "---------- IMAGE BUILDER TEMPLATE ----------",
             "type": "Microsoft.VirtualMachineImages/imageTemplates",
-            "name": "[concat('imgTemplate-Win10EntEvdO365-', parameters('Environment'), '-', parameters('Location'))]",
+            "name": "[parameters('ImageTemplateName')]",
             "apiVersion": "2020-02-14",
             "location": "[parameters('Location')]",
             "dependsOn": [
-                "[variables('Gallery')]",
-                "[variables('Image')]"
+                "[parameters('GalleryName')]",
+                "[parameters('ImageDefinitionName')]"
             ],
             "tags": {},
             "identity": {
                 "type": "UserAssigned",
                 "userAssignedIdentities": {
-                    "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', parameters('Identity'))]": {}
+                    "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', parameters('IdentityName'))]": {}
                 }
             },
             "properties": {
@@ -81,15 +104,13 @@
                 "vmProfile": {
                     "vmSize": "Standard_D2_v2",
                     "osDiskSizeGB": 127,
-                    "vnetConfig": {
-                        "subnetId": "[resourceId(variables('SubnetRg'), 'Microsoft.Network/virtualNetworks/subnets', variables('Vnet'), variables('Subnet'))]"
-                    }
+                    "vnetConfig": "[variables('VnetConfig')]"
                 },
                 "source": {
                     "type": "PlatformImage",
                     "publisher": "MicrosoftWindowsDesktop",
                     "offer": "office-365",
-                    "sku": "20h1-evd-o365pp",
+                    "sku": "20h2-evd-o365pp",
                     "version": "latest"
                 },
                 "customize": [
@@ -118,12 +139,11 @@
                 "distribute": [
                     {
                         "type": "SharedImage",
-                        //"galleryImageId": "[concat(subscription().id, '/resourceGroups/rg-shared-d-eastus/providers/Microsoft.Compute/galleries/',variables('Gallery'),'/images/Win10v20H2EvdO365/versions/', variables('Version'))]",
-                        "galleryImageId": "/subscriptions/3764b123-4849-4395-8e6e-ca6d68d8d4b4/resourceGroups/rg-shared-d-eastus/providers/Microsoft.Compute/galleries/sig_d_eastus/images/Win10v20H2_Ent_Evd_O365",
+                        "galleryImageId": "[concat(subscription().id, '/resourceGroups/rg-shared-d-eastus/providers/Microsoft.Compute/galleries/', parameters('GalleryName'),'/images/', parameters('ImageDefinitionName'))]",
                         "runOutputName": "[parameters('Timestamp')]",
                         "artifactTags": {},
                         "replicationRegions": [
-                            "eastus"
+                            "[parameters('Location')]"
                         ],
                         "storageAccountType": "Standard_LRS"
                     }

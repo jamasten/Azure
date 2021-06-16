@@ -32,6 +32,13 @@
                 "description": "The SKU of the Image Definition in the Shared Image Gallery."
             }
         },
+        "ImageDefinitionVersion": {
+            "type": "string",
+            "metadata": {
+                "description": "The version of the Image Definition in the Shared Image Gallery."
+            },
+            "defaultValue": "latest"
+        },
         "ImageStorageAccountType": {
             "type": "string",
             "metadata": {
@@ -62,19 +69,32 @@
         "SubnetId": {
             "type": "string",
             "metadata": {
-                "description": "The resource ID of the target Azure Subnet."
+                "description": "OPTIONAL, The resource ID of the target Azure Subnet."
             }
         },
         "Timestamp": {
             "type": "string",
             "defaultValue": "[utcNow('yyyyMMddhhmmss')]"
+        },
+        "VirtualMachineSize": {
+            "type": "string",
+            "metadata": {
+                "description": "The size of the virtual machine used for creating the image.  The recommendation is to use a 'Standard_D2_v2' size or greater for AVD. https://github.com/danielsollondon/azvmimagebuilder/tree/master/solutions/14_Building_Images_WVD"
+            },
+            "defaultValue": "Standard_D2_v2"
         }
     },
     "variables": {
-        "SubnetId": {
-            "subnetId": "[parameters('SubnetId')]"
+        "VmProfileWithoutVnet": {
+            "vmSize": "[parameters('VirtualMachineSize')]",
         },
-        "VnetConfig": "[if(equals(parameters('SubnetId'), json('null')), json('null'), variables('SubnetId'))]"
+        "VmProfileWithVnet": {
+            "vmSize": "[parameters('VirtualMachineSize')]",
+            "vnetConfig": {
+                "subnetId": "[parameters('SubnetId')]"
+            }
+        },
+        "VmProfile": "[if(equals(parameters('SubnetId'), ''), variables('VmProfileWithoutVnet'), variables('VmProfileWithVnet'))]"
     },
     "resources": [
         {
@@ -130,16 +150,13 @@
             },
             "properties": {
                 "buildTimeoutInMinutes": 120,
-                "vmProfile": {
-                    "vmSize": "Standard_D2_v2",
-                    "vnetConfig": "[variables('VnetConfig')]"
-                },
+                "vmProfile": "[variables('VmProfile')]",
                 "source": {
                     "type": "PlatformImage",
-                    "publisher": "MicrosoftWindowsDesktop",
-                    "offer": "office-365",
-                    "sku": "20h2-evd-o365pp",
-                    "version": "latest"
+                    "publisher": "[parameters('ImageDefinitionPublisher')]",
+                    "offer": "[parameters('ImageDefinitionOffer')]",
+                    "sku": "[parameters('ImageDefinitionSku')]",
+                    "version": "[parameters('ImageDefinitionVersion')]"
                 },
                 "customize": [
                     {
@@ -167,7 +184,7 @@
                 "distribute": [
                     {
                         "type": "SharedImage",
-                        "galleryImageId": "[concat(subscription().id, '/resourceGroups/rg-shared-d-eastus/providers/Microsoft.Compute/galleries/', parameters('SharedImageGalleryName'),'/images/', parameters('ImageDefinitionName'))]",
+                        "galleryImageId": "[concat(resourceGroup().id, '/providers/Microsoft.Compute/galleries/', parameters('SharedImageGalleryName'),'/images/', parameters('ImageDefinitionName'))]",
                         "runOutputName": "[parameters('Timestamp')]",
                         "artifactTags": {},
                         "replicationRegions": [

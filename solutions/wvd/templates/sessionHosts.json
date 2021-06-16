@@ -94,7 +94,21 @@
         }
     },
     "variables": {
-        "AvailabilitySetId": {"id": "[resourceId('Microsoft.Compute/availabilitySets', parameters('AvailabilitySetName'))]"},
+        "AmdVmSizes": [
+            "Standard_NV4as_v4",
+            "Standard_NV8as_v4",
+            "Standard_NV16as_v4",
+            "Standard_NV32as_v4"
+        ],
+        "AvailabilitySetId": { "id": "[resourceId('Microsoft.Compute/availabilitySets', parameters('AvailabilitySetName'))]" },
+        "NvidiaVmSizes": [
+            "Standard_NV6",
+            "Standard_NV12",
+            "Standard_NV24",
+            "Standard_NV12s_v3",
+            "Standard_NV24s_v3",
+            "Standard_NV48s_v3"
+        ],
         "PooledHostPool": "[equals(split(parameters('HostPoolType'), ' ')[0], 'Pooled')]"
     },
     "resources": [
@@ -283,7 +297,7 @@
                         "typeHandlerVersion": "1.10",
                         "autoUpgradeMinorVersion": true,
                         "settings": {
-                            "fileUris": [ 
+                            "fileUris": [
                                 "https://raw.githubusercontent.com/jamasten/Azure/master/solutions/wvd/scripts/Add-FslogixSettings.ps1",
                                 "https://raw.githubusercontent.com/jamasten/Azure/master/solutions/wvd/scripts/Run-SessionHostScripts.ps1",
                                 "https://raw.githubusercontent.com/jamasten/Azure/master/solutions/wvd/scripts/Set-WvdOptimizations.ps1"
@@ -293,6 +307,44 @@
                         "protectedSettings": {
                             "commandToExecute": "[concat('powershell -ExecutionPolicy Unrestricted -File Run-SessionHostScripts.ps1 -Environment ', environment().name, ' -HostPoolName ', parameters('HostPoolName'), ' -Optimizations ', parameters('Optimizations'), ' -StorageAccountName ', parameters('StorageAccountName'))]"
                         }
+                    }
+                },
+                {
+                    "comments": "---------- AMD DRIVER EXTENSION ----------",
+                    "condition": "[contains(variables('AmdVmSizes'), parameters('VmSize'))]",
+                    "type": "extensions",
+                    "apiVersion": "2015-06-15",
+                    "name": "AmdGpuDriverWindows",
+                    "location": "[parameters('Location')]",
+                    "tags": "[parameters('Tags')]",
+                    "dependsOn": [
+                        "[concat(parameters('VmNamePrefix'), padLeft(copyIndex(parameters('SessionHostIndex')), 3, '0'))]"
+                    ],
+                    "properties": {
+                        "publisher": "Microsoft.HpcCompute",
+                        "type": "AmdGpuDriverWindows",
+                        "typeHandlerVersion": "1.0",
+                        "autoUpgradeMinorVersion": true,
+                        "settings": {}
+                    }
+                },
+                {
+                    "comments": "---------- NVIDIA DRIVER EXTENSION ----------",
+                    "condition": "[contains(variables('NvidiaVmSizes'), parameters('VmSize'))]",
+                    "type": "extensions",
+                    "apiVersion": "2015-06-15",
+                    "name": "NvidiaGpuDriverWindows",
+                    "location": "[parameters('Location')]",
+                    "tags": "[parameters('Tags')]",
+                    "dependsOn": [
+                        "[concat(parameters('VmNamePrefix'), padLeft(copyIndex(parameters('SessionHostIndex')), 3, '0'))]"
+                    ],
+                    "properties": {
+                        "publisher": "Microsoft.HpcCompute",
+                        "type": "NvidiaGpuDriverWindows",
+                        "typeHandlerVersion": "1.2",
+                        "autoUpgradeMinorVersion": true,
+                        "settings": {}
                     }
                 }
             ]

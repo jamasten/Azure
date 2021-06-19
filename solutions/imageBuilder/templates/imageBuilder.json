@@ -149,7 +149,7 @@
                 }
             },
             "properties": {
-                "buildTimeoutInMinutes": 120,
+                "buildTimeoutInMinutes": 300,
                 "vmProfile": "[variables('VmProfile')]",
                 "source": {
                     "type": "PlatformImage",

@@ -17,6 +17,9 @@
         "HostPoolType": {
             "type": "string"
         },
+        "Location": {
+            "type": "string"
+        },
         "LogAnalyticsWorkspaceName": {
             "type": "string"
         },
@@ -24,9 +27,6 @@
             "type": "int"
         },
         "LogAnalyticsWorkspaceSku": {
-            "type": "string"
-        },
-        "Location": {
             "type": "string"
         },
         "MaxSessionLimit": {

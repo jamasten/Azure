@@ -41,6 +41,12 @@
         "ImageVersion": {
             "type": "string"
         },
+        "LogAnalyticsWorkspaceName": {
+            "type": "string"
+        },
+        "LogAnalyticsWorkspaceResourceGroupName": {
+            "type": "string"
+        },
         "Location": {
             "type": "string"
         },
@@ -222,6 +228,28 @@
                 "licenseType": "Windows_Client"
             },
             "resources": [
+                {
+                    "comments": "---------- MICROSOFT MONITORING AGENT ----------",
+                    "type": "extensions",
+                    "name": "MicrosoftMonitoringAgent",
+                    "apiVersion": "2017-03-30",
+                    "location": "[resourceGroup().location]",
+                    "dependsOn": [
+                        "[concat(parameters('VmNamePrefix'), padLeft(copyIndex(parameters('SessionHostIndex')), 3, '0'))]"
+                    ],
+                    "properties": {
+                        "publisher": "Microsoft.EnterpriseCloud.Monitoring",
+                        "type": "MicrosoftMonitoringAgent",
+                        "typeHandlerVersion": "1.0",
+                        "autoUpgradeMinorVersion": true,
+                        "settings": {
+                            "workspaceId": "[reference(resourceId(parameters('LogAnalyticsWorkspaceResourceGroupName'), 'Microsoft.OperationalInsights/workspaces/', parameters('LogAnalyticsWorkspaceName')), '2015-03-20').customerId]"
+                        },
+                        "protectedSettings": {
+                            "workspaceKey": "[listKeys(resourceId(parameters('LogAnalyticsWorkspaceResourceGroupName'), 'Microsoft.OperationalInsights/workspaces/', parameters('LogAnalyticsWorkspaceName')), '2015-03-20').primarySharedKey]"
+                        }
+                    }
+                },
                 {
                     "comments": "---------- DESIRED STATE CONFIGURATION EXTENSION ----------",
                     "type": "extensions",

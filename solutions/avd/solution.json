@@ -564,6 +564,12 @@
                     "Location": {
                         "value": "[parameters('Location')]"
                     },
+                    "LogAnalyticsWorkspaceName": {
+                        "value": "[parameters('LogAnalyticsWorkspaceName')]"
+                    },
+                    "LogAnalyticsWorkspaceResourceGroupName": {
+                        "value": "[parameters('ResourceGroups')[0]]"
+                    },
                     "Netbios": {
                         "value": "[variables('Netbios')]"
                     },

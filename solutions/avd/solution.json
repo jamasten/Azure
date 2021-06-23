@@ -165,15 +165,24 @@
                 "description": "The retention for the Log Analytics Workspace to setup the AVD Monitoring solution"
             },
             "defaultValue": 30,
-            "maxValue": 365,
-            "minValue": 0
+            "maxValue": 730,
+            "minValue": 30
         },
         "LogAnalyticsWorkspaceSku": {
             "type": "string",
             "metadata": {
                 "description": "The SKU for the Log Analytics Workspace to setup the AVD Monitoring solution"
             },
-            "defaultValue": "pergb2018"
+            "defaultValue": "PerGB2018",
+            "allowedValues": [
+                "Free", 
+                "Standard", 
+                "Premium", 
+                "PerNode", 
+                "PerGB2018", 
+                "Standalone", 
+                "CapacityReservation"
+            ]
         },
         "Location": {
             "type": "string",

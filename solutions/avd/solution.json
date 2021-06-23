@@ -5,14 +5,14 @@
         "AppGroupName": {
             "type": "string",
             "metadata": {
-                "description": "The name of the WVD application group."
+                "description": "The name of the AVD application group."
             },
             "defaultValue": "Desktops"
         },
         "AppGroupType": {
             "type": "string",
             "metadata": {
-                "description": "The type of WVD application group."
+                "description": "The type of AVD application group."
             },
             "allowedValues": [
                 "Desktop",
@@ -23,28 +23,28 @@
         "AvailabilitySetName": {
             "type": "string",
             "metadata": {
-                "description": "The name for the Availability Set for the WVD Session Hosts."
+                "description": "The name for the Availability Set for the AVD Session Hosts."
             },
-            "defaultValue": "as-wvd-poc-d-eus-000"
+            "defaultValue": "as-avd-poc-d-eus-000"
         },
         "CustomRdpProperty": {
             "type": "string",
             "metadata": {
-                "description": "Input RDP properties to add or remove RDP functionality on the WVD host pool. Settings reference: https://docs.microsoft.com/en-us/windows-server/remote/remote-desktop-services/clients/rdp-files?context=/azure/virtual-desktop/context/context"
+                "description": "Input RDP properties to add or remove RDP functionality on the AVD host pool. Settings reference: https://docs.microsoft.com/en-us/windows-server/remote/remote-desktop-services/clients/rdp-files?context=/azure/virtual-desktop/context/context"
             },
             "defaultValue": "audiocapturemode:i:1;camerastoredirect:s:*;use multimon:i:0;drivestoredirect:s:;"
         },
         "DiskNamePrefix": {
             "type": "string",
             "metadata": {
-                "description": "The name for the OS disk on the WVD session hosts."
+                "description": "The name for the OS disk on the AVD session hosts."
             },
-            "defaultValue": "disk-wvd-poc-d-eus-"
+            "defaultValue": "disk-avd-poc-d-eus-"
         },
         "DiskSku": {
             "type": "string",
             "metadata": {
-                "description": "The storage SKU for the WVD session host disks."
+                "description": "The storage SKU for the AVD session host disks."
             },
             "allowedValues": [
                 "Standard_LRS",
@@ -56,13 +56,13 @@
         "DomainAdminPassword": {
             "type": "securestring",
             "metadata": {
-                "description": "The domain administrator password to join the WVD session hosts to your domain"
+                "description": "The domain administrator password to join the AVD session hosts to your domain"
             }
         },
         "DomainAdminUsername": {
             "type": "string",
             "metadata": {
-                "description": "The domain administrator username to join the WVD session hosts to your domain. Only the username is required. Do not add the Netbios value."
+                "description": "The domain administrator username to join the AVD session hosts to your domain. Only the username is required. Do not add the Netbios value."
             }
         },
         "DomainControllerName": {
@@ -82,7 +82,7 @@
         "DomainName": {
             "type": "string",
             "metadata": {
-                "description": "The name of the domain that provides ADDS to the WVD session hosts and is synchronized with Azure AD"
+                "description": "The name of the domain that provides ADDS to the AVD session hosts and is synchronized with Azure AD"
             },
             "defaultValue": "jasonmasten.com"
         },
@@ -96,9 +96,9 @@
         "HostPoolName": {
             "type": "string",
             "metadata": {
-                "description": "The name for the WVD Host Pool."
+                "description": "The name for the AVD Host Pool."
             },
-            "defaultValue": "hp-wvd-poc-d-eus-000"
+            "defaultValue": "hp-avd-poc-d-eus-000"
         },
         "HostPoolType": {
             "type": "string",
@@ -162,7 +162,7 @@
         "MaxSessionLimit": {
             "type": "int",
             "metadata": {
-                "description": "The maximum number of sessions per WVD session host."
+                "description": "The maximum number of sessions per AVD session host."
             },
             "defaultValue": 2
         },
@@ -178,12 +178,12 @@
             "metadata": {
                 "description": "The name prefix for the Network Interfaces on the Session Hosts.  During deployment a 3 digit number will be added to each NIC to complete the name."
             },
-            "defaultValue": "nic-wvd-poc-d-eus-"
+            "defaultValue": "nic-avd-poc-d-eus-"
         },
         "Optimizations": {
             "type": "string",
             "metadata": {
-                "description": "The WVD optimizations to implement on the Session Hosts using the optimization script. Input a string array with any of the following values: 'All','WindowsMediaPlayer','AppxPackages','ScheduledTasks','DefaultUserSettings','Autologgers','Services','NetworkOptimizations','LGPO','DiskCleanup'"
+                "description": "The AVD optimizations to implement on the Session Hosts using the optimization script. Input a string array with any of the following values: 'All','WindowsMediaPlayer','AppxPackages','ScheduledTasks','DefaultUserSettings','Autologgers','Services','NetworkOptimizations','LGPO','DiskCleanup'"
             },
             "defaultValue": "All"
         },
@@ -192,7 +192,7 @@
             "metadata": {
                 "description": "The distinguished name for the target Organization Unit in Active Directory Domain Services."
             },
-            "defaultValue": "OU=Pooled,OU=WVD,DC=jasonmasten,DC=com"
+            "defaultValue": "OU=Pooled,OU=AVD,DC=jasonmasten,DC=com"
         },
         "PreferredAppGroupType": {
             "type": "string",
@@ -208,17 +208,17 @@
         "ResourceGroups": {
             "type": "array",
             "metadata": {
-                "description": "The names of the resource groups for the WVD Host Pool and Session Hosts.  The first resource group will be dedicated to the WVD infrastructure.  The second resource group will be dedicated to the WVD session hosts."
+                "description": "The names of the resource groups for the AVD Host Pool and Session Hosts.  The first resource group will be dedicated to the AVD infrastructure.  The second resource group will be dedicated to the AVD session hosts."
             },
             "defaultValue": [
-                "rg-wvd-poc-infra-d-eus-000",
-                "rg-wvd-poc-hosts-d-eus-000"
+                "rg-avd-poc-infra-d-eus-000",
+                "rg-avd-poc-hosts-d-eus-000"
             ]
         },
         "SecurityPrincipalId": {
             "type": "string",
             "metadata": {
-                "description": "The Object ID for the Security Principal to assign to the WVD Application Group.  This Security Principal will be assigned the Desktop Virtualization User role on the Application Group."
+                "description": "The Object ID for the Security Principal to assign to the AVD Application Group.  This Security Principal will be assigned the Desktop Virtualization User role on the Application Group."
             },
             "defaultValue": "5c55bf93-86ee-4e1d-a81a-3a78402e6077"
         },
@@ -227,7 +227,7 @@
             "metadata": {
                 "description": "The name for the Security Principal to assign NTFS permissions on the Azure File Share to support FSLogix.  Any value can be input in this field if performing a deployment update or choosing a personal host pool."
             },
-            "defaultValue": "wvd_users"
+            "defaultValue": "avd_users"
         },
         "SessionHostCount": {
             "type": "int",
@@ -253,14 +253,14 @@
         "StorageAccountName": {
             "type": "string",
             "metadata": {
-                "description": "The name for the Azure storage account containing the WVD user profile data."
+                "description": "The name for the Azure storage account containing the AVD user profile data."
             },
-            "defaultValue": "stjmwvdpocdeus0"
+            "defaultValue": "stjmavdpocdeus0"
         },
         "StorageAccountSku": {
             "type": "string",
             "metadata": {
-                "description": "The SKU for the Azure storage account containing the WVD user profile data."
+                "description": "The SKU for the Azure storage account containing the AVD user profile data."
             },
             "allowedValues": [
                 "Standard_LRS",
@@ -271,7 +271,7 @@
         "Subnet": {
             "type": "string",
             "metadata": {
-                "description": "The subnet for the WVD session hosts."
+                "description": "The subnet for the AVD session hosts."
             },
             "defaultValue": "snet-clients-d-eastus"
         },
@@ -293,41 +293,41 @@
         "ValidationEnvironment": {
             "type": "bool",
             "metadata": {
-                "description": "The value determines whether the hostpool should receive early WVD updates for testing."
+                "description": "The value determines whether the hostpool should receive early AVD updates for testing."
             },
             "defaultValue": false
         },
         "VirtualNetwork": {
             "type": "string",
             "metadata": {
-                "description": "Virtual network for the WVD sessions hosts"
+                "description": "Virtual network for the AVD sessions hosts"
             },
             "defaultValue": "vnet-d-eastus"
         },
         "VirtualNetworkResourceGroup": {
             "type": "string",
             "metadata": {
-                "description": "Virtual network resource group for the WVD sessions hosts"
+                "description": "Virtual network resource group for the AVD sessions hosts"
             },
             "defaultValue": "rg-network-d-eastus"
         },
         "VmNamePrefix": {
             "type": "string",
             "metadata": {
-                "description": "The name prefix for the WVD session hosts.  During deployment a 3 digit number will be added to each session host to complete the name."
+                "description": "The name prefix for the AVD session hosts.  During deployment a 3 digit number will be added to each session host to complete the name."
             },
-            "defaultValue": "vmwvdpocdeus"
+            "defaultValue": "vmavdpocdeus"
         },
         "VmPassword": {
             "type": "securestring",
             "metadata": {
-                "description": "Local administrator password for the WVD session hosts"
+                "description": "Local administrator password for the AVD session hosts"
             }
         },
         "VmSize": {
             "type": "string",
             "metadata": {
-                "description": "The VM SKU for the WVD session hosts."
+                "description": "The VM SKU for the AVD session hosts."
             },
             "defaultValue": "Standard_B2s"
         },
@@ -340,14 +340,14 @@
         "WorkspaceName": {
             "type": "string",
             "metadata": {
-                "description": "The name of the WVD workspace."
+                "description": "The name of the AVD workspace."
             },
-            "defaultValue": "ws-wvd-poc-d-eus-000"
+            "defaultValue": "ws-avd-poc-d-eus-000"
         },
         "WvdObjectId": {
             "type": "string",
             "metadata": {
-                "description": "The Object ID for the WVD Enterprise Application in Azure AD.  The Object ID can found by selecting 'Microsoft Applications' using the 'Application type' filter in the Enterprise Applications blade of Azure AD."
+                "description": "The Object ID for the 'Windows Virtual Desktop' Enterprise Application in Azure AD.  The Object ID can found by selecting 'Microsoft Applications' using the 'Application type' filter in the Enterprise Applications blade of Azure AD."
             }
         }
     },
@@ -379,7 +379,7 @@
             "apiVersion": "2017-09-01",
             "properties": {
                 "roleName": "StartVmOnConnect",
-                "description": "Allow WVD session hosts to be started when needed.",
+                "description": "Allow AVD session hosts to be started when needed.",
                 "type": "customRole",
                 "permissions": [
                     {
@@ -411,7 +411,7 @@
             }
         },
         {
-            "comments": "---------- LINKED DEPLOYMENT > WVD HOST POOL ----------",
+            "comments": "---------- LINKED DEPLOYMENT > AVD HOST POOL ----------",
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2019-10-01",
             "name": "[concat('HostPool_', parameters('Timestamp'))]",
@@ -423,7 +423,7 @@
             "properties": {
                 "mode": "Incremental",
                 "templateLink": {
-                    "uri": "https://raw.githubusercontent.com/jamasten/Azure/master/solutions/wvd/templates/hostPool.json",
+                    "uri": "https://raw.githubusercontent.com/jamasten/Azure/master/solutions/avd/templates/hostPool.json",
                     "contentVersion": "1.0.0.0"
                 },
                 "parameters": {
@@ -473,7 +473,7 @@
             }
         },
         {
-            "comments": "---------- LINKED DEPLOYMENT > WVD SESSION HOSTS ----------",
+            "comments": "---------- LINKED DEPLOYMENT > AVD SESSION HOSTS ----------",
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2019-10-01",
             "name": "[concat('SessionHosts_', parameters('Timestamp'))]",
@@ -486,7 +486,7 @@
             "properties": {
                 "mode": "Incremental",
                 "templateLink": {
-                    "uri": "https://raw.githubusercontent.com/jamasten/Azure/master/solutions/wvd/templates/sessionHosts.json",
+                    "uri": "https://raw.githubusercontent.com/jamasten/Azure/master/solutions/avd/templates/sessionHosts.json",
                     "contentVersion": "1.0.0.0"
                 },
                 "parameters": {
@@ -598,7 +598,7 @@
             "properties": {
                 "mode": "Incremental",
                 "templateLink": {
-                    "uri": "https://raw.githubusercontent.com/jamasten/Azure/master/solutions/wvd/templates/fslogix.json",
+                    "uri": "https://raw.githubusercontent.com/jamasten/Azure/master/solutions/avd/templates/fslogix.json",
                     "contentVersion": "1.0.0.0"
                 },
                 "parameters": {
@@ -670,7 +670,7 @@
             "properties": {
                 "mode": "Incremental",
                 "templateLink": {
-                    "uri": "https://raw.githubusercontent.com/jamasten/Azure/master/solutions/wvd/templates/fileSharePermissions.json",
+                    "uri": "https://raw.githubusercontent.com/jamasten/Azure/master/solutions/avd/templates/fileSharePermissions.json",
                     "contentVersion": "1.0.0.0"
                 },
                 "parameters": {

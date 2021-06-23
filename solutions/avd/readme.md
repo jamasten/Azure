@@ -4,9 +4,15 @@ This solution will deploy Azure Virtual Desktop in an Azure subscription.  Depen
 
 This solution contains many features that are usually enabled manually after deploying a AVD host pool.  Those features are:
 
-- FSLogix with the registry settings & domain joined Storage Account
+- FSLogix:
+  - Recommended registry settings on session hosts
+  - Domain joined Storage Account
 - Start VM On Connect
-- VDI Optimization Script
+- VDI Optimization Script on session hosts
+- AVD Monitoring Solution:
+  - Log Analytics Workspace with the required Windows Events and Performance Counters.
+  - The Microsoft Monitoring Agent on session hosts
+  - Diagnostic settings on the AVD host pool and workspace
 
 To successfully deploy this solution, you will need to ensure your scenario matches the assumptions below and you will need to complete the prerequisites.
 

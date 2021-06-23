@@ -258,7 +258,8 @@
                     "location": "[parameters('Location')]",
                     "tags": "[parameters('Tags')]",
                     "dependsOn": [
-                        "[concat(parameters('VmNamePrefix'), padLeft(copyIndex(parameters('SessionHostIndex')), 3, '0'))]"
+                        "[concat(parameters('VmNamePrefix'), padLeft(copyIndex(parameters('SessionHostIndex')), 3, '0'))]",
+                        "MicrosoftMonitoringAgent"
                     ],
                     "properties": {
                         "forceUpdateTag": "[parameters('Timestamp')]",

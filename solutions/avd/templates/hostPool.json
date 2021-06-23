@@ -51,7 +51,7 @@
     },
     "resources": [
         {
-            "comments": "---------- WVD HOST POOL ----------",
+            "comments": "---------- AVD HOST POOL ----------",
             "type": "Microsoft.DesktopVirtualization/hostpools",
             "apiVersion": "2019-12-10-preview",
             "name": "[parameters('HostPoolName')]",
@@ -73,7 +73,7 @@
             }
         },
         {
-            "comments": "---------- WVD APP GROUP ----------",
+            "comments": "---------- AVD APP GROUP ----------",
             "condition": "[equals(parameters('newOrExisting'), 'new')]",
             "type": "Microsoft.DesktopVirtualization/applicationgroups",
             "apiVersion": "2019-12-10-preview",
@@ -105,7 +105,7 @@
             ]
         },
         {
-            "comments": "---------- WVD WORKSPACE ----------",
+            "comments": "---------- AVD WORKSPACE ----------",
             "condition": "[equals(parameters('newOrExisting'), 'new')]",
             "type": "Microsoft.DesktopVirtualization/workspaces",
             "apiVersion": "2019-12-10-preview",

@@ -21,4 +21,4 @@ Param(
 
 .\Add-FslogixSettings.ps1 -Environment $Environment -HostPoolName $HostPoolName -StorageAccountName $StorageAccountName
 
-.\Set-WvdOptimizations.ps1 -Optimizations $Optimizations
+.\Set-AvdOptimizations.ps1 -Optimizations $Optimizations

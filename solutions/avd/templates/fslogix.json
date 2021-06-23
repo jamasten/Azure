@@ -219,7 +219,7 @@
             "properties": {
                 "mode": "Incremental",
                 "templateLink": {
-                    "uri": "https://raw.githubusercontent.com/jamasten/Azure/master/solutions/wvd/templates/adComputerObject.json",
+                    "uri": "https://raw.githubusercontent.com/jamasten/Azure/master/solutions/avd/templates/adComputerObject.json",
                     "contentVersion": "1.0.0.0"
                 },
                 "parameters": {

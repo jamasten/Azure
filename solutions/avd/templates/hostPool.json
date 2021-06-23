@@ -17,6 +17,15 @@
         "HostPoolType": {
             "type": "string"
         },
+        "LogAnalyticsWorkspaceName": {
+            "type": "string"
+        },
+        "LogAnalyticsWorkspaceRetention": {
+            "type": "int"
+        },
+        "LogAnalyticsWorkspaceSku": {
+            "type": "string"
+        },
         "Location": {
             "type": "string"
         },
@@ -49,7 +58,451 @@
             "type": "string"
         }
     },
+    "variables": {
+        "WindowsEvents": [
+            {
+                "name": "Microsoft-FSLogix-Apps/Operational",
+                "types": [
+                    {
+                        "eventType": "Error"
+                    },
+                    {
+                        "eventType": "Warning"
+                    },
+                    {
+                        "eventType": "Information"
+                    }
+                ]
+            },
+            {
+                "name": "Microsoft-Windows-TerminalServices-LocalSessionManager/Operational",
+                "types": [
+                    {
+                        "eventType": "Error"
+                    },
+                    {
+                        "eventType": "Warning"
+                    },
+                    {
+                        "eventType": "Information"
+                    }
+                ]
+            },
+            {
+                "name": "System",
+                "types": [
+                    {
+                        "eventType": "Error"
+                    },
+                    {
+                        "eventType": "Warning"
+                    }
+                ]
+            },
+            {
+                "name": "Microsoft-Windows-TerminalServices-RemoteConnectionManager/Admin",
+                "types": [
+                    {
+                        "eventType": "Error"
+                    },
+                    {
+                        "eventType": "Warning"
+                    },
+                    {
+                        "eventType": "Information"
+                    }
+                ]
+            },
+            {
+                "name": "Microsoft-FSLogix-Apps/Admin",
+                "types": [
+                    {
+                        "eventType": "Error"
+                    },
+                    {
+                        "eventType": "Warning"
+                    },
+                    {
+                        "eventType": "Information"
+                    }
+                ]
+            },
+            {
+                "name": "Application",
+                "types": [
+                    {
+                        "eventType": "Error"
+                    },
+                    {
+                        "eventType": "Warning"
+                    }
+                ]
+            }
+        ],
+        "WindowsPerformanceCounters": [
+            {
+                "objectName": "LogicalDisk",
+                "instanceName": "*",
+                "intervalSeconds": 60,
+                "counterName": "Disk Transfers/sec"
+            },
+            {
+                "objectName": "LogicalDisk",
+                "instanceName": "*",
+                "intervalSeconds": 60,
+                "counterName": "Current Disk Queue Length"
+            },
+            {
+                "objectName": "LogicalDisk",
+                "instanceName": "*",
+                "intervalSeconds": 60,
+                "counterName": "Disk Reads/sec"
+            },
+            {
+                "objectName": "LogicalDisk",
+                "instanceName": "*",
+                "intervalSeconds": 60,
+                "counterName": "% Free Space"
+            },
+            {
+                "objectName": "LogicalDisk",
+                "instanceName": "*",
+                "intervalSeconds": 60,
+                "counterName": "Avg. Disk sec/Read"
+            },
+            {
+                "objectName": "LogicalDisk",
+                "instanceName": "*",
+                "intervalSeconds": 60,
+                "counterName": "Disk Writes/sec"
+            },
+            {
+                "objectName": "LogicalDisk",
+                "instanceName": "*",
+                "intervalSeconds": 60,
+                "counterName": "Avg. Disk sec/Write"
+            },
+            {
+                "objectName": "LogicalDisk",
+                "instanceName": "*",
+                "intervalSeconds": 60,
+                "counterName": "Free Megabytes"
+            },
+            {
+                "objectName": "LogicalDisk",
+                "instanceName": "C:",
+                "intervalSeconds": 60,
+                "counterName": "% Free Space"
+            },
+            {
+                "objectName": "LogicalDisk",
+                "instanceName": "C:",
+                "intervalSeconds": 30,
+                "counterName": "Avg. Disk Queue Length"
+            },
+            {
+                "objectName": "LogicalDisk",
+                "instanceName": "C:",
+                "intervalSeconds": 60,
+                "counterName": "Avg. Disk sec/Transfer"
+            },
+            {
+                "objectName": "LogicalDisk",
+                "instanceName": "C:",
+                "intervalSeconds": 30,
+                "counterName": "Current Disk Queue Length"
+            },
+            {
+                "objectName": "Memory",
+                "instanceName": "*",
+                "intervalSeconds": 60,
+                "counterName": "% Committed Bytes In Use"
+            },
+            {
+                "objectName": "Memory",
+                "instanceName": "*",
+                "intervalSeconds": 60,
+                "counterName": "Available MBytes"
+            },
+            {
+                "objectName": "Memory",
+                "instanceName": "*",
+                "intervalSeconds": 30,
+                "counterName": "Available Mbytes"
+            },
+            {
+                "objectName": "Memory",
+                "instanceName": "*",
+                "intervalSeconds": 30,
+                "counterName": "Page Faults/sec"
+            },
+            {
+                "objectName": "Memory",
+                "instanceName": "*",
+                "intervalSeconds": 30,
+                "counterName": "Pages/sec"
+            },
+            {
+                "objectName": "Network Adapter",
+                "instanceName": "*",
+                "intervalSeconds": 60,
+                "counterName": "Bytes Sent/sec"
+            },
+            {
+                "objectName": "Network Adapter",
+                "instanceName": "*",
+                "intervalSeconds": 60,
+                "counterName": "Bytes Received/sec"
+            },
+            {
+                "objectName": "Network Interface",
+                "instanceName": "*",
+                "intervalSeconds": 60,
+                "counterName": "Bytes Total/sec"
+            },
+            {
+                "objectName": "PhysicalDisk",
+                "instanceName": "*",
+                "intervalSeconds": 60,
+                "counterName": "Avg. Disk Bytes/Transfer"
+            },
+            {
+                "objectName": "PhysicalDisk",
+                "instanceName": "*",
+                "intervalSeconds": 60,
+                "counterName": "Avg. Disk Bytes/Read"
+            },
+            {
+                "objectName": "PhysicalDisk",
+                "instanceName": "*",
+                "intervalSeconds": 60,
+                "counterName": "Avg. Disk sec/Write"
+            },
+            {
+                "objectName": "PhysicalDisk",
+                "instanceName": "*",
+                "intervalSeconds": 60,
+                "counterName": "Avg. Disk sec/Read"
+            },
+            {
+                "objectName": "PhysicalDisk",
+                "instanceName": "*",
+                "intervalSeconds": 60,
+                "counterName": "Avg. Disk Bytes/Write"
+            },
+            {
+                "objectName": "PhysicalDisk",
+                "instanceName": "*",
+                "intervalSeconds": 60,
+                "counterName": "Avg. Disk sec/Transfer"
+            },
+            {
+                "objectName": "PhysicalDisk",
+                "instanceName": "*",
+                "intervalSeconds": 30,
+                "counterName": "Avg. Disk Queue Length"
+            },
+            {
+                "objectName": "Process",
+                "instanceName": "*",
+                "intervalSeconds": 60,
+                "counterName": "IO Write Operations/sec"
+            },
+            {
+                "objectName": "Process",
+                "instanceName": "*",
+                "intervalSeconds": 60,
+                "counterName": "IO Read Operations/sec"
+            },
+            {
+                "objectName": "Process",
+                "instanceName": "*",
+                "intervalSeconds": 60,
+                "counterName": "Thread Count"
+            },
+            {
+                "objectName": "Process",
+                "instanceName": "*",
+                "intervalSeconds": 60,
+                "counterName": "% User Time"
+            },
+            {
+                "objectName": "Process",
+                "instanceName": "*",
+                "intervalSeconds": 60,
+                "counterName": "Working Set"
+            },
+            {
+                "objectName": "Process",
+                "instanceName": "*",
+                "intervalSeconds": 60,
+                "counterName": "% Processor Time"
+            },
+            {
+                "objectName": "Processor",
+                "instanceName": "_Total",
+                "intervalSeconds": 60,
+                "counterName": "% Processor Time"
+            },
+            {
+                "objectName": "Processor Information",
+                "instanceName": "_Total",
+                "intervalSeconds": 30,
+                "counterName": "% Processor Time"
+            },
+            {
+                "objectName": "RemoteFX Graphics",
+                "instanceName": "*",
+                "intervalSeconds": 60,
+                "counterName": "Frames Skipped/Second - Insufficient Server Resources"
+            },
+            {
+                "objectName": "RemoteFX Graphics",
+                "instanceName": "*",
+                "intervalSeconds": 60,
+                "counterName": "Average Encoding Time"
+            },
+            {
+                "objectName": "RemoteFX Graphics",
+                "instanceName": "*",
+                "intervalSeconds": 60,
+                "counterName": "Frames Skipped/Second - Insufficient Client Resources"
+            },
+            {
+                "objectName": "RemoteFX Graphics",
+                "instanceName": "*",
+                "intervalSeconds": 60,
+                "counterName": "Frames Skipped/Second - Insufficient Network Resources"
+            },
+            {
+                "objectName": "RemoteFX Network",
+                "instanceName": "*",
+                "intervalSeconds": 60,
+                "counterName": "Current UDP Bandwidth"
+            },
+            {
+                "objectName": "RemoteFX Network",
+                "instanceName": "*",
+                "intervalSeconds": 60,
+                "counterName": "Current TCP Bandwidth"
+            },
+            {
+                "objectName": "RemoteFX Network",
+                "instanceName": "*",
+                "intervalSeconds": 60,
+                "counterName": "Current TCP RTT"
+            },
+            {
+                "objectName": "RemoteFX Network",
+                "instanceName": "*",
+                "intervalSeconds": 60,
+                "counterName": "Current UDP RTT"
+            },
+            {
+                "objectName": "System",
+                "instanceName": "*",
+                "intervalSeconds": 60,
+                "counterName": "Processor Queue Length"
+            },
+            {
+                "objectName": "Terminal Services",
+                "instanceName": "*",
+                "intervalSeconds": 60,
+                "counterName": "Inactive Sessions"
+            },
+            {
+                "objectName": "Terminal Services",
+                "instanceName": "*",
+                "intervalSeconds": 60,
+                "counterName": "Total Sessions"
+            },
+            {
+                "objectName": "Terminal Services",
+                "instanceName": "*",
+                "intervalSeconds": 60,
+                "counterName": "Active Sessions"
+            },
+            {
+                "objectName": "Terminal Services Session",
+                "instanceName": "*",
+                "intervalSeconds": 60,
+                "counterName": "% Processor Time"
+            },
+            {
+                "objectName": "User Input Delay per Process",
+                "instanceName": "*",
+                "intervalSeconds": 30,
+                "counterName": "Max Input Delay"
+            },
+            {
+                "objectName": "User Input Delay per Session",
+                "instanceName": "*",
+                "intervalSeconds": 30,
+                "counterName": "Max Input Delay"
+            }
+        ]
+    },
     "resources": [
+        {
+            "comments": "---------- LOG ANALYTICS ----------",
+            "type": "Microsoft.OperationalInsights/workspaces",
+            "apiVersion": "2020-03-01-preview",
+            "name": "[parameters('LogAnalyticsWorkspaceName')]",
+            "location": "[parameters('Location')]",
+            "tags": "[parameters('Tags')]",
+            "properties": {
+                "sku": {
+                    "name": "[parameters('LogAnalyticsWorkspaceSku')]"
+                },
+                "retentionInDays": "[parameters('LogAnalyticsWorkspaceRetention')]",
+                "workspaceCapping": {
+                    "dailyQuotaGb": -1
+                },
+                "publicNetworkAccessForIngestion": "Enabled",
+                "publicNetworkAccessForQuery": "Enabled"
+            }
+        },
+        {
+            "type": "Microsoft.OperationalInsights/workspaces/dataSources",
+            "name": "[concat(parameters('LogAnalyticsWorkspaceName'), '/WindowsEvent', copyIndex())]",
+            "apiVersion": "2020-08-01",
+            "tags": "[parameters('Tags')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.OperationalInsights/workspaces', parameters('LogAnalyticsWorkspaceName'))]"
+            ],
+            "kind": "WindowsEvent",
+            "copy": {
+                "name": "eventsLoop",
+                "count": "[length(variables('WindowsEvents'))]",
+                "mode": "Serial"
+            },
+            "properties": {
+                "eventLogName": "[variables('WindowsEvents')[copyIndex()].name]",
+                "eventTypes": "[variables('WindowsEvents')[copyIndex()].types]"
+            }
+        },
+        {
+            "type": "Microsoft.OperationalInsights/workspaces/dataSources",
+            "name": "[concat(parameters('LogAnalyticsWorkspaceName'), '/WindowsPerformanceCounter', copyIndex())]",
+            "apiVersion": "2020-08-01",
+            "tags": "[parameters('Tags')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.OperationalInsights/workspaces', parameters('LogAnalyticsWorkspaceName'))]",
+                "eventsLoop"
+            ],
+            "kind": "WindowsPerformanceCounter",
+            "copy": {
+                "name": "counterLoop",
+                "count": "[length(variables('WindowsPerformanceCounters'))]",
+                "mode": "Serial"
+            },
+            "properties": {
+                "objectName": "[variables('WindowsPerformanceCounters')[copyIndex()].objectName]",
+                "instanceName": "[variables('WindowsPerformanceCounters')[copyIndex()].instanceName]",
+                "intervalSeconds": "[variables('WindowsPerformanceCounters')[copyIndex()].intervalSeconds]",
+                "counterName": "[variables('WindowsPerformanceCounters')[copyIndex()].counterName]"
+            }
+        },
         {
             "comments": "---------- AVD HOST POOL ----------",
             "type": "Microsoft.DesktopVirtualization/hostpools",
@@ -70,6 +523,48 @@
                 "customRdpProperty": "[parameters('CustomRdpProperty')]",
                 "personalDesktopAssignmentType": "[if(contains(parameters('HostPoolType'), 'Personal'), split(parameters('HostPoolType'), ' ')[1], null())]",
                 "startVMOnConnect": "[parameters('StartVmOnConnect')]"
+            }
+        },
+        {
+            "comments": "---------- HOST POOL > DIAGNOSTIC SETTING ----------",
+            "condition": "[equals(parameters('newOrExisting'), 'new')]",
+            "scope": "[concat('Microsoft.DesktopVirtualization/hostpools/', parameters('HostPoolName'))]",
+            "type": "Microsoft.Insights/diagnosticsettings",
+            "name": "[concat('diag-', parameters('HostPoolName'))]",
+            "apiVersion": "2017-05-01-preview",
+            "location": "[parameters('Location')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.OperationalInsights/workspaces', parameters('LogAnalyticsWorkspaceName'))]",
+                "[resourceId('Microsoft.DesktopVirtualization/hostpools', parameters('HostPoolName'))]"
+            ],
+            "properties": {
+                "logs": [
+                    {
+                        "category": "Checkpoint",
+                        "enabled": true
+                    },
+                    {
+                        "category": "Error",
+                        "enabled": true
+                    },
+                    {
+                        "category": "Management",
+                        "enabled": true
+                    },
+                    {
+                        "category": "Connection",
+                        "enabled": true
+                    },
+                    {
+                        "category": "HostRegistration",
+                        "enabled": true
+                    },
+                    {
+                        "category": "AgentHealthStatus",
+                        "enabled": true
+                    }
+                ],
+                "workspaceId": "[resourceId('Microsoft.OperationalInsights/workspaces', parameters('LogAnalyticsWorkspaceName'))]"
             }
         },
         {
@@ -120,6 +615,40 @@
                 "applicationGroupReferences": [
                     "[resourceId('Microsoft.DesktopVirtualization/applicationgroups', parameters('AppGroupName'))]"
                 ]
+            }
+        },
+        {
+            "comments": "---------- AVD WORKSPACE > DIAGNOSTIC SETTING ----------",
+            "condition": "[equals(parameters('newOrExisting'), 'new')]",
+            "scope": "[concat('Microsoft.DesktopVirtualization/workspaces/', parameters('WorkspaceName'))]",
+            "type": "Microsoft.Insights/diagnosticsettings",
+            "name": "[concat('diag-', parameters('WorkspaceName'))]",
+            "apiVersion": "2017-05-01-preview",
+            "location": "[parameters('Location')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.OperationalInsights/workspaces', parameters('LogAnalyticsWorkspaceName'))]",
+                "[resourceId('Microsoft.DesktopVirtualization/workspaces', parameters('WorkspaceName'))]"
+            ],
+            "properties": {
+                "logs": [
+                    {
+                        "category": "Checkpoint",
+                        "enabled": true
+                    },
+                    {
+                        "category": "Error",
+                        "enabled": true
+                    },
+                    {
+                        "category": "Management",
+                        "enabled": true
+                    },
+                    {
+                        "category": "Feed",
+                        "enabled": true
+                    }
+                ],
+                "workspaceId": "[resourceId('Microsoft.OperationalInsights/workspaces', parameters('LogAnalyticsWorkspaceName'))]"
             }
         }
     ]

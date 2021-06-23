@@ -152,6 +152,29 @@
             ],
             "defaultValue": "RC4"
         },
+        "LogAnalyticsWorkspaceName": {
+            "type": "string",
+            "metadata": {
+                "description": "The name for the Log Analytics Workspace to setup the AVD Monitoring solution"
+            },
+            "defaultValue": "law-avd-poc-d-eus-000"
+        },
+        "LogAnalyticsWorkspaceRetention": {
+            "type": "int",
+            "metadata": {
+                "description": "The retention for the Log Analytics Workspace to setup the AVD Monitoring solution"
+            },
+            "defaultValue": 30,
+            "maxValue": 365,
+            "minValue": 0
+        },
+        "LogAnalyticsWorkspaceSku": {
+            "type": "string",
+            "metadata": {
+                "description": "The SKU for the Log Analytics Workspace to setup the AVD Monitoring solution"
+            },
+            "defaultValue": "pergb2018"
+        },
         "Location": {
             "type": "string",
             "metadata": {
@@ -441,6 +464,15 @@
                     },
                     "HostPoolType": {
                         "value": "[parameters('HostPoolType')]"
+                    },
+                    "LogAnalyticsWorkspaceName": {
+                        "value": "[parameters('LogAnalyticsWorkspaceName')]"
+                    },
+                    "LogAnalyticsWorkspaceRetention": {
+                        "value": "[parameters('LogAnalyticsWorkspaceRetention')]"
+                    },
+                    "LogAnalyticsWorkspaceSku": {
+                        "value": "[parameters('LogAnalyticsWorkspaceSku')]"
                     },
                     "Location": {
                         "value": "[parameters('Location')]"

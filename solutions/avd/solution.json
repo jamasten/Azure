@@ -141,6 +141,18 @@
             },
             "defaultValue": "latest"
         },
+        "InstallOneDrivePerMachineMode": {
+            "type": "bool",
+            "metadata": {
+                "description": "Install One Drive in Per-Machine Mode for Windows 10 EVD."
+            }
+        },
+        "InstallTeams": {
+            "type": "bool",
+            "metadata": {
+                "description": "Install Microsoft Teams with Media Optimization for VDI."
+            }
+        },
         "KerberosEncryptionType": {
             "type": "string",
             "metadata": {
@@ -151,6 +163,13 @@
                 "AES256"
             ],
             "defaultValue": "RC4"
+        },
+        "Location": {
+            "type": "string",
+            "metadata": {
+                "description": "The deployment location for all the resources in this template."
+            },
+            "defaultValue": "[deployment().location]"
         },
         "LogAnalyticsWorkspaceName": {
             "type": "string",
@@ -175,21 +194,14 @@
             },
             "defaultValue": "PerGB2018",
             "allowedValues": [
-                "Free", 
-                "Standard", 
-                "Premium", 
-                "PerNode", 
-                "PerGB2018", 
-                "Standalone", 
+                "Free",
+                "Standard",
+                "Premium",
+                "PerNode",
+                "PerGB2018",
+                "Standalone",
                 "CapacityReservation"
             ]
-        },
-        "Location": {
-            "type": "string",
-            "metadata": {
-                "description": "The deployment location for all the resources in this template."
-            },
-            "defaultValue": "[deployment().location]"
         },
         "MaxSessionLimit": {
             "type": "int",
@@ -569,6 +581,12 @@
                     },
                     "ImageVersion": {
                         "value": "[parameters('ImageVersion')]"
+                    },
+                    "InstallOneDrivePerMachineMode": {
+                        "value": "[parameters('InstallOneDrivePerMachineMode')]"
+                    },
+                    "InstallTeams": {
+                        "value": "[parameters('InstallTeams')]"
                     },
                     "Location": {
                         "value": "[parameters('Location')]"

@@ -41,13 +41,19 @@
         "ImageVersion": {
             "type": "string"
         },
+        "InstallOneDrivePerMachineMode": {
+            "type": "bool"
+        },
+        "InstallTeams": {
+            "type": "bool"
+        },
+        "Location": {
+            "type": "string"
+        },
         "LogAnalyticsWorkspaceName": {
             "type": "string"
         },
         "LogAnalyticsWorkspaceResourceGroupName": {
-            "type": "string"
-        },
-        "Location": {
             "type": "string"
         },
         "Netbios": {
@@ -334,7 +340,7 @@
                             "timestamp": "[parameters('Timestamp')]"
                         },
                         "protectedSettings": {
-                            "commandToExecute": "[concat('powershell -ExecutionPolicy Unrestricted -File Run-SessionHostScripts.ps1 -Environment ', environment().name, ' -HostPoolName ', parameters('HostPoolName'), ' -Optimizations ', parameters('Optimizations'), ' -StorageAccountName ', parameters('StorageAccountName'))]"
+                            "commandToExecute": "[concat('powershell -ExecutionPolicy Unrestricted -File Run-SessionHostScripts.ps1 -Environment ', environment().name, ' -HostPoolName ', parameters('HostPoolName'), ' -InstallOneDrivePerMachineMode ', parameters('InstallOneDrivePerMachineMode'), ' -InstallTeams ', parameters('InstallTeams'), ' -Optimizations ', parameters('Optimizations'), ' -StorageAccountName ', parameters('StorageAccountName'))]"
                         }
                     }
                 },

@@ -4,15 +4,18 @@ This solution will deploy Azure Virtual Desktop in an Azure subscription.  Depen
 
 This solution contains many features that are usually enabled manually after deploying a AVD host pool.  Those features are:
 
+- Teams: installs the application and configures media optimization.
+- OneDrive: installs the application in "per machine mode" and configures the recommended settings.
 - FSLogix:
-  - Recommended registry settings on session hosts
-  - Domain joined Storage Account
-- Start VM On Connect
-- VDI Optimization Script on session hosts
+  - Configures the recommended registry settings on the session hosts.
+  - Deploys an Azure File Share, domain joins the Storage Account, and sets the NTFS permissions.
+- Start VM On Connect: configures the feature for the AVD host pool.
+- VDI Optimization Script: this script will remove unnecessary apps, services, and processes from your Windows 10 OS, improving performance and resource utilization.
 - AVD Monitoring Solution:
-  - Log Analytics Workspace with the required Windows Events and Performance Counters.
-  - The Microsoft Monitoring Agent on session hosts
-  - Diagnostic settings on the AVD host pool and workspace
+  - Deploys the Log Analytics Workspace with the required Windows Events and Performance Counters.
+  - Deploys the Microsoft Monitoring Agent on session hosts.
+  - Deploys diagnostic settings on the AVD host pool and workspace.
+- Graphics drivers: if deploying an AVD appropriate VM SKU that supports a GPU, the required extension containing the graphics driver will be deployed automatically.
 
 To successfully deploy this solution, you will need to ensure your scenario matches the assumptions below and you will need to complete the prerequisites.
 

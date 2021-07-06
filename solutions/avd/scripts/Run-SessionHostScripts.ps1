@@ -7,15 +7,15 @@ Param(
 
     [parameter(Mandatory)]
     [string]
+    $HostPoolName,
+
+    [parameter(Mandatory)]
+    [string]
     $InstallOneDrivePerMachineMode,
 
     [parameter(Mandatory)]
     [string]
     $InstallTeams,
-    
-    [parameter(Mandatory)]
-    [string]
-    $HostPoolName,
     
     [parameter(Mandatory)]
     [string]

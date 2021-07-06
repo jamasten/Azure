@@ -23,7 +23,11 @@ Param(
     
     [parameter(Mandatory)]
     [string]
-    $StorageAccountName
+    $StorageAccountName,
+
+    [parameter(Mandatory)]
+    [string]
+    $TenantId
 
 )
 
@@ -31,11 +35,11 @@ Param(
 
 if($InstallOneDrivePerMachineMode -eq 'true')
 {
-    .\Install-OneDrivePerMachineMode
+    .\Install-OneDrivePerMachineMode -TenantId $TenantId
 }
 
 if($InstallTeams -eq 'true')
-{}
+{
     .\Install-Teams
 }
 

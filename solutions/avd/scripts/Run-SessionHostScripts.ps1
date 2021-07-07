@@ -11,6 +11,14 @@ Param(
 
     [parameter(Mandatory)]
     [string]
+    $ImagePublisher,
+
+    [parameter(Mandatory)]
+    [string]
+    $ImageSku,
+
+    [parameter(Mandatory)]
+    [string]
     $InstallTeams,
     
     [parameter(Mandatory)]
@@ -25,9 +33,9 @@ Param(
 
 .\Add-FslogixSettings.ps1 -Environment $Environment -HostPoolName $HostPoolName -StorageAccountName $StorageAccountName
 
-if($InstallTeams -eq 'true')
+if($InstallTeams -eq 'true' -and $ImagePublisher -eq 'MicrosoftWindowsDesktop')
 {
-    .\Install-Teams
+    .\Install-Teams -ImageSku $ImageSku
 }
 
 .\Set-AvdOptimizations.ps1 -Optimizations $Optimizations

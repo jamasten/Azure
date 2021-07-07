@@ -338,7 +338,7 @@
                             "timestamp": "[parameters('Timestamp')]"
                         },
                         "protectedSettings": {
-                            "commandToExecute": "[concat('powershell -ExecutionPolicy Unrestricted -File Run-SessionHostScripts.ps1 -Environment ', environment().name, ' -HostPoolName ', parameters('HostPoolName'), ' -InstallTeams ', parameters('InstallTeams'), ' -Optimizations ', parameters('Optimizations'), ' -StorageAccountName ', parameters('StorageAccountName'))]"
+                            "commandToExecute": "[concat('powershell -ExecutionPolicy Unrestricted -File Run-SessionHostScripts.ps1 -Environment ', environment().name, ' -HostPoolName ', parameters('HostPoolName'), ' -ImagePublisher ', parameters('ImagePublisher'), ' -ImageSku ', parameters('ImageSku'), ' -InstallTeams ', parameters('InstallTeams'), ' -Optimizations ', parameters('Optimizations'), ' -StorageAccountName ', parameters('StorageAccountName'))]"
                         }
                     }
                 },

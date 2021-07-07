@@ -576,9 +576,6 @@
                     "ImageVersion": {
                         "value": "[parameters('ImageVersion')]"
                     },
-                    "InstallOneDrivePerMachineMode": {
-                        "value": "[parameters('InstallOneDrivePerMachineMode')]"
-                    },
                     "InstallTeams": {
                         "value": "[parameters('InstallTeams')]"
                     },

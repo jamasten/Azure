@@ -132,7 +132,7 @@
             "metadata": {
                 "description": "SKU for the virtual machine image"
             },
-            "defaultValue": "20h2-evd-o365pp"
+            "defaultValue": "21h1-evd-o365pp"
         },
         "ImageVersion": {
             "type": "string",

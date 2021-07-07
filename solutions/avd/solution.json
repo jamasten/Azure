@@ -141,12 +141,6 @@
             },
             "defaultValue": "latest"
         },
-        "InstallOneDrivePerMachineMode": {
-            "type": "bool",
-            "metadata": {
-                "description": "Install One Drive in Per-Machine Mode for Windows 10 EVD."
-            }
-        },
         "InstallTeams": {
             "type": "bool",
             "metadata": {

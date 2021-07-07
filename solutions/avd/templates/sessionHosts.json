@@ -41,9 +41,6 @@
         "ImageVersion": {
             "type": "string"
         },
-        "InstallOneDrivePerMachineMode": {
-            "type": "bool"
-        },
         "InstallTeams": {
             "type": "bool"
         },
@@ -334,7 +331,6 @@
                         "settings": {
                             "fileUris": [
                                 "https://raw.githubusercontent.com/jamasten/Azure/master/solutions/avd/scripts/Add-FslogixSettings.ps1",
-                                "https://raw.githubusercontent.com/jamasten/Azure/master/solutions/avd/scripts/Install-OneDrivePerMachineMode.ps1",
                                 "https://raw.githubusercontent.com/jamasten/Azure/master/solutions/avd/scripts/Install-Teams.ps1",
                                 "https://raw.githubusercontent.com/jamasten/Azure/master/solutions/avd/scripts/Run-SessionHostScripts.ps1",
                                 "https://raw.githubusercontent.com/jamasten/Azure/master/solutions/avd/scripts/Set-AvdOptimizations.ps1"
@@ -342,7 +338,7 @@
                             "timestamp": "[parameters('Timestamp')]"
                         },
                         "protectedSettings": {
-                            "commandToExecute": "[concat('powershell -ExecutionPolicy Unrestricted -File Run-SessionHostScripts.ps1 -Environment ', environment().name, ' -HostPoolName ', parameters('HostPoolName'), ' -InstallOneDrivePerMachineMode ', parameters('InstallOneDrivePerMachineMode'), ' -InstallTeams ', parameters('InstallTeams'), ' -Optimizations ', parameters('Optimizations'), ' -StorageAccountName ', parameters('StorageAccountName'), ' -TenantId ', subscription().tenantId)]"
+                            "commandToExecute": "[concat('powershell -ExecutionPolicy Unrestricted -File Run-SessionHostScripts.ps1 -Environment ', environment().name, ' -HostPoolName ', parameters('HostPoolName'), ' -InstallTeams ', parameters('InstallTeams'), ' -Optimizations ', parameters('Optimizations'), ' -StorageAccountName ', parameters('StorageAccountName'))]"
                         }
                     }
                 },

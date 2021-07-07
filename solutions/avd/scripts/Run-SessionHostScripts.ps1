@@ -11,10 +11,6 @@ Param(
 
     [parameter(Mandatory)]
     [string]
-    $InstallOneDrivePerMachineMode,
-
-    [parameter(Mandatory)]
-    [string]
     $InstallTeams,
     
     [parameter(Mandatory)]
@@ -23,20 +19,11 @@ Param(
     
     [parameter(Mandatory)]
     [string]
-    $StorageAccountName,
-
-    [parameter(Mandatory)]
-    [string]
-    $TenantId
+    $StorageAccountName
 
 )
 
 .\Add-FslogixSettings.ps1 -Environment $Environment -HostPoolName $HostPoolName -StorageAccountName $StorageAccountName
-
-if($InstallOneDrivePerMachineMode -eq 'true')
-{
-    .\Install-OneDrivePerMachineMode -TenantId $TenantId
-}
 
 if($InstallTeams -eq 'true')
 {

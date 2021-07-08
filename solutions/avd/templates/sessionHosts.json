@@ -228,7 +228,7 @@
                         "enabled": false
                     }
                 },
-                "licenseType": "Windows_Client"
+                "licenseType": "[if(equals(parameters('ImagePublisher'), 'MicrosoftWindowsServer'), 'Windows_Server','Windows_Client')]"
             },
             "resources": [
                 {

@@ -121,24 +121,7 @@
             "Standard_NV24s_v3",
             "Standard_NV48s_v3"
         ],
-        "PooledHostPool": "[equals(split(parameters('HostPoolType'), ' ')[0], 'Pooled')]",
-        "EphemeralOsDisk": {
-            "diffDiskSettings": {
-                "option": "Local"
-            },
-            "caching": "ReadOnly",
-            "createOption": "FromImage"
-        },
-        "PersistentOsDisk": {
-            "osType": "Windows",
-            "name": "[concat(parameters('DiskNamePrefix'), padLeft(copyIndex(parameters('SessionHostIndex')), 3, '0'))]",
-            "createOption": "FromImage",
-            "caching": "None",
-            "managedDisk": {
-                "storageAccountType": "[parameters('DiskSku')]"
-            },
-            "diskSizeGB": 127
-        }
+        "PooledHostPool": "[equals(split(parameters('HostPoolType'), ' ')[0], 'Pooled')]"
     },
     "resources": [
         {
@@ -213,7 +196,19 @@
                         "sku": "[parameters('ImageSku')]",
                         "version": "[parameters('ImageVersion')]"
                     },
-                    "osDisk": "[if(parameters('EphemeralOsDisk'), variables('EphemeralOsDisk'), variables('PersistentOsDisk'))]",
+                    "osDisk": {
+                        "osType": "Windows",
+                        "name": "[if(parameters('EphemeralOsDisk'), json('null'), concat(parameters('DiskNamePrefix'), padLeft(copyIndex(parameters('SessionHostIndex')), 3, '0')))]",
+                        "createOption": "FromImage",
+                        "caching": "[if(parameters('EphemeralOsDisk'), 'ReadOnly', 'None')]",
+                        "managedDisk": {
+                            "storageAccountType": "[if(parameters('EphemeralOsDisk'), json('null'), parameters('DiskSku'))]"
+                        },
+                        "diffDiskSettings": {
+                            "option": "[if(parameters('EphemeralOsDisk'), 'Local', json('null'))]"
+                        },
+                        "diskSizeGB": 127
+                    },
                     "dataDisks": []
                 },
                 "osProfile": {

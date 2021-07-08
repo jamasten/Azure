@@ -38,4 +38,7 @@ if($InstallTeams -eq 'true' -and $ImagePublisher -eq 'MicrosoftWindowsDesktop')
     .\Install-Teams -ImageSku $ImageSku
 }
 
-.\Set-AvdOptimizations.ps1 -Optimizations $Optimizations
+if($ImagePublisher -eq 'MicrosoftWindowsDesktop')
+{
+    .\Set-AvdOptimizations.ps1 -Optimizations $Optimizations
+}

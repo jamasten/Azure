@@ -206,8 +206,8 @@
                         },
                         "diffDiskSettings": {
                             "option": "[if(parameters('EphemeralOsDisk'), 'Local', json('null'))]"
-                        },
-                        "diskSizeGB": 127
+                        }/*,
+                        "diskSizeGB": 127*/
                     },
                     "dataDisks": []
                 },

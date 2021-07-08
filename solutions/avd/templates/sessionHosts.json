@@ -198,7 +198,8 @@
                     },
                     "osDisk": {
                         "osType": "Windows",
-                        "name": "[if(parameters('EphemeralOsDisk'), json('null'), concat(parameters('DiskNamePrefix'), padLeft(copyIndex(parameters('SessionHostIndex')), 3, '0')))]",
+                        "name": "[concat(parameters('DiskNamePrefix'), padLeft(copyIndex(parameters('SessionHostIndex')), 3, '0'))]",
+                        /*"name": "[if(parameters('EphemeralOsDisk'), json('null'), concat(parameters('DiskNamePrefix'), padLeft(copyIndex(parameters('SessionHostIndex')), 3, '0')))]",*/
                         "createOption": "FromImage",
                         "caching": "[if(parameters('EphemeralOsDisk'), 'ReadOnly', 'None')]",
                         "managedDisk": {

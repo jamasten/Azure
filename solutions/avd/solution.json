@@ -86,6 +86,12 @@
             },
             "defaultValue": "jasonmasten.com"
         },
+        "EphemeralOsDisk": {
+            "type": "bool",
+            "metadata": {
+                "description": "Choose whether the session host uses an ephemeral disk for the operating system.  Be sure to select a VM SKU that offers a temporary disk that meets your image requirements."
+            }
+        },
         "FileShareQuota": {
             "type": "int",
             "metadata": {
@@ -554,6 +560,9 @@
                     },
                     "DomainName": {
                         "value": "[parameters('DomainName')]"
+                    },
+                    "EphemeralOsDisk": {
+                        "value": "[parameters('EphemeralOsDisk')]"
                     },
                     "HostPoolName": {
                         "value": "[parameters('HostPoolName')]"

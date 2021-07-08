@@ -20,6 +20,9 @@
         "DomainAdminUsername": {
             "type": "string"
         },
+        "EphemeralOsDisk": {
+            "type": "bool"
+        },
         "HostPoolName": {
             "type": "string"
         },
@@ -118,7 +121,24 @@
             "Standard_NV24s_v3",
             "Standard_NV48s_v3"
         ],
-        "PooledHostPool": "[equals(split(parameters('HostPoolType'), ' ')[0], 'Pooled')]"
+        "PooledHostPool": "[equals(split(parameters('HostPoolType'), ' ')[0], 'Pooled')]",
+        "EphemeralOsDisk": {
+            "diffDiskSettings": {
+                "option": "Local"
+            },
+            "caching": "ReadOnly",
+            "createOption": "FromImage"
+        },
+        "PersistentOsDisk": {
+            "osType": "Windows",
+            "name": "[concat(parameters('DiskNamePrefix'), padLeft(copyIndex(parameters('SessionHostIndex')), 3, '0'))]",
+            "createOption": "FromImage",
+            "caching": "None",
+            "managedDisk": {
+                "storageAccountType": "[parameters('DiskSku')]"
+            },
+            "diskSizeGB": 127
+        }
     },
     "resources": [
         {
@@ -193,16 +213,7 @@
                         "sku": "[parameters('ImageSku')]",
                         "version": "[parameters('ImageVersion')]"
                     },
-                    "osDisk": {
-                        "osType": "Windows",
-                        "name": "[concat(parameters('DiskNamePrefix'), padLeft(copyIndex(parameters('SessionHostIndex')), 3, '0'))]",
-                        "createOption": "FromImage",
-                        "caching": "None",
-                        "managedDisk": {
-                            "storageAccountType": "[parameters('DiskSku')]"
-                        },
-                        "diskSizeGB": 127
-                    },
+                    "osDisk": "[if(parameters('EphemeralOsDisk'), variables('EphemeralOsDisk'), variables('PersistentOsDisk'))]",
                     "dataDisks": []
                 },
                 "osProfile": {

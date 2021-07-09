@@ -173,7 +173,7 @@
         {
             "comments": "---------- VIRTUAL MACHINES ----------",
             "type": "Microsoft.Compute/virtualMachines",
-            "apiVersion": "2019-07-01",
+            "apiVersion": "2020-12-01",
             "name": "[concat(parameters('VmNamePrefix'), padLeft(copyIndex(parameters('SessionHostIndex')), 3, '0'))]",
             "location": "[parameters('Location')]",
             "tags": "[parameters('Tags')]",
@@ -201,7 +201,7 @@
                         "osType": "Windows",
                         "name": "[concat(parameters('DiskNamePrefix'), padLeft(copyIndex(parameters('SessionHostIndex')), 3, '0'))]",
                         "createOption": "FromImage",
-                        "caching": "[if(parameters('EphemeralOsDisk'), 'ReadOnly', null())]",
+                        "caching": "[if(parameters('EphemeralOsDisk'), 'ReadOnly', 'None')]",
                         "managedDisk": {
                             "storageAccountType": "[if(parameters('EphemeralOsDisk'), null(), parameters('DiskSku'))]"
                         },

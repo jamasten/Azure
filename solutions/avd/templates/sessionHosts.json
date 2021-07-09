@@ -122,7 +122,22 @@
             "Standard_NV48s_v3"
         ],
         "PooledHostPool": "[equals(split(parameters('HostPoolType'), ' ')[0], 'Pooled')]",
-        "DiskDiffSetting": "value"
+        "EphemeralOsDisk": {
+            "osType": "Windows",
+            "createOption": "FromImage",
+            "caching": "ReadOnly",
+            "diffDiskSettings": {
+                "option": "Local"
+            }
+        },
+        "StatefulOsDisk": {
+            "osType": "Windows",
+            "createOption": "FromImage",
+            "caching": "None",
+            "managedDisk": {
+                "storageAccountType": "[parameters('DiskSku')]"
+            }
+        }
     },
     "resources": [
         {
@@ -197,18 +212,7 @@
                         "sku": "[parameters('ImageSku')]",
                         "version": "[parameters('ImageVersion')]"
                     },
-                    "osDisk": {
-                        "osType": "Windows",
-                        "name": "[concat(parameters('DiskNamePrefix'), padLeft(copyIndex(parameters('SessionHostIndex')), 3, '0'))]",
-                        "createOption": "FromImage",
-                        "caching": "[if(parameters('EphemeralOsDisk'), 'ReadOnly', 'None')]",
-                        "managedDisk": {
-                            "storageAccountType": "[if(parameters('EphemeralOsDisk'), null(), parameters('DiskSku'))]"
-                        },
-                        "diffDiskSettings": {
-                            "option": "[if(parameters('EphemeralOsDisk'), 'Local', null())]"
-                        }
-                    },
+                    "osDisk": "[if(parameters('EphemeralOsDisk'), variables('EphemeralOsDisk'), variables('StatefulOsDisk'))]",
                     "dataDisks": []
                 },
                 "osProfile": {

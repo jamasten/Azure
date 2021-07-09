@@ -34,3 +34,43 @@ New-ItemProperty -Path 'HKLM:\SOFTWARE\FSLogix\Profiles' -Name 'PreventLoginWith
 
 # List of file system locations to search for the user's profile VHD(X) file
 New-ItemProperty -Path 'HKLM:\SOFTWARE\FSLogix\Profiles' -Name 'VHDLocations' -PropertyType 'MultiString' -Value $FileShare
+
+# Defender Exclusions for FSLogix
+$Files = @(
+    "%ProgramFiles%\FSLogix\Apps\frxdrv.sys",
+    "%ProgramFiles%\FSLogix\Apps\frxdrvvt.sys",
+    "%ProgramFiles%\FSLogix\Apps\frxccd.sys",
+    "%TEMP%\*.VHD",
+    "%TEMP%\*.VHDX",
+    "%Windir%\TEMP\*.VHD",
+    "%Windir%\TEMP\*.VHDX",
+    "$FileShare\*.VHD",
+    "$FileShare\*.VHDX"
+)
+
+$CloudCache = Get-ItemProperty -Path 'HKLM:\SOFTWARE\FSLogix\Profiles' -Name 'CCDLocations' -ErrorAction 'SilentlyContinue'
+if($CloudCache)
+{ 
+    $Files += @(
+        "%ProgramData%\FSLogix\Cache\*.VHD"
+        "%ProgramData%\FSLogix\Cache\*.VHDX"
+        "%ProgramData%\FSLogix\Proxy\*.VHD"
+        "%ProgramData%\FSLogix\Proxy\*.VHDX"
+    )
+}
+
+foreach($File in $Files)
+{
+    Add-MpPreference -ExclusionPath $File
+}
+
+$Processes = @(
+    "%ProgramFiles%\FSLogix\Apps\frxccd.exe",
+    "%ProgramFiles%\FSLogix\Apps\frxccds.exe",
+    "%ProgramFiles%\FSLogix\Apps\frxsvc.exe"
+)
+
+foreach($Process in $Processes)
+{
+    Add-MpPreference -ExclusionProcess $Process
+}

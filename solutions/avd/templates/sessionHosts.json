@@ -199,16 +199,14 @@
                     "osDisk": {
                         "osType": "Windows",
                         "name": "[concat(parameters('DiskNamePrefix'), padLeft(copyIndex(parameters('SessionHostIndex')), 3, '0'))]",
-                        /*"name": "[if(parameters('EphemeralOsDisk'), json('null'), concat(parameters('DiskNamePrefix'), padLeft(copyIndex(parameters('SessionHostIndex')), 3, '0')))]",*/
                         "createOption": "FromImage",
-                        "caching": "[if(equals(parameters('EphemeralOsDisk'), 'true'), 'ReadOnly', 'None')]",
+                        "caching": "[if(parameters('EphemeralOsDisk'), 'ReadOnly', 'None')]",
                         "managedDisk": {
-                            "storageAccountType": "[if(equals(parameters('EphemeralOsDisk'), 'true'), json('null'), parameters('DiskSku'))]"
+                            "storageAccountType": "[if(parameters('EphemeralOsDisk'), null(), parameters('DiskSku'))]"
                         },
                         "diffDiskSettings": {
-                            "option": "[if(equals(parameters('EphemeralOsDisk'), 'true'), 'Local', json('null'))]"
-                        }/*,
-                        "diskSizeGB": 127*/
+                            "option": "[if(parameters('EphemeralOsDisk'), 'Local', null())]"
+                        }
                     },
                     "dataDisks": []
                 },

@@ -491,9 +491,6 @@
                     "newOrExisting": {
                         "value": "[parameters('newOrExisting')]"
                     },
-                    "ResourceNameSuffix": {
-                        "value": "[parameters('ResourceNameSuffix')]"
-                    },
                     "SecurityPrincipalId": {
                         "value": "[parameters('SecurityPrincipalId')]"
                     },

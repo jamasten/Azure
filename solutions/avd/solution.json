@@ -2,44 +2,12 @@
     "$schema": "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
-        "AppGroupName": {
-            "type": "string",
-            "metadata": {
-                "description": "The name of the AVD application group."
-            },
-            "defaultValue": "Desktops"
-        },
-        "AppGroupType": {
-            "type": "string",
-            "metadata": {
-                "description": "The type of AVD application group."
-            },
-            "allowedValues": [
-                "Desktop",
-                "RemoteApp"
-            ],
-            "defaultValue": "Desktop"
-        },
-        "AvailabilitySetName": {
-            "type": "string",
-            "metadata": {
-                "description": "The name for the Availability Set for the AVD Session Hosts."
-            },
-            "defaultValue": "as-avd-poc-d-eus-000"
-        },
         "CustomRdpProperty": {
             "type": "string",
             "metadata": {
                 "description": "Input RDP properties to add or remove RDP functionality on the AVD host pool. Settings reference: https://docs.microsoft.com/en-us/windows-server/remote/remote-desktop-services/clients/rdp-files?context=/azure/virtual-desktop/context/context"
             },
             "defaultValue": "audiocapturemode:i:1;camerastoredirect:s:*;use multimon:i:0;drivestoredirect:s:;"
-        },
-        "DiskNamePrefix": {
-            "type": "string",
-            "metadata": {
-                "description": "The name for the OS disk on the AVD session hosts."
-            },
-            "defaultValue": "disk-avd-poc-d-eus-"
         },
         "DiskSku": {
             "type": "string",
@@ -52,18 +20,6 @@
                 "Premium_LRS"
             ],
             "defaultValue": "Premium_LRS"
-        },
-        "DomainAdminPassword": {
-            "type": "securestring",
-            "metadata": {
-                "description": "The domain administrator password to join the AVD session hosts to your domain"
-            }
-        },
-        "DomainAdminUsername": {
-            "type": "string",
-            "metadata": {
-                "description": "The domain administrator username to join the AVD session hosts to your domain. Only the username is required. Do not add the Netbios value."
-            }
         },
         "DomainControllerName": {
             "type": "string",
@@ -78,6 +34,18 @@
                 "description": "The resource group name of a Domain Controller in Azure for joining the Azure Storage Account to the domain."
             },
             "defaultValue": "rg-identity-d-eastus"
+        },
+        "DomainJoinPassword": {
+            "type": "securestring",
+            "metadata": {
+                "description": "The password of the privileged account to domain join the AVD session hosts to your domain"
+            }
+        },
+        "DomainJoinUsername": {
+            "type": "string",
+            "metadata": {
+                "description": "The username of the privileged account to domain join the AVD session hosts to your domain. Only the username is required. Do not add the Netbios value."
+            }
         },
         "DomainName": {
             "type": "string",
@@ -98,13 +66,6 @@
                 "description": "The file share quota for the file share on the Azure Storage Account."
             },
             "defaultValue": 100
-        },
-        "HostPoolName": {
-            "type": "string",
-            "metadata": {
-                "description": "The name for the AVD Host Pool."
-            },
-            "defaultValue": "hp-avd-poc-d-eus-000"
         },
         "HostPoolType": {
             "type": "string",
@@ -164,20 +125,6 @@
             ],
             "defaultValue": "RC4"
         },
-        "Location": {
-            "type": "string",
-            "metadata": {
-                "description": "The deployment location for all the resources in this template."
-            },
-            "defaultValue": "[deployment().location]"
-        },
-        "LogAnalyticsWorkspaceName": {
-            "type": "string",
-            "metadata": {
-                "description": "The name for the Log Analytics Workspace to setup the AVD Monitoring solution"
-            },
-            "defaultValue": "law-avd-poc-d-eus-000"
-        },
         "LogAnalyticsWorkspaceRetention": {
             "type": "int",
             "metadata": {
@@ -217,13 +164,6 @@
                 "existing"
             ]
         },
-        "NicNamePrefix": {
-            "type": "string",
-            "metadata": {
-                "description": "The name prefix for the Network Interfaces on the Session Hosts.  During deployment a 3 digit number will be added to each NIC to complete the name."
-            },
-            "defaultValue": "nic-avd-poc-d-eus-"
-        },
         "Optimizations": {
             "type": "string",
             "metadata": {
@@ -238,26 +178,83 @@
             },
             "defaultValue": "OU=Pooled,OU=AVD,DC=jasonmasten,DC=com"
         },
-        "PreferredAppGroupType": {
+        "ResourceNameSuffix": {
             "type": "string",
             "metadata": {
-                "description": "The type of preferred application group type.  The default is Desktop which creates 'Desktop Application Group'"
+                "description": "description"
             },
-            "allowedValues": [
-                "Desktop",
-                "RailApplications"
-            ],
-            "defaultValue": "Desktop"
+            "maxLength": 11,
+            "defaultValue": "poc-d-eus"
         },
-        "ResourceGroups": {
-            "type": "array",
+        "ScalingBeginPeakTime": {
+            "type": "string",
             "metadata": {
-                "description": "The names of the resource groups for the AVD Host Pool and Session Hosts.  The first resource group will be dedicated to the AVD infrastructure.  The second resource group will be dedicated to the AVD session hosts."
+                "description": "Time when session hosts will scale up and continue to stay on to support peak demand; Format 24 hours, e.g. 9:00 for 9am"
             },
-            "defaultValue": [
-                "rg-avd-poc-infra-d-eus-000",
-                "rg-avd-poc-hosts-d-eus-000"
-            ]
+            "defaultValue": "9:00"
+        },
+        "ScalingEndPeakTime": {
+            "type": "string",
+            "metadata": {
+                "description": "Time when session hosts will scale down and stay off to support low demand; Format 24 hours, e.g. 17:00 for 5pm"
+            },
+            "defaultValue": "17:00"
+        },
+        "ScalingLimitSecondsToForceLogOffUser": {
+            "type": "string",
+            "metadata": {
+                "description": "The number of seconds to wait before automatically signing out users. If set to 0, any session host that has user sessions will be left untouched"
+            },
+            "defaultValue": "0"
+        },
+        "ScalingLogOffMessage": {
+            "type": "string",
+            "metadata": {
+                "description": "The body of the message sent to the user before they are forced to sign out"
+            },
+            "defaultValue": "Your session will be logged off. Please save and close everything."
+        },
+        "ScalingLogOffTitle": {
+            "type": "string",
+            "metadata": {
+                "description": "The title of the message sent to the user before they are forced to sign out"
+            },
+            "defaultValue": "Machine is about to shutdown."
+        },
+        "ScalingMaintenanceTagName": {
+            "type": "string",
+            "metadata": {
+                "description": "The name of the Tag associated with VMs you don't want to be managed by this scaling tool"
+            },
+            "defaultValue": ""
+        },
+        "ScalingMinimumNumberOfRdsh": {
+            "type": "string",
+            "metadata": {
+                "description": "The minimum number of session host VMs to keep running during off-peak hours"
+            },
+            "defaultValue": "1"
+        },
+        "ScalingRecurrenceInterval": {
+            "type": "int",
+            "defaultValue": 15,
+            "metadata": {
+                "description": "Specifies the recurrence interval of the job in minutes"
+            }
+        },
+        "ScalingSessionThresholdPerCPU": {
+            "type": "string",
+            "metadata": {
+                "description": "The maximum number of sessions per CPU that will be used as a threshold to determine when new session host VMs need to be started during peak hours"
+            },
+            "defaultValue": "1"
+        },
+        "ScalingTimeDifference": {
+            "type": "string",
+            "metadata": {
+                "description": "Time zone off set for host pool location; Format 24 hours, e.g. -4:00 for Eastern Daylight Time"
+            },
+            "defaultValue": "-4:00"
         },
         "SecurityPrincipalId": {
             "type": "string",
@@ -293,13 +290,6 @@
                 "description": "Enable the 'Start VM On Connect' feature. https://docs.microsoft.com/en-us/azure/virtual-desktop/start-virtual-machine-connect"
             },
             "defaultValue": true
-        },
-        "StorageAccountName": {
-            "type": "string",
-            "metadata": {
-                "description": "The name for the Azure storage account containing the AVD user profile data."
-            },
-            "defaultValue": "stjmavdpocdeus0"
         },
         "StorageAccountSku": {
             "type": "string",
@@ -355,13 +345,6 @@
             },
             "defaultValue": "rg-network-d-eastus"
         },
-        "VmNamePrefix": {
-            "type": "string",
-            "metadata": {
-                "description": "The name prefix for the AVD session hosts.  During deployment a 3 digit number will be added to each session host to complete the name."
-            },
-            "defaultValue": "vmavdpocdeus"
-        },
         "VmPassword": {
             "type": "securestring",
             "metadata": {
@@ -381,13 +364,6 @@
                 "description": "The Local Administrator Username for the Session Hosts"
             }
         },
-        "WorkspaceName": {
-            "type": "string",
-            "metadata": {
-                "description": "The name of the AVD workspace."
-            },
-            "defaultValue": "ws-avd-poc-d-eus-000"
-        },
         "WvdObjectId": {
             "type": "string",
             "metadata": {
@@ -396,23 +372,37 @@
         }
     },
     "variables": {
+        "AppGroupName": "[concat('dag-', parameters('ResourceNameSuffix'))]",
+        "AutomationAccountName": "[concat('aa-', parameters('ResourceNameSuffix'))]",
+
+        "HostPoolName": "[concat('hp-', parameters('ResourceNameSuffix'))]",
+        "Location": "[deployment().location]",
+        "LogAnalyticsWorkspaceName": "[concat('law-', parameters('ResourceNameSuffix'))]",
+        "LogicAppName": "[concat('la-', parameters('ResourceNameSuffix'))]",
         "Netbios": "[split(parameters('DomainName'), '.')[0]]",
+        "ResourceGroups": [
+            "[concat('rg-infra-', parameters('ResourceNameSuffix'))]",
+            "[concat('rg-hosts-', parameters('ResourceNameSuffix'))]"
+        ],
         "RoleAssignmentName": "[guid(subscription().id, 'WindowsVirtualDesktop')]",
-        "RoleDefinitionName": "[guid(subscription().id, 'StartVmOnConnect')]"
+        "RoleDefinitionName": "[guid(subscription().id, 'StartVmOnConnect')]",
+        "StorageAccountName": "[concat('stor', parameters('ResourceNameSuffix'))]",
+        "VmName": "[concat('vm', parameters('ResourceNameSuffix'))]",
+        "WorkspaceName": "[concat('ws-', parameters('ResourceNameSuffix'))]"
     },
     "resources": [
         {
             "comments": "---------- RESOURCE GROUPS ----------",
             "condition": "[equals(parameters('newOrExisting'), 'new')]",
-            "name": "[parameters('ResourceGroups')[copyIndex()]]",
+            "name": "[variables('ResourceGroups')[copyIndex()]]",
             "type": "Microsoft.Resources/resourceGroups",
             "apiVersion": "2019-10-01",
-            "location": "[parameters('Location')]",
+            "location": "[variables('Location')]",
             "tags": "[parameters('Tags')]",
             "properties": {},
             "copy": {
                 "name": "rgLoop",
-                "count": "[length(parameters('ResourceGroups'))]"
+                "count": "[length(variables('ResourceGroups'))]"
             }
         },
         {
@@ -460,7 +450,7 @@
             "apiVersion": "2019-10-01",
             "name": "[concat('HostPool_', parameters('Timestamp'))]",
             "tags": "[parameters('Tags')]",
-            "resourceGroup": "[parameters('ResourceGroups')[0]]",
+            "resourceGroup": "[variables('ResourceGroups')[0]]",
             "dependsOn": [
                 "rgLoop"
             ],
@@ -472,22 +462,19 @@
                 },
                 "parameters": {
                     "AppGroupName": {
-                        "value": "[parameters('AppGroupName')]"
-                    },
-                    "AppGroupType": {
-                        "value": "[parameters('AppGroupType')]"
+                        "value": "[variables('AppGroupName')]"
                     },
                     "CustomRdpProperty": {
                         "value": "[parameters('CustomRdpProperty')]"
                     },
                     "HostPoolName": {
-                        "value": "[parameters('HostPoolName')]"
+                        "value": "[variables('HostPoolName')]"
                     },
                     "HostPoolType": {
                         "value": "[parameters('HostPoolType')]"
                     },
                     "LogAnalyticsWorkspaceName": {
-                        "value": "[parameters('LogAnalyticsWorkspaceName')]"
+                        "value": "[variables('LogAnalyticsWorkspaceName')]"
                     },
                     "LogAnalyticsWorkspaceRetention": {
                         "value": "[parameters('LogAnalyticsWorkspaceRetention')]"
@@ -496,7 +483,7 @@
                         "value": "[parameters('LogAnalyticsWorkspaceSku')]"
                     },
                     "Location": {
-                        "value": "[parameters('Location')]"
+                        "value": "[variables('Location')]"
                     },
                     "MaxSessionLimit": {
                         "value": "[parameters('MaxSessionLimit')]"
@@ -504,8 +491,8 @@
                     "newOrExisting": {
                         "value": "[parameters('newOrExisting')]"
                     },
-                    "PreferredAppGroupType": {
-                        "value": "[parameters('PreferredAppGroupType')]"
+                    "ResourceNameSuffix": {
+                        "value": "[parameters('ResourceNameSuffix')]"
                     },
                     "SecurityPrincipalId": {
                         "value": "[parameters('SecurityPrincipalId')]"
@@ -520,7 +507,115 @@
                         "value": "[parameters('ValidationEnvironment')]"
                     },
                     "WorkspaceName": {
-                        "value": "[parameters('WorkspaceName')]"
+                        "value": "[variables('WorkspaceName')]"
+                    }
+                }
+            }
+        },
+                {
+            "comments": "---------- LINKED DEPLOYMENT > SCALING AUTOMATION > AUTOMATION ACCOUNT ----------",
+            "condition": "[equals(split(parameters('HostPoolType'), ' ')[0], 'Pooled')]",
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2019-10-01",
+            "name": "[concat('ScalingAutomation_AutomationAccount_', parameters('Timestamp'))]",
+            "tags": "[parameters('Tags')]",
+            "resourceGroup": "[variables('ResourceGroups')[0]]",
+            "dependsOn": [
+                "rgLoop"
+            ],
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "https://raw.githubusercontent.com/jamasten/Azure/master/solutions/scalingAutomation/scalingAutomationAccount.json",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "AutomationAccountName": {
+                        "value": "[variables('AutomationAccountName')]"
+                    },
+                    "Location": {
+                        "value": "[variables('Location')]"
+                    },
+                    "LogAnalyticsWorkspaceResourceId": {
+                        "value": "[concat(subscription().id, '/resourcegroups/', variables('ResourceGroups')[0], '/providers/microsoft.operationalinsights/workspaces/', variables('LogAnalyticsWorkspaceName'))]"
+                    },
+                    "WVDVersion": {
+                        "value": "ARM"
+                    }
+                }
+            }
+        },
+        {
+            "comments": "---------- LINKED DEPLOYMENT > SCALING AUTOMATION > LOGIC APP ----------",
+            "condition": "[equals(split(parameters('HostPoolType'), ' ')[0], 'Pooled')]",
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2019-10-01",
+            "name": "[concat('ScalingAutomation_LogicApp_', parameters('Timestamp'))]",
+            "tags": "[parameters('Tags')]",
+            "resourceGroup": "[variables('ResourceGroups')[0]]",
+            "dependsOn": [
+                "rgLoop"
+            ],
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "https://raw.githubusercontent.com/jamasten/Azure/master/solutions/scalingAutomation/scalingLogicApp.json",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "AutomationConnectionName": {
+                        "value": "AzureRunAsConnection"
+                    },
+                    "AutomationAccountName": {
+                        "value": "[variables('AutomationAccountName')]"
+                    },
+                    "AutomationAccountResourceGroupName": {
+                        "value": "[variables('ResourceGroups')[0]]"
+                    },
+                    "BeginPeakTime": {
+                        "value": "[parameters('ScalingBeginPeakTime')]"
+                    },
+                    "EndPeakTime": {
+                        "value": "[parameters('ScalingEndPeakTime')]"
+                    },
+                    "HostPoolName": {
+                        "value": "[variables('HostPoolName')]"
+                    },
+                    "HostPoolResourceGroupName": {
+                        "value": "[variables('ResourceGroups')[0]]"
+                    },
+                    "LimitSecondsToForceLogOffUser": {
+                        "value": "[parameters('ScalingLimitSecondsToForceLogOffUser')]"
+                    },
+                    "Location": {
+                        "value": "[variables('Location')]"
+                    },
+                    "LogicAppName": {
+                        "value": "[variables('LogicAppName')]"
+                    },
+                    "LogOffMessage": {
+                        "value": "[parameters('ScalingLogOffMessage')]"
+                    },
+                    "LogOffTitle": {
+                        "value": "[parameters('ScalingLogOffTitle')]"
+                    },
+                    "MaintenanceTagName": {
+                        "value": "[parameters('ScalingMaintenanceTagName')]"
+                    },
+                    "MinimumNumberOfRdsh": {
+                        "value": "[parameters('ScalingMinimumNumberOfRdsh')]"
+                    },
+                    "RecurrenceInterval": {
+                        "value": "[parameters('ScalingRecurrenceInterval')]"
+                    },
+                    "SessionThresholdPerCPU": {
+                        "value": "[parameters('ScalingSessionThresholdPerCPU')]"
+                    },
+                    "TimeDifference": {
+                        "value": "[parameters('ScalingTimeDifference')]"
+                    },
+                    "WVDVersion": {
+                        "value": "ARM"
                     }
                 }
             }
@@ -531,7 +626,7 @@
             "apiVersion": "2019-10-01",
             "name": "[concat('SessionHosts_', parameters('Timestamp'))]",
             "tags": "[parameters('Tags')]",
-            "resourceGroup": "[parameters('ResourceGroups')[1]]",
+            "resourceGroup": "[variables('ResourceGroups')[1]]",
             "dependsOn": [
                 "rgLoop",
                 "[concat('HostPool_', parameters('Timestamp'))]"
@@ -543,20 +638,14 @@
                     "contentVersion": "1.0.0.0"
                 },
                 "parameters": {
-                    "AvailabilitySetName": {
-                        "value": "[parameters('AvailabilitySetName')]"
-                    },
-                    "DiskNamePrefix": {
-                        "value": "[parameters('DiskNamePrefix')]"
-                    },
                     "DiskSku": {
                         "value": "[parameters('DiskSku')]"
                     },
-                    "DomainAdminPassword": {
-                        "value": "[parameters('DomainAdminPassword')]"
+                    "DomainJoinPassword": {
+                        "value": "[parameters('DomainJoinPassword')]"
                     },
-                    "DomainAdminUsername": {
-                        "value": "[parameters('DomainAdminUsername')]"
+                    "DomainJoinUsername": {
+                        "value": "[parameters('DomainJoinUsername')]"
                     },
                     "DomainName": {
                         "value": "[parameters('DomainName')]"
@@ -564,11 +653,8 @@
                     "EphemeralOsDisk": {
                         "value": "[parameters('EphemeralOsDisk')]"
                     },
-                    "HostPoolName": {
-                        "value": "[parameters('HostPoolName')]"
-                    },
                     "HostPoolResourceGroupName": {
-                        "value": "[parameters('ResourceGroups')[0]]"
+                        "value": "[variables('ResourceGroups')[0]]"
                     },
                     "HostPoolType": {
                         "value": "[parameters('HostPoolType')]"
@@ -589,25 +675,25 @@
                         "value": "[parameters('InstallTeams')]"
                     },
                     "Location": {
-                        "value": "[parameters('Location')]"
+                        "value": "[variables('Location')]"
                     },
                     "LogAnalyticsWorkspaceName": {
-                        "value": "[parameters('LogAnalyticsWorkspaceName')]"
+                        "value": "[variables('LogAnalyticsWorkspaceName')]"
                     },
                     "LogAnalyticsWorkspaceResourceGroupName": {
-                        "value": "[parameters('ResourceGroups')[0]]"
+                        "value": "[variables('ResourceGroups')[0]]"
                     },
                     "Netbios": {
                         "value": "[variables('Netbios')]"
-                    },
-                    "NicNamePrefix": {
-                        "value": "[parameters('NicNamePrefix')]"
                     },
                     "Optimizations": {
                         "value": "[parameters('Optimizations')]"
                     },
                     "OuPath": {
                         "value": "[parameters('OuPath')]"
+                    },
+                    "ResourceNameSuffix": {
+                        "value": "[parameters('ResourceNameSuffix')]"
                     },
                     "SessionHostCount": {
                         "value": "[parameters('SessionHostCount')]"
@@ -616,7 +702,7 @@
                         "value": "[parameters('SessionHostIndex')]"
                     },
                     "StorageAccountName": {
-                        "value": "[parameters('StorageAccountName')]"
+                        "value": "[variables('StorageAccountName')]"
                     },
                     "Subnet": {
                         "value": "[parameters('Subnet')]"
@@ -633,8 +719,8 @@
                     "VirtualNetworkResourceGroup": {
                         "value": "[parameters('VirtualNetworkResourceGroup')]"
                     },
-                    "VmNamePrefix": {
-                        "value": "[parameters('VmNamePrefix')]"
+                    "VmName": {
+                        "value": "[variables('VmName')]"
                     },
                     "VmPassword": {
                         "value": "[parameters('VmPassword')]"
@@ -655,7 +741,7 @@
             "apiVersion": "2019-10-01",
             "name": "[concat('FSLogix_', parameters('Timestamp'))]",
             "tags": "[parameters('Tags')]",
-            "resourceGroup": "[parameters('ResourceGroups')[0]]",
+            "resourceGroup": "[variables('ResourceGroups')[0]]",
             "dependsOn": [
                 "rgLoop",
                 "[concat('HostPool_', parameters('Timestamp'))]"
@@ -668,10 +754,10 @@
                 },
                 "parameters": {
                     "DomainAdminPassword": {
-                        "value": "[parameters('DomainAdminPassword')]"
+                        "value": "[parameters('DomainJoinPassword')]"
                     },
                     "DomainAdminUsername": {
-                        "value": "[parameters('DomainAdminUsername')]"
+                        "value": "[parameters('DomainJoinUsername')]"
                     },
                     "DomainControllerName": {
                         "value": "[parameters('DomainControllerName')]"
@@ -686,13 +772,13 @@
                         "value": "[parameters('FileShareQuota')]"
                     },
                     "HostPoolName": {
-                        "value": "[parameters('HostPoolName')]"
+                        "value": "[variables('HostPoolName')]"
                     },
                     "KerberosEncryptionType": {
                         "value": "[parameters('KerberosEncryptionType')]"
                     },
                     "Location": {
-                        "value": "[parameters('Location')]"
+                        "value": "[variables('Location')]"
                     },
                     "Netbios": {
                         "value": "[variables('Netbios')]"
@@ -704,7 +790,7 @@
                         "value": "[parameters('SecurityPrincipalId')]"
                     },
                     "StorageAccountName": {
-                        "value": "[parameters('StorageAccountName')]"
+                        "value": "[variables('StorageAccountName')]"
                     },
                     "StorageAccountSku": {
                         "value": "[parameters('StorageAccountSku')]"
@@ -725,7 +811,7 @@
             "apiVersion": "2019-10-01",
             "name": "[concat('FileSharePermissions_', parameters('Timestamp'))]",
             "tags": "[parameters('Tags')]",
-            "resourceGroup": "[parameters('ResourceGroups')[1]]",
+            "resourceGroup": "[variables('ResourceGroups')[1]]",
             "dependsOn": [
                 "rgLoop",
                 "[concat('HostPool_', parameters('Timestamp'))]",
@@ -740,10 +826,10 @@
                 },
                 "parameters": {
                     "HostPoolName": {
-                        "value": "[parameters('HostPoolName')]"
+                        "value": "[variables('HostPoolName')]"
                     },
                     "Location": {
-                        "value": "[parameters('Location')]"
+                        "value": "[variables('Location')]"
                     },
                     "Netbios": {
                         "value": "[variables('Netbios')]"
@@ -758,10 +844,10 @@
                         "value": "[parameters('SessionHostIndex')]"
                     },
                     "StorageAccountName": {
-                        "value": "[parameters('StorageAccountName')]"
+                        "value": "[variables('StorageAccountName')]"
                     },
                     "StorageAccountResourceGroupName": {
-                        "value": "[parameters('ResourceGroups')[0]]"
+                        "value": "[variables('ResourceGroups')[0]]"
                     },
                     "Tags": {
                         "value": "[parameters('Tags')]"
@@ -770,7 +856,7 @@
                         "value": "[parameters('Timestamp')]"
                     },
                     "VmName": {
-                        "value": "[parameters('VmNamePrefix')]"
+                        "value": "[variables('VmName')]"
                     }
                 }
             }

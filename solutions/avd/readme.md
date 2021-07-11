@@ -1,6 +1,6 @@
 # Azure Virtual Desktop solution
 
-This solution will deploy Azure Virtual Desktop in an Azure subscription.  Depending on the options selected, either a personal or pooled host pool can be deployed with this solution.  The pooled option will deploy an App Group with a role assignment and deploy most of the requirements for FSLogix. There is one manual task for a pooled host pool that must be completed post deployment, a role assignment on the file share.  It does not work in an ARM Template, whether using a role assignment resource or a deployment script.  
+This solution will deploy Azure Virtual Desktop in an Azure subscription.  Depending on the options selected, either a personal or pooled host pool can be deployed with this solution.  The pooled option will deploy an App Group with a role assignment and deploy most of the requirements for FSLogix.  The naming for all the resources follows Microsoft's best practice guidance using a resource type prefix for all resources with hyphen following the resource type to easily parse names.
 
 This solution contains many features that are usually enabled manually after deploying a AVD host pool.  Those features are:
 
@@ -8,6 +8,7 @@ This solution contains many features that are usually enabled manually after dep
 - FSLogix:
   - Configures the recommended registry settings on the session hosts.
   - Deploys an Azure File Share, domain joins the Storage Account, and sets the NTFS permissions.
+- Scaling Automation if the host pool is "pooled".
 - Start VM On Connect: configures the feature for the AVD host pool.
 - VDI Optimization Script: this script will remove unnecessary apps, services, and processes from your Windows 10 OS, improving performance and resource utilization.
 - AVD Monitoring Solution:
@@ -16,11 +17,12 @@ This solution contains many features that are usually enabled manually after dep
   - Deploys diagnostic settings on the AVD host pool and workspace.
 - Graphics drivers: if deploying an AVD appropriate VM SKU that supports a GPU, the required extension containing the graphics driver will be deployed automatically.
 
-To successfully deploy this solution, you will need to ensure your scenario matches the assumptions below and you will need to complete the prerequisites.
-
 ## Assumptions
 
-- Acquired the appropriate licensing for the operating system
+To successfully deploy this solution, you will need to ensure your scenario matches the assumptions below:
+
+- Use an AVD supported marketplace image.
+- Acquired the appropriate licensing for the operating system.
 - Landing zone deployed in Azure:
   - Virtual network and subnet(s)
   - ADDS synchronized with Azure AD
@@ -28,7 +30,14 @@ To successfully deploy this solution, you will need to ensure your scenario matc
 
 ## Prerequisites
 
+To successfully deploy this solution, you will need to first ensure the following prerequisites have been completed:
+
 - Create a Security Group in ADDS for your AVD users.  Once the object has synchronized to Azure AD, make note of the name and object ID in Azure AD.  This will be needed to deploy the solution.
+
+## Post Deployment Requirements
+
+- Add an RBAC assignment on the Azure file share giving your AVD users the SMB Contributor role.  Your users will be unable to use FSLogix until this RBAC assignment has been completed.
+- Create a Run As account in the Automation Account using the default name, "AzureRunAsConnection".  The Scaling Automation solution will fail to operate until this has been completed.
 
 ## ARM Template Parameters
 

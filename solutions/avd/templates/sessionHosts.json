@@ -53,9 +53,6 @@
         "Netbios": {
             "type": "string"
         },
-        "NicNamePrefix": {
-            "type": "string"
-        },
         "Optimizations": {
             "type": "string"
         },
@@ -227,7 +224,7 @@
                 "networkProfile": {
                     "networkInterfaces": [
                         {
-                            "id": "[resourceId('Microsoft.Network/networkInterfaces', concat(parameters('NicNamePrefix'), padLeft(copyIndex(parameters('SessionHostIndex')), 3, '0')))]"
+                            "id": "[resourceId('Microsoft.Network/networkInterfaces', concat('nic-', parameters('resourceNameSuffix'), padLeft(copyIndex(parameters('SessionHostIndex')), 3, '0')))]"
                         }
                     ]
                 },

@@ -224,10 +224,10 @@
                     "contentVersion": "1.0.0.0"
                 },
                 "parameters": {
-                    "DomainAdminPassword": {
+                    "DomainJoinPassword": {
                         "value": "[parameters('DomainJoinPassword')]"
                     },
-                    "DomainAdminUsername": {
+                    "DomainJoinUsername": {
                         "value": "[parameters('DomainJoinUsername')]"
                     },
                     "DomainControllerName": {

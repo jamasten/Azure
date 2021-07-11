@@ -44,7 +44,7 @@ function Write-Log
     $Entry | Out-File -FilePath $Path -Append
 }
 
-Write-Log -Message "Validating variables: DomainAdminPassword='$DomainJoinPassword', DomainAdminUsername='$DomainJoinUsername', DomainControllerName='$DomainControllerName', Environment='$Environment', KerberosEncryptionType='$KerberosEncryptionType', Key='$Key', Netbios='$Netbios', OuPath='$OuPath', StorageAccountName='$StorageAccountName'" -Type INFO
+Write-Log -Message "Validating variables: DomainJoinPassword='$DomainJoinPassword', DomainJoinUsername='$DomainJoinUsername', DomainControllerName='$DomainControllerName', Environment='$Environment', KerberosEncryptionType='$KerberosEncryptionType', Key='$Key', Netbios='$Netbios', OuPath='$OuPath', StorageAccountName='$StorageAccountName'" -Type INFO
 
 $Username = $Netbios + '\' + $DomainJoinUsername
 $Password = ConvertTo-SecureString -String $DomainJoinPassword -AsPlainText -Force

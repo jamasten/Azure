@@ -109,7 +109,8 @@
             "Standard_NV16as_v4",
             "Standard_NV32as_v4"
         ],
-        "AvailabilitySetId": { "id": "[resourceId('Microsoft.Compute/availabilitySets', parameters('AvailabilitySetName'))]" },
+        "AvailabilitySetName": "[concat('as-', parameters('ResourceNameSuffix'))]",
+        "AvailabilitySetId": { "id": "[resourceId('Microsoft.Compute/availabilitySets', variables('AvailabilitySetName'))]" },
         "NvidiaVmSizes": [
             "Standard_NV6",
             "Standard_NV12",
@@ -142,7 +143,7 @@
             "condition": "[variables('PooledHostPool')]",
             "type": "Microsoft.Compute/availabilitySets",
             "apiVersion": "2019-07-01",
-            "name": "[concat('as-', parameters('ResourceNameSuffix'))]",
+            "name": "[variables('AvailabilitySetName')]",
             "location": "[parameters('Location')]",
             "tags": "[parameters('Tags')]",
             "sku": {
@@ -190,7 +191,7 @@
             "location": "[parameters('Location')]",
             "tags": "[parameters('Tags')]",
             "dependsOn": [
-                "[parameters('AvailabilitySetName')]",
+                "[variables('AvailabilitySetName')]",
                 "nicLoop"
             ],
             "copy": {

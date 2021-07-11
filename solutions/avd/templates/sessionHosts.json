@@ -92,7 +92,7 @@
         "VirtualNetworkResourceGroup": {
             "type": "string"
         },
-        "VmNamePrefix": {
+        "VmName": {
             "type": "string"
         },
         "VmPassword": {
@@ -189,7 +189,7 @@
             "comments": "---------- VIRTUAL MACHINES ----------",
             "type": "Microsoft.Compute/virtualMachines",
             "apiVersion": "2020-12-01",
-            "name": "[concat(parameters('VmNamePrefix'), padLeft(copyIndex(parameters('SessionHostIndex')), 3, '0'))]",
+            "name": "[concat(parameters('VmName'), padLeft(copyIndex(parameters('SessionHostIndex')), 3, '0'))]",
             "location": "[parameters('Location')]",
             "tags": "[parameters('Tags')]",
             "dependsOn": [
@@ -216,7 +216,7 @@
                     "dataDisks": []
                 },
                 "osProfile": {
-                    "computerName": "[concat(parameters('VmNamePrefix'), padLeft(copyIndex(parameters('SessionHostIndex')), 3, '0'))]",
+                    "computerName": "[concat(parameters('VmName'), padLeft(copyIndex(parameters('SessionHostIndex')), 3, '0'))]",
                     "adminUsername": "[parameters('VmUsername')]",
                     "adminPassword": "[parameters('VmPassword')]",
                     "windowsConfiguration": {
@@ -248,7 +248,7 @@
                     "apiVersion": "2017-03-30",
                     "location": "[resourceGroup().location]",
                     "dependsOn": [
-                        "[concat(parameters('VmNamePrefix'), padLeft(copyIndex(parameters('SessionHostIndex')), 3, '0'))]"
+                        "[concat(parameters('VmName'), padLeft(copyIndex(parameters('SessionHostIndex')), 3, '0'))]"
                     ],
                     "properties": {
                         "publisher": "Microsoft.EnterpriseCloud.Monitoring",
@@ -271,7 +271,7 @@
                     "location": "[parameters('Location')]",
                     "tags": "[parameters('Tags')]",
                     "dependsOn": [
-                        "[concat(parameters('VmNamePrefix'), padLeft(copyIndex(parameters('SessionHostIndex')), 3, '0'))]",
+                        "[concat(parameters('VmName'), padLeft(copyIndex(parameters('SessionHostIndex')), 3, '0'))]",
                         "MicrosoftMonitoringAgent"
                     ],
                     "properties": {
@@ -299,7 +299,7 @@
                     "location": "[parameters('Location')]",
                     "tags": "[parameters('Tags')]",
                     "dependsOn": [
-                        "[concat(parameters('VmNamePrefix'), padLeft(copyIndex(parameters('SessionHostIndex')), 3, '0'))]",
+                        "[concat(parameters('VmName'), padLeft(copyIndex(parameters('SessionHostIndex')), 3, '0'))]",
                         "Dsc"
                     ],
                     "properties": {
@@ -328,7 +328,7 @@
                     "name": "CustomScriptExtension",
                     "location": "[parameters('location')]",
                     "dependsOn": [
-                        "[concat(parameters('VmNamePrefix'), padLeft(copyIndex(parameters('SessionHostIndex')), 3, '0'))]",
+                        "[concat(parameters('VmName'), padLeft(copyIndex(parameters('SessionHostIndex')), 3, '0'))]",
                         "Dsc",
                         "JsonADDomainExtension"
                     ],
@@ -361,7 +361,7 @@
                     "location": "[parameters('Location')]",
                     "tags": "[parameters('Tags')]",
                     "dependsOn": [
-                        "[concat(parameters('VmNamePrefix'), padLeft(copyIndex(parameters('SessionHostIndex')), 3, '0'))]"
+                        "[concat(parameters('VmName'), padLeft(copyIndex(parameters('SessionHostIndex')), 3, '0'))]"
                     ],
                     "properties": {
                         "publisher": "Microsoft.HpcCompute",
@@ -380,7 +380,7 @@
                     "location": "[parameters('Location')]",
                     "tags": "[parameters('Tags')]",
                     "dependsOn": [
-                        "[concat(parameters('VmNamePrefix'), padLeft(copyIndex(parameters('SessionHostIndex')), 3, '0'))]"
+                        "[concat(parameters('VmName'), padLeft(copyIndex(parameters('SessionHostIndex')), 3, '0'))]"
                     ],
                     "properties": {
                         "publisher": "Microsoft.HpcCompute",

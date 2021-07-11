@@ -650,6 +650,9 @@
                     "EphemeralOsDisk": {
                         "value": "[parameters('EphemeralOsDisk')]"
                     },
+                    "HostPoolName": {
+                        "value": "[variables('HostPoolName')]"
+                    },
                     "HostPoolResourceGroupName": {
                         "value": "[variables('ResourceGroups')[0]]"
                     },

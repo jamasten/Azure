@@ -2,16 +2,17 @@
     "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
-        "DomainAdminPassword": {
-            "type": "securestring"
-        },
-        "DomainAdminUsername": {
-            "type": "string"
-        },
+
         "DomainControllerName": {
             "type": "string"
         },
         "DomainControllerResourceGroupName": {
+            "type": "string"
+        },
+        "DomainJoinPassword": {
+            "type": "securestring"
+        },
+        "DomainJoinUsername": {
             "type": "string"
         },
         "DomainName": {
@@ -224,10 +225,10 @@
                 },
                 "parameters": {
                     "DomainAdminPassword": {
-                        "value": "[parameters('DomainAdminPassword')]"
+                        "value": "[parameters('DomainJoinPassword')]"
                     },
                     "DomainAdminUsername": {
-                        "value": "[parameters('DomainAdminUsername')]"
+                        "value": "[parameters('DomainJoinUsername')]"
                     },
                     "DomainControllerName": {
                         "value": "[parameters('DomainControllerName')]"

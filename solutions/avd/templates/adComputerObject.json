@@ -2,13 +2,13 @@
     "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
-        "DomainAdminPassword": {
-            "type": "securestring"
-        },
-        "DomainAdminUsername": {
+        "DomainControllerName": {
             "type": "string"
         },
-        "DomainControllerName": {
+        "DomainJoinPassword": {
+            "type": "securestring"
+        },
+        "DomainJoinUsername": {
             "type": "string"
         },
         "KerberosEncryptionType": {
@@ -50,7 +50,7 @@
                     "timestamp": "[parameters('Timestamp')]"
                 },
                 "protectedSettings": {
-                    "commandToExecute": "[concat('powershell -ExecutionPolicy Unrestricted -File New-ADStorageAccount.ps1 -DomainAdminPassword ', parameters('DomainAdminPassword'), ' -DomainAdminUsername ', parameters('DomainAdminUsername'), ' -DomainControllerName ', parameters('DomainControllerName'), ' -Environment ', environment().name, ' -KerberosEncryptionType ', parameters('KerberosEncryptionType'), ' -Key ''', parameters('KerberosKey'), ''' -Netbios ', parameters('Netbios'), ' -StorageAccountName ', parameters('StorageAccountName'))]"
+                    "commandToExecute": "[concat('powershell -ExecutionPolicy Unrestricted -File New-ADStorageAccount.ps1 -DomainJoinPassword ', parameters('DomainJoinPassword'), ' -DomainJoinUsername ', parameters('DomainJoinUsername'), ' -DomainControllerName ', parameters('DomainControllerName'), ' -Environment ', environment().name, ' -KerberosEncryptionType ', parameters('KerberosEncryptionType'), ' -Key ''', parameters('KerberosKey'), ''' -Netbios ', parameters('Netbios'), ' -StorageAccountName ', parameters('StorageAccountName'))]"
                 }
             }
         }

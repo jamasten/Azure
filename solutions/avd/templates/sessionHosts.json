@@ -5,19 +5,16 @@
         "AvailabilitySetName": {
             "type": "string"
         },
-        "DiskNamePrefix": {
-            "type": "string"
-        },
         "DiskSku": {
             "type": "string"
         },
         "DomainName": {
             "type": "string"
         },
-        "DomainAdminPassword": {
+        "DomainJoinPassword": {
             "type": "securestring"
         },
-        "DomainAdminUsername": {
+        "DomainJoinUsername": {
             "type": "string"
         },
         "EphemeralOsDisk": {
@@ -66,6 +63,9 @@
             "type": "string"
         },
         "OuPath": {
+            "type": "string"
+        },
+        "ResourceNameSuffix": {
             "type": "string"
         },
         "SessionHostCount": {
@@ -145,7 +145,7 @@
             "condition": "[variables('PooledHostPool')]",
             "type": "Microsoft.Compute/availabilitySets",
             "apiVersion": "2019-07-01",
-            "name": "[parameters('AvailabilitySetName')]",
+            "name": "[concat('as-', parameters('ResourceNameSuffix'))]",
             "location": "[parameters('Location')]",
             "tags": "[parameters('Tags')]",
             "sku": {
@@ -160,7 +160,7 @@
             "comments": "---------- NETWORK INTERFACES ----------",
             "type": "Microsoft.Network/networkInterfaces",
             "apiVersion": "2020-05-01",
-            "name": "[concat(parameters('NicNamePrefix'), padLeft(copyIndex(parameters('SessionHostIndex')), 3, '0'))]",
+            "name": "[concat('nic-', parameters('resourceNameSuffix'), padLeft(copyIndex(parameters('SessionHostIndex')), 3, '0'))]",
             "location": "[parameters('Location')]",
             "tags": "[parameters('Tags')]",
             "copy": {
@@ -310,13 +310,13 @@
                         "autoUpgradeMinorVersion": true,
                         "settings": {
                             "Name": "[parameters('DomainName')]",
-                            "User": "[concat(parameters('Netbios'), '\\', parameters('DomainAdminUsername'))]",
+                            "User": "[concat(parameters('Netbios'), '\\', parameters('DomainJoinUsername'))]",
                             "Restart": "true",
                             "Options": "3",
                             "OUPath": "[parameters('OuPath')]"
                         },
                         "protectedSettings": {
-                            "Password": "[parameters('DomainAdminPassword')]"
+                            "Password": "[parameters('DomainJoinPassword')]"
                         }
                     }
                 },

@@ -5,9 +5,6 @@
         "AppGroupName": {
             "type": "string"
         },
-        "AppGroupType": {
-            "type": "string"
-        },
         "CustomRdpProperty": {
             "type": "string"
         },
@@ -33,9 +30,6 @@
             "type": "int"
         },
         "newOrExisting": {
-            "type": "string"
-        },
-        "PreferredAppGroupType": {
             "type": "string"
         },
         "SecurityPrincipalId": {
@@ -519,7 +513,7 @@
                     "expirationTime": "[dateTimeAdd(parameters('Timestamp'), 'PT2H')]",
                     "registrationTokenOperation": "Update"
                 },
-                "preferredAppGroupType": "[parameters('PreferredAppGroupType')]",
+                "preferredAppGroupType": "Desktop",
                 "customRdpProperty": "[parameters('CustomRdpProperty')]",
                 "personalDesktopAssignmentType": "[if(contains(parameters('HostPoolType'), 'Personal'), split(parameters('HostPoolType'), ' ')[1], null())]",
                 "startVMOnConnect": "[parameters('StartVmOnConnect')]"
@@ -580,7 +574,7 @@
             ],
             "properties": {
                 "hostPoolArmPath": "[resourceId('Microsoft.DesktopVirtualization/hostpools', parameters('HostPoolName'))]",
-                "applicationGroupType": "[parameters('AppGroupType')]"
+                "applicationGroupType": "Desktop"
             },
             "resources": [
                 {

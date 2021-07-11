@@ -509,7 +509,7 @@
                 }
             }
         },
-                {
+        {
             "comments": "---------- LINKED DEPLOYMENT > SCALING AUTOMATION > AUTOMATION ACCOUNT ----------",
             "condition": "[equals(split(parameters('HostPoolType'), ' ')[0], 'Pooled')]",
             "type": "Microsoft.Resources/deployments",
@@ -753,17 +753,17 @@
                     "contentVersion": "1.0.0.0"
                 },
                 "parameters": {
-                    "DomainAdminPassword": {
-                        "value": "[parameters('DomainJoinPassword')]"
-                    },
-                    "DomainAdminUsername": {
-                        "value": "[parameters('DomainJoinUsername')]"
-                    },
                     "DomainControllerName": {
                         "value": "[parameters('DomainControllerName')]"
                     },
                     "DomainControllerResourceGroupName": {
                         "value": "[parameters('DomainControllerResourceGroupName')]"
+                    },
+                    "DomainJoinPassword": {
+                        "value": "[parameters('DomainJoinPassword')]"
+                    },
+                    "DomainJoinUsername": {
+                        "value": "[parameters('DomainJoinUsername')]"
                     },
                     "DomainName": {
                         "value": "[parameters('DomainName')]"

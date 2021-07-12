@@ -155,7 +155,7 @@
                 "[resourceId('Microsoft.Storage/storageAccounts/fileServices', parameters('StorageAccountName'), 'default')]"
             ],
             "properties": {
-                "accessTier": "TransactionOptimized",
+                "accessTier": "[if(equals(parameters('StorageAccountSku'), 'Premium_LRS'), 'Premium', 'TransactionOptimized')]",
                 "shareQuota": "[parameters('FileShareQuota')]",
                 "enabledProtocols": "SMB"
             }

@@ -185,10 +185,10 @@
         "ResourceNameSuffix": {
             "type": "string",
             "metadata": {
-                "description": "This suffix is used in conjunction with the resource type prefixes to name Azure resources.  Storage Accounts are more difficult to name than other resources so only use alphanumeric characters for the suffix."
+                "description": "This suffix is used in conjunction with the resource type prefixes to name Azure resources.  The only exception is the Storage Account since the value must globally unique and has stricter character requirements."
             },
             "maxLength": 10,
-            "defaultValue": "pocdeus"
+            "defaultValue": "avdpocdeus"
         },
         "ScalingBeginPeakTime": {
             "type": "string",
@@ -389,7 +389,7 @@
         ],
         "RoleAssignmentName": "[guid(subscription().id, 'WindowsVirtualDesktop')]",
         "RoleDefinitionName": "[guid(subscription().id, 'StartVmOnConnect')]",
-        "StorageAccountName": "[concat('stor', parameters('ResourceNameSuffix'))]",
+        "StorageAccountName": "[concat('stor', substring(replace(uniqueString(subscription().id, variables('ResourceGroups')[0]), '-', ''), 0, 11))]",
         "VmName": "[concat('vm', parameters('ResourceNameSuffix'))]",
         "WorkspaceName": "[concat('ws-', parameters('ResourceNameSuffix'))]"
     },

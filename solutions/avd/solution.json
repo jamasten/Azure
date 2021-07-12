@@ -384,8 +384,8 @@
         "LogicAppName": "[concat('la-', parameters('ResourceNameSuffix'))]",
         "Netbios": "[split(parameters('DomainName'), '.')[0]]",
         "ResourceGroups": [
-            "[concat('rg-infra-', parameters('ResourceNameSuffix'))]",
-            "[concat('rg-hosts-', parameters('ResourceNameSuffix'))]"
+            "[concat('rg-', parameters('ResourceNameSuffix'), '-infra')]",
+            "[concat('rg-', parameters('ResourceNameSuffix'), '-hosts')]"
         ],
         "RoleAssignmentName": "[guid(subscription().id, 'WindowsVirtualDesktop')]",
         "RoleDefinitionName": "[guid(subscription().id, 'StartVmOnConnect')]",

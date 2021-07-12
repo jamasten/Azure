@@ -12,7 +12,7 @@
         "DiskSku": {
             "type": "string",
             "metadata": {
-                "description": "The storage SKU for the AVD session host disks."
+                "description": "The storage SKU for the AVD session host disks.  Production deployments should use 'Premium_LRS'."
             },
             "allowedValues": [
                 "Standard_LRS",
@@ -63,7 +63,7 @@
         "FileShareQuota": {
             "type": "int",
             "metadata": {
-                "description": "The file share quota for the file share on the Azure Storage Account."
+                "description": "The file share quota in GB for the file share on the Azure Storage Account."
             },
             "defaultValue": 100
         },
@@ -159,10 +159,14 @@
         },
         "newOrExisting": {
             "type": "string",
+            "metadata": {
+                "description": "Sets whether this is the first deployment of this solution or is a follow up deployment to add new or additional AVD session hosts."
+            },
             "allowedValues": [
                 "new",
                 "existing"
-            ]
+            ],
+            "defaultValue": "new"
         },
         "Optimizations": {
             "type": "string",
@@ -181,10 +185,10 @@
         "ResourceNameSuffix": {
             "type": "string",
             "metadata": {
-                "description": "description"
+                "description": "This suffix is used in conjunction with the resource type prefixes to name Azure resources.  Storage Accounts are more difficult to name than other resources so only use alphanumeric characters for the suffix."
             },
-            "maxLength": 11,
-            "defaultValue": "poc-d-eus"
+            "maxLength": 10,
+            "defaultValue": "pocdeus"
         },
         "ScalingBeginPeakTime": {
             "type": "string",
@@ -226,21 +230,21 @@
             "metadata": {
                 "description": "The name of the Tag associated with VMs you don't want to be managed by this scaling tool"
             },
-            "defaultValue": ""
+            "defaultValue": "Maintenance"
         },
         "ScalingMinimumNumberOfRdsh": {
             "type": "string",
             "metadata": {
-                "description": "The minimum number of session host VMs to keep running during off-peak hours"
+                "description": "The minimum number of session host VMs to keep running during off-peak hours. The scaling tool will not work if all VM's are turned off and the Start VM On Connect solution is not enabled."
             },
-            "defaultValue": "1"
+            "defaultValue": "0"
         },
         "ScalingRecurrenceInterval": {
             "type": "int",
-            "defaultValue": 15,
             "metadata": {
                 "description": "Specifies the recurrence interval of the job in minutes"
-            }
+            },
+            "defaultValue": 15
         },
         "ScalingSessionThresholdPerCPU": {
             "type": "string",
@@ -374,7 +378,6 @@
     "variables": {
         "AppGroupName": "[concat('dag-', parameters('ResourceNameSuffix'))]",
         "AutomationAccountName": "[concat('aa-', parameters('ResourceNameSuffix'))]",
-
         "HostPoolName": "[concat('hp-', parameters('ResourceNameSuffix'))]",
         "Location": "[deployment().location]",
         "LogAnalyticsWorkspaceName": "[concat('law-', parameters('ResourceNameSuffix'))]",

@@ -554,7 +554,8 @@
             "tags": "[parameters('Tags')]",
             "resourceGroup": "[variables('ResourceGroups')[0]]",
             "dependsOn": [
-                "rgLoop"
+                "rgLoop",
+                "[concat('ScalingAutomation_AutomationAccount_', parameters('Timestamp'))]"
             ],
             "properties": {
                 "mode": "Incremental",

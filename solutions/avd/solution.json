@@ -44,7 +44,7 @@
         "DomainJoinUsername": {
             "type": "string",
             "metadata": {
-                "description": "The username of the privileged account to domain join the AVD session hosts to your domain. Only the username is required. Do not add the Netbios value."
+                "description": "The username of the privileged account to domain join the AVD session hosts to your domain. Only the username is required. Do not add the Netbios value or UPN suffix.  This should be an account the resides within the domain you are joining."
             }
         },
         "DomainName": {

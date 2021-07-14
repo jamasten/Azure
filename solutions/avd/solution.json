@@ -19,21 +19,7 @@
                 "StandardSSD_LRS",
                 "Premium_LRS"
             ],
-            "defaultValue": "Premium_LRS"
-        },
-        "DomainControllerName": {
-            "type": "string",
-            "metadata": {
-                "description": "The name of a Domain Controller in Azure for joining the Azure Storage Account to the domain."
-            },
-            "defaultValue": "vm-dc-d-eus-0"
-        },
-        "DomainControllerResourceGroupName": {
-            "type": "string",
-            "metadata": {
-                "description": "The resource group name of a Domain Controller in Azure for joining the Azure Storage Account to the domain."
-            },
-            "defaultValue": "rg-identity-d-eastus"
+            "defaultValue": "Standard_LRS"
         },
         "DomainJoinPassword": {
             "type": "securestring",
@@ -59,13 +45,6 @@
             "metadata": {
                 "description": "Choose whether the session host uses an ephemeral disk for the operating system.  Be sure to select a VM SKU that offers a temporary disk that meets your image requirements."
             }
-        },
-        "FileShareQuota": {
-            "type": "int",
-            "metadata": {
-                "description": "The file share quota in GB for the file share on the Azure Storage Account."
-            },
-            "defaultValue": 100
         },
         "HostPoolType": {
             "type": "string",
@@ -120,10 +99,11 @@
                 "description": "The Active Directory computer object Kerberos encryption type for the Azure Storage Account."
             },
             "allowedValues": [
+                "AES256",
                 "RC4",
-                "AES256"
+                "AES256,RC4"
             ],
-            "defaultValue": "RC4"
+            "defaultValue": "AES256,RC4"
         },
         "LogAnalyticsWorkspaceRetention": {
             "type": "int",
@@ -757,12 +737,6 @@
                     "contentVersion": "1.0.0.0"
                 },
                 "parameters": {
-                    "DomainControllerName": {
-                        "value": "[parameters('DomainControllerName')]"
-                    },
-                    "DomainControllerResourceGroupName": {
-                        "value": "[parameters('DomainControllerResourceGroupName')]"
-                    },
                     "DomainJoinPassword": {
                         "value": "[parameters('DomainJoinPassword')]"
                     },
@@ -771,9 +745,6 @@
                     },
                     "DomainName": {
                         "value": "[parameters('DomainName')]"
-                    },
-                    "FileShareQuota": {
-                        "value": "[parameters('FileShareQuota')]"
                     },
                     "HostPoolName": {
                         "value": "[variables('HostPoolName')]"
@@ -790,6 +761,9 @@
                     "newOrExisting": {
                         "value": "[parameters('newOrExisting')]"
                     },
+                    "ResourceNameSuffix": {
+                        "value": "[parameters('ResourceNameSuffix')]"
+                    },
                     "SecurityPrincipalId": {
                         "value": "[parameters('SecurityPrincipalId')]"
                     },
@@ -799,68 +773,29 @@
                     "StorageAccountSku": {
                         "value": "[parameters('StorageAccountSku')]"
                     },
-                    "Tags": {
-                        "value": "[parameters('Tags')]"
-                    },
-                    "Timestamp": {
-                        "value": "[parameters('Timestamp')]"
-                    }
-                }
-            }
-        },
-        {
-            "comments": "---------- LINKED DEPLOYMENT > FILE SHARE NTFS PERMISSIONS ----------",
-            "condition": "[equals(split(parameters('HostPoolType'), ' ')[0], 'Pooled')]",
-            "type": "Microsoft.Resources/deployments",
-            "apiVersion": "2019-10-01",
-            "name": "[concat('FileSharePermissions_', parameters('Timestamp'))]",
-            "tags": "[parameters('Tags')]",
-            "resourceGroup": "[variables('ResourceGroups')[1]]",
-            "dependsOn": [
-                "rgLoop",
-                "[concat('HostPool_', parameters('Timestamp'))]",
-                "[concat('SessionHosts_', parameters('Timestamp'))]",
-                "[concat('FSLogix_', parameters('Timestamp'))]"
-            ],
-            "properties": {
-                "mode": "Incremental",
-                "templateLink": {
-                    "uri": "https://raw.githubusercontent.com/jamasten/Azure/master/solutions/avd/templates/fileSharePermissions.json",
-                    "contentVersion": "1.0.0.0"
-                },
-                "parameters": {
-                    "HostPoolName": {
-                        "value": "[variables('HostPoolName')]"
-                    },
-                    "Location": {
-                        "value": "[variables('Location')]"
-                    },
-                    "Netbios": {
-                        "value": "[variables('Netbios')]"
-                    },
-                    "newOrExisting": {
-                        "value": "[parameters('newOrExisting')]"
-                    },
-                    "SecurityPrincipalName": {
-                        "value": "[parameters('SecurityPrincipalName')]"
-                    },
-                    "SessionHostIndex": {
-                        "value": "[parameters('SessionHostIndex')]"
-                    },
-                    "StorageAccountName": {
-                        "value": "[variables('StorageAccountName')]"
-                    },
-                    "StorageAccountResourceGroupName": {
-                        "value": "[variables('ResourceGroups')[0]]"
+                    "Subnet": {
+                        "value": "[parameters('Subnet')]"
                     },
                     "Tags": {
                         "value": "[parameters('Tags')]"
                     },
                     "Timestamp": {
                         "value": "[parameters('Timestamp')]"
+                    },
+                    "VirtualNetwork": {
+                        "value": "[parameters('VirtualNetwork')]"
+                    },
+                    "VirtualNetworkResourceGroup": {
+                        "value": "[parameters('VirtualNetworkResourceGroup')]"
                     },
                     "VmName": {
                         "value": "[variables('VmName')]"
+                    },
+                    "VmPassword": {
+                        "value": "[parameters('VmPassword')]"
+                    },
+                    "VmUsername": {
+                        "value": "[parameters('VmUsername')]"
                     }
                 }
             }

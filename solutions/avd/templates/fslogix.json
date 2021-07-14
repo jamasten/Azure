@@ -2,13 +2,6 @@
     "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
-
-        "DomainControllerName": {
-            "type": "string"
-        },
-        "DomainControllerResourceGroupName": {
-            "type": "string"
-        },
         "DomainJoinPassword": {
             "type": "securestring"
         },
@@ -18,13 +11,7 @@
         "DomainName": {
             "type": "string"
         },
-        "FileShareQuota": {
-            "type": "int"
-        },
         "HostPoolName": {
-            "type": "string"
-        },
-        "KerberosEncryptionType": {
             "type": "string"
         },
         "Location": {
@@ -36,6 +23,9 @@
         "newOrExisting": {
             "type": "string"
         },
+        "ResourceNameSuffix": {
+            "type": "string"
+        },
         "SecurityPrincipalId": {
             "type": "string"
         },
@@ -45,18 +35,37 @@
         "StorageAccountSku": {
             "type": "string"
         },
+        "Subnet": {
+            "type": "string"
+        },
         "Tags": {
             "type": "object"
         },
         "Timestamp": {
             "type": "string"
+        },
+        "VirtualNetwork": {
+            "type": "string"
+        },
+        "VirtualNetworkResourceGroup": {
+            "type": "string"
+        },
+        "VmName": {
+            "type": "string"
+        },
+        "VmPassword": {
+            "type": "securestring"
+        },
+        "VmUsername": {
+            "type": "string"
         }
     },
-    "functions": [],
     "variables": {
         "ManagedID": "uami-fslogix",
+        "NicName": "[concat('nic-', parameters('resourceNameSuffix'), '-mgt')]",
         "ResourceGroupName": "[resourceGroup().name]",
-        "RoleAssignmentName": "[guid(parameters('StorageAccountName'), '0')]"
+        "RoleAssignmentName": "[guid(parameters('StorageAccountName'), '0')]",
+        "VmName": "[concat(parameters('VmName'), 'mgt')]"
     },
     "resources": [
         {
@@ -101,8 +110,6 @@
             "kind": "[if(equals(split(parameters('StorageAccountSku'), '_')[0], 'Standard'), 'StorageV2', 'FileStorage')]",
             "properties": {
                 "minimumTlsVersion": "TLS1_2",
-                "allowBlobPublicAccess": false,
-                "largeFileSharesState": "Enabled",
                 "networkAcls": {
                     "bypass": "AzureServices",
                     "virtualNetworkRules": [],
@@ -113,10 +120,6 @@
                 "encryption": {
                     "services": {
                         "file": {
-                            "keyType": "Account",
-                            "enabled": true
-                        },
-                        "blob": {
                             "keyType": "Account",
                             "enabled": true
                         }
@@ -156,154 +159,152 @@
             ],
             "properties": {
                 "accessTier": "[if(equals(parameters('StorageAccountSku'), 'Premium_LRS'), 'Premium', 'TransactionOptimized')]",
-                "shareQuota": "[parameters('FileShareQuota')]",
+                "shareQuota": 100,
                 "enabledProtocols": "SMB"
             }
         },
         {
-            "comments": "---------- DEPLOYMENT SCRIPT > STORAGE ACCOUNT KERBEROS KEY ----------",
-            "condition": "[equals(parameters('newOrExisting'), 'new')]",
-            "name": "ds-kerberosKey",
-            "type": "Microsoft.Resources/deploymentScripts",
-            "apiVersion": "2020-10-01",
-            "identity": {
-                "type": "UserAssigned",
-                "userAssignedIdentities": {
-                    "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('ManagedID'))]": {}
-                }
-            },
+            "comments": "---------- NETWORK INTERFACES ----------",
+            "type": "Microsoft.Network/networkInterfaces",
+            "apiVersion": "2020-05-01",
+            "name": "[variables('NicName')]",
             "location": "[parameters('Location')]",
-            "kind": "AzurePowerShell",
             "tags": "[parameters('Tags')]",
-            "dependsOn": [
-                "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('ManagedID'))]",
-                "[resourceId('Microsoft.Authorization/roleAssignments', variables('RoleAssignmentName'))]"
-            ],
             "properties": {
-                "azPowerShellVersion": "5.6.0",
-                "cleanupPreference": "OnSuccess",
-                "scriptContent": "
-                    param(
-                        [string] [Parameter(Mandatory=$true)] $StorageAccountName,
-                        [string] [Parameter(Mandatory=$true)] $ResourceGroupName
-                    )
-                    $Test = (Get-AzStorageAccountKey -ResourceGroupName $ResourceGroupName -Name $StorageAccountName -ListKerbKey | Where-Object {$_.Keyname -contains 'kerb1'}).Value
-                    if(!$Test)
+                "ipConfigurations": [
                     {
-                        New-AzStorageAccountKey -ResourceGroupName $ResourceGroupName -Name $StorageAccountName -KeyName kerb1
-                        $Output = (Get-AzStorageAccountKey -ResourceGroupName $ResourceGroupName -Name $StorageAccountName -ListKerbKey | Where-Object {$_.Keyname -contains 'kerb1'}).Value
-                    } 
-                    else 
-                    {
-                        $Output = $Test
+                        "name": "ipconfig",
+                        "properties": {
+                            "privateIPAllocationMethod": "Dynamic",
+                            "subnet": {
+                                "id": "[resourceId(subscription().subscriptionId, parameters('VirtualNetworkResourceGroup'), 'Microsoft.Network/virtualNetworks/subnets', parameters('VirtualNetwork'), parameters('Subnet'))]"
+                            },
+                            "primary": true,
+                            "privateIPAddressVersion": "IPv4"
+                        }
                     }
-                    Write-Output $Output
-                    $DeploymentScriptOutputs = @{}
-                    $DeploymentScriptOutputs['text'] = $Output
-                ",
-                "arguments": "[format(' -StorageAccountName {0} -ResourceGroup {1}', parameters('StorageAccountName'), variables('ResourceGroupName'))]",
-                "forceUpdateTag": "[parameters('Timestamp')]",
-                "retentionInterval": "P1D",
-                "timeout": "PT30M"
+                ],
+                "enableAcceleratedNetworking": false,
+                "enableIPForwarding": false
             }
         },
         {
-            "comments": "---------- LINKED DEPLOYMENT > CUSTOM SCRIPT EXTENSION > AD COMPUTER OBJECT ----------",
-            "condition": "[equals(parameters('newOrExisting'), 'new')]",
-            "name": "[concat('ADComputerObject_', parameters('Timestamp'))]",
-            "type": "Microsoft.Resources/deployments",
-            "apiVersion": "2020-10-01",
+            "comments": "---------- VIRTUAL MACHINES ----------",
+            "type": "Microsoft.Compute/virtualMachines",
+            "apiVersion": "2020-12-01",
+            "name": "[variables('VmName')]",
+            "location": "[parameters('Location')]",
+            "tags": "[parameters('Tags')]",
             "dependsOn": [
-                "[resourceId('Microsoft.Authorization/roleAssignments', variables('RoleAssignmentName'))]"
+                "[variables('NicName')]"
             ],
-            "resourceGroup": "[parameters('DomainControllerResourceGroupName')]",
             "properties": {
-                "mode": "Incremental",
-                "templateLink": {
-                    "uri": "https://raw.githubusercontent.com/jamasten/Azure/master/solutions/avd/templates/adComputerObject.json",
-                    "contentVersion": "1.0.0.0"
+                "hardwareProfile": {
+                    "vmSize": "Standard_B2s"
                 },
-                "parameters": {
-                    "DomainJoinPassword": {
-                        "value": "[parameters('DomainJoinPassword')]"
+                "storageProfile": {
+                    "imageReference": {
+                        "publisher": "MicrosoftWindowsServer",
+                        "offer": "WindowsServer",
+                        "sku": "2019-Datacenter",
+                        "version": "latest"
                     },
-                    "DomainJoinUsername": {
-                        "value": "[parameters('DomainJoinUsername')]"
+                    "osDisk": {
+                        "osType": "Windows",
+                        "createOption": "FromImage",
+                        "caching": "None",
+                        "managedDisk": {
+                            "storageAccountType": "Standard_LRS"
+                        }
                     },
-                    "DomainControllerName": {
-                        "value": "[parameters('DomainControllerName')]"
+                    "dataDisks": []
+                },
+                "osProfile": {
+                    "computerName": "[variables('VmName')]",
+                    "adminUsername": "[parameters('VmUsername')]",
+                    "adminPassword": "[parameters('VmPassword')]",
+                    "windowsConfiguration": {
+                        "provisionVMAgent": true,
+                        "enableAutomaticUpdates": true
                     },
-                    "KerberosEncryptionType": {
-                        "value": "[parameters('KerberosEncryptionType')]"
-                    },
-                    "KerberosKey": {
-                        "value": "[reference('ds-kerberosKey').outputs.text]"
-                    },
-                    "Location": {
-                        "value": "[parameters('Location')]"
-                    },
-                    "Netbios": {
-                        "value": "[parameters('Netbios')]"
-                    },
-                    "StorageAccountName": {
-                        "value": "[parameters('StorageAccountName')]"
-                    },
-                    "Tags": {
-                        "value": "[parameters('Tags')]"
-                    },
-                    "Timestamp": {
-                        "value": "[parameters('Timestamp')]"
+                    "secrets": [],
+                    "allowExtensionOperations": true
+                },
+                "networkProfile": {
+                    "networkInterfaces": [
+                        {
+                            "id": "[resourceId('Microsoft.Network/networkInterfaces', variables('NicName'))]"
+                        }
+                    ]
+                },
+                "diagnosticsProfile": {
+                    "bootDiagnostics": {
+                        "enabled": false
                     }
-                }
-            }
-        },
-        {
-            "comments": "---------- DEPLOYMENT SCRIPT > ENABLE AD AUTH ON STORAGE ACCOUNT ----------",
-            "condition": "[equals(parameters('newOrExisting'), 'new')]",
-            "name": "ds-enableAuth",
-            "type": "Microsoft.Resources/deploymentScripts",
-            "apiVersion": "2019-10-01-preview",
+                },
+                "licenseType": "MicrosoftWindowsServer"
+            },
             "identity": {
                 "type": "UserAssigned",
-                "userAssignedIdentities": {
-                    "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('ManagedID'))]": {}
-                }
+                "userAssignedIdentities": {}
             },
-            "location": "[parameters('Location')]",
-            "kind": "AzurePowerShell",
-            "tags": "[parameters('Tags')]",
-            "dependsOn": [
-                "[resourceId('Microsoft.Authorization/roleAssignments', variables('RoleAssignmentName'))]",
-                "[concat('ADComputerObject_', parameters('Timestamp'))]"
-            ],
-            "properties": {
-                "azPowerShellVersion": "5.6.0",
-                "cleanupPreference": "OnSuccess",
-                "scriptContent": "
-                    param(
-                        [string] [Parameter(Mandatory=$true)] $StorageAccountName,
-                        [string] [Parameter(Mandatory=$true)] $ResourceGroupName,
-                        [string] [Parameter(Mandatory=$true)] $DomainName,
-                        [string] [Parameter(Mandatory=$true)] $Netbios,
-                        [array] [Parameter(Mandatory=$true)] $DomainInfo
-                    )
-
-                    Set-AzStorageAccount `
-                        -ResourceGroupName $ResourceGroupName `
-                        -Name $StorageAccountName `
-                        -EnableActiveDirectoryDomainServicesForFile $true `
-                        -ActiveDirectoryDomainName $DomainName `
-                        -ActiveDirectoryNetBiosDomainName $Netbios `
-                        -ActiveDirectoryForestName $DomainName `
-                        -ActiveDirectoryDomainGuid $DomainInfo[0] `
-                        -ActiveDirectoryDomainsid $DomainInfo[1] `
-                        -ActiveDirectoryAzureStorageSid $DomainInfo[2]
-                ",
-                "arguments": "[format(' -StorageAccountName {0} -ResourceGroup {1} -DomainName {2} -Netbios {3} -DomainInfo {4}', parameters('StorageAccountName'), variables('ResourceGroupName'), parameters('DomainName'), parameters('Netbios'), reference(concat('ADComputerObject_', parameters('Timestamp'))).outputs.DomainInfo.value)]",
-                "forceUpdateTag": "[parameters('Timestamp')]",
-                "retentionInterval": "P1D",
-                "timeout": "PT30M"
-            }
+            "resources": [
+                {
+                    "comments": "---------- DOMAIN JOIN EXTENSION ----------",
+                    "apiVersion": "2019-07-01",
+                    "type": "extensions",
+                    "name": "JsonADDomainExtension",
+                    "location": "[parameters('Location')]",
+                    "tags": "[parameters('Tags')]",
+                    "dependsOn": [
+                        "[variables('VmName')]"
+                    ],
+                    "properties": {
+                        "forceUpdateTag": "[parameters('Timestamp')]",
+                        "publisher": "Microsoft.Compute",
+                        "type": "JsonADDomainExtension",
+                        "typeHandlerVersion": "1.3",
+                        "autoUpgradeMinorVersion": true,
+                        "settings": {
+                            "Name": "[parameters('DomainName')]",
+                            "User": "[concat(parameters('Netbios'), '\\', parameters('DomainJoinUsername'))]",
+                            "Restart": "true",
+                            "Options": "3"
+                        },
+                        "protectedSettings": {
+                            "Password": "[parameters('DomainJoinPassword')]"
+                        }
+                    }
+                },
+                {
+                    "comments": "---------- CUSTOM SCRIPT EXTENSION ----------",
+                    "type": "extensions",
+                    "apiVersion": "2020-12-01",
+                    "name": "CustomScriptExtension",
+                    "location": "[parameters('location')]",
+                    "dependsOn": [
+                        "[variables('VmName')]",
+                        "[concat(parameters('StorageAccountName'), '/default/', parameters('HostPoolName'))]",
+                        "JsonADDomainExtension"
+                    ],
+                    "tags": "[parameters('Tags')]",
+                    "properties": {
+                        "publisher": "Microsoft.Compute",
+                        "type": "CustomScriptExtension",
+                        "typeHandlerVersion": "1.10",
+                        "autoUpgradeMinorVersion": true,
+                        "settings": {
+                            "fileUris": [
+                                "https://raw.githubusercontent.com/jamasten/Azure/master/solutions/avd/scripts/New-DomainJoinStorageAccount.ps1"
+                            ],
+                            "timestamp": "[parameters('Timestamp')]"
+                        },
+                        "protectedSettings": {
+                            "commandToExecute": "[concat('powershell -ExecutionPolicy Unrestricted -File New-DomainJoinStorageAccount.ps1 -Environment ', environment().name, ' -HostPoolName ', parameters('HostPoolName'), ' -Netbios ', parameters('Netbios'), ' -SecurityPrincipalName ', parameters('SecurityPrincipalName'), ' -StorageAccountName ', parameters('StorageAccountName'), ' -StorageKey ', listKeys(resourceId(parameters('StorageAccountResourceGroupName'), 'Microsoft.Storage/storageAccounts', parameters('StorageAccountName')), '2019-06-01').keys[0].value)]"
+                        }
+                    }
+                }
+            ]
         }
         // Setting the role assignment on the file share currently does not work and must be manually set after the deployment.
         /*{

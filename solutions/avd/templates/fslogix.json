@@ -292,7 +292,7 @@
                     "name": "CustomScriptExtension",
                     "location": "[parameters('location')]",
                     "dependsOn": [
-                        "[variables('NicName')]",
+                        "[variables('VmName')]",
                         "[parameters('StorageAccountName')]",
                         "[resourceId('Microsoft.Storage/storageAccounts/fileServices', parameters('StorageAccountName'), 'default')]",
                         "[resourceId('Microsoft.Storage/storageAccounts/fileServices/shares', parameters('StorageAccountName'), 'default', parameters('HostPoolName'))]",

@@ -164,7 +164,7 @@
             "dependsOn": [
                 "[variables('RoleAssignmentName')]",
                 "[parameters('StorageAccountName')]",
-                "[concat(parameters('StorageAccountName'), '/default')]"
+                "[resourceId('Microsoft.Storage/storageAccounts/fileServices', parameters('StorageAccountName'), 'default')]"
             ],
             "properties": {
                 "accessTier": "[if(equals(parameters('StorageAccountSku'), 'Premium_LRS'), 'Premium', 'TransactionOptimized')]",
@@ -207,8 +207,8 @@
             "dependsOn": [
                 "[variables('NicName')]",
                 "[parameters('StorageAccountName')]",
-                "[concat(parameters('StorageAccountName'), '/default')]",
-                "[concat(parameters('StorageAccountName'), '/default/', parameters('HostPoolName'))]"
+                "[resourceId('Microsoft.Storage/storageAccounts/fileServices', parameters('StorageAccountName'), 'default')]",
+                "[resourceId('Microsoft.Storage/storageAccounts/fileServices/shares', parameters('StorageAccountName'), 'default', parameters('HostPoolName'))]"
             ],
             "properties": {
                 "hardwareProfile": {
@@ -259,7 +259,7 @@
             "identity": {
                 "type": "UserAssigned",
                 "userAssignedIdentities": {
-                    "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities/', variables('ManagedID'))]": {}
+                    "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('ManagedID'))]": {}
                 }
             },
             "resources": [
@@ -298,7 +298,6 @@
                     "location": "[parameters('location')]",
                     "dependsOn": [
                         "[variables('VmName')]",
-                        "[concat(parameters('StorageAccountName'), '/default/', parameters('HostPoolName'))]",
                         "JsonADDomainExtension"
                     ],
                     "tags": "[parameters('Tags')]",

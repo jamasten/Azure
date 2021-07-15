@@ -93,7 +93,7 @@
             "apiVersion": "2020-04-01-preview",
             "name": "[variables('RoleAssignmentName')]",
             "dependsOn": [
-                "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('ManagedID'))]"
+                "[variables('ManagedID')]"
             ],
             "properties": {
                 "roleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', 'b24988ac-6180-42a0-ab88-20f7382dd24c')]",
@@ -109,7 +109,7 @@
             "name": "[parameters('StorageAccountName')]",
             "location": "[parameters('Location')]",
             "dependsOn": [
-                "[resourceId('Microsoft.Authorization/roleAssignments', variables('RoleAssignmentName'))]"
+                "[variables('RoleAssignmentName')]"
             ],
             "tags": "[parameters('Tags')]",
             "sku": {
@@ -145,7 +145,7 @@
             "name": "[concat(parameters('StorageAccountName'), '/default')]",
             "tags": "[parameters('Tags')]",
             "dependsOn": [
-                "[resourceId('Microsoft.Authorization/roleAssignments', variables('RoleAssignmentName'))]",
+                "[variables('RoleAssignmentName')]",
                 "[parameters('StorageAccountName')]"
             ],
             "properties": {
@@ -162,9 +162,9 @@
             "name": "[concat(parameters('StorageAccountName'), '/default/', parameters('HostPoolName'))]",
             "tags": "[parameters('Tags')]",
             "dependsOn": [
-                "[resourceId('Microsoft.Authorization/roleAssignments', variables('RoleAssignmentName'))]",
+                "[variables('RoleAssignmentName')]",
                 "[parameters('StorageAccountName')]",
-                "[resourceId('Microsoft.Storage/storageAccounts/fileServices', parameters('StorageAccountName'), 'default')]"
+                "[concat(parameters('StorageAccountName'), '/default')]"
             ],
             "properties": {
                 "accessTier": "[if(equals(parameters('StorageAccountSku'), 'Premium_LRS'), 'Premium', 'TransactionOptimized')]",
@@ -205,7 +205,10 @@
             "location": "[parameters('Location')]",
             "tags": "[parameters('Tags')]",
             "dependsOn": [
-                "[variables('NicName')]"
+                "[variables('NicName')]",
+                "[parameters('StorageAccountName')]",
+                "[concat(parameters('StorageAccountName'), '/default')]",
+                "[concat(parameters('StorageAccountName'), '/default/', parameters('HostPoolName'))]"
             ],
             "properties": {
                 "hardwareProfile": {

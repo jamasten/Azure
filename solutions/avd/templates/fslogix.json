@@ -254,7 +254,7 @@
                         "enabled": false
                     }
                 },
-                "licenseType": "MicrosoftWindowsServer"
+                "licenseType": "Windows_Server"
             },
             "identity": {
                 "type": "UserAssigned",

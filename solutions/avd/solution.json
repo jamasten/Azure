@@ -501,7 +501,8 @@
             "tags": "[parameters('Tags')]",
             "resourceGroup": "[variables('ResourceGroups')[0]]",
             "dependsOn": [
-                "rgLoop"
+                "rgLoop",
+                "[concat('HostPool_', parameters('Timestamp'))]"
             ],
             "properties": {
                 "mode": "Incremental",
@@ -535,6 +536,7 @@
             "resourceGroup": "[variables('ResourceGroups')[0]]",
             "dependsOn": [
                 "rgLoop",
+                "[concat('HostPool_', parameters('Timestamp'))]",
                 "[concat('ScalingAutomation_AutomationAccount_', parameters('Timestamp'))]"
             ],
             "properties": {
@@ -728,7 +730,9 @@
             "resourceGroup": "[variables('ResourceGroups')[0]]",
             "dependsOn": [
                 "rgLoop",
-                "[concat('HostPool_', parameters('Timestamp'))]"
+                "[concat('HostPool_', parameters('Timestamp'))]",
+                "[concat('ScalingAutomation_AutomationAccount_', parameters('Timestamp'))]",
+                "[concat('ScalingAutomation_LogicApp_', parameters('Timestamp'))]"
             ],
             "properties": {
                 "mode": "Incremental",

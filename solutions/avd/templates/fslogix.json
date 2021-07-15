@@ -108,9 +108,6 @@
             "apiVersion": "2021-02-01",
             "name": "[parameters('StorageAccountName')]",
             "location": "[parameters('Location')]",
-            "dependsOn": [
-                "[variables('RoleAssignmentName')]"
-            ],
             "tags": "[parameters('Tags')]",
             "sku": {
                 "name": "[parameters('StorageAccountSku')]",
@@ -145,7 +142,6 @@
             "name": "[concat(parameters('StorageAccountName'), '/default')]",
             "tags": "[parameters('Tags')]",
             "dependsOn": [
-                "[variables('RoleAssignmentName')]",
                 "[parameters('StorageAccountName')]"
             ],
             "properties": {
@@ -162,7 +158,6 @@
             "name": "[concat(parameters('StorageAccountName'), '/default/', parameters('HostPoolName'))]",
             "tags": "[parameters('Tags')]",
             "dependsOn": [
-                "[variables('RoleAssignmentName')]",
                 "[parameters('StorageAccountName')]",
                 "[resourceId('Microsoft.Storage/storageAccounts/fileServices', parameters('StorageAccountName'), 'default')]"
             ],
@@ -297,7 +292,10 @@
                     "name": "CustomScriptExtension",
                     "location": "[parameters('location')]",
                     "dependsOn": [
-                        "[variables('VmName')]",
+                        "[variables('NicName')]",
+                        "[parameters('StorageAccountName')]",
+                        "[resourceId('Microsoft.Storage/storageAccounts/fileServices', parameters('StorageAccountName'), 'default')]",
+                        "[resourceId('Microsoft.Storage/storageAccounts/fileServices/shares', parameters('StorageAccountName'), 'default', parameters('HostPoolName'))]",
                         "JsonADDomainExtension"
                     ],
                     "tags": "[parameters('Tags')]",

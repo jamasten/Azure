@@ -38,9 +38,6 @@
         "ImageVersion": {
             "type": "string"
         },
-        "InstallTeams": {
-            "type": "bool"
-        },
         "Location": {
             "type": "string"
         },
@@ -336,14 +333,13 @@
                         "settings": {
                             "fileUris": [
                                 "https://raw.githubusercontent.com/jamasten/Azure/master/solutions/avd/scripts/Add-FslogixSettings.ps1",
-                                "https://raw.githubusercontent.com/jamasten/Azure/master/solutions/avd/scripts/Install-Teams.ps1",
                                 "https://raw.githubusercontent.com/jamasten/Azure/master/solutions/avd/scripts/Run-SessionHostScripts.ps1",
                                 "https://raw.githubusercontent.com/jamasten/Azure/master/solutions/avd/scripts/Set-AvdOptimizations.ps1"
                             ],
                             "timestamp": "[parameters('Timestamp')]"
                         },
                         "protectedSettings": {
-                            "commandToExecute": "[concat('powershell -ExecutionPolicy Unrestricted -File Run-SessionHostScripts.ps1 -Environment ', environment().name, ' -HostPoolName ', parameters('HostPoolName'), ' -ImagePublisher ', parameters('ImagePublisher'), ' -ImageSku ', parameters('ImageSku'), ' -InstallTeams ', parameters('InstallTeams'), ' -Optimizations ', parameters('Optimizations'), ' -StorageAccountName ', parameters('StorageAccountName'))]"
+                            "commandToExecute": "[concat('powershell -ExecutionPolicy Unrestricted -File Run-SessionHostScripts.ps1 -Environment ', environment().name, ' -HostPoolName ', parameters('HostPoolName'), ' -ImagePublisher ', parameters('ImagePublisher'), ' -ImageSku ', parameters('ImageSku'), ' -Optimizations ', parameters('Optimizations'), ' -StorageAccountName ', parameters('StorageAccountName'))]"
                         }
                     }
                 },

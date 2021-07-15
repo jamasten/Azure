@@ -87,12 +87,6 @@
             },
             "defaultValue": "latest"
         },
-        "InstallTeams": {
-            "type": "bool",
-            "metadata": {
-                "description": "Install Microsoft Teams with Media Optimization for VDI."
-            }
-        },
         "KerberosEncryptionType": {
             "type": "string",
             "metadata": {
@@ -656,9 +650,6 @@
                     },
                     "ImageVersion": {
                         "value": "[parameters('ImageVersion')]"
-                    },
-                    "InstallTeams": {
-                        "value": "[parameters('InstallTeams')]"
                     },
                     "Location": {
                         "value": "[variables('Location')]"

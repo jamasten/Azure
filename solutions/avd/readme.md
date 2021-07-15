@@ -4,7 +4,6 @@ This solution will deploy Azure Virtual Desktop in an Azure subscription.  Depen
 
 This solution contains many features that are usually enabled manually after deploying a AVD host pool.  Those features are:
 
-- Teams: installs the application and configures media optimization.
 - FSLogix:
   - Configures the recommended registry settings on the session hosts.
   - Deploys an Azure File Share, domain joins the Storage Account, and sets the NTFS permissions.

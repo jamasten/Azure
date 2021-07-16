@@ -1,8 +1,5 @@
 param 
 (
-    [Parameter(Mandatory)]
-    [String]$ClientId,
-
     [Parameter(Mandatory=$false)]
     [String]$DomainAccountType = "ComputerAccount",
 
@@ -117,7 +114,7 @@ Invoke-Command -Credential $Credential -ComputerName $env:COMPUTERNAME -ScriptBl
     Import-Module -Name 'AzFilesHybrid' -Force -ErrorAction 'Stop'
 
     # Connects to Azure using a User Assigned Managed Identity
-    Connect-AzAccount -Tenant $using:TenantId -Subscription $using:SubscriptionId -Identity -AccountId $using:ClientId -ErrorAction 'Stop'
+    Connect-AzAccount -Identity -ErrorAction 'Stop'
 
     # Domain join the Azure Storage Account
     Join-AzStorageAccountForAuth `

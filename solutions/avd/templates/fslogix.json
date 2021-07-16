@@ -70,103 +70,12 @@
         }
     },
     "variables": {
-        "ManagedID": "uami-fslogix",
         "NicName": "[concat('nic-', parameters('resourceNameSuffix'), '-mgt')]",
         "ResourceGroupName": "[resourceGroup().name]",
-        "RoleAssignmentName": "[guid(parameters('StorageAccountName'), '0')]",
+        "RoleAssignmentName": "[guid(parameters('StorageAccountName'), '1')]",
         "VmName": "[concat(parameters('VmName'), 'mgt')]"
     },
     "resources": [
-        {
-            "comments": "---------- USER ASSIGNED MANAGED IDENTITY ----------",
-            "condition": "[equals(parameters('newOrExisting'), 'new')]",
-            "type": "Microsoft.ManagedIdentity/userAssignedIdentities",
-            "name": "[variables('ManagedID')]",
-            "apiVersion": "2018-11-30",
-            "location": "[parameters('Location')]",
-            "tags": "[parameters('Tags')]"
-        },
-        {
-            "comments": "---------- ROLE ASSIGNMENT > USER ASSIGNED MANAGED IDENTITY > CONTRIBUTOR ----------",
-            "condition": "[equals(parameters('newOrExisting'), 'new')]",
-            "type": "Microsoft.Authorization/roleAssignments",
-            "apiVersion": "2020-04-01-preview",
-            "name": "[variables('RoleAssignmentName')]",
-            "dependsOn": [
-                "[variables('ManagedID')]"
-            ],
-            "properties": {
-                "roleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', 'b24988ac-6180-42a0-ab88-20f7382dd24c')]",
-                "principalId": "[reference(concat(subscription().id, '/resourceGroups/', variables('ResourceGroupName'), '/providers/Microsoft.ManagedIdentity/userAssignedIdentities/', variables('ManagedID')), '2018-11-30', 'Full').properties.principalId]",
-                "principalType": "ServicePrincipal"
-            }
-        },
-        {
-            "comments": "---------- STORAGE ACCOUNT ----------",
-            "condition": "[equals(parameters('newOrExisting'), 'new')]",
-            "type": "Microsoft.Storage/storageAccounts",
-            "apiVersion": "2021-02-01",
-            "name": "[parameters('StorageAccountName')]",
-            "location": "[parameters('Location')]",
-            "tags": "[parameters('Tags')]",
-            "sku": {
-                "name": "[parameters('StorageAccountSku')]",
-                "tier": "[split(parameters('StorageAccountSku'), '_')[0]]"
-            },
-            "kind": "[if(equals(split(parameters('StorageAccountSku'), '_')[0], 'Standard'), 'StorageV2', 'FileStorage')]",
-            "properties": {
-                "minimumTlsVersion": "TLS1_2",
-                "networkAcls": {
-                    "bypass": "AzureServices",
-                    "virtualNetworkRules": [],
-                    "ipRules": [],
-                    "defaultAction": "Allow"
-                },
-                "supportsHttpsTrafficOnly": true,
-                "encryption": {
-                    "services": {
-                        "file": {
-                            "keyType": "Account",
-                            "enabled": true
-                        }
-                    },
-                    "keySource": "Microsoft.Storage"
-                }
-            }
-        },
-        {
-            "comments": "---------- STORAGE ACCOUNT > FILE SERVICES ----------",
-            "condition": "[equals(parameters('newOrExisting'), 'new')]",
-            "type": "Microsoft.Storage/storageAccounts/fileServices",
-            "apiVersion": "2021-02-01",
-            "name": "[concat(parameters('StorageAccountName'), '/default')]",
-            "tags": "[parameters('Tags')]",
-            "dependsOn": [
-                "[parameters('StorageAccountName')]"
-            ],
-            "properties": {
-                "shareDeleteRetentionPolicy": {
-                    "enabled": false
-                }
-            }
-        },
-        {
-            "comments": "---------- STORAGE ACCOUNT > FILE SHARE ----------",
-            "condition": "[equals(parameters('newOrExisting'), 'new')]",
-            "type": "Microsoft.Storage/storageAccounts/fileServices/shares",
-            "apiVersion": "2021-02-01",
-            "name": "[concat(parameters('StorageAccountName'), '/default/', parameters('HostPoolName'))]",
-            "tags": "[parameters('Tags')]",
-            "dependsOn": [
-                "[parameters('StorageAccountName')]",
-                "[resourceId('Microsoft.Storage/storageAccounts/fileServices', parameters('StorageAccountName'), 'default')]"
-            ],
-            "properties": {
-                "accessTier": "[if(equals(parameters('StorageAccountSku'), 'Premium_LRS'), 'Premium', 'TransactionOptimized')]",
-                "shareQuota": 100,
-                "enabledProtocols": "SMB"
-            }
-        },
         {
             "comments": "---------- NETWORK INTERFACES ----------",
             "type": "Microsoft.Network/networkInterfaces",
@@ -200,10 +109,7 @@
             "location": "[parameters('Location')]",
             "tags": "[parameters('Tags')]",
             "dependsOn": [
-                "[variables('NicName')]",
-                "[parameters('StorageAccountName')]",
-                "[resourceId('Microsoft.Storage/storageAccounts/fileServices', parameters('StorageAccountName'), 'default')]",
-                "[resourceId('Microsoft.Storage/storageAccounts/fileServices/shares', parameters('StorageAccountName'), 'default', parameters('HostPoolName'))]"
+                "[variables('NicName')]"
             ],
             "properties": {
                 "hardwareProfile": {
@@ -252,14 +158,11 @@
                 "licenseType": "Windows_Server"
             },
             "identity": {
-                "type": "UserAssigned",
-                "userAssignedIdentities": {
-                    "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('ManagedID'))]": {}
-                }
+                "type": "SystemAssigned"
             },
             "resources": [
                 {
-                    "comments": "---------- DOMAIN JOIN EXTENSION ----------",
+                    "comments": "---------- VM DOMAIN JOIN EXTENSION ----------",
                     "apiVersion": "2019-07-01",
                     "type": "extensions",
                     "name": "JsonADDomainExtension",
@@ -284,38 +187,123 @@
                             "Password": "[parameters('DomainJoinPassword')]"
                         }
                     }
-                },
-                {
-                    "comments": "---------- CUSTOM SCRIPT EXTENSION ----------",
-                    "type": "extensions",
-                    "apiVersion": "2020-12-01",
-                    "name": "CustomScriptExtension",
-                    "location": "[parameters('location')]",
-                    "dependsOn": [
-                        "[variables('VmName')]",
-                        "[parameters('StorageAccountName')]",
-                        "[resourceId('Microsoft.Storage/storageAccounts/fileServices', parameters('StorageAccountName'), 'default')]",
-                        "[resourceId('Microsoft.Storage/storageAccounts/fileServices/shares', parameters('StorageAccountName'), 'default', parameters('HostPoolName'))]",
-                        "JsonADDomainExtension"
-                    ],
-                    "tags": "[parameters('Tags')]",
-                    "properties": {
-                        "publisher": "Microsoft.Compute",
-                        "type": "CustomScriptExtension",
-                        "typeHandlerVersion": "1.10",
-                        "autoUpgradeMinorVersion": true,
-                        "settings": {
-                            "fileUris": [
-                                "https://raw.githubusercontent.com/jamasten/Azure/master/solutions/avd/scripts/New-DomainJoinStorageAccount.ps1"
-                            ],
-                            "timestamp": "[parameters('Timestamp')]"
-                        },
-                        "protectedSettings": {
-                            "commandToExecute": "[concat('powershell -ExecutionPolicy Unrestricted -File New-DomainJoinStorageAccount.ps1 -ClientId ', reference(resourceId('Microsoft.Compute/virtualMachines', variables('VmName')),'2020-12-01', 'Full').userAssignedIdentities.objectId, ' -DomainJoinPassword ', parameters('DomainJoinPassword'), ' -DomainJoinUsername ', parameters('DomainJoinUsername'), ' -Environment ', environment().name, ' -HostPoolName ', parameters('HostPoolName'), ' -KerberosEncryptionType ', parameters('KerberosEncryptionType'), ' -Netbios ', parameters('Netbios'), ' -OuPath ', parameters('OuPath'), ' -ResourceGroupName ', variables('ResourceGroupName'), ' -SecurityPrincipalName ', parameters('SecurityPrincipalName'), ' -StorageAccountName ', parameters('StorageAccountName'), ' -StorageKey ', listKeys(resourceId('Microsoft.Storage/storageAccounts', parameters('StorageAccountName')), '2019-06-01').keys[0].value, ' -SubscriptionId ', subscription().subscriptionId, ' -TenantId ', subscription().tenantId)]"
-                        }
-                    }
                 }
             ]
+        },
+        {
+            "comments": "---------- STORAGE ACCOUNT ----------",
+            "condition": "[equals(parameters('newOrExisting'), 'new')]",
+            "type": "Microsoft.Storage/storageAccounts",
+            "apiVersion": "2021-02-01",
+            "name": "[parameters('StorageAccountName')]",
+            "location": "[parameters('Location')]",
+            "tags": "[parameters('Tags')]",
+            "sku": {
+                "name": "[parameters('StorageAccountSku')]",
+                "tier": "[split(parameters('StorageAccountSku'), '_')[0]]"
+            },
+            "kind": "[if(equals(split(parameters('StorageAccountSku'), '_')[0], 'Standard'), 'StorageV2', 'FileStorage')]",
+            "properties": {
+                "minimumTlsVersion": "TLS1_2",
+                "networkAcls": {
+                    "bypass": "AzureServices",
+                    "virtualNetworkRules": [],
+                    "ipRules": [],
+                    "defaultAction": "Allow"
+                },
+                "supportsHttpsTrafficOnly": true,
+                "encryption": {
+                    "services": {
+                        "file": {
+                            "keyType": "Account",
+                            "enabled": true
+                        }
+                    },
+                    "keySource": "Microsoft.Storage"
+                }
+            }
+        },
+        {
+            "comments": "---------- ROLE ASSIGNMENT > USER ASSIGNED MANAGED IDENTITY > CONTRIBUTOR ----------",
+            "condition": "[equals(parameters('newOrExisting'), 'new')]",
+            "type": "Microsoft.Authorization/roleAssignments",
+            "apiVersion": "2020-04-01-preview",
+            "name": "[variables('RoleAssignmentName')]",
+            "scope": "[concat('Microsoft.Storage/storageAccounts', '/', parameters('StorageAccountName'))]",
+            "dependsOn": [
+                "[variables('VmName')]",
+                "[parameters('StorageAccountName')]"
+            ],
+            "properties": {
+                "roleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', 'b24988ac-6180-42a0-ab88-20f7382dd24c')]",
+                "principalId": "[reference(resourceId('Microsoft.Compute/virtualMachines', variables('VmName')), '2020-12-01', 'Full').identity.principalId]",
+                "principalType": "ServicePrincipal"
+            }
+        },
+        {
+            "comments": "---------- STORAGE ACCOUNT > FILE SERVICES ----------",
+            "condition": "[equals(parameters('newOrExisting'), 'new')]",
+            "type": "Microsoft.Storage/storageAccounts/fileServices",
+            "apiVersion": "2021-02-01",
+            "name": "[concat(parameters('StorageAccountName'), '/default')]",
+            "tags": "[parameters('Tags')]",
+            "dependsOn": [
+                "[parameters('StorageAccountName')]",
+                "[variables('RoleAssignmentName')]"
+            ],
+            "properties": {
+                "shareDeleteRetentionPolicy": {
+                    "enabled": false
+                }
+            }
+        },
+        {
+            "comments": "---------- STORAGE ACCOUNT > FILE SHARE ----------",
+            "condition": "[equals(parameters('newOrExisting'), 'new')]",
+            "type": "Microsoft.Storage/storageAccounts/fileServices/shares",
+            "apiVersion": "2021-02-01",
+            "name": "[concat(parameters('StorageAccountName'), '/default/', parameters('HostPoolName'))]",
+            "tags": "[parameters('Tags')]",
+            "dependsOn": [
+                "[parameters('StorageAccountName')]",
+                "[variables('RoleAssignmentName')]",
+                "[resourceId('Microsoft.Storage/storageAccounts/fileServices', parameters('StorageAccountName'), 'default')]"
+            ],
+            "properties": {
+                "accessTier": "[if(equals(parameters('StorageAccountSku'), 'Premium_LRS'), 'Premium', 'TransactionOptimized')]",
+                "shareQuota": 100,
+                "enabledProtocols": "SMB"
+            }
+        },
+        {
+            "comments": "---------- VM CUSTOM SCRIPT EXTENSION ----------",
+            "type": "Microsoft.Compute/virtualMachines/extensions",
+            "apiVersion": "2020-12-01",
+            "name": "[concat(variables('VmName'), '/CustomScriptExtension')]",
+            "location": "[parameters('location')]",
+            "dependsOn": [
+                "[variables('VmName')]",
+                "[parameters('StorageAccountName')]",
+                "[variables('RoleAssignmentName')]",
+                "[resourceId('Microsoft.Storage/storageAccounts/fileServices', parameters('StorageAccountName'), 'default')]",
+                "[resourceId('Microsoft.Storage/storageAccounts/fileServices/shares', parameters('StorageAccountName'), 'default', parameters('HostPoolName'))]"
+            ],
+            "tags": "[parameters('Tags')]",
+            "properties": {
+                "publisher": "Microsoft.Compute",
+                "type": "CustomScriptExtension",
+                "typeHandlerVersion": "1.10",
+                "autoUpgradeMinorVersion": true,
+                "settings": {
+                    "fileUris": [
+                        "https://raw.githubusercontent.com/jamasten/Azure/master/solutions/avd/scripts/New-DomainJoinStorageAccount.ps1"
+                    ],
+                    "timestamp": "[parameters('Timestamp')]"
+                },
+                "protectedSettings": {
+                    "commandToExecute": "[concat('powershell -ExecutionPolicy Unrestricted -File New-DomainJoinStorageAccount.ps1 -DomainJoinPassword ', parameters('DomainJoinPassword'), ' -DomainJoinUsername ', parameters('DomainJoinUsername'), ' -Environment ', environment().name, ' -HostPoolName ', parameters('HostPoolName'), ' -KerberosEncryptionType ', parameters('KerberosEncryptionType'), ' -Netbios ', parameters('Netbios'), ' -OuPath ', parameters('OuPath'), ' -ResourceGroupName ', variables('ResourceGroupName'), ' -SecurityPrincipalName ', parameters('SecurityPrincipalName'), ' -StorageAccountName ', parameters('StorageAccountName'), ' -StorageKey ', listKeys(resourceId('Microsoft.Storage/storageAccounts', parameters('StorageAccountName')), '2019-06-01').keys[0].value, ' -SubscriptionId ', subscription().subscriptionId, ' -TenantId ', subscription().tenantId)]"
+                }
+            }
         }
         // Setting the role assignment on the file share currently does not work and must be manually set after the deployment.
         /*{

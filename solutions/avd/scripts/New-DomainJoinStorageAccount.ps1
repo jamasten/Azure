@@ -63,90 +63,107 @@ function Write-Log
     $Entry | Out-File -FilePath $Path -Append
 }
 
-# Install Active Directory PowerShell Module
+# Install latest NuGet Provider; recommended for PowerShellGet
+Install-PackageProvider -Name 'NuGet' -Force -ErrorAction 'Stop'
+
+# Install PowerShellGet; prereq for the Az.Storage module
+Install-Module -Name 'PowerShellGet' -Force -ErrorAction 'Stop'
+
+# Install required Az.Storage module
+Install-Module -Name 'Az.Storage' -Scope 'CurrentUser' -Repository 'PSGallery' -Force -ErrorAction 'Stop'
+
+# Connects to Azure using a User Assigned Managed Identity
+Connect-AzAccount -Identity -Tenant $TenantId -Subscription $SubscriptionId -ErrorAction 'Stop'
+
+# Get / create kerberos key for Azure Storage Account
+$Test = (Get-AzStorageAccountKey -ResourceGroupName $ResourceGroupName -Name $StorageAccountName -ListKerbKey | Where-Object {$_.Keyname -contains 'kerb1'}).Value
+if(!$Test)
+{
+    New-AzStorageAccountKey -ResourceGroupName $ResourceGroupName -Name $StorageAccountName -KeyName kerb1
+    $Key = (Get-AzStorageAccountKey -ResourceGroupName $ResourceGroupName -Name $StorageAccountName -ListKerbKey | Where-Object {$_.Keyname -contains 'kerb1'}).Value
+} 
+else 
+{
+    $Key = $Test
+}
+
+# Install Active Directory PowerShell module
 Install-WindowsFeature -Name 'RSAT-AD-PowerShell' -ErrorAction 'Stop'
 
-# This is the required exectuion policy for the domain join script for the storage account
-Set-ExecutionPolicy -ExecutionPolicy 'Unrestricted' -Force -ErrorAction 'Stop'
-
-# Create a temp directory to store the AzFilesHybrid module
-New-Item -Path 'C:\' -Name 'Temp' -ItemType 'Directory' -ErrorAction 'SilentlyContinue'
-
-# Download the AzFilesHybrid module
-Invoke-WebRequest `
-    -Uri 'https://github.com/Azure-Samples/azure-files-samples/releases/download/v0.2.3/AzFilesHybrid.zip' `
-    -OutFile 'C:\Temp\AzFilesHybrid.zip' `
-    -ErrorAction 'Stop'
-
-# Extract the AzFilesHybrid module
-Expand-Archive `
-    -LiteralPath 'C:\Temp\AzFilesHybrid.zip' `
-    -DestinationPath 'C:\Temp' `
-    -Force `
-    -ErrorAction 'Stop'
-
+# Create credential for domain joining the Azure Storage Account
 $Username = $Netbios + '\' + $DomainJoinUsername
 $Password = ConvertTo-SecureString -String $DomainJoinPassword -AsPlainText -Force
 [pscredential]$Credential = New-Object System.Management.Automation.PSCredential ($Username, $Password)
 
-Invoke-Command -Credential $Credential -ComputerName $env:COMPUTERNAME -ScriptBlock {
+# Selects the appropriate suffix for the Azure Storage Account's UNC path
+$Suffix = switch($Environment)
+{
+    AzureCloud {'.file.core.windows.net'}
+    AzureUSGovernment {'.file.core.usgovcloudapi.net'}
+}
+Write-Log -Message "Storage Account Suffix = $Suffix" -Type INFO
 
-    # Setting the working directory to the temp directory
-    Set-Location -Path 'C:\Temp' -ErrorAction 'Stop'
+# Creates a password for the Azure Storage Account in AD using the Kerberos key
+$ComputerPassword = ConvertTo-SecureString -String $Key.Replace("'","") -AsPlainText -Force -ErrorAction Stop
+Write-Log -Message "Secure string conversion succeeded" -Type INFO
 
-    # Copy AzFilesHybrid module files to file system
-    & C:\Temp\CopyToPSPath.ps1 
+# Create the SPN value for the Azure Storage Account; attribute for computer object in AD 
+$SPN = 'cifs/' + $StorageAccountName + $Suffix
 
-    # Install latest NuGet Provider; recommended for PowerShellGet
-    Install-PackageProvider -Name 'NuGet' -Force -ErrorAction 'Stop'
+# Create the Description value for the Azure Storage Account; attribute for computer object in AD 
+$Description = "Computer account object for Azure storage account $($StorageAccountName)."
 
-    # Install PowerShellGet; prereq for the AZ module
-    Install-Module -Name 'PowerShellGet' -Force -ErrorAction 'Stop'
-
-    # Install the required Az modules; prereq for the AzFilesHybrid module
-    # The full Az module package takes 30 mins to install and should be avoided
-    Install-Module -Name 'Az.Accounts' -Scope 'CurrentUser' -Repository 'PSGallery' -Force -ErrorAction 'Stop'
-    Install-Module -Name 'Az.Network' -Scope 'CurrentUser' -Repository 'PSGallery' -Force -ErrorAction 'Stop'
-    Install-Module -Name 'Az.Resources' -Scope 'CurrentUser' -Repository 'PSGallery' -Force -ErrorAction 'Stop'
-    Install-Module -Name 'Az.Storage' -Scope 'CurrentUser' -Repository 'PSGallery' -Force -ErrorAction 'Stop'
-
-    # Imports the AzFilesHybrid module
-    Import-Module -Name 'AzFilesHybrid' -Force -ErrorAction 'Stop'
-
-    # Connects to Azure using a User Assigned Managed Identity
-    Connect-AzAccount -Identity -ErrorAction 'Stop'
-
-    # Domain join the Azure Storage Account
-    Join-AzStorageAccountForAuth `
-            -ResourceGroupName $using:ResourceGroupName `
-            -StorageAccountName $using:StorageAccountName `
-            -DomainAccountType $using:DomainAccountType `
-            -OrganizationalUnitDistinguishedName $using:OuPath `
-            -EncryptionType $using:KerberosEncryptionType `
-            -ErrorAction 'Stop'
-
-    # Set variables to mount file share
-    $Suffix = switch($using:Environment)
+# Create the AD computer object for the Azure Storage Account
+$Test = Get-ADComputer -Filter {Name -eq $StorageAccountName}
+if(!$Test)
+{
+    try
     {
-        AzureCloud {'.file.core.windows.net'}
-        AzureUSGovernment {'.file.core.usgovcloudapi.net'}
+        New-ADComputer -Credential $Credential -Name $StorageAccountName -ServicePrincipalNames $SPN -AccountPassword $ComputerPassword -KerberosEncryptionType $KerberosEncryptionType -Description $Description -ErrorAction 'Stop'
+        Write-Log -Message "Computer object creation succeeded" -Type INFO
     }
-    $FileShare = '\\' + $using:StorageAccountName + $Suffix + '\' + $using:HostPoolName
-    $Group = $using:Netbios + '\' + $using:SecurityPrincipalName
-    $Username = 'Azure\' + $using:StorageAccountName
-    $Password = ConvertTo-SecureString -String $using:StorageKey -AsPlainText -Force
-    [pscredential]$Credential = New-Object System.Management.Automation.PSCredential ($Username, $Password)
+    catch
+    {
+        Write-Log -Message "Failed to create computer object" -Type ERROR
+        $String = $_ | Select-Object * | Out-String
+        Write-Log -Message $String -Type ERROR
+        throw $_
+    }
+}
 
-    # Mount file share
-    New-PSDrive -Name Z -PSProvider FileSystem -Root $FileShare -Credential $Credential -Persist -ErrorAction 'Stop'
+$Domain = Get-ADDomain -Credential $Credential -Current 'LocalComputer' -ErrorAction 'Stop'
+Write-Log -Message "Domain info collection succeeded" -Type INFO
 
-    # Set recommended NTFS permissions on the file share
-    Start-Process icacls -ArgumentList "Z: /grant $($Group):(M)" -Wait -NoNewWindow -PassThru -ErrorAction 'Stop'
-    Start-Process icacls -ArgumentList 'Z: /grant "Creator Owner":(OI)(CI)(IO)(M)' -Wait -NoNewWindow -PassThru -ErrorAction 'Stop'
-    Start-Process icacls -ArgumentList 'Z: /remove "Authenticated Users"' -Wait -NoNewWindow -PassThru -ErrorAction 'Stop'
-    Start-Process icacls -ArgumentList 'Z: /remove "Builtin\Users"' -Wait -NoNewWindow -PassThru -ErrorAction 'Stop'
+$ComputerSid = (Get-ADComputer -Identity $StorageAccountName -ErrorAction 'Stop').SID.Value
+Write-Log -Message "Computer object info collection succeeded" -Type INFO
 
-    # Unmount file share
-    Remove-PSDrive -Name Z -PSProvider FileSystem -Force -ErrorAction 'Stop'
 
-} -ErrorAction Stop
+Set-AzStorageAccount `
+    -ResourceGroupName $ResourceGroupName `
+    -Name $StorageAccountName `
+    -EnableActiveDirectoryDomainServicesForFile $true `
+    -ActiveDirectoryDomainName $Domain.DNSRoot `
+    -ActiveDirectoryNetBiosDomainName $Netbios `
+    -ActiveDirectoryForestName $Domain.Forest `
+    -ActiveDirectoryDomainGuid $Domain.ObjectGUID `
+    -ActiveDirectoryDomainsid $Domain.DomainSID `
+    -ActiveDirectoryAzureStorageSid $ComputerSid
+
+
+$FileShare = '\\' + $StorageAccountName + $Suffix + '\' + $HostPoolName
+$Group = $Netbios + '\' + $SecurityPrincipalName
+$Username = 'Azure\' + $StorageAccountName
+$Password = ConvertTo-SecureString -String $StorageKey -AsPlainText -Force
+[pscredential]$Credential = New-Object System.Management.Automation.PSCredential ($Username, $Password)
+
+# Mount file share
+New-PSDrive -Name 'Z' -PSProvider 'FileSystem' -Root $FileShare -Credential $Credential -Persist -ErrorAction 'Stop'
+
+# Set recommended NTFS permissions on the file share
+Start-Process icacls -ArgumentList "Z: /grant $($Group):(M)" -Wait -NoNewWindow -PassThru -ErrorAction 'Stop'
+Start-Process icacls -ArgumentList 'Z: /grant "Creator Owner":(OI)(CI)(IO)(M)' -Wait -NoNewWindow -PassThru -ErrorAction 'Stop'
+Start-Process icacls -ArgumentList 'Z: /remove "Authenticated Users"' -Wait -NoNewWindow -PassThru -ErrorAction 'Stop'
+Start-Process icacls -ArgumentList 'Z: /remove "Builtin\Users"' -Wait -NoNewWindow -PassThru -ErrorAction 'Stop'
+
+# Unmount file share
+Remove-PSDrive -Name 'Z' -PSProvider 'FileSystem' -Force -ErrorAction 'Stop'

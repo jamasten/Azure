@@ -301,6 +301,7 @@
             "location": "[parameters('location')]",
             "dependsOn": [
                 "[variables('VmName')]",
+                "JsonADDomainExtension",
                 "[parameters('StorageAccountName')]",
                 "[variables('RoleAssignmentName_ResourceGroup')]",
                 "[variables('RoleAssignmentName_Storage')]",

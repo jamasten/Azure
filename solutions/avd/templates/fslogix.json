@@ -72,13 +72,15 @@
     "variables": {
         "NicName": "[concat('nic-', parameters('resourceNameSuffix'), '-mgt')]",
         "ResourceGroupName": "[resourceGroup().name]",
-        "RoleAssignmentName": "[guid(parameters('StorageAccountName'), '1')]",
+        "RoleAssignmentName_ResourceGroup": "[guid(variables('ResourceGroupName'), '0')]",
+        "RoleAssignmentName_Storage": "[guid(parameters('StorageAccountName'), '0')]",
         "VmName": "[concat(parameters('VmName'), 'mgt')]"
     },
     "resources": [
         {
             "comments": "---------- NETWORK INTERFACES ----------",
             "type": "Microsoft.Network/networkInterfaces",
+            "condition": "[equals(parameters('newOrExisting'), 'new')]",
             "apiVersion": "2020-05-01",
             "name": "[variables('NicName')]",
             "location": "[parameters('Location')]",
@@ -103,6 +105,7 @@
         },
         {
             "comments": "---------- VIRTUAL MACHINES ----------",
+            "condition": "[equals(parameters('newOrExisting'), 'new')]",
             "type": "Microsoft.Compute/virtualMachines",
             "apiVersion": "2020-12-01",
             "name": "[variables('VmName')]",
@@ -224,11 +227,11 @@
             }
         },
         {
-            "comments": "---------- ROLE ASSIGNMENT > USER ASSIGNED MANAGED IDENTITY > CONTRIBUTOR ----------",
+            "comments": "---------- ROLE ASSIGNMENT > STORAGE ACCOUNT CONTRIBUTOR ----------",
             "condition": "[equals(parameters('newOrExisting'), 'new')]",
             "type": "Microsoft.Authorization/roleAssignments",
             "apiVersion": "2020-04-01-preview",
-            "name": "[variables('RoleAssignmentName')]",
+            "name": "[variables('RoleAssignmentName_Storage')]",
             "scope": "[concat('Microsoft.Storage/storageAccounts', '/', parameters('StorageAccountName'))]",
             "dependsOn": [
                 "[variables('VmName')]",
@@ -236,6 +239,21 @@
             ],
             "properties": {
                 "roleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', 'b24988ac-6180-42a0-ab88-20f7382dd24c')]",
+                "principalId": "[reference(resourceId('Microsoft.Compute/virtualMachines', variables('VmName')), '2020-12-01', 'Full').identity.principalId]",
+                "principalType": "ServicePrincipal"
+            }
+        },
+        {
+            "comments": "---------- ROLE ASSIGNMENT > RESOURCE GROUP READER ----------",
+            "condition": "[equals(parameters('newOrExisting'), 'new')]",
+            "type": "Microsoft.Authorization/roleAssignments",
+            "apiVersion": "2020-04-01-preview",
+            "name": "[variables('RoleAssignmentName_ResourceGroup')]",
+            "dependsOn": [
+                "[variables('VmName')]"
+            ],
+            "properties": {
+                "roleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', 'acdd72a7-3385-48ef-bd42-f606fba81ae7')]",
                 "principalId": "[reference(resourceId('Microsoft.Compute/virtualMachines', variables('VmName')), '2020-12-01', 'Full').identity.principalId]",
                 "principalType": "ServicePrincipal"
             }
@@ -249,7 +267,7 @@
             "tags": "[parameters('Tags')]",
             "dependsOn": [
                 "[parameters('StorageAccountName')]",
-                "[variables('RoleAssignmentName')]"
+                "[variables('RoleAssignmentName_Storage')]"
             ],
             "properties": {
                 "shareDeleteRetentionPolicy": {
@@ -266,7 +284,7 @@
             "tags": "[parameters('Tags')]",
             "dependsOn": [
                 "[parameters('StorageAccountName')]",
-                "[variables('RoleAssignmentName')]",
+                "[variables('RoleAssignmentName_Storage')]",
                 "[resourceId('Microsoft.Storage/storageAccounts/fileServices', parameters('StorageAccountName'), 'default')]"
             ],
             "properties": {
@@ -284,7 +302,8 @@
             "dependsOn": [
                 "[variables('VmName')]",
                 "[parameters('StorageAccountName')]",
-                "[variables('RoleAssignmentName')]",
+                "[variables('RoleAssignmentName_ResourceGroup')]",
+                "[variables('RoleAssignmentName_Storage')]",
                 "[resourceId('Microsoft.Storage/storageAccounts/fileServices', parameters('StorageAccountName'), 'default')]",
                 "[resourceId('Microsoft.Storage/storageAccounts/fileServices/shares', parameters('StorageAccountName'), 'default', parameters('HostPoolName'))]"
             ],

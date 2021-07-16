@@ -72,8 +72,7 @@
     "variables": {
         "NicName": "[concat('nic-', parameters('resourceNameSuffix'), '-mgt')]",
         "ResourceGroupName": "[resourceGroup().name]",
-        "RoleAssignmentName_ResourceGroup": "[guid(variables('ResourceGroupName'), '0')]",
-        "RoleAssignmentName_Storage": "[guid(parameters('StorageAccountName'), '0')]",
+        "RoleAssignmentName": "[guid(parameters('StorageAccountName'), '0')]",
         "VmName": "[concat(parameters('VmName'), 'mgt')]"
     },
     "resources": [
@@ -231,7 +230,7 @@
             "condition": "[equals(parameters('newOrExisting'), 'new')]",
             "type": "Microsoft.Authorization/roleAssignments",
             "apiVersion": "2020-04-01-preview",
-            "name": "[variables('RoleAssignmentName_Storage')]",
+            "name": "[variables('RoleAssignmentName')]",
             "scope": "[concat('Microsoft.Storage/storageAccounts', '/', parameters('StorageAccountName'))]",
             "dependsOn": [
                 "[variables('VmName')]",
@@ -239,21 +238,6 @@
             ],
             "properties": {
                 "roleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', 'b24988ac-6180-42a0-ab88-20f7382dd24c')]",
-                "principalId": "[reference(resourceId('Microsoft.Compute/virtualMachines', variables('VmName')), '2020-12-01', 'Full').identity.principalId]",
-                "principalType": "ServicePrincipal"
-            }
-        },
-        {
-            "comments": "---------- ROLE ASSIGNMENT > RESOURCE GROUP READER ----------",
-            "condition": "[equals(parameters('newOrExisting'), 'new')]",
-            "type": "Microsoft.Authorization/roleAssignments",
-            "apiVersion": "2020-04-01-preview",
-            "name": "[variables('RoleAssignmentName_ResourceGroup')]",
-            "dependsOn": [
-                "[variables('VmName')]"
-            ],
-            "properties": {
-                "roleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', 'acdd72a7-3385-48ef-bd42-f606fba81ae7')]",
                 "principalId": "[reference(resourceId('Microsoft.Compute/virtualMachines', variables('VmName')), '2020-12-01', 'Full').identity.principalId]",
                 "principalType": "ServicePrincipal"
             }
@@ -267,7 +251,7 @@
             "tags": "[parameters('Tags')]",
             "dependsOn": [
                 "[parameters('StorageAccountName')]",
-                "[variables('RoleAssignmentName_Storage')]"
+                "[variables('RoleAssignmentName')]"
             ],
             "properties": {
                 "shareDeleteRetentionPolicy": {
@@ -284,7 +268,7 @@
             "tags": "[parameters('Tags')]",
             "dependsOn": [
                 "[parameters('StorageAccountName')]",
-                "[variables('RoleAssignmentName_Storage')]",
+                "[variables('RoleAssignmentName')]",
                 "[resourceId('Microsoft.Storage/storageAccounts/fileServices', parameters('StorageAccountName'), 'default')]"
             ],
             "properties": {
@@ -303,8 +287,7 @@
                 "[variables('VmName')]",
                 "JsonADDomainExtension",
                 "[parameters('StorageAccountName')]",
-                "[variables('RoleAssignmentName_ResourceGroup')]",
-                "[variables('RoleAssignmentName_Storage')]",
+                "[variables('RoleAssignmentName')]",
                 "[resourceId('Microsoft.Storage/storageAccounts/fileServices', parameters('StorageAccountName'), 'default')]",
                 "[resourceId('Microsoft.Storage/storageAccounts/fileServices/shares', parameters('StorageAccountName'), 'default', parameters('HostPoolName'))]"
             ],

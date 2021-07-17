@@ -73,7 +73,7 @@
         "NicName": "[concat('nic-', parameters('resourceNameSuffix'), '-mgt')]",
         "ResourceGroupName": "[resourceGroup().name]",
         "RoleAssignmentName": "[guid(parameters('StorageAccountName'), '0')]",
-        "RoleAssignmentName_Share": "[guid(concat(parameters('StorageAccountName'), '/default/', parameters('HostPoolName')), '0')]",
+        "RoleAssignmentName_Users": "[guid(concat(parameters('StorageAccountName'), '/default/', parameters('HostPoolName')), '0')]",
         "VmName": "[concat(parameters('VmName'), 'mgt')]"
     },
     "resources": [
@@ -227,7 +227,7 @@
             }
         },
         {
-            "comments": "---------- ROLE ASSIGNMENT > STORAGE ACCOUNT CONTRIBUTOR ----------",
+            "comments": "---------- ROLE ASSIGNMENT > STORAGE ACCOUNT > CONTRIBUTOR ----------",
             "condition": "[equals(parameters('newOrExisting'), 'new')]",
             "type": "Microsoft.Authorization/roleAssignments",
             "apiVersion": "2020-04-01-preview",
@@ -241,6 +241,23 @@
                 "roleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', 'b24988ac-6180-42a0-ab88-20f7382dd24c')]",
                 "principalId": "[reference(resourceId('Microsoft.Compute/virtualMachines', variables('VmName')), '2020-12-01', 'Full').identity.principalId]",
                 "principalType": "ServicePrincipal"
+            }
+        },
+        {
+            "comments": "---------- ROLE ASSIGNMENT > STORAGE ACCOUNT > Storage File Data SMB Share Contributor ----------",
+            "condition": "[equals(parameters('newOrExisting'), 'new')]",
+            "type": "Microsoft.Authorization/roleAssignments",
+            "apiVersion": "2020-04-01-preview",
+            "name": "[variables('RoleAssignmentName_Users')]",
+            "scope": "[concat('Microsoft.Storage/storageAccounts', '/', parameters('StorageAccountName'))]",
+            "dependsOn": [
+                "[parameters('StorageAccountName')]",
+                "[variables('RoleAssignmentName')]"
+
+            ],
+            "properties": {
+                "roleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', '0c867c2a-1d8c-454a-a3db-ab2ea1bdc8bb')]",
+                "principalId": "[parameters('SecurityPrincipalId')]"
             }
         },
         {
@@ -307,22 +324,6 @@
                 "protectedSettings": {
                     "commandToExecute": "[concat('powershell -ExecutionPolicy Unrestricted -File New-DomainJoinStorageAccount.ps1 -DomainJoinPassword ', parameters('DomainJoinPassword'), ' -DomainJoinUsername ', parameters('DomainJoinUsername'), ' -Environment ', environment().name, ' -HostPoolName ', parameters('HostPoolName'), ' -KerberosEncryptionType ', parameters('KerberosEncryptionType'), ' -Netbios ', parameters('Netbios'), ' -OuPath ', parameters('OuPath'), ' -ResourceGroupName ', variables('ResourceGroupName'), ' -SecurityPrincipalName ', parameters('SecurityPrincipalName'), ' -StorageAccountName ', parameters('StorageAccountName'), ' -StorageKey ', listKeys(resourceId('Microsoft.Storage/storageAccounts', parameters('StorageAccountName')), '2019-06-01').keys[0].value, ' -SubscriptionId ', subscription().subscriptionId, ' -TenantId ', subscription().tenantId)]"
                 }
-            }
-        },
-        {
-            "comments": "---------- ROLE ASSIGNMENT > FILE SHARE > Storage File Data SMB Share Contributor ----------",
-            "condition": "[equals(parameters('newOrExisting'), 'new')]",
-            "scope": "[concat('Microsoft.Storage/storageAccounts/', parameters('StorageAccountName'),'/fileServices/default/shares/', parameters('HostPoolName'))]",
-            "type": "Microsoft.Authorization/roleAssignments",
-            "apiVersion": "2020-04-01-preview",
-            "name": "[variables('RoleAssignmentName_Share')]",
-            "dependsOn": [
-                "[resourceId('Microsoft.Storage/storageAccounts/fileServices/shares', parameters('StorageAccountName'), 'default', parameters('HostPoolName'))]",
-                "[resourceId('Microsoft.Compute/virtualMachines/extensions', variables('VmName'), 'CustomScriptExtension')]"
-            ],
-            "properties": {
-                "roleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', '0c867c2a-1d8c-454a-a3db-ab2ea1bdc8bb')]",
-                "principalId": "[parameters('SecurityPrincipalId')]"
             }
         }
     ]

@@ -318,7 +318,7 @@
             "name": "[variables('RoleAssignmentName_Share')]",
             "dependsOn": [
                 "[resourceId('Microsoft.Storage/storageAccounts/fileServices/shares', parameters('StorageAccountName'), 'default', parameters('HostPoolName'))]",
-                "[resourceId('Microsoft.Compute/virtualMachines/extensions', concat(variables('VmName'), '/CustomScriptExtension'))]"
+                "[resourceId('Microsoft.Compute/virtualMachines/extensions', variables('VmName'), 'CustomScriptExtension')]"
             ],
             "properties": {
                 "roleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', '0c867c2a-1d8c-454a-a3db-ab2ea1bdc8bb')]",

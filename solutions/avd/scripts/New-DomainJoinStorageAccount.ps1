@@ -64,7 +64,9 @@ function Write-Log
 }
 
 try 
-{    
+{   
+    Set-ExecutionPolicy -ExecutionPolicy 'Unrestricted' -Scope 'CurrentUser'
+    
     # Install latest NuGet Provider; recommended for PowerShellGet
     Install-PackageProvider -Name 'NuGet' -Force -ErrorAction 'Stop'
     Write-Log -Message "Installed the NuGet Package Provider" -Type 'INFO'

@@ -73,6 +73,7 @@
         "NicName": "[concat('nic-', parameters('resourceNameSuffix'), '-mgt')]",
         "ResourceGroupName": "[resourceGroup().name]",
         "RoleAssignmentName": "[guid(parameters('StorageAccountName'), '0')]",
+        "RoleAssignmentName_Share": "[guid(concat(parameters('StorageAccountName'), '/default/', parameters('HostPoolName')), '0')]",
         "VmName": "[concat(parameters('VmName'), 'mgt')]"
     },
     "resources": [
@@ -307,24 +308,22 @@
                     "commandToExecute": "[concat('powershell -ExecutionPolicy Unrestricted -File New-DomainJoinStorageAccount.ps1 -DomainJoinPassword ', parameters('DomainJoinPassword'), ' -DomainJoinUsername ', parameters('DomainJoinUsername'), ' -Environment ', environment().name, ' -HostPoolName ', parameters('HostPoolName'), ' -KerberosEncryptionType ', parameters('KerberosEncryptionType'), ' -Netbios ', parameters('Netbios'), ' -OuPath ', parameters('OuPath'), ' -ResourceGroupName ', variables('ResourceGroupName'), ' -SecurityPrincipalName ', parameters('SecurityPrincipalName'), ' -StorageAccountName ', parameters('StorageAccountName'), ' -StorageKey ', listKeys(resourceId('Microsoft.Storage/storageAccounts', parameters('StorageAccountName')), '2019-06-01').keys[0].value, ' -SubscriptionId ', subscription().subscriptionId, ' -TenantId ', subscription().tenantId)]"
                 }
             }
-        }
-        // Setting the role assignment on the file share currently does not work and must be manually set after the deployment.
-        /*{
+        },
+        {
             "comments": "---------- ROLE ASSIGNMENT > FILE SHARE > Storage File Data SMB Share Contributor ----------",
             "condition": "[equals(parameters('newOrExisting'), 'new')]",
             "scope": "[concat('Microsoft.Storage/storageAccounts/', parameters('StorageAccountName'),'/fileServices/default/shares/', parameters('HostPoolName'))]",
             "type": "Microsoft.Authorization/roleAssignments",
             "apiVersion": "2020-04-01-preview",
-            "name": "deb6f557-7e50-4881-bfff-e8e2b5d597e2",
+            "name": "[variables('RoleAssignmentName_Share')]",
             "dependsOn": [
-                "[resourceId('Microsoft.Authorization/roleAssignments', '[variables('RoleAssignmentName')]')]",
                 "[resourceId('Microsoft.Storage/storageAccounts/fileServices/shares', parameters('StorageAccountName'), 'default', parameters('HostPoolName'))]",
-                "ds-enableAuth"
+                "[concat(variables('VmName'), '/CustomScriptExtension')]"
             ],
             "properties": {
                 "roleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', '0c867c2a-1d8c-454a-a3db-ab2ea1bdc8bb')]",
                 "principalId": "[parameters('SecurityPrincipalId')]"
             }
-        }*/
+        }
     ]
 }

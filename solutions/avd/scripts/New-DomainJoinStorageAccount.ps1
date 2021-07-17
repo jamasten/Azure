@@ -67,15 +67,19 @@ try
 {    
     # Install latest NuGet Provider; recommended for PowerShellGet
     Install-PackageProvider -Name 'NuGet' -Force -ErrorAction 'Stop'
+    Write-Log -Message "Installed the NuGet Package Provider" -Type 'INFO'
 
     # Install PowerShellGet; prereq for the Az.Storage module
     Install-Module -Name 'PowerShellGet' -Force -ErrorAction 'Stop'
+    Write-Log -Message "Installed the PowerShellGet module" -Type 'INFO'
 
     # Install required Az.Storage module
-    Install-Module -Name 'Az.Storage' -Scope 'CurrentUser' -Repository 'PSGallery' -Force -ErrorAction 'Stop'
+    Install-Module -Name 'Az.Storage' -Repository 'PSGallery' -Force -ErrorAction 'Stop'
+    Write-Log -Message "Installed the Az.Storage module" -Type 'INFO'
 
     # Connects to Azure using a User Assigned Managed Identity
     Connect-AzAccount -Identity -Tenant $TenantId -Subscription $SubscriptionId -ErrorAction 'Stop'
+    Write-Log -Message "Authenticated to Azure" -Type 'INFO'
 
     # Get / create kerberos key for Azure Storage Account
     $Test = (Get-AzStorageAccountKey -ResourceGroupName $ResourceGroupName -Name $StorageAccountName -ListKerbKey | Where-Object {$_.Keyname -contains 'kerb1'}).Value
@@ -88,11 +92,11 @@ try
     {
         $Key = $Test
     }
-    Write-Log -Message "" -Type INFO
+    Write-Log -Message "Acquired Kerberos Key from Storage Account" -Type 'INFO'
 
     # Install Active Directory PowerShell module
     Install-WindowsFeature -Name 'RSAT-AD-PowerShell' -ErrorAction 'Stop'
-    Write-Log -Message "Installation of the AD module succeeded" -Type INFO
+    Write-Log -Message "Installation of the AD module succeeded" -Type 'INFO'
 
     # Create credential for domain joining the Azure Storage Account
     $Username = $Netbios + '\' + $DomainJoinUsername
@@ -105,11 +109,11 @@ try
         AzureCloud {'.file.core.windows.net'}
         AzureUSGovernment {'.file.core.usgovcloudapi.net'}
     }
-    Write-Log -Message "Storage Account Suffix = $Suffix" -Type INFO
+    Write-Log -Message "Storage Account Suffix = $Suffix" -Type 'INFO'
 
     # Creates a password for the Azure Storage Account in AD using the Kerberos key
     $ComputerPassword = ConvertTo-SecureString -String $Key.Replace("'","") -AsPlainText -Force -ErrorAction Stop
-    Write-Log -Message "Secure string conversion succeeded" -Type INFO
+    Write-Log -Message "Secure string conversion succeeded" -Type 'INFO'
 
     # Create the SPN value for the Azure Storage Account; attribute for computer object in AD 
     $SPN = 'cifs/' + $StorageAccountName + $Suffix
@@ -119,17 +123,17 @@ try
 
     # Create the AD computer object for the Azure Storage Account
     New-ADComputer -Credential $Credential -Name $StorageAccountName -ServicePrincipalNames $SPN -AccountPassword $ComputerPassword -KerberosEncryptionType $KerberosEncryptionType -Description $Description -ErrorAction 'Stop'
-    Write-Log -Message "Computer object creation succeeded" -Type INFO
+    Write-Log -Message "Computer object creation succeeded" -Type 'INFO'
 
-    # Get domain info required for the Azure Storage Account
+    # Get domain 'INFO' required for the Azure Storage Account
     $Domain = Get-ADDomain -Credential $Credential -Current 'LocalComputer' -ErrorAction 'Stop'
-    Write-Log -Message "Domain info collection succeeded" -Type INFO
+    Write-Log -Message "Domain 'INFO' collection succeeded" -Type 'INFO'
 
     # Get the SID for the Azure Storage Account Computer Object in AD
     $ComputerSid = (Get-ADComputer -Identity $StorageAccountName -ErrorAction 'Stop').SID.Value
-    Write-Log -Message "Computer object info collection succeeded" -Type INFO
+    Write-Log -Message "Computer object 'INFO' collection succeeded" -Type 'INFO'
 
-    # Update the Azure Storage Account with the domain join info
+    # Update the Azure Storage Account with the domain join 'INFO'
     Set-AzStorageAccount `
         -ResourceGroupName $ResourceGroupName `
         -Name $StorageAccountName `
@@ -139,8 +143,9 @@ try
         -ActiveDirectoryForestName $Domain.Forest `
         -ActiveDirectoryDomainGuid $Domain.ObjectGUID `
         -ActiveDirectoryDomainsid $Domain.DomainSID `
-        -ActiveDirectoryAzureStorageSid $ComputerSid
-    Write-Log -Message "Storage Account update with domain join info succeeded" -Type INFO
+        -ActiveDirectoryAzureStorageSid $ComputerSid `
+        -ErrorAction 'Stop'
+    Write-Log -Message "Storage Account update with domain join 'INFO' succeeded" -Type 'INFO'
 
     # Set the variables required to mount the Azure file share
     $FileShare = '\\' + $StorageAccountName + $Suffix + '\' + $HostPoolName
@@ -151,19 +156,19 @@ try
 
     # Mount file share
     New-PSDrive -Name 'Z' -PSProvider 'FileSystem' -Root $FileShare -Credential $Credential -Persist -ErrorAction 'Stop'
-    Write-Log -Message "Mounting the Azure file share succeeded" -Type INFO
+    Write-Log -Message "Mounting the Azure file share succeeded" -Type 'INFO'
 
     # Set recommended NTFS permissions on the file share
     Start-Process icacls -ArgumentList "Z: /grant $($Group):(M)" -Wait -NoNewWindow -PassThru -ErrorAction 'Stop'
     Start-Process icacls -ArgumentList 'Z: /grant "Creator Owner":(OI)(CI)(IO)(M)' -Wait -NoNewWindow -PassThru -ErrorAction 'Stop'
     Start-Process icacls -ArgumentList 'Z: /remove "Authenticated Users"' -Wait -NoNewWindow -PassThru -ErrorAction 'Stop'
     Start-Process icacls -ArgumentList 'Z: /remove "Builtin\Users"' -Wait -NoNewWindow -PassThru -ErrorAction 'Stop'
-    Write-Log -Message "Setting the NTFS permissions on the Azure file share succeeded" -Type INFO
+    Write-Log -Message "Setting the NTFS permissions on the Azure file share succeeded" -Type 'INFO'
 
     # Unmount file share
     Remove-PSDrive -Name 'Z' -PSProvider 'FileSystem' -Force -ErrorAction 'Stop'
-    Write-Log -Message "Unmounting the Azure file share succeeded" -Type INFO
+    Write-Log -Message "Unmounting the Azure file share succeeded" -Type 'INFO'
 }
 catch {
-    
+    Write-Log -Message $_ -Type 'ERROR'
 }

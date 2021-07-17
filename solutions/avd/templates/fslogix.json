@@ -283,7 +283,7 @@
             "type": "Microsoft.Compute/virtualMachines/extensions",
             "apiVersion": "2020-12-01",
             "name": "[concat(variables('VmName'), '/CustomScriptExtension')]",
-            "location": "[parameters('location')]",
+            "location": "[parameters('Location')]",
             "dependsOn": [
                 "[variables('VmName')]",
                 "JsonADDomainExtension",

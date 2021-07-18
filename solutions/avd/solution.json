@@ -94,10 +94,9 @@
             },
             "allowedValues": [
                 "AES256",
-                "RC4",
-                "AES256,RC4"
+                "RC4"
             ],
-            "defaultValue": "AES256,RC4"
+            "defaultValue": "RC4"
         },
         "LogAnalyticsWorkspaceRetention": {
             "type": "int",

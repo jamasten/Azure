@@ -124,7 +124,7 @@ try
     $Description = "Computer account object for Azure storage account $($StorageAccountName)."
 
     # Create the AD computer object for the Azure Storage Account
-    New-ADComputer -Credential $Credential -Name $StorageAccountName -ServicePrincipalNames $SPN -AccountPassword $ComputerPassword -KerberosEncryptionType $KerberosEncryptionType -Description $Description -ErrorAction 'Stop'
+    New-ADComputer -Credential $Credential -Name $StorageAccountName -Path $OuPath -ServicePrincipalNames $SPN -AccountPassword $ComputerPassword -KerberosEncryptionType $KerberosEncryptionType -Description $Description -ErrorAction 'Stop'
     Write-Log -Message "Computer object creation succeeded" -Type 'INFO'
 
     # Get domain 'INFO' required for the Azure Storage Account
@@ -147,7 +147,7 @@ try
         -ActiveDirectoryDomainsid $Domain.DomainSID `
         -ActiveDirectoryAzureStorageSid $ComputerSid `
         -ErrorAction 'Stop'
-    Write-Log -Message "Storage Account update with domain join 'INFO' succeeded" -Type 'INFO'
+    Write-Log -Message "Storage Account update with domain join info succeeded" -Type 'INFO'
 
     # Set the variables required to mount the Azure file share
     $FileShare = '\\' + $StorageAccountName + $Suffix + '\' + $HostPoolName

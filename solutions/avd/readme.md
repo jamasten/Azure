@@ -1,14 +1,14 @@
 # Azure Virtual Desktop solution
 
-This solution will deploy Azure Virtual Desktop in an Azure subscription.  Depending on the options selected, either a personal or pooled host pool can be deployed with this solution.  The pooled option will deploy an App Group with a role assignment and deploy most of the requirements for FSLogix.  The naming for all the resources follows Microsoft's best practice guidance using a resource type prefix for all resources with a hyphen following the resource type to easily parse names.
+This solution will deploy Azure Virtual Desktop in an Azure subscription.  Depending on the options selected, either a personal or pooled host pool can be deployed with this solution.  The pooled option will deploy an App Group with a role assignment and everything to enable FSLogix.  The naming for all the resources follows Microsoft's best practice guidance using a resource type prefix for all resources with a hyphen following the resource type to easily parse names.
 
 This solution contains many features that are usually enabled manually after deploying a AVD host pool.  Those features are:
 
 - FSLogix:
   - Configures the recommended registry settings on the session hosts.
-  - Deploys an Azure File Share, domain joins the Storage Account, and sets the NTFS permissions.
+  - Deploys an Azure File Share, domain joins the Storage Account, and sets the Share and NTFS permissions.
 - Scaling Automation:
-  - Enables the solution if the host pool is "pooled".
+  - Enables the solution if the host pool is "pooled".  The RunAs account must be manually created after the deployment.
 - Start VM On Connect:
   - Configures the feature for the AVD host pool.
 - VDI Optimization Script:
@@ -38,8 +38,7 @@ To successfully deploy this solution, you will need to first ensure the followin
 
 ## Post Deployment Requirements
 
-- Add an RBAC assignment on the Azure file share giving your AVD users the SMB Contributor role.  Your users will be unable to use FSLogix until this RBAC assignment has been completed.
-- Create a Run As account in the Automation Account using the default name, "AzureRunAsConnection".  The Scaling Automation solution will fail to operate until this has been completed.
+- If deploying a Pooled host pool, create a Run As account in the Automation Account using the default name, "AzureRunAsConnection".  The Scaling Automation solution will fail to operate until this has been completed.
 
 ## Deployment Options
 

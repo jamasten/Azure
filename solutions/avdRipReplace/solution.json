@@ -96,18 +96,6 @@
             },
             "defaultValue": "latest"
         },
-        "InstallOneDrivePerMachineMode": {
-            "type": "bool",
-            "metadata": {
-                "description": "Install One Drive in Per-Machine Mode for Windows 10 EVD."
-            }
-        },
-        "InstallTeams": {
-            "type": "bool",
-            "metadata": {
-                "description": "Install Microsoft Teams with Media Optimization for VDI."
-            }
-        },
         "Location": {
             "type": "string",
             "metadata": {
@@ -343,12 +331,6 @@
                     },
                     "ImageVersion": {
                         "value": "[parameters('ImageVersion')]"
-                    },
-                    "InstallOneDrivePerMachineMode": {
-                        "value": "[parameters('InstallOneDrivePerMachineMode')]"
-                    },
-                    "InstallTeams": {
-                        "value": "[parameters('InstallTeams')]"
                     },
                     "Location": {
                         "value": "[parameters('Location')]"

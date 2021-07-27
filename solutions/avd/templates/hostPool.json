@@ -53,6 +53,54 @@
         }
     },
     "variables": {
+        "HostPoolLogs_AzureCloud": [
+            {
+                "category": "Checkpoint",
+                "enabled": true
+            },
+            {
+                "category": "Error",
+                "enabled": true
+            },
+            {
+                "category": "Management",
+                "enabled": true
+            },
+            {
+                "category": "Connection",
+                "enabled": true
+            },
+            {
+                "category": "HostRegistration",
+                "enabled": true
+            },
+            {
+                "category": "AgentHealthStatus",
+                "enabled": true
+            }
+        ],
+        "HostPoolLogs_AzureUsGov": [
+            {
+                "category": "Checkpoint",
+                "enabled": true
+            },
+            {
+                "category": "Error",
+                "enabled": true
+            },
+            {
+                "category": "Management",
+                "enabled": true
+            },
+            {
+                "category": "Connection",
+                "enabled": true
+            },
+            {
+                "category": "HostRegistration",
+                "enabled": true
+            }
+        ],
         "WindowsEvents": [
             {
                 "name": "Microsoft-FSLogix-Apps/Operational",
@@ -532,32 +580,7 @@
                 "[resourceId('Microsoft.DesktopVirtualization/hostpools', parameters('HostPoolName'))]"
             ],
             "properties": {
-                "logs": [
-                    {
-                        "category": "Checkpoint",
-                        "enabled": true
-                    },
-                    {
-                        "category": "Error",
-                        "enabled": true
-                    },
-                    {
-                        "category": "Management",
-                        "enabled": true
-                    },
-                    {
-                        "category": "Connection",
-                        "enabled": true
-                    },
-                    {
-                        "category": "HostRegistration",
-                        "enabled": true
-                    },
-                    {
-                        "category": "AgentHealthStatus",
-                        "enabled": true
-                    }
-                ],
+                "logs": "[if(equals(environment().name, 'AzureCloud'), variables('HostPoolLogs_AzureCloud'), variables('HostPoolLogs_AzureUsGov'))]",
                 "workspaceId": "[resourceId('Microsoft.OperationalInsights/workspaces', parameters('LogAnalyticsWorkspaceName'))]"
             }
         },

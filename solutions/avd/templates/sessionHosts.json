@@ -105,6 +105,8 @@
         ],
         "AvailabilitySetName": "[concat('as-', parameters('ResourceNameSuffix'))]",
         "AvailabilitySetId": { "id": "[resourceId('Microsoft.Compute/availabilitySets', variables('AvailabilitySetName'))]" },
+        "AvdAgentUrl_AzureCloud": "https://wvdportalstorageblob.blob.core.windows.net/galleryartifacts/Configuration_6-1-2021.zip",
+        "AvdAgentUrl_AzureUsGov": "https://wvdportalstorageblob.blob.core.usgovcloudapi.net/galleryartifacts/Configuration_5-5-2021.zip",
         "NvidiaVmSizes": [
             "Standard_NV6",
             "Standard_NV12",
@@ -180,7 +182,7 @@
         {
             "comments": "---------- VIRTUAL MACHINES ----------",
             "type": "Microsoft.Compute/virtualMachines",
-            "apiVersion": "2020-12-01",
+            "apiVersion": "2021-03-01",
             "name": "[concat(parameters('VmName'), padLeft(copyIndex(parameters('SessionHostIndex')), 3, '0'))]",
             "location": "[parameters('Location')]",
             "tags": "[parameters('Tags')]",
@@ -237,7 +239,7 @@
                     "comments": "---------- MICROSOFT MONITORING AGENT ----------",
                     "type": "extensions",
                     "name": "MicrosoftMonitoringAgent",
-                    "apiVersion": "2017-03-30",
+                    "apiVersion": "2021-03-01",
                     "location": "[resourceGroup().location]",
                     "dependsOn": [
                         "[concat(parameters('VmName'), padLeft(copyIndex(parameters('SessionHostIndex')), 3, '0'))]"
@@ -258,7 +260,7 @@
                 {
                     "comments": "---------- DESIRED STATE CONFIGURATION EXTENSION ----------",
                     "type": "extensions",
-                    "apiVersion": "2019-07-01",
+                    "apiVersion": "2021-03-01",
                     "name": "DSC",
                     "location": "[parameters('Location')]",
                     "tags": "[parameters('Tags')]",
@@ -273,11 +275,12 @@
                         "type": "DSC",
                         "typeHandlerVersion": "2.73",
                         "settings": {
-                            "modulesUrl": "https://wvdportalstorageblob.blob.core.windows.net/galleryartifacts/Configuration_7-20-2020.zip",
+                            "modulesUrl": "[if(equals(environment().name, 'AzureUSGovernment'), variables('AvdAgentUrl_AzureUsGov'), variables('AvdAgentUrl_AzureCloud'))]",
                             "configurationFunction": "Configuration.ps1\\AddSessionHost",
                             "properties": {
                                 "hostPoolName": "[parameters('HostPoolName')]",
-                                "registrationInfoToken": "[reference(resourceId(parameters('HostPoolResourceGroupName'), 'Microsoft.DesktopVirtualization/hostpools', parameters('HostPoolName')), '2019-12-10-preview').registrationInfo.token]"
+                                "registrationInfoToken": "[reference(resourceId(parameters('HostPoolResourceGroupName'), 'Microsoft.DesktopVirtualization/hostpools', parameters('HostPoolName')), '2019-12-10-preview').registrationInfo.token]",
+                                "aadJoin": false
                             }
                         },
                         "protectedSettings": {}
@@ -285,7 +288,7 @@
                 },
                 {
                     "comments": "---------- DOMAIN JOIN EXTENSION ----------",
-                    "apiVersion": "2019-07-01",
+                    "apiVersion": "2021-03-01",
                     "type": "extensions",
                     "name": "JsonADDomainExtension",
                     "location": "[parameters('Location')]",
@@ -316,7 +319,7 @@
                     "comments": "---------- CUSTOM SCRIPT EXTENSION ----------",
                     "condition": "[variables('PooledHostPool')]",
                     "type": "extensions",
-                    "apiVersion": "2020-12-01",
+                    "apiVersion": "2021-03-01",
                     "name": "CustomScriptExtension",
                     "location": "[parameters('location')]",
                     "dependsOn": [
@@ -347,7 +350,7 @@
                     "comments": "---------- AMD DRIVER EXTENSION ----------",
                     "condition": "[contains(variables('AmdVmSizes'), parameters('VmSize'))]",
                     "type": "extensions",
-                    "apiVersion": "2015-06-15",
+                    "apiVersion": "2021-03-01",
                     "name": "AmdGpuDriverWindows",
                     "location": "[parameters('Location')]",
                     "tags": "[parameters('Tags')]",
@@ -366,7 +369,7 @@
                     "comments": "---------- NVIDIA DRIVER EXTENSION ----------",
                     "condition": "[contains(variables('NvidiaVmSizes'), parameters('VmSize'))]",
                     "type": "extensions",
-                    "apiVersion": "2015-06-15",
+                    "apiVersion": "2021-03-01",
                     "name": "NvidiaGpuDriverWindows",
                     "location": "[parameters('Location')]",
                     "tags": "[parameters('Tags')]",

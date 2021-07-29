@@ -38,7 +38,7 @@
             "metadata": {
                 "description": "The name of the domain that provides ADDS to the AVD session hosts and is synchronized with Azure AD"
             },
-            "defaultValue": "jasonmasten.com"
+            "defaultValue": "battelle.us"
         },
         "DomainServices": {
             "type": "string",
@@ -163,7 +163,7 @@
             "metadata": {
                 "description": "The distinguished name for the target Organization Unit in Active Directory Domain Services."
             },
-            "defaultValue": "OU=Pooled,OU=AVD,DC=jasonmasten,DC=com"
+            "defaultValue": "OU=Computers,DC=battelle,DC=us"
         },
         "ResourceNameSuffix": {
             "type": "string",
@@ -248,7 +248,7 @@
             "metadata": {
                 "description": "The Object ID for the Security Principal to assign to the AVD Application Group.  This Security Principal will be assigned the Desktop Virtualization User role on the Application Group."
             },
-            "defaultValue": "5c55bf93-86ee-4e1d-a81a-3a78402e6077"
+            "defaultValue": "8d8e9837-ab22-4de6-9d6d-7768195c6444"
         },
         "SecurityPrincipalName": {
             "type": "string",
@@ -294,7 +294,7 @@
             "metadata": {
                 "description": "The subnet for the AVD session hosts."
             },
-            "defaultValue": "snet-clients-d-eastus"
+            "defaultValue": "aadds-subnet"
         },
         "Tags": {
             "type": "object",
@@ -323,14 +323,14 @@
             "metadata": {
                 "description": "Virtual network for the AVD sessions hosts"
             },
-            "defaultValue": "vnet-d-eastus"
+            "defaultValue": "aadds-vnet"
         },
         "VirtualNetworkResourceGroup": {
             "type": "string",
             "metadata": {
                 "description": "Virtual network resource group for the AVD sessions hosts"
             },
-            "defaultValue": "rg-network-d-eastus"
+            "defaultValue": "rg-aad-domain-services"
         },
         "VmPassword": {
             "type": "securestring",
@@ -349,13 +349,15 @@
             "type": "string",
             "metadata": {
                 "description": "The Local Administrator Username for the Session Hosts"
-            }
+            },
+            "defaultValue": "azadmin"
         },
         "WvdObjectId": {
             "type": "string",
             "metadata": {
                 "description": "The Object ID for the 'Windows Virtual Desktop' Enterprise Application in Azure AD.  The Object ID can found by selecting 'Microsoft Applications' using the 'Application type' filter in the Enterprise Applications blade of Azure AD."
-            }
+            },
+            "defaultValue": "55c182d1-9935-4ed7-a448-5d453e52e2ed"
         }
     },
     "variables": {

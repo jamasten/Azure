@@ -279,7 +279,7 @@
             "comments": "---------- STORAGE ACCOUNT > FILE SHARE ----------",
             "type": "Microsoft.Storage/storageAccounts/fileServices/shares",
             "apiVersion": "2021-02-01",
-            "name": "[concat(parameters('StorageAccountName'), '/default/', parameters('HostPoolName'))]",
+            "name": "[concat(parameters('StorageAccountName'), '/default/', toLower(parameters('HostPoolName')))]",
             "tags": "[parameters('Tags')]",
             "dependsOn": [
                 "[parameters('StorageAccountName')]",

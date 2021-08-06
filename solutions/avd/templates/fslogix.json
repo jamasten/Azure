@@ -5,7 +5,7 @@
         "DomainJoinPassword": {
             "type": "securestring"
         },
-        "DomainJoinUsername": {
+        "DomainJoinUserPrincipalName": {
             "type": "string"
         },
         "DomainName": {
@@ -182,7 +182,7 @@
                         "autoUpgradeMinorVersion": true,
                         "settings": {
                             "Name": "[parameters('DomainName')]",
-                            "User": "[concat(parameters('Netbios'), '\\', parameters('DomainJoinUsername'))]",
+                            "User": "[parameters('DomainJoinUserPrincipalName')]",
                             "Restart": "true",
                             "Options": "3"
                         },
@@ -322,7 +322,7 @@
                     "timestamp": "[parameters('Timestamp')]"
                 },
                 "protectedSettings": {
-                    "commandToExecute": "[concat('powershell -ExecutionPolicy Unrestricted -File New-DomainJoinStorageAccount.ps1 -DomainJoinPassword ', parameters('DomainJoinPassword'), ' -DomainJoinUsername ', parameters('DomainJoinUsername'), ' -Environment ', environment().name, ' -HostPoolName ', parameters('HostPoolName'), ' -KerberosEncryptionType ', parameters('KerberosEncryptionType'), ' -Netbios ', parameters('Netbios'), ' -OuPath ', parameters('OuPath'), ' -ResourceGroupName ', variables('ResourceGroupName'), ' -SecurityPrincipalName ', parameters('SecurityPrincipalName'), ' -StorageAccountName ', parameters('StorageAccountName'), ' -StorageKey ', listKeys(resourceId('Microsoft.Storage/storageAccounts', parameters('StorageAccountName')), '2019-06-01').keys[0].value, ' -SubscriptionId ', subscription().subscriptionId, ' -TenantId ', subscription().tenantId)]"
+                    "commandToExecute": "[concat('powershell -ExecutionPolicy Unrestricted -File New-DomainJoinStorageAccount.ps1 -DomainJoinPassword ', parameters('DomainJoinPassword'), ' -DomainJoinUsername ', parameters('DomainJoinUserPrincipalName'), ' -Environment ', environment().name, ' -HostPoolName ', parameters('HostPoolName'), ' -KerberosEncryptionType ', parameters('KerberosEncryptionType'), ' -OuPath ', parameters('OuPath'), ' -ResourceGroupName ', variables('ResourceGroupName'), ' -SecurityPrincipalName ', parameters('SecurityPrincipalName'), ' -StorageAccountName ', parameters('StorageAccountName'), ' -StorageKey ', listKeys(resourceId('Microsoft.Storage/storageAccounts', parameters('StorageAccountName')), '2019-06-01').keys[0].value, ' -SubscriptionId ', subscription().subscriptionId, ' -TenantId ', subscription().tenantId)]"
                 }
             }
         }

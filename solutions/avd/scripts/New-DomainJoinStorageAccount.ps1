@@ -7,7 +7,7 @@ param
     [String]$DomainJoinPassword,
 
     [Parameter(Mandatory)]
-    [String]$DomainJoinUsername,
+    [String]$DomainJoinUserPrincipalName,
 
     [Parameter(Mandatory)]
     [String]$Environment,
@@ -18,9 +18,6 @@ param
     [Parameter(Mandatory)]
     [ValidateSet("AES256","RC4","AES256,RC4")]
     [String]$KerberosEncryptionType,
-
-    [Parameter(Mandatory)]
-    [String]$Netbios,
 
     [Parameter(Mandatory)]
     [String]$OuPath,
@@ -101,7 +98,7 @@ try
     Write-Log -Message "Installation of the AD module succeeded" -Type 'INFO'
 
     # Create credential for domain joining the Azure Storage Account
-    $Username = $Netbios + '\' + $DomainJoinUsername
+    $Username = $DomainJoinUserPrincipalName
     $Password = ConvertTo-SecureString -String $DomainJoinPassword -AsPlainText -Force
     [pscredential]$Credential = New-Object System.Management.Automation.PSCredential ($Username, $Password)
 
@@ -141,7 +138,7 @@ try
         -Name $StorageAccountName `
         -EnableActiveDirectoryDomainServicesForFile $true `
         -ActiveDirectoryDomainName $Domain.DNSRoot `
-        -ActiveDirectoryNetBiosDomainName $Netbios `
+        -ActiveDirectoryNetBiosDomainName $Domain.NetBIOSName `
         -ActiveDirectoryForestName $Domain.Forest `
         -ActiveDirectoryDomainGuid $Domain.ObjectGUID `
         -ActiveDirectoryDomainsid $Domain.DomainSID `

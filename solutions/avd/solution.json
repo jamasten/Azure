@@ -27,10 +27,10 @@
                 "description": "The password of the privileged account to domain join the AVD session hosts to your domain"
             }
         },
-        "DomainJoinUsername": {
+        "DomainJoinUserPrincipalName": {
             "type": "string",
             "metadata": {
-                "description": "The username of the privileged account to domain join the AVD session hosts to your domain. Only the username is required. Do not add the Netbios value or UPN suffix.  This should be an account the resides within the domain you are joining."
+                "description": "The UPN of the privileged account to domain join the AVD session hosts to your domain. This should be an account the resides within the domain you are joining."
             }
         },
         "DomainName": {
@@ -355,7 +355,6 @@
         "Location": "[deployment().location]",
         "LogAnalyticsWorkspaceName": "[concat('law-', parameters('ResourceNameSuffix'))]",
         "LogicAppName": "[concat('la-', parameters('ResourceNameSuffix'))]",
-        "Netbios": "[split(parameters('DomainName'), '.')[0]]",
         "ResourceGroups": [
             "[concat('rg-', parameters('ResourceNameSuffix'), '-infra')]",
             "[concat('rg-', parameters('ResourceNameSuffix'), '-hosts')]"
@@ -620,8 +619,8 @@
                     "DomainJoinPassword": {
                         "value": "[parameters('DomainJoinPassword')]"
                     },
-                    "DomainJoinUsername": {
-                        "value": "[parameters('DomainJoinUsername')]"
+                    "DomainJoinUserPrincipalName": {
+                        "value": "[parameters('DomainJoinUserPrincipalName')]"
                     },
                     "DomainName": {
                         "value": "[parameters('DomainName')]"
@@ -658,9 +657,6 @@
                     },
                     "LogAnalyticsWorkspaceResourceGroupName": {
                         "value": "[variables('ResourceGroups')[0]]"
-                    },
-                    "Netbios": {
-                        "value": "[variables('Netbios')]"
                     },
                     "Optimizations": {
                         "value": "[parameters('Optimizations')]"
@@ -734,8 +730,8 @@
                     "DomainJoinPassword": {
                         "value": "[parameters('DomainJoinPassword')]"
                     },
-                    "DomainJoinUsername": {
-                        "value": "[parameters('DomainJoinUsername')]"
+                    "DomainJoinUserPrincipalName": {
+                        "value": "[parameters('DomainJoinUserPrincipalName')]"
                     },
                     "DomainName": {
                         "value": "[parameters('DomainName')]"
@@ -748,9 +744,6 @@
                     },
                     "Location": {
                         "value": "[variables('Location')]"
-                    },
-                    "Netbios": {
-                        "value": "[variables('Netbios')]"
                     },
                     "newOrExisting": {
                         "value": "[parameters('newOrExisting')]"

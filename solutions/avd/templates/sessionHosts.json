@@ -11,7 +11,7 @@
         "DomainJoinPassword": {
             "type": "securestring"
         },
-        "DomainJoinUsername": {
+        "DomainJoinUserPrincipalName": {
             "type": "string"
         },
         "EphemeralOsDisk": {
@@ -45,9 +45,6 @@
             "type": "string"
         },
         "LogAnalyticsWorkspaceResourceGroupName": {
-            "type": "string"
-        },
-        "Netbios": {
             "type": "string"
         },
         "Optimizations": {
@@ -305,7 +302,7 @@
                         "autoUpgradeMinorVersion": true,
                         "settings": {
                             "Name": "[parameters('DomainName')]",
-                            "User": "[concat(parameters('Netbios'), '\\', parameters('DomainJoinUsername'))]",
+                            "User": "[parameters('DomainJoinUserPrincipalName')]",
                             "Restart": "true",
                             "Options": "3",
                             "OUPath": "[parameters('OuPath')]"

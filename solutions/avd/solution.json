@@ -40,6 +40,16 @@
             },
             "defaultValue": "jasonmasten.com"
         },
+        "DomainServices": {
+            "type": "string",
+            "metadata": {
+                "description": "The service providing domain services for Azure Virtual Desktop.  This is needed to determine the proper solution to domain join the Azure Storage Account."
+            },
+            "allowedValues": [
+                "Active Directory",
+                "Azure Active Directory"
+            ]
+        },
         "EphemeralOsDisk": {
             "type": "bool",
             "metadata": {
@@ -355,13 +365,14 @@
         "Location": "[deployment().location]",
         "LogAnalyticsWorkspaceName": "[concat('law-', parameters('ResourceNameSuffix'))]",
         "LogicAppName": "[concat('la-', parameters('ResourceNameSuffix'))]",
+        "Netbios": "[split(parameters('DomainName'), '.')[0]]",
         "ResourceGroups": [
             "[concat('rg-', parameters('ResourceNameSuffix'), '-infra')]",
             "[concat('rg-', parameters('ResourceNameSuffix'), '-hosts')]"
         ],
         "RoleAssignmentName": "[guid(subscription().id, 'WindowsVirtualDesktop')]",
         "RoleDefinitionName": "[guid(subscription().id, 'StartVmOnConnect')]",
-        "StorageAccountName": "[concat('stor', substring(replace(uniqueString(subscription().id, variables('ResourceGroups')[0]), '-', ''), 0, 11))]",
+        "StorageAccountName": "[concat('stor', substring(uniqueString(subscription().id, variables('ResourceGroups')[0]), 0, 11))]",
         "VmName": "[concat('vm', parameters('ResourceNameSuffix'))]",
         "WorkspaceName": "[concat('ws-', parameters('ResourceNameSuffix'))]"
     },
@@ -736,6 +747,9 @@
                     "DomainName": {
                         "value": "[parameters('DomainName')]"
                     },
+                    "DomainServices": {
+                        "value": "[parameters('DomainServices')]"
+                    },
                     "HostPoolName": {
                         "value": "[variables('HostPoolName')]"
                     },
@@ -745,8 +759,8 @@
                     "Location": {
                         "value": "[variables('Location')]"
                     },
-                    "newOrExisting": {
-                        "value": "[parameters('newOrExisting')]"
+                    "Netbios": {
+                        "value": "[variables('Netbios')]"
                     },
                     "OuPath": {
                         "value": "[parameters('OuPath')]"

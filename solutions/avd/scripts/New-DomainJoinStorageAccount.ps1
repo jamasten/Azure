@@ -78,7 +78,7 @@ try
     }
     Write-Log -Message "Storage Account Suffix = $Suffix" -Type 'INFO'
 
-    if($DomainServices -eq 'Active Directory')
+    if($DomainServices -eq 'ActiveDirectory')
     {
         # Install latest NuGet Provider; recommended for PowerShellGet
         Install-PackageProvider -Name 'NuGet' -Force -ErrorAction 'Stop'

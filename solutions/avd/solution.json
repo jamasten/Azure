@@ -46,8 +46,8 @@
                 "description": "The service providing domain services for Azure Virtual Desktop.  This is needed to determine the proper solution to domain join the Azure Storage Account."
             },
             "allowedValues": [
-                "Active Directory",
-                "Azure Active Directory"
+                "ActiveDirectory",
+                "AzureActiveDirectory"
             ]
         },
         "EphemeralOsDisk": {

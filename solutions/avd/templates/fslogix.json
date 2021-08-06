@@ -228,7 +228,7 @@
         },
         {
             "comments": "---------- ROLE ASSIGNMENT > STORAGE ACCOUNT > CONTRIBUTOR ----------",
-            "condition": "[equals(parameters('DomainServices'), 'Active Directory')]",
+            "condition": "[equals(parameters('DomainServices'), 'ActiveDirectory')]",
             "type": "Microsoft.Authorization/roleAssignments",
             "apiVersion": "2020-04-01-preview",
             "name": "[variables('RoleAssignmentName')]",

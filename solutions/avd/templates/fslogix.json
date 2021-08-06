@@ -11,6 +11,9 @@
         "DomainName": {
             "type": "string"
         },
+        "DomainServices": {
+            "type": "string"
+        },
         "HostPoolName": {
             "type": "string"
         },
@@ -21,9 +24,6 @@
             "type": "string"
         },
         "Netbios": {
-            "type": "string"
-        },
-        "newOrExisting": {
             "type": "string"
         },
         "OuPath": {
@@ -80,7 +80,6 @@
         {
             "comments": "---------- NETWORK INTERFACES ----------",
             "type": "Microsoft.Network/networkInterfaces",
-            "condition": "[equals(parameters('newOrExisting'), 'new')]",
             "apiVersion": "2020-05-01",
             "name": "[variables('NicName')]",
             "location": "[parameters('Location')]",
@@ -105,7 +104,6 @@
         },
         {
             "comments": "---------- VIRTUAL MACHINES ----------",
-            "condition": "[equals(parameters('newOrExisting'), 'new')]",
             "type": "Microsoft.Compute/virtualMachines",
             "apiVersion": "2020-12-01",
             "name": "[variables('VmName')]",
@@ -195,7 +193,6 @@
         },
         {
             "comments": "---------- STORAGE ACCOUNT ----------",
-            "condition": "[equals(parameters('newOrExisting'), 'new')]",
             "type": "Microsoft.Storage/storageAccounts",
             "apiVersion": "2021-02-01",
             "name": "[parameters('StorageAccountName')]",
@@ -223,12 +220,15 @@
                         }
                     },
                     "keySource": "Microsoft.Storage"
+                },
+                "azureFilesIdentityBasedAuthentication": {
+                    "directoryServiceOptions": "[if(equals(parameters('DomainServices'), 'Azure Active Directoy'), 'AADDS', 'None')]"
                 }
             }
         },
         {
             "comments": "---------- ROLE ASSIGNMENT > STORAGE ACCOUNT > CONTRIBUTOR ----------",
-            "condition": "[equals(parameters('newOrExisting'), 'new')]",
+            "condition": "[equals(parameters('DomainServices'), 'Active Directory')]",
             "type": "Microsoft.Authorization/roleAssignments",
             "apiVersion": "2020-04-01-preview",
             "name": "[variables('RoleAssignmentName')]",
@@ -244,8 +244,7 @@
             }
         },
         {
-            "comments": "---------- ROLE ASSIGNMENT > STORAGE ACCOUNT > Storage File Data SMB Share Contributor ----------",
-            "condition": "[equals(parameters('newOrExisting'), 'new')]",
+            "comments": "---------- ROLE ASSIGNMENT > STORAGE ACCOUNT > STORAGE FILE DATA SMB SHARE CONTRIBUTOR ----------",
             "type": "Microsoft.Authorization/roleAssignments",
             "apiVersion": "2020-04-01-preview",
             "name": "[variables('RoleAssignmentName_Users')]",
@@ -262,7 +261,6 @@
         },
         {
             "comments": "---------- STORAGE ACCOUNT > FILE SERVICES ----------",
-            "condition": "[equals(parameters('newOrExisting'), 'new')]",
             "type": "Microsoft.Storage/storageAccounts/fileServices",
             "apiVersion": "2021-02-01",
             "name": "[concat(parameters('StorageAccountName'), '/default')]",
@@ -279,7 +277,6 @@
         },
         {
             "comments": "---------- STORAGE ACCOUNT > FILE SHARE ----------",
-            "condition": "[equals(parameters('newOrExisting'), 'new')]",
             "type": "Microsoft.Storage/storageAccounts/fileServices/shares",
             "apiVersion": "2021-02-01",
             "name": "[concat(parameters('StorageAccountName'), '/default/', parameters('HostPoolName'))]",
@@ -322,7 +319,7 @@
                     "timestamp": "[parameters('Timestamp')]"
                 },
                 "protectedSettings": {
-                    "commandToExecute": "[concat('powershell -ExecutionPolicy Unrestricted -File New-DomainJoinStorageAccount.ps1 -DomainJoinPassword ', parameters('DomainJoinPassword'), ' -DomainJoinUsername ', parameters('DomainJoinUserPrincipalName'), ' -Environment ', environment().name, ' -HostPoolName ', parameters('HostPoolName'), ' -KerberosEncryptionType ', parameters('KerberosEncryptionType'), ' -OuPath ', parameters('OuPath'), ' -ResourceGroupName ', variables('ResourceGroupName'), ' -SecurityPrincipalName ', parameters('SecurityPrincipalName'), ' -StorageAccountName ', parameters('StorageAccountName'), ' -StorageKey ', listKeys(resourceId('Microsoft.Storage/storageAccounts', parameters('StorageAccountName')), '2019-06-01').keys[0].value, ' -SubscriptionId ', subscription().subscriptionId, ' -TenantId ', subscription().tenantId)]"
+                    "commandToExecute": "[concat('powershell -ExecutionPolicy Unrestricted -File New-DomainJoinStorageAccount.ps1 -DomainJoinPassword ', parameters('DomainJoinPassword'), ' -DomainJoinUserPrincipalName ', parameters('DomainJoinUserPrincipalName'), ' -DomainServices ', parameters('DomainServices'), ' -Environment ', environment().name, ' -HostPoolName ', parameters('HostPoolName'), ' -KerberosEncryptionType ', parameters('KerberosEncryptionType'), ' -Netbios ', parameters('Netbios'), ' -OuPath ', parameters('OuPath'), ' -ResourceGroupName ', variables('ResourceGroupName'), ' -SecurityPrincipalName ', parameters('SecurityPrincipalName'), ' -StorageAccountName ', parameters('StorageAccountName'), ' -StorageKey ', listKeys(resourceId('Microsoft.Storage/storageAccounts', parameters('StorageAccountName')), '2019-06-01').keys[0].value, ' -SubscriptionId ', subscription().subscriptionId, ' -TenantId ', subscription().tenantId)]"
                 }
             }
         }

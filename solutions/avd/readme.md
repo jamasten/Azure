@@ -1,6 +1,6 @@
 # Azure Virtual Desktop solution
 
-This solution will deploy Azure Virtual Desktop in an Azure subscription.  Depending on the options selected, either a personal or pooled host pool can be deployed with this solution.  The pooled option will deploy an App Group with a role assignment and everything to enable FSLogix.  The naming for all the resources follows Microsoft's best practice guidance using a resource type prefix for all resources with a hyphen following the resource type to easily parse names.
+This solution will deploy Azure Virtual Desktop in an Azure subscription.  Depending on the options selected, either a personal or pooled host pool can be deployed with this solution.  The pooled option will deploy an App Group with a role assignment and everything to enable FSLogix.
 
 This solution contains many features that are usually enabled manually after deploying a AVD host pool.  Those features are:
 
@@ -35,6 +35,10 @@ To successfully deploy this solution, you will need to ensure your scenario matc
 To successfully deploy this solution, you will need to first ensure the following prerequisites have been completed:
 
 - Create a Security Group in ADDS for your AVD users.  Once the object has synchronized to Azure AD, make note of the name and object ID in Azure AD.  This will be needed to deploy the solution.
+
+## Considerations
+
+If you are deploying this solution to multiple subscriptions in the same tenant and want to use the Start VM On Connect feature, set the StartVmOnConnect parameter to false.  The custom role should be created at the Management Group scope.  The role assignment for the WVD service using the custom role should be set at the Management Group scope as well.  The Start VM On Connect feature would need to be manually enabled on the host pool per deployment.
 
 ## Post Deployment Requirements
 

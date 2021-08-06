@@ -222,7 +222,7 @@
                     "keySource": "Microsoft.Storage"
                 },
                 "azureFilesIdentityBasedAuthentication": {
-                    "directoryServiceOptions": "[if(equals(parameters('DomainServices'), 'Azure Active Directoy'), 'AADDS', 'None')]"
+                    "directoryServiceOptions": "[if(equals(parameters('DomainServices'), 'AzureActiveDirectoy'), 'AADDS', 'None')]"
                 }
             }
         },

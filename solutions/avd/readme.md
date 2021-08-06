@@ -43,6 +43,7 @@ If you are deploying this solution to multiple subscriptions in the same tenant 
 ## Post Deployment Requirements
 
 - If deploying a Pooled host pool, create a Run As account in the Automation Account using the default name, "AzureRunAsConnection".  The Scaling Automation solution will fail to operate until this has been completed.
+- A management VM is deployed to facilitate the domain join of the Azure Storage Account, if using AD for domain services, and to set the NTFS permissions on the Azure File Share.  After the deployment succeeds, this VM and its associated resources may be removed.
 
 ## Deployment Options
 

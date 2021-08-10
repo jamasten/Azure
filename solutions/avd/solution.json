@@ -53,7 +53,7 @@
         "EphemeralOsDisk": {
             "type": "bool",
             "metadata": {
-                "description": "Choose whether the session host uses an ephemeral disk for the operating system.  Be sure to select a VM SKU that offers a temporary disk that meets your image requirements."
+                "description": "Choose whether the session host uses an ephemeral disk for the operating system.  Be sure to select a VM SKU that offers a temporary disk that meets your image requirements. Reference: https://docs.microsoft.com/en-us/azure/virtual-machines/ephemeral-os-disks"
             }
         },
         "HostPoolType": {

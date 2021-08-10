@@ -1,4 +1,4 @@
-{
+/
     "$schema": "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
@@ -302,7 +302,7 @@
                 "description": "Key / value pairs of metadata for the Azure resources."
             },
             "defaultValue": {
-                "Owner": "Jason Masten",
+                "Owner": "CUBE",
                 "Purpose": "POC",
                 "Environment": "Development"
             }

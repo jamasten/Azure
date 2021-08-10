@@ -42,7 +42,7 @@
             "metadata": {
                 "description": "The domain name used to join virtual machines to the domain."
             },
-            "defaultValue": "jasonmasten.com"
+            "defaultValue": "battelle.us"
         },
         "DomainPassword": {
             "type": "securestring",

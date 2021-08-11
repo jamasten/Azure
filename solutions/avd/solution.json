@@ -21,6 +21,12 @@
             ],
             "defaultValue": "Standard_LRS"
         },
+        "DeploymentName": {
+            "type": "string",
+            "metadata": {
+                "description": "The name of the deployment that will be used to name resources"
+            }
+        },
         "DomainJoinPassword": {
             "type": "securestring",
             "metadata": {
@@ -361,22 +367,22 @@
         }
     },
     "variables": {
-        "AppGroupName": "[concat('dag-', parameters('ResourceNameSuffix'))]",
-        "AutomationAccountName": "[concat('aa-', parameters('ResourceNameSuffix'))]",
-        "HostPoolName": "[concat('hp-', parameters('ResourceNameSuffix'))]",
+        "AppGroupName": "[concat('dag-', parameters('DeploymentName'), '-', parameters('ResourceNameSuffix'))]",
+        "AutomationAccountName": "[concat('aa-', parameters('DeploymentName'), '-', parameters('ResourceNameSuffix'))]",
+        "HostPoolName": "[concat('hp-', parameters('DeploymentName'), '-', parameters('ResourceNameSuffix'))]",
         "Location": "[deployment().location]",
-        "LogAnalyticsWorkspaceName": "[concat('law-', parameters('ResourceNameSuffix'))]",
-        "LogicAppName": "[concat('la-', parameters('ResourceNameSuffix'))]",
+        "LogAnalyticsWorkspaceName": "[concat('law-', parameters('DeploymentName'), '-', parameters('ResourceNameSuffix'))]",
+        "LogicAppName": "[concat('la-', parameters('DeploymentName'), '-', parameters('ResourceNameSuffix'))]",
         "Netbios": "[split(parameters('DomainName'), '.')[0]]",
         "ResourceGroups": [
-            "[concat('rg-', parameters('ResourceNameSuffix'), '-infra')]",
-            "[concat('rg-', parameters('ResourceNameSuffix'), '-hosts')]"
+            "[concat('rg-', parameters('DeploymentName'), '-', parameters('ResourceNameSuffix'), '-infra')]",
+            "[concat('rg-', parameters('DeploymentName'), '-', parameters('ResourceNameSuffix'), '-hosts')]"
         ],
         "RoleAssignmentName": "[guid(subscription().id, 'WindowsVirtualDesktop')]",
         "RoleDefinitionName": "[guid(subscription().id, 'StartVmOnConnect')]",
         "StorageAccountName": "[concat('stor', toLower(substring(uniqueString(subscription().id, variables('ResourceGroups')[0]), 0, 11)))]",
         "VmName": "[concat('vm', parameters('ResourceNameSuffix'))]",
-        "WorkspaceName": "[concat('ws-', parameters('ResourceNameSuffix'))]"
+        "WorkspaceName": "[concat('ws-', parameters('DeploymentName'), '-', parameters('ResourceNameSuffix'))]"
     },
     "resources": [
         {
@@ -400,7 +406,7 @@
             "type": "Microsoft.Authorization/roleDefinitions",
             "apiVersion": "2017-09-01",
             "properties": {
-                "roleName": "StartVmOnConnect",
+                "roleName": "[variables('RoleDefinitionName')]",
                 "description": "Allow AVD session hosts to be started when needed.",
                 "type": "customRole",
                 "permissions": [

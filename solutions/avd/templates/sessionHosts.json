@@ -212,7 +212,7 @@
                     "adminPassword": "[parameters('VmPassword')]",
                     "windowsConfiguration": {
                         "provisionVMAgent": true,
-                        "enableAutomaticUpdates": true
+                        "enableAutomaticUpdates": false
                     },
                     "secrets": [],
                     "allowExtensionOperations": true

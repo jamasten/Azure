@@ -3,15 +3,16 @@
 az deployment sub create \
     --location usgovvirginia \
     --template-file solutions/avd/solution.json \
-    --parameters \
-        WorkloadName=$WORKLOAD \
-        EnvironmentName=$ENV \
-        DomainJoinPassword=$PASSWORD \
-        DomainJoinUserPrincipalName=$PRINCIPAL \
-        VirtualNetwork=$WORKLOAD-$ENV \
-        VirtualNetworkResourceGroup=$WORKLOAD-$ENV \
-        Subnet=$WORKLOAD-$ENV \
-        VmPassword=$VM_PASSWORD 
+    --parameters '{ "WorkloadName": { "value": "sandman" }, "EnvironmentName": { "value": "dev" }, "DomainJoinUserPrincipalName": { "value": "sandman@battelle.us" }, "EphemeralOsDisk": { "value": false }, "Subnet": { "value": "cube-core-sandman" }, "VirtualNetwork": { "value": "cube-core-sandman" }, "VirtualNetworkResourceGroup": { "value": "cube-core-sandman" }, "VmPassword": { "value": "aaAA11223344" } }'
+#    --parameters \
+#        WorkloadName=$WORKLOAD \
+#        EnvironmentName=$ENV \
+#        DomainJoinPassword=$PASSWORD \
+#        DomainJoinUserPrincipalName=$PRINCIPAL \
+#        VirtualNetwork=$WORKLOAD-$ENV \
+#        VirtualNetworkResourceGroup=$WORKLOAD-$ENV \
+#        Subnet=$WORKLOAD-$ENV \
+#        VmPassword=$VM_PASSWORD 
 
 
 

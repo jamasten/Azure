@@ -1,0 +1,18 @@
+#! /bin/bash
+
+az deployment sub create \
+    --location usgovvirginia \
+    --template-file solutions/avd/solution.json \
+    --parameters \
+        WorkloadName=$WORKLOAD \
+        EnvironmentName=$ENV \
+        DomainJoinPassword=$PASSWORD \
+        DomainJoinUserPrincipalName=$PRINCIPAL \
+        VirtualNetwork=$WORKLOAD-$ENV \
+        VirtualNetworkResourceGroup=$WORKLOAD-$ENV \
+        Subnet=$WORKLOAD-$ENV \
+        VmPassword=$VM_PASSWORD 
+
+
+
+

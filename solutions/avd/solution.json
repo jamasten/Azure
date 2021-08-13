@@ -21,11 +21,19 @@
             ],
             "defaultValue": "Standard_LRS"
         },
-        "DeploymentName": {
+        "WorkloadName": {
             "type": "string",
             "metadata": {
-                "description": "The name of the deployment that will be used to name resources"
-            }
+                "description": "The workload name that will be appended to all resources"
+            },
+            "maxLength": 7
+        },
+        "EnvironmentName": {
+            "type": "string",
+            "metadata": {
+                "description": "The 3 character max length name of the environment that will be appended to all resources.  Some exampels are dev, tst, stg, prod."
+            },
+            "maxLength": 3
         },
         "DomainJoinPassword": {
             "type": "securestring",
@@ -171,14 +179,6 @@
             },
             "defaultValue": "CN=Computers,DC=battelle,DC=us"
         },
-        "ResourceNameSuffix": {
-            "type": "string",
-            "metadata": {
-                "description": "Use letters and numbers only.  This suffix is used in conjunction with the resource type prefixes to name most of the Azure resources in this solution.  The only exception is the Storage Account since the value must globally unique and has stricter character requirements."
-            },
-            "maxLength": 10,
-            "defaultValue": "avdpocdeus"
-        },
         "ScalingBeginPeakTime": {
             "type": "string",
             "metadata": {
@@ -300,7 +300,7 @@
             "metadata": {
                 "description": "The subnet for the AVD session hosts."
             },
-            "defaultValue": "aadds-subnet"
+            "defaultValue": "cube-core-ci"
         },
         "Tags": {
             "type": "object",
@@ -329,14 +329,14 @@
             "metadata": {
                 "description": "Virtual network for the AVD sessions hosts"
             },
-            "defaultValue": "aadds-vnet"
+            "defaultValue": "cube-core-ci"
         },
         "VirtualNetworkResourceGroup": {
             "type": "string",
             "metadata": {
                 "description": "Virtual network resource group for the AVD sessions hosts"
             },
-            "defaultValue": "rg-aad-domain-services"
+            "defaultValue": "cube-core-ci"
         },
         "VmPassword": {
             "type": "securestring",
@@ -367,22 +367,23 @@
         }
     },
     "variables": {
-        "AppGroupName": "[concat('dag-', parameters('DeploymentName'), '-', parameters('ResourceNameSuffix'))]",
-        "AutomationAccountName": "[concat('aa-', parameters('DeploymentName'), '-', parameters('ResourceNameSuffix'))]",
-        "HostPoolName": "[concat('hp-', parameters('DeploymentName'), '-', parameters('ResourceNameSuffix'))]",
+        "ResourceNameSuffix": "[concat(parameters('WorkloadName'), parameters('EnvironmentName'))]",
+        "AppGroupName": "[concat('dag-', variables('ResourceNameSuffix'))]",
+        "AutomationAccountName": "[concat('aa-', variables('ResourceNameSuffix'))]",
+        "HostPoolName": "[concat('hp-', variables('ResourceNameSuffix'))]",
         "Location": "[deployment().location]",
-        "LogAnalyticsWorkspaceName": "[concat('law-', parameters('DeploymentName'), '-', parameters('ResourceNameSuffix'))]",
-        "LogicAppName": "[concat('la-', parameters('DeploymentName'), '-', parameters('ResourceNameSuffix'))]",
+        "LogAnalyticsWorkspaceName": "[concat('law-', variables('ResourceNameSuffix'))]",
+        "LogicAppName": "[concat('la-',  variables('ResourceNameSuffix'))]",
         "Netbios": "[split(parameters('DomainName'), '.')[0]]",
         "ResourceGroups": [
-            "[concat('rg-', parameters('DeploymentName'), '-', parameters('ResourceNameSuffix'), '-infra')]",
-            "[concat('rg-', parameters('DeploymentName'), '-', parameters('ResourceNameSuffix'), '-hosts')]"
+            "[concat('rg-', variables('ResourceNameSuffix'), '-infra')]",
+            "[concat('rg-',  variables('ResourceNameSuffix'), '-hosts')]"
         ],
         "RoleAssignmentName": "[guid(subscription().id, 'WindowsVirtualDesktop')]",
         "RoleDefinitionName": "[guid(subscription().id, 'StartVmOnConnect')]",
         "StorageAccountName": "[concat('stor', toLower(substring(uniqueString(subscription().id, variables('ResourceGroups')[0]), 0, 11)))]",
-        "VmName": "[concat('vm', parameters('ResourceNameSuffix'))]",
-        "WorkspaceName": "[concat('ws-', parameters('DeploymentName'), '-', parameters('ResourceNameSuffix'))]"
+        "VmName": "[concat('vm', variables('ResourceNameSuffix'))]",
+        "WorkspaceName": "[concat('ws-', variables('ResourceNameSuffix'))]"
     },
     "resources": [
         {
@@ -684,7 +685,7 @@
                         "value": "[parameters('OuPath')]"
                     },
                     "ResourceNameSuffix": {
-                        "value": "[parameters('ResourceNameSuffix')]"
+                        "value": "[variables('ResourceNameSuffix')]"
                     },
                     "SessionHostCount": {
                         "value": "[parameters('SessionHostCount')]"
@@ -774,7 +775,7 @@
                         "value": "[parameters('OuPath')]"
                     },
                     "ResourceNameSuffix": {
-                        "value": "[parameters('ResourceNameSuffix')]"
+                        "value": "[variables('ResourceNameSuffix')]"
                     },
                     "SecurityPrincipalId": {
                         "value": "[parameters('SecurityPrincipalId')]"

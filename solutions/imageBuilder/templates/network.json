@@ -2,13 +2,10 @@
     "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
-        "Environment": {
+        "IdentityName": {
             "type": "string"
         },
-        "Identity": {
-            "type": "string"
-        },
-        "Location": {
+        "ImagingResourceGroupName": {
             "type": "string"
         },
         "Role": {
@@ -24,7 +21,7 @@
             "dependsOn": [],
             "properties": {
                 "roleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', parameters('Role'))]",
-                "principalId": "[reference(concat(subscription().id, '/resourceGroups/rg-shared-', parameters('Environment'), '-', parameters('Location'),'/providers/Microsoft.ManagedIdentity/userAssignedIdentities/', parameters('Identity')), '2018-11-30', 'Full').properties.principalId]",
+                "principalId": "[reference(concat(subscription().id, '/resourceGroups/', parameters('ImagingResourceGroupName'), '/providers/Microsoft.ManagedIdentity/userAssignedIdentities/', parameters('IdentityName')), '2018-11-30', 'Full').properties.principalId]",
                 "scope": "[resourceGroup().id]"
             }
         }

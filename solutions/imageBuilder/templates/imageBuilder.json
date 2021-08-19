@@ -82,7 +82,7 @@
         {
             "comments": "---------- ROLE ASSIGNMENT > IMAGE CONTRIBUTOR ----------",
             "type": "Microsoft.Authorization/roleAssignments",
-            "apiVersion": "2017-09-01",
+            "apiVersion": "2018-09-01-preview",
             "name": "483faf2b-68d9-4b31-a890-b6394e949092",
             "dependsOn": [
                 "[parameters('IdentityName')]"

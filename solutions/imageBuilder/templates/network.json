@@ -16,7 +16,7 @@
         {
             "comments": "---------- ROLE ASSIGNMENT ----------",
             "type": "Microsoft.Authorization/roleAssignments",
-            "apiVersion": "2017-09-01",
+            "apiVersion": "2018-09-01-preview",
             "name": "8f86a747-5ec8-48bc-86d0-d0915160e07d",
             "dependsOn": [],
             "properties": {

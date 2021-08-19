@@ -1,0 +1,282 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "CustomVnet": {
+            "type": "bool",
+            "metadata": {
+                "description": "Determines whether the Image Builder VM will be deployed to custom Virtual Network or use the default Virtual Network."
+            }
+        },
+        "ImageDefinitionName": {
+            "type": "string",
+            "metadata": {
+                "description": "The name of the Image Definition for the Shared Image Gallery."
+            },
+            "defaultValue": "Win10-20h2-Teams"
+        },
+        "ImageDefinitionOffer": {
+            "type": "string",
+            "metadata": {
+                "description": "The offer of the Image Definition for the Shared Image Gallery."
+            },
+            "defaultValue": "windows-10"
+        },
+        "ImageDefinitionPublisher": {
+            "type": "string",
+            "metadata": {
+                "description": "The publisher of the Image Definition for the Shared Image Gallery."
+            },
+            "defaultValue": "microsoftwindowsdesktop"
+        },
+        "ImageDefinitionSku": {
+            "type": "string",
+            "metadata": {
+                "description": "The SKU of the Image Definition for the Shared Image Gallery."
+            },
+            "defaultValue": "20h2-evd"
+        },
+        "ImageDefinitionVersion": {
+            "type": "string",
+            "metadata": {
+                "description": "The version of the Image Definition in the Shared Image Gallery."
+            },
+            "defaultValue": "latest"
+        },
+        "ImageStorageAccountType": {
+            "type": "string",
+            "metadata": {
+                "description": "The storage SKU for the image version replica in the Shared Image Gallery."
+            },
+            "allowedValues": [
+                "Standard_LRS",
+                "Standard_ZRS"
+            ],
+            "defaultValue": "Standard_LRS"
+        },
+        "ImagingResourceGroupName": {
+            "type": "string",
+            "metadata": {
+                "description": "description"
+            },
+            "defaultValue": "rg-imaging-d-eastus"
+        },
+        "Location": {
+            "type": "string",
+            "defaultValue": "[deployment().location]",
+            "allowedValues": [
+                "eastus"
+            ]
+        },
+        "SharedImageGalleryName": {
+            "type": "string",
+            "metadata": {
+                "description": "The name of the Azure Shared Image Gallery."
+            },
+            "defaultValue": "sig_d_eus"
+        },
+        "SubnetName": {
+            "type": "string",
+            "metadata": {
+                "description": "OPTIONAL, The resource ID of the target Azure Subnet."
+            },
+            "defaultValue": "snet-shared-d-eastus"
+        },
+        "Timestamp": {
+            "type": "string",
+            "defaultValue": "[utcNow('yyyyMMddhhmmss')]"
+        },
+        "VirtualMachineSize": {
+            "type": "string",
+            "metadata": {
+                "description": "The size of the virtual machine used for creating the image.  The recommendation is to use a 'Standard_D2_v2' size or greater for AVD. https://github.com/danielsollondon/azvmimagebuilder/tree/master/solutions/14_Building_Images_WVD"
+            },
+            "defaultValue": "Standard_D2_v2"
+        },
+        "VirtualNetworkName": {
+            "type": "string",
+            "metadata": {
+                "description": "The name for the custom virtual network."
+            },
+            "defaultValue": "vnet-d-eastus"
+        },
+        "VirtualNetworkResourceGroupName": {
+            "type": "string",
+            "metadata": {
+                "description": "The resource group name for the custom virtual network."
+            },
+            "defaultValue": "rg-network-d-eastus"
+        }
+    },
+    "variables": {
+        "ImageTemplateName": "[concat('imgt-', toLower(parameters('ImageDefinitionName')))]",
+        "IdentityName": "uami-imageBuilder",
+        "RoleImageContributor": "306df715-4b7f-4724-b11a-7cb70804e3ce",
+        "RoleVirtualNetworkJoin": "19af9265-b895-4f7b-b72b-28c8be79473a"
+    },
+    "resources": [
+        {
+            "comments": "---------- RESOURCE GROUP ----------",
+            "name": "[parameters('ImagingResourceGroupName')]",
+            "type": "Microsoft.Resources/resourceGroups",
+            "apiVersion": "2019-10-01",
+            "location": "[parameters('Location')]",
+            "properties": {}
+        },
+        {
+            "comments": "---------- ROLE DEFINITION > IMAGE CONTRIBUTOR ----------",
+            "type": "Microsoft.Authorization/roleDefinitions",
+            "name": "[variables('RoleImageContributor')]",
+            "apiVersion": "2017-09-01",
+            "properties": {
+                "roleName": "Image Contributor",
+                "description": "Allow the creation and management of images",
+                "permissions": [
+                    {
+                        "actions": [
+                            "Microsoft.Compute/galleries/read",
+                            "Microsoft.Compute/galleries/images/read",
+                            "Microsoft.Compute/galleries/images/versions/read",
+                            "Microsoft.Compute/galleries/images/versions/write",
+                            "Microsoft.Compute/images/read",
+                            "Microsoft.Compute/images/write",
+                            "Microsoft.Compute/images/delete"
+                        ],
+                        "notActions": []
+                    }
+                ],
+                "assignableScopes": [
+                    "[subscription().id]"
+                ]
+            }
+        },
+        {
+            "comments": "---------- ROLE DEFINITION > VNET JOIN ----------",
+            "condition": "[parameters('CustomVnet')]",
+            "type": "Microsoft.Authorization/roleDefinitions",
+            "name": "[variables('RoleVirtualNetworkJoin')]",
+            "apiVersion": "2017-09-01",
+            "properties": {
+                "roleName": "VNET Join",
+                "description": "Allow resources to join a subnet",
+                "permissions": [
+                    {
+                        "actions": [
+                            "Microsoft.Network/virtualNetworks/read",
+                            "Microsoft.Network/virtualNetworks/subnets/read",
+                            "Microsoft.Network/virtualNetworks/subnets/join/action"
+                        ],
+                        "notActions": []
+                    }
+                ],
+                "assignableScopes": [
+                    "[subscription().id]"
+                ]
+            }
+        },
+        /* {
+            "comments": "---------- LINKED DEPLOYMENT > NETWORK ----------",
+            "condition": "[parameters('CustomVnet')]",
+            "type": "Microsoft.Resources/deployments",
+            "name": "[concat('Network_', parameters('Timestamp'))]",
+            "apiVersion": "2019-10-01",
+            "tags": {},
+            "dependsOn": [
+                "[variables('RoleImageContributor')]",
+                "[variables('RoleVirtualNetworkJoin')]",
+                "[concat('shared_', parameters('Timestamp'))]"
+            ],
+            "resourceGroup": "[parameters('VirtualNetworkResourceGroupName')]",
+            "properties": {
+                "expressionEvaluationOptions": {
+                    "scope": "inner"
+                },
+                "mode": "Incremental",
+                "parameters": {
+                    "IdentityName": {
+                        "value": "[variables('IdentityName')]"
+                    },
+                    "Location": {
+                        "value": "[parameters('Location')]"
+                    },
+                    "Role": {
+                        "value": "[variables('RoleVirtualNetworkJoin')]"
+                    }
+                },
+                "templateLink": {
+                    "uri": "https://raw.githubusercontent.com/jamasten/Azure/master/solutions/imageBuilder/templates/network.json"
+                }
+            }
+        }, */
+        {
+            "comments": "---------- LINKED DEPLOYMENT > IMAGE BUILDER ----------",
+            "type": "Microsoft.Resources/deployments",
+            "name": "[concat('imageBuilder_', parameters('Timestamp'))]",
+            "apiVersion": "2019-10-01",
+            "tags": {},
+            "dependsOn": [
+                "[variables('RoleImageContributor')]",
+                "[variables('RoleVirtualNetworkJoin')]" //,
+                // "[concat('Network_', parameters('Timestamp'))]"
+            ],
+            "resourceGroup": "[parameters('ImagingResourceGroupName')]",
+            "properties": {
+                "expressionEvaluationOptions": {
+                    "scope": "inner"
+                },
+                "mode": "Incremental",
+                "parameters": {
+                    "CustomVnet": {
+                        "value": "[parameters('CustomVnet')]"
+                    },
+                    "IdentityName": {
+                        "value": "[variables('IdentityName')]"
+                    },
+                    "ImageDefinitionOffer": {
+                        "value": "[parameters('ImageDefinitionOffer')]"
+                    },
+                    "ImageDefinitionPublisher": {
+                        "value": "[parameters('ImageDefinitionPublisher')]"
+                    },
+                    "ImageDefinitionSku": {
+                        "value": "[parameters('ImageDefinitionSku')]"
+                    },
+                    "ImageDefinitionVersion": {
+                        "value": "[parameters('ImageDefinitionVersion')]"
+                    },
+                    "ImageStorageAccountType": {
+                        "value": "[parameters('ImageStorageAccountType')]"
+                    },
+                    "ImageTemplateName": {
+                        "value": "[variables('ImageTemplateName')]"
+                    },
+                    "Location": {
+                        "value": "[parameters('Location')]"
+                    },
+                    "SharedImageGalleryName": {
+                        "value": "[parameters('SharedImageGalleryName')]"
+                    },
+                    "SubnetName": {
+                        "value": "[parameters('SubnetName')]"
+                    },
+                    "Timestamp": {
+                        "value": "[parameters('Timestamp')]"
+                    },
+                    "VirtualMachineSize": {
+                        "value": "[parameters('VirtualMachineSize')]"
+                    },
+                    "VirtualNetworkName": {
+                        "value": "[parameters('VirtualNetworkName')]"
+                    },
+                    "VirtualNetworkResourceGroupName": {
+                        "value": "[parameters('VirtualNetworkResourceGroupName')]"
+                    }
+                },
+                "templateLink": {
+                    "uri": "https://raw.githubusercontent.com/jamasten/Azure/master/solutions/imageBuilder/templates/imageBuilder.json"
+                }
+            }
+        }
+    ],
+    "outputs": {}
+}

@@ -232,6 +232,9 @@
                     "IdentityName": {
                         "value": "[variables('IdentityName')]"
                     },
+                    "ImageDefinitionName": {
+                        "value": "[parameters('ImageDefinitionName')]"
+                    },
                     "ImageDefinitionOffer": {
                         "value": "[parameters('ImageDefinitionOffer')]"
                     },
@@ -252,6 +255,12 @@
                     },
                     "Location": {
                         "value": "[parameters('Location')]"
+                    },
+                    "RoleImageContributor": {
+                        "value": "[variables('RoleImageContributor')]"
+                    },
+                    "RoleVirtualNetworkJoin": {
+                        "value": "[variables('RoleVirtualNetworkJoin')]"
                     },
                     "SharedImageGalleryName": {
                         "value": "[parameters('SharedImageGalleryName')]"

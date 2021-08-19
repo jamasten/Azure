@@ -2,101 +2,107 @@
     "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
+        "CustomVnet": {
+            "type": "bool"
+        },
         "IdentityName": {
-            "type": "string",
-            "metadata": {
-                "description": "The name of the user assigned managed identity with the Azure Image Builder permissions."
-            }
+            "type": "string"
         },
         "ImageDefinitionName": {
-            "type": "string",
-            "metadata": {
-                "description": "The name of the Image Definition in the Shared Image Gallery."
-            }
+            "type": "string"
         },
         "ImageDefinitionOffer": {
-            "type": "string",
-            "metadata": {
-                "description": "The offer of the Image Definition in the Shared Image Gallery."
-            }
+            "type": "string"
         },
         "ImageDefinitionPublisher": {
-            "type": "string",
-            "metadata": {
-                "description": "The publisher of the Image Definition in the Shared Image Gallery."
-            }
+            "type": "string"
         },
         "ImageDefinitionSku": {
-            "type": "string",
-            "metadata": {
-                "description": "The SKU of the Image Definition in the Shared Image Gallery."
-            }
+            "type": "string"
         },
         "ImageDefinitionVersion": {
-            "type": "string",
-            "metadata": {
-                "description": "The version of the Image Definition in the Shared Image Gallery."
-            },
-            "defaultValue": "latest"
+            "type": "string"
         },
         "ImageStorageAccountType": {
-            "type": "string",
-            "metadata": {
-                "description": "The storage SKU for the image version replica in the Shared Image Gallery."
-            },
-            "allowedValues": [
-                "Standard_LRS",
-                "Standard_ZRS"
-            ],
-            "defaultValue": "Standard_LRS"
+            "type": "string"
         },
         "ImageTemplateName": {
-            "type": "string",
-            "metadata": {
-                "description": "The name of the Image Template for Azure Image Builder."
-            }
+            "type": "string"
         },
         "Location": {
-            "type": "string",
-            "defaultValue": "[resourceGroup().location]"
+            "type": "string"
+        },
+        "Role": {
+            "type": "string"
         },
         "SharedImageGalleryName": {
-            "type": "string",
-            "metadata": {
-                "description": "The name of the Azure Shared Image Gallery."
-            }
+            "type": "string"
         },
-        "SubnetId": {
-            "type": "string",
-            "metadata": {
-                "description": "OPTIONAL, The resource ID of the target Azure Subnet."
-            }
+        "SubnetName": {
+            "type": "string"
         },
         "Timestamp": {
-            "type": "string",
-            "defaultValue": "[utcNow('yyyyMMddhhmmss')]"
+            "type": "string"
         },
         "VirtualMachineSize": {
-            "type": "string",
-            "metadata": {
-                "description": "The size of the virtual machine used for creating the image.  The recommendation is to use a 'Standard_D2_v2' size or greater for AVD. https://github.com/danielsollondon/azvmimagebuilder/tree/master/solutions/14_Building_Images_WVD"
-            },
-            "defaultValue": "Standard_D2_v2"
+            "type": "string"
+        },
+        "VirtualNetworkName": {
+            "type": "string"
+        },
+        "VirtualNetworkResourceGroupName": {
+            "type": "string"
         }
     },
     "variables": {
+        "RgId": "[resourceGroup().id]",
         "VmProfileWithoutVnet": {
-            "vmSize": "[parameters('VirtualMachineSize')]",
+            "vmSize": "[parameters('VirtualMachineSize')]"
         },
         "VmProfileWithVnet": {
             "vmSize": "[parameters('VirtualMachineSize')]",
             "vnetConfig": {
-                "subnetId": "[parameters('SubnetId')]"
+                "subnetId": "[resourceId(subscription().subscriptionId, parameters('VirtualNetworkResourceGroupName'), 'Microsoft.Network/virtualNetworks/subnets', parameters('VirtualNetworkName'), parameters('SubnetName'))]"
             }
         },
-        "VmProfile": "[if(equals(parameters('SubnetId'), ''), variables('VmProfileWithoutVnet'), variables('VmProfileWithVnet'))]"
+        "VmProfile": "[if(equals(parameters('SubnetName'), ''), variables('VmProfileWithoutVnet'), variables('VmProfileWithVnet'))]"
     },
     "resources": [
+        {
+            "comments": "---------- USER ASSIGNED MANAGED IDENTITY ----------",
+            "type": "Microsoft.ManagedIdentity/userAssignedIdentities",
+            "name": "[parameters('IdentityName')]",
+            "apiVersion": "2018-11-30",
+            "location": "[parameters('Location')]",
+            "dependsOn": []
+        },
+        {
+            "comments": "---------- ROLE ASSIGNMENT ----------",
+            "type": "Microsoft.Authorization/roleAssignments",
+            "apiVersion": "2017-09-01",
+            "name": "483faf2b-68d9-4b31-a890-b6394e949092",
+            "dependsOn": [
+                "[parameters('IdentityName')]"
+            ],
+            "properties": {
+                "roleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', parameters('Role'))]",
+                "principalId": "[reference(concat(variables('RgId'), '/providers/Microsoft.ManagedIdentity/userAssignedIdentities/', parameters('IdentityName')), '2018-11-30', 'Full').properties.principalId]",
+                "scope": "[variables('RgId')]"
+            }
+        },
+        {
+            "comments": "---------- ROLE ASSIGNMENT ----------",
+            "condition": "[parameters('CustomVnet')]",
+            "type": "Microsoft.Authorization/roleAssignments",
+            "apiVersion": "2017-09-01",
+            "name": "8f86a747-5ec8-48bc-86d0-d0915160e07d",
+            "dependsOn": [],
+            "properties": {
+                "roleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', parameters('Role'))]",
+                "principalId": "[reference(concat(variables('RgId'), '/providers/Microsoft.ManagedIdentity/userAssignedIdentities/', parameters('IdentityName')), '2018-11-30', 'Full').properties.principalId]",
+                "scope": "[concat(subscription().id, '/resourceGroups/', parameters('VirtualNetworkResourceGroupName'))]"
+            }
+        },
         {
             "comments": "---------- SHARED IMAGE GALLERY ----------",
             "name": "[parameters('SharedImageGalleryName')]",
@@ -179,7 +185,6 @@
                             "include:$true"
                         ]
                     }
-
                 ],
                 "distribute": [
                     {

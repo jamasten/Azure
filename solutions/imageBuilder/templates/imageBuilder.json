@@ -126,21 +126,6 @@
             }
         },
         {
-            "comments": "---------- ROLE ASSIGNMENT > VIRTUAL NETWORK JOIN ----------",
-            "condition": "[parameters('CustomVnet')]",
-            "type": "Microsoft.Authorization/roleAssignments",
-            "apiVersion": "2017-09-01",
-            "name": "8f86a747-5ec8-48bc-86d0-d0915160e07d",
-            "dependsOn": [
-                "[parameters('IdentityName')]"
-            ],
-            "properties": {
-                "roleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', parameters('RoleVirtualNetworkJoin'))]",
-                "principalId": "[reference(concat(variables('RgId'), '/providers/Microsoft.ManagedIdentity/userAssignedIdentities/', parameters('IdentityName')), '2018-11-30', 'Full').properties.principalId]",
-                "scope": "[concat(subscription().id, '/resourceGroups/', parameters('VirtualNetworkResourceGroupName'))]"
-            }
-        },
-        {
             "comments": "---------- SHARED IMAGE GALLERY ----------",
             "name": "[parameters('SharedImageGalleryName')]",
             "type": "Microsoft.Compute/galleries",

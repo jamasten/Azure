@@ -54,26 +54,24 @@
             ],
             "defaultValue": "Standard_LRS"
         },
-        "ImagingResourceGroupName": {
-            "type": "string",
-            "metadata": {
-                "description": "description"
-            },
-            "defaultValue": "rg-imaging-d-eastus"
-        },
         "Location": {
             "type": "string",
             "defaultValue": "[deployment().location]",
             "allowedValues": [
-                "eastus"
+                "australiaeast",
+                "australiasoutheast",
+                "eastus",
+                "eastus2",
+                "northeurope",
+                "southcentralus",
+                "southeastasia",
+                "uksouth",
+                "ukwest",
+                "westcentralus",
+                "westeurope",
+                "westus",
+                "westus2"
             ]
-        },
-        "SharedImageGalleryName": {
-            "type": "string",
-            "metadata": {
-                "description": "The name of the Azure Shared Image Gallery."
-            },
-            "defaultValue": "sig_d_eus"
         },
         "SubnetName": {
             "type": "string",
@@ -109,15 +107,70 @@
         }
     },
     "variables": {
-        "ImageTemplateName": "[concat('imgt-', toLower(parameters('ImageDefinitionName')))]",
-        "IdentityName": "uami-imageBuilder",
+        "LocationCodes": {
+            "australiacentral": "ac",
+            "australiacentral2": "ac2",
+            "australiaeast": "ae",
+            "australiasoutheast": "as",
+            "brazilsouth": "bs2",
+            "brazilsoutheast": "bs",
+            "canadacentral": "cc",
+            "canadaeast": "ce",
+            "centralindia": "ci",
+            "centralus": "cu",
+            "chinaeast": "ce",
+            "chinaeast2": "ce2",
+            "chinanorth": "cn",
+            "chinanorth2": "cn2",
+            "eastasia": "ea",
+            "eastus": "eu",
+            "eastus2": "eu2",
+            "francecentral": "fc",
+            "francesouth": "fs",
+            "germanynorth": "gn",
+            "germanywestcentral": "gwc",
+            "japaneast": "je",
+            "japanwest": "jw",
+            "jioindiawest": "jiw",
+            "koreacentral": "kc",
+            "koreasouth": "ks",
+            "northcentralus": "ncu",
+            "northeurope": "ne2",
+            "norwayeast": "ne",
+            "norwaywest": "nw",
+            "southafricanorth": "san",
+            "southafricawest": "saw",
+            "southcentralus": "scu",
+            "southindia": "si",
+            "southeastasia": "sa",
+            "switzerlandnorth": "sn",
+            "switzerlandwest": "sw",
+            "uaecentral": "uc",
+            "uaenorth": "un",
+            "uksouth": "us",
+            "ukwest": "uw",
+            "usdodcentral": "uc",
+            "usdodeast": "ue",
+            "usgovarizona": "ua",
+            "usgoviowa": "ui",
+            "usgovtexas": "ut",
+            "usgovvirginia": "uv",
+            "westcentralus": "wcu",
+            "westeurope": "we",
+            "westindia": "wi",
+            "westus": "wu",
+            "westus2": "wu2",
+            "westus3": "wu3"
+        },
         "RoleImageContributor": "[guid(subscription().id, 'ImageContributor')]",
-        "RoleVirtualNetworkJoin": "[guid(subscription().id, 'VnetJoin')]"
+        "RoleVirtualNetworkJoin": "[guid(subscription().id, 'VnetJoin')]",
+        "LocationShort": "[variables('LocationCodes')[parameters('Location')]]",
+        "ImagingResourceGroupName": "[concat('rg-imaging-d-', parameters('Location'))]"
     },
     "resources": [
         {
             "comments": "---------- RESOURCE GROUP > IMAGING ----------",
-            "name": "[parameters('ImagingResourceGroupName')]",
+            "name": "[variables('ImagingResourceGroupName')]",
             "type": "Microsoft.Resources/resourceGroups",
             "apiVersion": "2019-10-01",
             "location": "[parameters('Location')]",
@@ -181,11 +234,11 @@
             "apiVersion": "2019-10-01",
             "tags": {},
             "dependsOn": [
-                "[parameters('ImagingResourceGroupName')]",
+                "[variables('ImagingResourceGroupName')]",
                 "[variables('RoleImageContributor')]",
                 "[variables('RoleVirtualNetworkJoin')]"
             ],
-            "resourceGroup": "[parameters('ImagingResourceGroupName')]",
+            "resourceGroup": "[variables('ImagingResourceGroupName')]",
             "properties": {
                 "expressionEvaluationOptions": {
                     "scope": "inner"
@@ -194,9 +247,6 @@
                 "parameters": {
                     "CustomVnet": {
                         "value": "[parameters('CustomVnet')]"
-                    },
-                    "IdentityName": {
-                        "value": "[variables('IdentityName')]"
                     },
                     "ImageDefinitionName": {
                         "value": "[parameters('ImageDefinitionName')]"
@@ -216,20 +266,17 @@
                     "ImageStorageAccountType": {
                         "value": "[parameters('ImageStorageAccountType')]"
                     },
-                    "ImageTemplateName": {
-                        "value": "[variables('ImageTemplateName')]"
-                    },
                     "Location": {
                         "value": "[parameters('Location')]"
+                    },
+                    "LocationShort": {
+                        "value": "[variables('LocationShort')]"
                     },
                     "RoleImageContributor": {
                         "value": "[variables('RoleImageContributor')]"
                     },
                     "RoleVirtualNetworkJoin": {
                         "value": "[variables('RoleVirtualNetworkJoin')]"
-                    },
-                    "SharedImageGalleryName": {
-                        "value": "[parameters('SharedImageGalleryName')]"
                     },
                     "SubnetName": {
                         "value": "[parameters('SubnetName')]"

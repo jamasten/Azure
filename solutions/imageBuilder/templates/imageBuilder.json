@@ -5,9 +5,6 @@
         "CustomVnet": {
             "type": "bool"
         },
-        "IdentityName": {
-            "type": "string"
-        },
         "ImageDefinitionName": {
             "type": "string"
         },
@@ -26,19 +23,16 @@
         "ImageStorageAccountType": {
             "type": "string"
         },
-        "ImageTemplateName": {
+        "Location": {
             "type": "string"
         },
-        "Location": {
+        "LocationShort": {
             "type": "string"
         },
         "RoleImageContributor": {
             "type": "string"
         },
         "RoleVirtualNetworkJoin": {
-            "type": "string"
-        },
-        "SharedImageGalleryName": {
             "type": "string"
         },
         "SubnetName": {
@@ -58,7 +52,9 @@
         }
     },
     "variables": {
+        "IdentityName": "[concat('uami-imageBuilder-d-', parameters('LocationShort'))]",
         "RgId": "[resourceGroup().id]",
+        "SharedImageGalleryName": "[concat('sig_d_', parameters('LocationShort'))]",
         "VmProfileWithoutVnet": {
             "vmSize": "[parameters('VirtualMachineSize')]"
         },
@@ -74,7 +70,7 @@
         {
             "comments": "---------- USER ASSIGNED MANAGED IDENTITY ----------",
             "type": "Microsoft.ManagedIdentity/userAssignedIdentities",
-            "name": "[parameters('IdentityName')]",
+            "name": "[variables('IdentityName')]",
             "apiVersion": "2018-11-30",
             "location": "[parameters('Location')]",
             "dependsOn": []
@@ -85,11 +81,11 @@
             "apiVersion": "2018-09-01-preview",
             "name": "483faf2b-68d9-4b31-a890-b6394e949092",
             "dependsOn": [
-                "[parameters('IdentityName')]"
+                "[variables('IdentityName')]"
             ],
             "properties": {
                 "roleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', parameters('RoleImageContributor'))]",
-                "principalId": "[reference(concat(variables('RgId'), '/providers/Microsoft.ManagedIdentity/userAssignedIdentities/', parameters('IdentityName')), '2018-11-30', 'Full').properties.principalId]",
+                "principalId": "[reference(concat(variables('RgId'), '/providers/Microsoft.ManagedIdentity/userAssignedIdentities/', variables('IdentityName')), '2018-11-30', 'Full').properties.principalId]",
                 "principalType": "ServicePrincipal"
             }
         },
@@ -101,7 +97,7 @@
             "apiVersion": "2019-10-01",
             "tags": {},
             "dependsOn": [
-                "[parameters('IdentityName')]",
+                "[variables('IdentityName')]",
                 "483faf2b-68d9-4b31-a890-b6394e949092"
             ],
             "resourceGroup": "[parameters('VirtualNetworkResourceGroupName')]",
@@ -112,7 +108,7 @@
                 "mode": "Incremental",
                 "parameters": {
                     "IdentityName": {
-                        "value": "[parameters('IdentityName')]"
+                        "value": "[variables('IdentityName')]"
                     },
                     "ImagingResourceGroupName": {
                         "value": "[resourceGroup().name]"
@@ -128,7 +124,7 @@
         },
         {
             "comments": "---------- SHARED IMAGE GALLERY ----------",
-            "name": "[parameters('SharedImageGalleryName')]",
+            "name": "[variables('SharedImageGalleryName')]",
             "type": "Microsoft.Compute/galleries",
             "apiVersion": "2019-03-01",
             "location": "[parameters('Location')]",
@@ -147,7 +143,7 @@
                     "apiVersion": "2019-03-01",
                     "location": "[parameters('Location')]",
                     "dependsOn": [
-                        "[parameters('SharedImageGalleryName')]"
+                        "[variables('SharedImageGalleryName')]"
                     ],
                     "properties": {
                         "osType": "Windows",
@@ -164,17 +160,17 @@
         {
             "comments": "---------- IMAGE BUILDER TEMPLATE ----------",
             "type": "Microsoft.VirtualMachineImages/imageTemplates",
-            "name": "[parameters('ImageTemplateName')]",
+            "name": "[concat('imgt-', toLower(parameters('ImageDefinitionName')), '-d-', parameters('LocationShort'))]",
             "apiVersion": "2020-02-14",
             "location": "[parameters('Location')]",
             "dependsOn": [
-                "[parameters('SharedImageGalleryName')]",
+                "[variables('SharedImageGalleryName')]",
                 "[parameters('ImageDefinitionName')]"
             ],
             "identity": {
                 "type": "UserAssigned",
                 "userAssignedIdentities": {
-                    "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', parameters('IdentityName'))]": {}
+                    "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('IdentityName'))]": {}
                 }
             },
             "properties": {
@@ -212,7 +208,7 @@
                 "distribute": [
                     {
                         "type": "SharedImage",
-                        "galleryImageId": "[concat(resourceGroup().id, '/providers/Microsoft.Compute/galleries/', parameters('SharedImageGalleryName'),'/images/', parameters('ImageDefinitionName'))]",
+                        "galleryImageId": "[concat(resourceGroup().id, '/providers/Microsoft.Compute/galleries/', variables('SharedImageGalleryName'),'/images/', parameters('ImageDefinitionName'))]",
                         "runOutputName": "[parameters('Timestamp')]",
                         "artifactTags": {},
                         "replicationRegions": [

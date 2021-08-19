@@ -174,40 +174,6 @@
                 ]
             }
         },
-        /* {
-            "comments": "---------- LINKED DEPLOYMENT > NETWORK ----------",
-            "condition": "[parameters('CustomVnet')]",
-            "type": "Microsoft.Resources/deployments",
-            "name": "[concat('Network_', parameters('Timestamp'))]",
-            "apiVersion": "2019-10-01",
-            "tags": {},
-            "dependsOn": [
-                "[variables('RoleImageContributor')]",
-                "[variables('RoleVirtualNetworkJoin')]",
-                "[concat('shared_', parameters('Timestamp'))]"
-            ],
-            "resourceGroup": "[parameters('VirtualNetworkResourceGroupName')]",
-            "properties": {
-                "expressionEvaluationOptions": {
-                    "scope": "inner"
-                },
-                "mode": "Incremental",
-                "parameters": {
-                    "IdentityName": {
-                        "value": "[variables('IdentityName')]"
-                    },
-                    "Location": {
-                        "value": "[parameters('Location')]"
-                    },
-                    "Role": {
-                        "value": "[variables('RoleVirtualNetworkJoin')]"
-                    }
-                },
-                "templateLink": {
-                    "uri": "https://raw.githubusercontent.com/jamasten/Azure/master/solutions/imageBuilder/templates/network.json"
-                }
-            }
-        }, */
         {
             "comments": "---------- LINKED DEPLOYMENT > IMAGE BUILDER ----------",
             "type": "Microsoft.Resources/deployments",
@@ -216,8 +182,7 @@
             "tags": {},
             "dependsOn": [
                 "[variables('RoleImageContributor')]",
-                "[variables('RoleVirtualNetworkJoin')]" //,
-                // "[concat('Network_', parameters('Timestamp'))]"
+                "[variables('RoleVirtualNetworkJoin')]"
             ],
             "resourceGroup": "[parameters('ImagingResourceGroupName')]",
             "properties": {

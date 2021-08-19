@@ -116,7 +116,7 @@
     },
     "resources": [
         {
-            "comments": "---------- RESOURCE GROUP ----------",
+            "comments": "---------- RESOURCE GROUP > IMAGING ----------",
             "name": "[parameters('ImagingResourceGroupName')]",
             "type": "Microsoft.Resources/resourceGroups",
             "apiVersion": "2019-10-01",

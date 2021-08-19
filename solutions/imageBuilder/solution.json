@@ -111,8 +111,8 @@
     "variables": {
         "ImageTemplateName": "[concat('imgt-', toLower(parameters('ImageDefinitionName')))]",
         "IdentityName": "uami-imageBuilder",
-        "RoleImageContributor": "306df715-4b7f-4724-b11a-7cb70804e3ce",
-        "RoleVirtualNetworkJoin": "19af9265-b895-4f7b-b72b-28c8be79473a"
+        "RoleImageContributor": "[guid(subscription().id, 'ImageContributor')]",
+        "RoleVirtualNetworkJoin": "[guid(subscription().id, 'VnetJoin')]"
     },
     "resources": [
         {

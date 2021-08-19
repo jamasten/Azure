@@ -80,7 +80,7 @@
             "metadata": {
                 "description": "OPTIONAL, The resource ID of the target Azure Subnet."
             },
-            "defaultValue": "snet-shared-d-eastus"
+            "defaultValue": ""
         },
         "Timestamp": {
             "type": "string",
@@ -98,14 +98,14 @@
             "metadata": {
                 "description": "The name for the custom virtual network."
             },
-            "defaultValue": "vnet-d-eastus"
+            "defaultValue": ""
         },
         "VirtualNetworkResourceGroupName": {
             "type": "string",
             "metadata": {
                 "description": "The resource group name for the custom virtual network."
             },
-            "defaultValue": "rg-network-d-eastus"
+            "defaultValue": ""
         }
     },
     "variables": {

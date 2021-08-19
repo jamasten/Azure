@@ -32,7 +32,10 @@
         "Location": {
             "type": "string"
         },
-        "Role": {
+        "RoleImageContributor": {
+            "type": "string"
+        },
+        "RoleVirtualNetworkJoin": {
             "type": "string"
         },
         "SharedImageGalleryName": {
@@ -77,7 +80,7 @@
             "dependsOn": []
         },
         {
-            "comments": "---------- ROLE ASSIGNMENT ----------",
+            "comments": "---------- ROLE ASSIGNMENT > IMAGE CONTRIBUTOR ----------",
             "type": "Microsoft.Authorization/roleAssignments",
             "apiVersion": "2017-09-01",
             "name": "483faf2b-68d9-4b31-a890-b6394e949092",
@@ -85,20 +88,20 @@
                 "[parameters('IdentityName')]"
             ],
             "properties": {
-                "roleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', parameters('Role'))]",
+                "roleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', parameters('RoleImageContributor'))]",
                 "principalId": "[reference(concat(variables('RgId'), '/providers/Microsoft.ManagedIdentity/userAssignedIdentities/', parameters('IdentityName')), '2018-11-30', 'Full').properties.principalId]",
                 "scope": "[variables('RgId')]"
             }
         },
         {
-            "comments": "---------- ROLE ASSIGNMENT ----------",
+            "comments": "---------- ROLE ASSIGNMENT > VIRTUAL NETWORK JOIN ----------",
             "condition": "[parameters('CustomVnet')]",
             "type": "Microsoft.Authorization/roleAssignments",
             "apiVersion": "2017-09-01",
             "name": "8f86a747-5ec8-48bc-86d0-d0915160e07d",
             "dependsOn": [],
             "properties": {
-                "roleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', parameters('Role'))]",
+                "roleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', parameters('RoleVirtualNetworkJoin'))]",
                 "principalId": "[reference(concat(variables('RgId'), '/providers/Microsoft.ManagedIdentity/userAssignedIdentities/', parameters('IdentityName')), '2018-11-30', 'Full').properties.principalId]",
                 "scope": "[concat(subscription().id, '/resourceGroups/', parameters('VirtualNetworkResourceGroupName'))]"
             }

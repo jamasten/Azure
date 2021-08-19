@@ -90,7 +90,6 @@
             "properties": {
                 "roleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', parameters('RoleImageContributor'))]",
                 "principalId": "[reference(concat(variables('RgId'), '/providers/Microsoft.ManagedIdentity/userAssignedIdentities/', parameters('IdentityName')), '2018-11-30', 'Full').properties.principalId]",
-                "scope": "[variables('RgId')]",
                 "principalType": "ServicePrincipal"
             }
         },

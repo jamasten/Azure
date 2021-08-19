@@ -101,7 +101,8 @@
             "apiVersion": "2019-10-01",
             "tags": {},
             "dependsOn": [
-                "[parameters('IdentityName')]"
+                "[parameters('IdentityName')]",
+                "483faf2b-68d9-4b31-a890-b6394e949092"
             ],
             "resourceGroup": "[parameters('VirtualNetworkResourceGroupName')]",
             "properties": {
@@ -131,7 +132,9 @@
             "type": "Microsoft.Compute/galleries",
             "apiVersion": "2019-03-01",
             "location": "[parameters('Location')]",
-            "tags": {},
+            "dependsOn": [
+                "[concat('Network_', parameters('Timestamp'))]"
+            ],
             "properties": {
                 "description": "",
                 "identifier": {}
@@ -146,7 +149,6 @@
                     "dependsOn": [
                         "[parameters('SharedImageGalleryName')]"
                     ],
-                    "tags": {},
                     "properties": {
                         "osType": "Windows",
                         "osState": "Generalized",
@@ -169,7 +171,6 @@
                 "[parameters('SharedImageGalleryName')]",
                 "[parameters('ImageDefinitionName')]"
             ],
-            "tags": {},
             "identity": {
                 "type": "UserAssigned",
                 "userAssignedIdentities": {

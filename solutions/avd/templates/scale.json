@@ -32,9 +32,6 @@
         "MinimumNumberOfRdsh": {
             "type": "string"
         },
-        "RecurrenceInterval": {
-            "type": "int"
-        },
         "SessionHostsResourceGroupName": {
             "type": "string"
         },
@@ -292,7 +289,7 @@
                             "type": "Recurrence",
                             "recurrence": {
                                 "frequency": "Minute",
-                                "interval": "[parameters('RecurrenceInterval')]"
+                                "interval": 15
                             }
                         }
                     }

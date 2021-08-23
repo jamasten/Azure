@@ -53,7 +53,7 @@
         "EphemeralOsDisk": {
             "type": "bool",
             "metadata": {
-                "description": "Choose whether the session host uses an ephemeral disk for the operating system.  Be sure to select a VM SKU that offers a temporary disk that meets your image requirements."
+                "description": "Choose whether the session host uses an ephemeral disk for the operating system.  Be sure to select a VM SKU that offers a temporary disk that meets your image requirements. Reference: https://docs.microsoft.com/en-us/azure/virtual-machines/ephemeral-os-disks"
             }
         },
         "HostPoolType": {
@@ -194,40 +194,12 @@
             },
             "defaultValue": "0"
         },
-        "ScalingLogOffMessage": {
-            "type": "string",
-            "metadata": {
-                "description": "The body of the message sent to the user before they are forced to sign out"
-            },
-            "defaultValue": "Your session will be logged off. Please save and close everything."
-        },
-        "ScalingLogOffTitle": {
-            "type": "string",
-            "metadata": {
-                "description": "The title of the message sent to the user before they are forced to sign out"
-            },
-            "defaultValue": "Machine is about to shutdown."
-        },
-        "ScalingMaintenanceTagName": {
-            "type": "string",
-            "metadata": {
-                "description": "The name of the Tag associated with VMs you don't want to be managed by this scaling tool"
-            },
-            "defaultValue": "Maintenance"
-        },
         "ScalingMinimumNumberOfRdsh": {
             "type": "string",
             "metadata": {
                 "description": "The minimum number of session host VMs to keep running during off-peak hours. The scaling tool will not work if all VM's are turned off and the Start VM On Connect solution is not enabled."
             },
             "defaultValue": "0"
-        },
-        "ScalingRecurrenceInterval": {
-            "type": "int",
-            "metadata": {
-                "description": "Specifies the recurrence interval of the job in minutes"
-            },
-            "defaultValue": 15
         },
         "ScalingSessionThresholdPerCPU": {
             "type": "string",
@@ -498,11 +470,11 @@
             }
         },
         {
-            "comments": "---------- LINKED DEPLOYMENT > SCALING AUTOMATION > AUTOMATION ACCOUNT ----------",
+            "comments": "---------- LINKED DEPLOYMENT > SCALING AUTOMATION ----------",
             "condition": "[equals(split(parameters('HostPoolType'), ' ')[0], 'Pooled')]",
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2019-10-01",
-            "name": "[concat('ScalingAutomation_AutomationAccount_', parameters('Timestamp'))]",
+            "name": "[concat('ScalingAutomation_', parameters('Timestamp'))]",
             "tags": "[parameters('Tags')]",
             "resourceGroup": "[variables('ResourceGroups')[0]]",
             "dependsOn": [
@@ -512,53 +484,12 @@
             "properties": {
                 "mode": "Incremental",
                 "templateLink": {
-                    "uri": "https://raw.githubusercontent.com/jamasten/Azure/master/solutions/scalingAutomation/scalingAutomationAccount.json",
+                    "uri": "https://raw.githubusercontent.com/jamasten/Azure/master/solutions/avd/templates/scale.json",
                     "contentVersion": "1.0.0.0"
                 },
                 "parameters": {
                     "AutomationAccountName": {
                         "value": "[variables('AutomationAccountName')]"
-                    },
-                    "Location": {
-                        "value": "[variables('Location')]"
-                    },
-                    "LogAnalyticsWorkspaceResourceId": {
-                        "value": "[concat(subscription().id, '/resourcegroups/', variables('ResourceGroups')[0], '/providers/microsoft.operationalinsights/workspaces/', variables('LogAnalyticsWorkspaceName'))]"
-                    },
-                    "WVDVersion": {
-                        "value": "ARM"
-                    }
-                }
-            }
-        },
-        {
-            "comments": "---------- LINKED DEPLOYMENT > SCALING AUTOMATION > LOGIC APP ----------",
-            "condition": "[equals(split(parameters('HostPoolType'), ' ')[0], 'Pooled')]",
-            "type": "Microsoft.Resources/deployments",
-            "apiVersion": "2019-10-01",
-            "name": "[concat('ScalingAutomation_LogicApp_', parameters('Timestamp'))]",
-            "tags": "[parameters('Tags')]",
-            "resourceGroup": "[variables('ResourceGroups')[0]]",
-            "dependsOn": [
-                "rgLoop",
-                "[concat('HostPool_', parameters('Timestamp'))]",
-                "[concat('ScalingAutomation_AutomationAccount_', parameters('Timestamp'))]"
-            ],
-            "properties": {
-                "mode": "Incremental",
-                "templateLink": {
-                    "uri": "https://raw.githubusercontent.com/jamasten/Azure/master/solutions/scalingAutomation/scalingLogicApp.json",
-                    "contentVersion": "1.0.0.0"
-                },
-                "parameters": {
-                    "AutomationConnectionName": {
-                        "value": "AzureRunAsConnection"
-                    },
-                    "AutomationAccountName": {
-                        "value": "[variables('AutomationAccountName')]"
-                    },
-                    "AutomationAccountResourceGroupName": {
-                        "value": "[variables('ResourceGroups')[0]]"
                     },
                     "BeginPeakTime": {
                         "value": "[parameters('ScalingBeginPeakTime')]"
@@ -578,32 +509,23 @@
                     "Location": {
                         "value": "[variables('Location')]"
                     },
+                    "LogAnalyticsWorkspaceResourceId": {
+                        "value": "[concat(subscription().id, '/resourcegroups/', variables('ResourceGroups')[0], '/providers/microsoft.operationalinsights/workspaces/', variables('LogAnalyticsWorkspaceName'))]"
+                    },
                     "LogicAppName": {
                         "value": "[variables('LogicAppName')]"
-                    },
-                    "LogOffMessage": {
-                        "value": "[parameters('ScalingLogOffMessage')]"
-                    },
-                    "LogOffTitle": {
-                        "value": "[parameters('ScalingLogOffTitle')]"
-                    },
-                    "MaintenanceTagName": {
-                        "value": "[parameters('ScalingMaintenanceTagName')]"
                     },
                     "MinimumNumberOfRdsh": {
                         "value": "[parameters('ScalingMinimumNumberOfRdsh')]"
                     },
-                    "RecurrenceInterval": {
-                        "value": "[parameters('ScalingRecurrenceInterval')]"
+                    "SessionHostsResourceGroupName": {
+                        "value": "[variables('ResourceGroups')[1]]"
                     },
                     "SessionThresholdPerCPU": {
                         "value": "[parameters('ScalingSessionThresholdPerCPU')]"
                     },
                     "TimeDifference": {
                         "value": "[parameters('ScalingTimeDifference')]"
-                    },
-                    "WVDVersion": {
-                        "value": "ARM"
                     }
                 }
             }
@@ -730,9 +652,7 @@
             "dependsOn": [
                 "rgLoop",
                 "[concat('HostPool_', parameters('Timestamp'))]",
-                "[concat('ScalingAutomation_AutomationAccount_', parameters('Timestamp'))]",
-                "[concat('ScalingAutomation_LogicApp_', parameters('Timestamp'))]"
-            ],
+                "[concat('ScalingAutomation_', parameters('Timestamp'))]"            ],
             "properties": {
                 "mode": "Incremental",
                 "templateLink": {

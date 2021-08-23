@@ -8,7 +8,7 @@ This solution contains many features that are usually enabled manually after dep
   - Configures the recommended registry settings on the session hosts.
   - Deploys an Azure File Share, domain joins the Storage Account, and sets the Share and NTFS permissions.
 - Scaling Automation:
-  - Enables the solution if the host pool is "pooled".  The RunAs account must be manually created after the deployment.
+  - Enables the solution if the host pool is "pooled".  A system assigned identity is deployed with the Automation Account and is assigned the Contributor role on the resource group containing the session hosts.  This limits the privileges the Automation Account has in your subscription.
 - Start VM On Connect:
   - Configures the feature for the AVD host pool.
 - VDI Optimization Script:
@@ -42,7 +42,6 @@ If you are deploying this solution to multiple subscriptions in the same tenant 
 
 ## Post Deployment Requirements
 
-- If deploying a Pooled host pool, create a Run As account in the Automation Account using the default name, "AzureRunAsConnection".  The Scaling Automation solution will fail to operate until this has been completed.
 - A management VM is deployed to facilitate the domain join of the Azure Storage Account, if using AD for domain services, and to set the NTFS permissions on the Azure File Share.  After the deployment succeeds, this VM and its associated resources may be removed.
 
 ## Deployment Options

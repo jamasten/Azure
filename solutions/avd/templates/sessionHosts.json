@@ -212,7 +212,7 @@
                     "adminPassword": "[parameters('VmPassword')]",
                     "windowsConfiguration": {
                         "provisionVMAgent": true,
-                        "enableAutomaticUpdates": true
+                        "enableAutomaticUpdates": false
                     },
                     "secrets": [],
                     "allowExtensionOperations": true
@@ -332,14 +332,12 @@
                         "autoUpgradeMinorVersion": true,
                         "settings": {
                             "fileUris": [
-                                "https://raw.githubusercontent.com/jamasten/Azure/master/solutions/avd/scripts/Add-FslogixSettings.ps1",
-                                "https://raw.githubusercontent.com/jamasten/Azure/master/solutions/avd/scripts/Run-SessionHostScripts.ps1",
-                                "https://raw.githubusercontent.com/jamasten/Azure/master/solutions/avd/scripts/Set-AvdOptimizations.ps1"
+                                "https://raw.githubusercontent.com/jamasten/Azure/master/solutions/avd/scripts/Set-SessionHostConfiguration.ps1"
                             ],
                             "timestamp": "[parameters('Timestamp')]"
                         },
                         "protectedSettings": {
-                            "commandToExecute": "[concat('powershell -ExecutionPolicy Unrestricted -File Run-SessionHostScripts.ps1 -Environment ', environment().name, ' -HostPoolName ', parameters('HostPoolName'), ' -ImagePublisher ', parameters('ImagePublisher'), ' -ImageSku ', parameters('ImageSku'), ' -Optimizations ', parameters('Optimizations'), ' -StorageAccountName ', parameters('StorageAccountName'))]"
+                            "commandToExecute": "[concat('powershell -ExecutionPolicy Unrestricted -File Set-SessionHostConfiguration.ps1 -Environment ', environment().name, ' -HostPoolName ', parameters('HostPoolName'), ' -ImagePublisher ', parameters('ImagePublisher'), ' -ImageSku ', parameters('ImageSku'), ' -Optimizations ', parameters('Optimizations'), ' -StorageAccountName ', parameters('StorageAccountName'))]"
                         }
                     }
                 },

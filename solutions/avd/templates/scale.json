@@ -143,7 +143,7 @@
                 "logProgress": false,
                 "logVerbose": false,
                 "publishContentLink": {
-                    "uri": "https://raw.githubusercontent.com/jamasten/Azure/master/solutions/scalingAutomation/scale.ps1",
+                    "uri": "https://raw.githubusercontent.com/jamasten/Azure/master/solutions/avd/scripts/Set-HostPoolScaling.ps1",
                     "version": "1.0.0.0"
                 }
             }

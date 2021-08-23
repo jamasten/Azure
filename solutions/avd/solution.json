@@ -21,6 +21,20 @@
             ],
             "defaultValue": "Standard_LRS"
         },
+        "WorkloadName": {
+            "type": "string",
+            "metadata": {
+                "description": "The workload name that will be appended to all resources"
+            },
+            "maxLength": 7
+        },
+        "EnvironmentName": {
+            "type": "string",
+            "metadata": {
+                "description": "The 3 character max length name of the environment that will be appended to all resources.  Some exampels are dev, tst, stg, prod."
+            },
+            "maxLength": 3
+        },
         "DomainJoinPassword": {
             "type": "securestring",
             "metadata": {
@@ -42,6 +56,7 @@
         },
         "DomainServices": {
             "type": "string",
+            "defaultValue": "AzureActiveDirectory",
             "metadata": {
                 "description": "The service providing domain services for Azure Virtual Desktop.  This is needed to determine the proper solution to domain join the Azure Storage Account."
             },
@@ -52,6 +67,7 @@
         },
         "EphemeralOsDisk": {
             "type": "bool",
+            "defaultValue": false,
             "metadata": {
                 "description": "Choose whether the session host uses an ephemeral disk for the operating system.  Be sure to select a VM SKU that offers a temporary disk that meets your image requirements. Reference: https://docs.microsoft.com/en-us/azure/virtual-machines/ephemeral-os-disks"
             }
@@ -165,14 +181,6 @@
             },
             "defaultValue": "CN=Computers,DC=battelle,DC=us"
         },
-        "ResourceNameSuffix": {
-            "type": "string",
-            "metadata": {
-                "description": "Use letters and numbers only.  This suffix is used in conjunction with the resource type prefixes to name most of the Azure resources in this solution.  The only exception is the Storage Account since the value must globally unique and has stricter character requirements."
-            },
-            "maxLength": 10,
-            "defaultValue": "avdpocdeus"
-        },
         "ScalingBeginPeakTime": {
             "type": "string",
             "metadata": {
@@ -265,8 +273,7 @@
             "type": "string",
             "metadata": {
                 "description": "The subnet for the AVD session hosts."
-            },
-            "defaultValue": "aadds-subnet"
+            }
         },
         "Tags": {
             "type": "object",
@@ -294,15 +301,13 @@
             "type": "string",
             "metadata": {
                 "description": "Virtual network for the AVD sessions hosts"
-            },
-            "defaultValue": "aadds-vnet"
+            }
         },
         "VirtualNetworkResourceGroup": {
             "type": "string",
             "metadata": {
                 "description": "Virtual network resource group for the AVD sessions hosts"
-            },
-            "defaultValue": "rg-aad-domain-services"
+            }
         },
         "VmPassword": {
             "type": "securestring",
@@ -333,22 +338,23 @@
         }
     },
     "variables": {
-        "AppGroupName": "[concat('dag-', parameters('ResourceNameSuffix'))]",
-        "AutomationAccountName": "[concat('aa-', parameters('ResourceNameSuffix'))]",
-        "HostPoolName": "[concat('hp-', parameters('ResourceNameSuffix'))]",
+        "ResourceNameSuffix": "[concat(parameters('WorkloadName'), parameters('EnvironmentName'))]",
+        "AppGroupName": "[concat('dag-', variables('ResourceNameSuffix'))]",
+        "AutomationAccountName": "[concat('aa-', variables('ResourceNameSuffix'))]",
+        "HostPoolName": "[concat('hp-', variables('ResourceNameSuffix'))]",
         "Location": "[deployment().location]",
-        "LogAnalyticsWorkspaceName": "[concat('law-', parameters('ResourceNameSuffix'))]",
-        "LogicAppName": "[concat('la-', parameters('ResourceNameSuffix'))]",
+        "LogAnalyticsWorkspaceName": "[concat('law-', variables('ResourceNameSuffix'))]",
+        "LogicAppName": "[concat('la-',  variables('ResourceNameSuffix'))]",
         "Netbios": "[split(parameters('DomainName'), '.')[0]]",
         "ResourceGroups": [
-            "[concat('rg-', parameters('ResourceNameSuffix'), '-infra')]",
-            "[concat('rg-', parameters('ResourceNameSuffix'), '-hosts')]"
+            "[concat('rg-', variables('ResourceNameSuffix'), '-infra')]",
+            "[concat('rg-',  variables('ResourceNameSuffix'), '-hosts')]"
         ],
         "RoleAssignmentName": "[guid(subscription().id, 'WindowsVirtualDesktop')]",
         "RoleDefinitionName": "[guid(subscription().id, 'StartVmOnConnect')]",
         "StorageAccountName": "[concat('stor', toLower(substring(uniqueString(subscription().id, variables('ResourceGroups')[0]), 0, 11)))]",
-        "VmName": "[concat('vm', parameters('ResourceNameSuffix'))]",
-        "WorkspaceName": "[concat('ws-', parameters('ResourceNameSuffix'))]"
+        "VmName": "[concat('vm', variables('ResourceNameSuffix'))]",
+        "WorkspaceName": "[concat('ws-', variables('ResourceNameSuffix'))]"
     },
     "resources": [
         {
@@ -372,7 +378,7 @@
             "type": "Microsoft.Authorization/roleDefinitions",
             "apiVersion": "2017-09-01",
             "properties": {
-                "roleName": "StartVmOnConnect",
+                "roleName": "[variables('RoleDefinitionName')]",
                 "description": "Allow AVD session hosts to be started when needed.",
                 "type": "customRole",
                 "permissions": [
@@ -600,7 +606,7 @@
                         "value": "[parameters('OuPath')]"
                     },
                     "ResourceNameSuffix": {
-                        "value": "[parameters('ResourceNameSuffix')]"
+                        "value": "[variables('ResourceNameSuffix')]"
                     },
                     "SessionHostCount": {
                         "value": "[parameters('SessionHostCount')]"
@@ -688,7 +694,7 @@
                         "value": "[parameters('OuPath')]"
                     },
                     "ResourceNameSuffix": {
-                        "value": "[parameters('ResourceNameSuffix')]"
+                        "value": "[variables('ResourceNameSuffix')]"
                     },
                     "SecurityPrincipalId": {
                         "value": "[parameters('SecurityPrincipalId')]"

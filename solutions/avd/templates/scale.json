@@ -211,6 +211,20 @@
             }
         },
         {
+            "comments": "---------- ROLE ASSIGNMENT ----------",
+            "type": "Microsoft.Authorization/roleAssignments",
+            "apiVersion": "2018-09-01-preview",
+            "name": "[guid(resourceGroup().id, 'ScalingContributor')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Automation/automationAccounts', parameters('AutomationAccountName'))]"
+            ],
+            "properties": {
+                "roleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', 'b24988ac-6180-42a0-ab88-20f7382dd24c')]", // Contributor
+                "principalId": "[reference(resourceId('Microsoft.Automation/automationAccounts', parameters('AutomationAccountName')), '2020-01-13-preview', 'Full').identity.principalId]",
+                "principalType": "ServicePrincipal"
+            }
+        },
+        {
             "comments": "---------- LINKED DEPLOYMENT > ROLE ASSIGNMENT > CONTRIBUTOR ----------",
             "type": "Microsoft.Resources/deployments",
             "name": "RoleAssignmentForSystemAssignedIdentity",

@@ -179,7 +179,7 @@
             "metadata": {
                 "description": "The distinguished name for the target Organization Unit in Active Directory Domain Services."
             },
-            "defaultValue": "CN=Computers,DC=battelle,DC=us"
+            "defaultValue": "OU=AADDC Computers,DC=battelle,DC=us"
         },
         "ScalingBeginPeakTime": {
             "type": "string",

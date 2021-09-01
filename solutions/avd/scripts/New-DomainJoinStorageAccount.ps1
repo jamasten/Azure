@@ -129,7 +129,7 @@ try
         $Description = "Computer account object for Azure storage account $($StorageAccountName)."
 
         # Create the AD computer object for the Azure Storage Account
-        $Computer = Get-ADComputer -Credential $Credential -Identity $StorageAccountName -ErrorAction 'SilentlyContinue'
+        $Computer = Get-ADComputer -Filter {Name -eq $StorageAccountName}
         if($Computer)
         {
             Remove-ADComputer -Credential $Credential -Identity $StorageAccountName -Confirm:$false -ErrorAction 'Stop'

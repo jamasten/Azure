@@ -46,8 +46,7 @@
                 "schedulePolicy": {
                     "scheduleRunFrequency": "Daily",
                     "scheduleRunTimes": [ "23:00" ],
-                    "schedulePolicyType": "SimpleSchedulePolicy",
-                    "scheduleWeeklyFrequency": 0
+                    "schedulePolicyType": "SimpleSchedulePolicy"
                 },
                 "retentionPolicy": {
                     "retentionPolicyType": "LongTermRetentionPolicy",

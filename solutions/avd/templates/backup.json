@@ -42,7 +42,7 @@
                 "[parameters('RecoveryServicesVaultName')]"
             ],
             "properties": {
-                "backupManagementType": "[if(equals(parameters('HostPoolType')[0], 'Pooled'), 'AzureStorage', 'AzureIaasVM')]",
+                "backupManagementType": "[if(equals(split(parameters('HostPoolType')[0], ' '), 'Pooled'), 'AzureStorage', 'AzureIaasVM')]",
                 "schedulePolicy": {
                     "scheduleRunFrequency": "Daily",
                     "scheduleRunTimes": [ "23:00" ],

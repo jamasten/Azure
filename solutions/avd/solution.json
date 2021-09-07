@@ -735,9 +735,6 @@
                     "HostPoolName": {
                         "value": "[variables('HostPoolName')]"
                     },
-                    "HostPoolType": {
-                        "value": "[parameters('HostPoolType')]"
-                    },
                     "KerberosEncryptionType": {
                         "value": "[parameters('KerberosEncryptionType')]"
                     },
@@ -812,7 +809,7 @@
             "properties": {
                 "mode": "Incremental",
                 "templateLink": {
-                    "uri": "https://raw.githubusercontent.com/jamasten/Azure/master/solutions/avd/templates/scale.json",
+                    "uri": "https://raw.githubusercontent.com/battelle-cube/azure-avd-automation/main/solutions/avd/templates/scale.json",
                     "contentVersion": "1.0.0.0"
                 },
                 "parameters": {

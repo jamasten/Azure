@@ -544,7 +544,7 @@
             "properties": {
                 "mode": "Incremental",
                 "templateLink": {
-                    "uri": "https://raw.githubusercontent.com/jamasten/Azure/master/solutions/avd/templates/fslogix.json",
+                    "uri": "https://raw.githubusercontent.com/jamasten/Azure/master/solutions/avd/templates/backup.json",
                     "contentVersion": "1.0.0.0"
                 },
                 "parameters": {
@@ -718,9 +718,6 @@
                     },
                     "HostPoolName": {
                         "value": "[variables('HostPoolName')]"
-                    },
-                    "HostPoolType": {
-                        "value": "[parameters('HostPoolType')]"
                     },
                     "KerberosEncryptionType": {
                         "value": "[parameters('KerberosEncryptionType')]"

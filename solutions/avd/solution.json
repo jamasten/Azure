@@ -555,9 +555,7 @@
             "tags": "[parameters('Tags')]",
             "resourceGroup": "[variables('ResourceGroups')[0]]",
             "dependsOn": [
-                "rgLoop",
-                "[concat('HostPool_', parameters('Timestamp'))]",
-                "[concat('ScalingAutomation_', parameters('Timestamp'))]"
+                "rgLoop"
             ],
             "properties": {
                 "mode": "Incremental",

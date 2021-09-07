@@ -17,9 +17,6 @@
         "HostPoolName": {
             "type": "string"
         },
-        "HostPoolType": {
-            "type": "string"
-        },
         "KerberosEncryptionType": {
             "type": "string"
         },
@@ -81,7 +78,6 @@
     "variables": {
         "BackupContainer": "[concat('storagecontainer;Storage;', resourceGroup().name, ';', parameters('StorageAccountName'))]",
         "NicName": "[concat('nic-', parameters('resourceNameSuffix'), '-mgt')]",
-        "PooledHostPool": "[equals(split(parameters('HostPoolType'), ' ')[0], 'Pooled')]",
         "ResourceGroupName": "[resourceGroup().name]",
         "RoleAssignmentName": "[guid(parameters('StorageAccountName'), '0')]",
         "RoleAssignmentName_Users": "[guid(concat(parameters('StorageAccountName'), '/default/', parameters('HostPoolName')), '0')]",

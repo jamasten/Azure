@@ -54,7 +54,7 @@
             "type": "string"
         },
         "RecoveryServices": {
-            "type": "string"
+            "type": "bool"
         },
         "RecoveryServicesVaultName": {
             "type": "string"

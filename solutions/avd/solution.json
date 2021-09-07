@@ -165,6 +165,12 @@
             },
             "defaultValue": "OU=Pooled,OU=AVD,DC=jasonmasten,DC=com"
         },
+        "RecoveryServices": {
+            "type": "bool",
+            "metadata": {
+                "description": "Enable backups to an Azure Recovery Services vault.  For a pooled host pool, this will enable backups on the Azure file share.  For a personal host pool, this will enable backups on the AVD sessions hosts."
+            }
+        },
         "ResourceNameSuffix": {
             "type": "string",
             "metadata": {
@@ -338,6 +344,7 @@
         "LogAnalyticsWorkspaceName": "[concat('law-', parameters('ResourceNameSuffix'))]",
         "LogicAppName": "[concat('la-', parameters('ResourceNameSuffix'))]",
         "Netbios": "[split(parameters('DomainName'), '.')[0]]",
+        "RecoveryServicesVaultName": "[concat('rsv-', parameters('ResourceNameSuffix'))]",
         "ResourceGroups": [
             "[concat('rg-', parameters('ResourceNameSuffix'), '-infra')]",
             "[concat('rg-', parameters('ResourceNameSuffix'), '-hosts')]"
@@ -345,13 +352,69 @@
         "RoleAssignmentName": "[guid(subscription().id, 'WindowsVirtualDesktop')]",
         "RoleDefinitionName": "[guid(subscription().id, 'StartVmOnConnect')]",
         "StorageAccountName": "[concat('stor', toLower(substring(uniqueString(subscription().id, variables('ResourceGroups')[0]), 0, 11)))]",
+        "TimeZones": {
+            "australiacentral": "Australian Eastern Standard Time",
+            "australiacentral2": "Australian Eastern Standard Time",
+            "australiaeast": "Australian Eastern Standard Time",
+            "australiasoutheast": "Australian Eastern Standard Time",
+            "brazilsouth": "Brasília Time",
+            "brazilsoutheast": "Brasília Time",
+            "canadacentral": "Eastern Standard Time",
+            "canadaeast": "Eastern Standard Time",
+            "centralindia": "India Standard Time",
+            "centralus": "Central Standard Time",
+            "chinaeast": "China Standard Time",
+            "chinaeast2": "China Standard Time",
+            "chinanorth": "China Standard Time",
+            "chinanorth2": "China Standard Time",
+            "eastasia": "Hong Kong Time",
+            "eastus": "Eastern Standard Time",
+            "eastus2": "Eastern Standard Time",
+            "francecentral": "Central European Time",
+            "francesouth": "Central European Time",
+            "germanynorth": "Central European Time",
+            "germanywestcentral": "Central European Time",
+            "japaneast": "Japan Standard Time",
+            "japanwest": "Japan Standard Time",
+            "jioindiacentral": "India Standard Time",
+            "jioindiawest": "India Standard Time",
+            "koreacentral": "Korea Standard Time",
+            "koreasouth": "Korea Standard Time",
+            "northcentralus": "Central Standard Time",
+            "northeurope": "Irish Standard Time",
+            "norwayeast": "Central European Time",
+            "norwaywest": "Central European Time",
+            "southafricanorth": "South Africa Standard Time",
+            "southafricawest": "South Africa Standard Time",
+            "southcentralus": "Central Standard Time",
+            "southindia": "India Standard Time",
+            "southeastasia": "Singapore Time",
+            "swedencentral": "Central European Time",
+            "switzerlandnorth": "Central European Time",
+            "switzerlandwest": "Central European Time",
+            "uaecentral": "Gulf Standard Time",
+            "uaenorth": "Gulf Standard Time",
+            "uksouth": "Greenwich Mean Time",
+            "ukwest": "Greenwich Mean Time",
+            "usdodcentral": "Central Standard Time",
+            "usdodeast": "Eastern Standard Time",
+            "usgovarizona": "Mountain Standard Time",
+            "usgoviowa": "Central Standard Time",
+            "usgovtexas": "Central Standard Time",
+            "usgovvirginia": "Eastern Standard Time",
+            "westcentralus": "Mountain Standard Time",
+            "westeurope": "Central European Time",
+            "westindia": "India Standard Time",
+            "westus": "Pacific Standard Time",
+            "westus2": "Pacific Standard Time",
+            "westus3": "Mountain Standard Time"
+        },
         "VmName": "[concat('vm', parameters('ResourceNameSuffix'))]",
         "WorkspaceName": "[concat('ws-', parameters('ResourceNameSuffix'))]"
     },
     "resources": [
         {
             "comments": "---------- RESOURCE GROUPS ----------",
-            "condition": "[equals(parameters('newOrExisting'), 'new')]",
             "name": "[variables('ResourceGroups')[copyIndex()]]",
             "type": "Microsoft.Resources/resourceGroups",
             "apiVersion": "2019-10-01",
@@ -468,62 +531,39 @@
             }
         },
         {
-            "comments": "---------- LINKED DEPLOYMENT > SCALING AUTOMATION ----------",
-            "condition": "[equals(split(parameters('HostPoolType'), ' ')[0], 'Pooled')]",
+            "comments": "---------- LINKED DEPLOYMENT > BACKUP ----------",
+            "condition": "[parameters('RecoveryServices')]",
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2019-10-01",
-            "name": "[concat('ScalingAutomation_', parameters('Timestamp'))]",
+            "name": "[concat('Backup_', parameters('Timestamp'))]",
             "tags": "[parameters('Tags')]",
             "resourceGroup": "[variables('ResourceGroups')[0]]",
             "dependsOn": [
                 "rgLoop",
-                "[concat('HostPool_', parameters('Timestamp'))]"
+                "[concat('HostPool_', parameters('Timestamp'))]",
+                "[concat('ScalingAutomation_', parameters('Timestamp'))]"
             ],
             "properties": {
                 "mode": "Incremental",
                 "templateLink": {
-                    "uri": "https://raw.githubusercontent.com/jamasten/Azure/master/solutions/avd/templates/scale.json",
+                    "uri": "https://raw.githubusercontent.com/jamasten/Azure/master/solutions/avd/templates/fslogix.json",
                     "contentVersion": "1.0.0.0"
                 },
                 "parameters": {
-                    "AutomationAccountName": {
-                        "value": "[variables('AutomationAccountName')]"
-                    },
-                    "BeginPeakTime": {
-                        "value": "[parameters('ScalingBeginPeakTime')]"
-                    },
-                    "EndPeakTime": {
-                        "value": "[parameters('ScalingEndPeakTime')]"
-                    },
-                    "HostPoolName": {
-                        "value": "[variables('HostPoolName')]"
-                    },
-                    "HostPoolResourceGroupName": {
-                        "value": "[variables('ResourceGroups')[0]]"
-                    },
-                    "LimitSecondsToForceLogOffUser": {
-                        "value": "[parameters('ScalingLimitSecondsToForceLogOffUser')]"
+                    "HostPoolType": {
+                        "value": "[parameters('HostPoolType')]"
                     },
                     "Location": {
                         "value": "[variables('Location')]"
                     },
-                    "LogAnalyticsWorkspaceResourceId": {
-                        "value": "[concat(subscription().id, '/resourcegroups/', variables('ResourceGroups')[0], '/providers/microsoft.operationalinsights/workspaces/', variables('LogAnalyticsWorkspaceName'))]"
+                    "RecoveryServicesVaultName": {
+                        "value": "[variables('RecoveryServicesVaultName')]"
                     },
-                    "LogicAppName": {
-                        "value": "[variables('LogicAppName')]"
+                    "Tags": {
+                        "value": "[parameters('Tags')]"
                     },
-                    "MinimumNumberOfRdsh": {
-                        "value": "[parameters('ScalingMinimumNumberOfRdsh')]"
-                    },
-                    "SessionHostsResourceGroupName": {
-                        "value": "[variables('ResourceGroups')[1]]"
-                    },
-                    "SessionThresholdPerCPU": {
-                        "value": "[parameters('ScalingSessionThresholdPerCPU')]"
-                    },
-                    "TimeDifference": {
-                        "value": "[parameters('ScalingTimeDifference')]"
+                    "TimeZone": {
+                        "value": "[variables('TimeZones')[variables('Location')]]"
                     }
                 }
             }
@@ -537,7 +577,8 @@
             "resourceGroup": "[variables('ResourceGroups')[1]]",
             "dependsOn": [
                 "rgLoop",
-                "[concat('HostPool_', parameters('Timestamp'))]"
+                "[concat('HostPool_', parameters('Timestamp'))]",
+                "[concat('Backup_', parameters('Timestamp'))]"
             ],
             "properties": {
                 "mode": "Incremental",
@@ -597,6 +638,12 @@
                     "OuPath": {
                         "value": "[parameters('OuPath')]"
                     },
+                    "RecoveryServices": {
+                        "value": "[parameters('RecoveryServices')]"
+                    },
+                    "RecoveryServicesVaultName": {
+                        "value": "[variables('RecoveryServicesVaultName')]"
+                    },
                     "ResourceNameSuffix": {
                         "value": "[parameters('ResourceNameSuffix')]"
                     },
@@ -650,7 +697,8 @@
             "dependsOn": [
                 "rgLoop",
                 "[concat('HostPool_', parameters('Timestamp'))]",
-                "[concat('ScalingAutomation_', parameters('Timestamp'))]"            ],
+                "[concat('Backup_', parameters('Timestamp'))]"
+            ],
             "properties": {
                 "mode": "Incremental",
                 "templateLink": {
@@ -673,6 +721,9 @@
                     "HostPoolName": {
                         "value": "[variables('HostPoolName')]"
                     },
+                    "HostPoolType": {
+                        "value": "[parameters('HostPoolType')]"
+                    },
                     "KerberosEncryptionType": {
                         "value": "[parameters('KerberosEncryptionType')]"
                     },
@@ -684,6 +735,12 @@
                     },
                     "OuPath": {
                         "value": "[parameters('OuPath')]"
+                    },
+                    "RecoveryServices": {
+                        "value": "[parameters('RecoveryServices')]"
+                    },
+                    "RecoveryServicesVaultName": {
+                        "value": "[variables('RecoveryServicesVaultName')]"
                     },
                     "ResourceNameSuffix": {
                         "value": "[parameters('ResourceNameSuffix')]"
@@ -723,6 +780,66 @@
                     },
                     "VmUsername": {
                         "value": "[parameters('VmUsername')]"
+                    }
+                }
+            }
+        },
+        {
+            "comments": "---------- LINKED DEPLOYMENT > SCALING AUTOMATION ----------",
+            "condition": "[equals(split(parameters('HostPoolType'), ' ')[0], 'Pooled')]",
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2019-10-01",
+            "name": "[concat('ScalingAutomation_', parameters('Timestamp'))]",
+            "tags": "[parameters('Tags')]",
+            "resourceGroup": "[variables('ResourceGroups')[0]]",
+            "dependsOn": [
+                "[concat('FSLogix_', parameters('Timestamp'))]"
+            ],
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "https://raw.githubusercontent.com/jamasten/Azure/master/solutions/avd/templates/scale.json",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "AutomationAccountName": {
+                        "value": "[variables('AutomationAccountName')]"
+                    },
+                    "BeginPeakTime": {
+                        "value": "[parameters('ScalingBeginPeakTime')]"
+                    },
+                    "EndPeakTime": {
+                        "value": "[parameters('ScalingEndPeakTime')]"
+                    },
+                    "HostPoolName": {
+                        "value": "[variables('HostPoolName')]"
+                    },
+                    "HostPoolResourceGroupName": {
+                        "value": "[variables('ResourceGroups')[0]]"
+                    },
+                    "LimitSecondsToForceLogOffUser": {
+                        "value": "[parameters('ScalingLimitSecondsToForceLogOffUser')]"
+                    },
+                    "Location": {
+                        "value": "[variables('Location')]"
+                    },
+                    "LogAnalyticsWorkspaceResourceId": {
+                        "value": "[concat(subscription().id, '/resourcegroups/', variables('ResourceGroups')[0], '/providers/microsoft.operationalinsights/workspaces/', variables('LogAnalyticsWorkspaceName'))]"
+                    },
+                    "LogicAppName": {
+                        "value": "[variables('LogicAppName')]"
+                    },
+                    "MinimumNumberOfRdsh": {
+                        "value": "[parameters('ScalingMinimumNumberOfRdsh')]"
+                    },
+                    "SessionHostsResourceGroupName": {
+                        "value": "[variables('ResourceGroups')[1]]"
+                    },
+                    "SessionThresholdPerCPU": {
+                        "value": "[parameters('ScalingSessionThresholdPerCPU')]"
+                    },
+                    "TimeDifference": {
+                        "value": "[parameters('ScalingTimeDifference')]"
                     }
                 }
             }

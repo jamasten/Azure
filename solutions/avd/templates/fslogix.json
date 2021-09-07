@@ -17,6 +17,9 @@
         "HostPoolName": {
             "type": "string"
         },
+        "HostPoolType": {
+            "type": "string"
+        },
         "KerberosEncryptionType": {
             "type": "string"
         },
@@ -27,6 +30,12 @@
             "type": "string"
         },
         "OuPath": {
+            "type": "string"
+        },
+        "RecoveryServices": {
+            "type": "bool"
+        },
+        "RecoveryServicesVaultName": {
             "type": "string"
         },
         "ResourceNameSuffix": {
@@ -70,7 +79,9 @@
         }
     },
     "variables": {
+        "BackupContainer": "[concat('storagecontainer;Storage;', resourceGroup().name, ';', parameters('StorageAccountName'))]",
         "NicName": "[concat('nic-', parameters('resourceNameSuffix'), '-mgt')]",
+        "PooledHostPool": "[equals(split(parameters('HostPoolType'), ' ')[0], 'Pooled')]",
         "ResourceGroupName": "[resourceGroup().name]",
         "RoleAssignmentName": "[guid(parameters('StorageAccountName'), '0')]",
         "RoleAssignmentName_Users": "[guid(concat(parameters('StorageAccountName'), '/default/', parameters('HostPoolName')), '0')]",
@@ -321,6 +332,24 @@
                 "protectedSettings": {
                     "commandToExecute": "[concat('powershell -ExecutionPolicy Unrestricted -File New-DomainJoinStorageAccount.ps1 -DomainJoinPassword ', parameters('DomainJoinPassword'), ' -DomainJoinUserPrincipalName ', parameters('DomainJoinUserPrincipalName'), ' -DomainServices ', parameters('DomainServices'), ' -Environment ', environment().name, ' -HostPoolName ', parameters('HostPoolName'), ' -KerberosEncryptionType ', parameters('KerberosEncryptionType'), ' -Netbios ', parameters('Netbios'), ' -OuPath ', parameters('OuPath'), ' -ResourceGroupName ', variables('ResourceGroupName'), ' -SecurityPrincipalName ', parameters('SecurityPrincipalName'), ' -StorageAccountName ', parameters('StorageAccountName'), ' -StorageKey ', listKeys(resourceId('Microsoft.Storage/storageAccounts', parameters('StorageAccountName')), '2019-06-01').keys[0].value, ' -SubscriptionId ', subscription().subscriptionId, ' -TenantId ', subscription().tenantId)]"
                 }
+            }
+        },
+        {
+            "comments": "---------- RECOVERY SERVICES > BACKUP ITEM ----------",
+            "condition": "[parameters('RecoveryServices')]",
+            "type": "Microsoft.RecoveryServices/vaults/backupFabrics/protectionContainers/protectedItems",
+            "name": "[concat(parameters('RecoveryServicesVaultName'), '/Azure/', variables('BackupContainer'), '/', concat('AzureFileShare;', toLower(parameters('HostPoolName'))))]",
+            "apiVersion": "2016-06-01",
+            "location": "[resourceGroup().location]",
+            "tags": "[parameters('Tags')]",
+            "dependsOn": [
+                
+            ],
+            "properties": {
+                "protectedItemType": "AzureFileShareProtectedItem",
+                "policyId": "[resourceId('Microsoft.RecoveryServices/vaults/backupPolicies', parameters('RecoveryServicesVaultName'), 'AvdPolicy')]",
+                "sourceResourceId": "[resourceId('Microsoft.Storage/storageAccounts', parameters('StorageAccountName'))]"
+                //"isInlineInquiry": "true"
             }
         }
     ]

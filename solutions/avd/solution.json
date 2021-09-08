@@ -642,6 +642,9 @@
                     "RecoveryServicesVaultName": {
                         "value": "[variables('RecoveryServicesVaultName')]"
                     },
+                    "RecoveryServicesVaultResourceGroupName": {
+                        "value": "[variables('ResourceGroups')[0]]"
+                    },
                     "ResourceNameSuffix": {
                         "value": "[parameters('ResourceNameSuffix')]"
                     },

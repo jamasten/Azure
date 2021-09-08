@@ -331,6 +331,20 @@
             }
         },
         {
+            "comments": "---------- RECOVERY SERVICES > BACKUP CONTAINER ----------",
+            "type": "Microsoft.RecoveryServices/vaults/backupFabrics/protectionContainers",
+            "apiVersion": "2016-12-01",
+            "name": "[concat(parameters('RecoveryServicesVaultName'), '/Azure/storagecontainer;Storage;', resourceGroup().name, ';', parameters('StorageAccountName'))]",
+            "dependsOn": [
+                "[concat(variables('VmName'), '/CustomScriptExtension')]"
+            ],
+            "properties": {
+                "backupManagementType": "AzureStorage",
+                "containerType": "StorageContainer",
+                "sourceResourceId": "[resourceId(resourceGroup().name, 'Microsoft.Storage/storageAccounts', parameters('StorageAccountName'))]"
+            }
+        },
+        {
             "comments": "---------- RECOVERY SERVICES > BACKUP ITEM ----------",
             "condition": "[parameters('RecoveryServices')]",
             "type": "Microsoft.RecoveryServices/vaults/backupFabrics/protectionContainers/protectedItems",
@@ -339,13 +353,13 @@
             "location": "[resourceGroup().location]",
             "tags": "[parameters('Tags')]",
             "dependsOn": [
-                "[concat(variables('VmName'), '/CustomScriptExtension')]"
+                "[concat(parameters('RecoveryServicesVaultName'), '/Azure/storagecontainer;Storage;', resourceGroup().name, ';', parameters('StorageAccountName'))]"
             ],
             "properties": {
                 "protectedItemType": "AzureFileShareProtectedItem",
                 "policyId": "[resourceId('Microsoft.RecoveryServices/vaults/backupPolicies', parameters('RecoveryServicesVaultName'), 'AvdPolicy')]",
-                "sourceResourceId": "[resourceId('Microsoft.Storage/storageAccounts', parameters('StorageAccountName'))]"
-                //"isInlineInquiry": "true"
+                "sourceResourceId": "[resourceId('Microsoft.Storage/storageAccounts', parameters('StorageAccountName'))]",
+                "isInlineInquiry": "true"
             }
         }
     ]

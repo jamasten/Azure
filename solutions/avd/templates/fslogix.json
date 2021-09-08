@@ -334,14 +334,14 @@
             "comments": "---------- RECOVERY SERVICES > BACKUP CONTAINER ----------",
             "type": "Microsoft.RecoveryServices/vaults/backupFabrics/protectionContainers",
             "apiVersion": "2016-12-01",
-            "name": "[concat(parameters('RecoveryServicesVaultName'), '/Azure/storagecontainer;Storage;', resourceGroup().name, ';', parameters('StorageAccountName'))]",
+            "name": "[concat(parameters('RecoveryServicesVaultName'), '/Azure/', variables('BackupContainer'))]",
             "dependsOn": [
                 "[resourceId('Microsoft.Compute/virtualMachines/extensions', variables('VmName'), 'CustomScriptExtension')]"
             ],
             "properties": {
                 "backupManagementType": "AzureStorage",
                 "containerType": "StorageContainer",
-                "sourceResourceId": "[resourceId(resourceGroup().name, 'Microsoft.Storage/storageAccounts', parameters('StorageAccountName'))]"
+                "sourceResourceId": "[resourceId('Microsoft.Storage/storageAccounts', parameters('StorageAccountName'))]"
             }
         },
         {
@@ -353,7 +353,7 @@
             "location": "[resourceGroup().location]",
             "tags": "[parameters('Tags')]",
             "dependsOn": [
-                "[concat(parameters('RecoveryServicesVaultName'), '/Azure/storagecontainer;Storage;', resourceGroup().name, ';', parameters('StorageAccountName'))]"
+                "[concat(parameters('RecoveryServicesVaultName'), '/Azure/', variables('BackupContainer'))]"
             ],
             "properties": {
                 "protectedItemType": "AzureFileShareProtectedItem",

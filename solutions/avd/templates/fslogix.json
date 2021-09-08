@@ -336,7 +336,7 @@
             "apiVersion": "2016-12-01",
             "name": "[concat(parameters('RecoveryServicesVaultName'), '/Azure/storagecontainer;Storage;', resourceGroup().name, ';', parameters('StorageAccountName'))]",
             "dependsOn": [
-                "[concat(variables('VmName'), '/CustomScriptExtension')]"
+                "[resourceId('Microsoft.Compute/virtualMachines/extensions', variables('VmName'), 'CustomScriptExtension')]"
             ],
             "properties": {
                 "backupManagementType": "AzureStorage",

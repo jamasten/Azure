@@ -129,6 +129,11 @@ try
         $Description = "Computer account object for Azure storage account $($StorageAccountName)."
 
         # Create the AD computer object for the Azure Storage Account
+        $Computer = Get-ADComputer -Filter {Name -eq $StorageAccountName}
+        if($Computer)
+        {
+            Remove-ADComputer -Credential $Credential -Identity $StorageAccountName -Confirm:$false -ErrorAction 'Stop'
+        }
         New-ADComputer -Credential $Credential -Name $StorageAccountName -Path $OuPath -ServicePrincipalNames $SPN -AccountPassword $ComputerPassword -KerberosEncryptionType $KerberosEncryptionType -Description $Description -ErrorAction 'Stop'
         Write-Log -Message "Computer object creation succeeded" -Type 'INFO'
 

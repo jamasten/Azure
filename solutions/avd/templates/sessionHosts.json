@@ -59,6 +59,9 @@
         "RecoveryServicesVaultName": {
             "type": "string"
         },
+        "RecoveryServicesVaultResourceGroupName": {
+            "type": "string"
+        },
         "ResourceNameSuffix": {
             "type": "string"
         },
@@ -393,7 +396,7 @@
             "comments": "---------- RECOVERY SERVICES > BACKUP ITEM ----------",
             "condition": "[and(not(variables('PooledHostPool')), parameters('RecoveryServices'))]",
             "type": "Microsoft.RecoveryServices/vaults/backupFabrics/protectionContainers/protectedItems",
-            "name": "[concat(parameters('RecoveryServicesVaultName'), '/Azure/', variables('v2VmContainer'), resourceGroup().name, ';', parameters('VmName'), padLeft(copyIndex(parameters('SessionHostIndex')), 3, '0'), '/', variables('v2Vm'), resourceGroup().name, ';', parameters('VmName'), padLeft(copyIndex(parameters('SessionHostIndex')), 3, '0'))]",
+            "name": "[concat(parameters('RecoveryServicesVaultName'), '/Azure/', variables('v2VmContainer'), parameters('RecoveryServicesVaultResourceGroupName'), ';', parameters('VmName'), padLeft(copyIndex(parameters('SessionHostIndex')), 3, '0'), '/', variables('v2Vm'), resourceGroup().name, ';', parameters('VmName'), padLeft(copyIndex(parameters('SessionHostIndex')), 3, '0'))]",
             "apiVersion": "2016-06-01",
             "location": "[resourceGroup().location]",
             "tags": "[parameters('Tags')]",
@@ -406,7 +409,7 @@
             },
             "properties": {
                 "protectedItemType": "Microsoft.Compute/virtualMachines",
-                "policyId": "[resourceId('Microsoft.RecoveryServices/vaults/backupPolicies', parameters('RecoveryServicesVaultName'), 'AvdPolicy')]",
+                "policyId": "[resourceId(parameters('RecoveryServicesVaultResourceGroupName'), 'Microsoft.RecoveryServices/vaults/backupPolicies', parameters('RecoveryServicesVaultName'), 'AvdPolicy')]",
                 "sourceResourceId": "[resourceId('Microsoft.Compute/virtualMachines', concat(parameters('VmName'), padLeft(copyIndex(parameters('SessionHostIndex')), 3, '0')))]"
             }
         }

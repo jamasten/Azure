@@ -353,7 +353,7 @@
             "location": "[resourceGroup().location]",
             "tags": "[parameters('Tags')]",
             "dependsOn": [
-                "[concat(parameters('RecoveryServicesVaultName'), '/Azure/', variables('BackupContainer'))]"
+                "[resourceId('Microsoft.RecoveryServices/vaults/backupFabrics/protectionContainers', parameters('RecoveryServicesVaultName'), 'Azure', variables('BackupContainer'))]"
             ],
             "properties": {
                 "protectedItemType": "AzureFileShareProtectedItem",

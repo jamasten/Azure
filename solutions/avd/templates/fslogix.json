@@ -339,7 +339,7 @@
             "location": "[resourceGroup().location]",
             "tags": "[parameters('Tags')]",
             "dependsOn": [
-                
+                "[concat(variables('VmName'), '/CustomScriptExtension')]"
             ],
             "properties": {
                 "protectedItemType": "AzureFileShareProtectedItem",

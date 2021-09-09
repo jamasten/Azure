@@ -547,42 +547,6 @@
             }
         },
         {
-            "comments": "---------- LINKED DEPLOYMENT > BACKUP ----------",
-            "condition": "[parameters('RecoveryServices')]",
-            "type": "Microsoft.Resources/deployments",
-            "apiVersion": "2019-10-01",
-            "name": "[concat('Backup_', parameters('Timestamp'))]",
-            "tags": "[parameters('Tags')]",
-            "resourceGroup": "[variables('ResourceGroups')[0]]",
-            "dependsOn": [
-                "rgLoop"
-            ],
-            "properties": {
-                "mode": "Incremental",
-                "templateLink": {
-                    "uri": "https://raw.githubusercontent.com/battelle-cube/azure-avd-automation/main/solutions/avd/templates/scale.json",
-                    "contentVersion": "1.0.0.0"
-                },
-                "parameters": {
-                    "HostPoolType": {
-                        "value": "[parameters('HostPoolType')]"
-                    },
-                    "Location": {
-                        "value": "[variables('Location')]"
-                    },
-                    "RecoveryServicesVaultName": {
-                        "value": "[variables('RecoveryServicesVaultName')]"
-                    },
-                    "Tags": {
-                        "value": "[parameters('Tags')]"
-                    },
-                    "TimeZone": {
-                        "value": "[variables('TimeZones')[variables('Location')]]"
-                    }
-                }
-            }
-        },
-        {
             "comments": "---------- LINKED DEPLOYMENT > AVD SESSION HOSTS ----------",
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2019-10-01",
@@ -591,8 +555,7 @@
             "resourceGroup": "[variables('ResourceGroups')[1]]",
             "dependsOn": [
                 "rgLoop",
-                "[concat('HostPool_', parameters('Timestamp'))]",
-                "[concat('Backup_', parameters('Timestamp'))]"
+                "[concat('HostPool_', parameters('Timestamp'))]"
             ],
             "properties": {
                 "mode": "Incremental",
@@ -652,15 +615,6 @@
                     "OuPath": {
                         "value": "[parameters('OuPath')]"
                     },
-                    "RecoveryServices": {
-                        "value": "[parameters('RecoveryServices')]"
-                    },
-                    "RecoveryServicesVaultName": {
-                        "value": "[variables('RecoveryServicesVaultName')]"
-                    },
-                    "RecoveryServicesVaultResourceGroupName": {
-                        "value": "[variables('ResourceGroups')[0]]"
-                    },
                     "ResourceNameSuffix": {
                         "value": "[variables('ResourceNameSuffix')]"
                     },
@@ -713,8 +667,7 @@
             "resourceGroup": "[variables('ResourceGroups')[0]]",
             "dependsOn": [
                 "rgLoop",
-                "[concat('HostPool_', parameters('Timestamp'))]",
-                "[concat('Backup_', parameters('Timestamp'))]"
+                "[concat('HostPool_', parameters('Timestamp'))]"
             ],
             "properties": {
                 "mode": "Incremental",
@@ -749,12 +702,6 @@
                     },
                     "OuPath": {
                         "value": "[parameters('OuPath')]"
-                    },
-                    "RecoveryServices": {
-                        "value": "[parameters('RecoveryServices')]"
-                    },
-                    "RecoveryServicesVaultName": {
-                        "value": "[variables('RecoveryServicesVaultName')]"
                     },
                     "ResourceNameSuffix": {
                         "value": "[variables('ResourceNameSuffix')]"
@@ -794,6 +741,59 @@
                     },
                     "VmUsername": {
                         "value": "[parameters('VmUsername')]"
+                    }
+                }
+            }
+        },
+        {
+            "comments": "---------- LINKED DEPLOYMENT > BACKUP ----------",
+            "condition": "[parameters('RecoveryServices')]",
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2019-10-01",
+            "name": "[concat('Backup_', parameters('Timestamp'))]",
+            "tags": "[parameters('Tags')]",
+            "resourceGroup": "[variables('ResourceGroups')[0]]",
+            "dependsOn": [
+                "rgLoop",
+                "[concat('SessionHosts_', parameters('Timestamp'))]",
+                "[concat('FSLogix_', parameters('Timestamp'))]"
+            ],
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "https://raw.githubusercontent.com/jamasten/Azure/master/solutions/avd/templates/backup.json",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "HostPoolType": {
+                        "value": "[parameters('HostPoolType')]"
+                    },
+                    "Location": {
+                        "value": "[variables('Location')]"
+                    },
+                    "RecoveryServicesVaultName": {
+                        "value": "[variables('RecoveryServicesVaultName')]"
+                    },
+                    "SessionHostCount": {
+                        "value": "[parameters('SessionHostCount')]"
+                    },
+                    "SessionHostIndex": {
+                        "value": "[parameters('SessionHostIndex')]"
+                    },
+                    "StorageAccountName": {
+                        "value": "[variables('StorageAccountName')]"
+                    },
+                    "Tags": {
+                        "value": "[parameters('Tags')]"
+                    },
+                    "TimeZone": {
+                        "value": "[variables('TimeZones')[variables('Location')]]"
+                    },
+                    "VmName": {
+                        "value": "[variables('VmName')]"
+                    },
+                    "VmResourceGroupName": {
+                        "value": "[variables('ResourceGroups')[1]]"
                     }
                 }
             }

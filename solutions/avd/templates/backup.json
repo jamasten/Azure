@@ -99,7 +99,7 @@
             "name": "[concat(parameters('RecoveryServicesVaultName'), '/Azure/', variables('FileShareBackupContainer'))]",
             "dependsOn": [
                 "[parameters('RecoveryServicesVaultName')]",
-                "[concat(parameters('RecoveryServicesVaultName'), '/AvdPolicy')]"
+                "[resourceId('Microsoft.RecoveryServices/vaults/backupPolicies', parameters('RecoveryServicesVaultName'), 'AvdPolicy')]"
             ],
             "properties": {
                 "backupManagementType": "AzureStorage",

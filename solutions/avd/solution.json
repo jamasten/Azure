@@ -749,6 +749,9 @@
                     "contentVersion": "1.0.0.0"
                 },
                 "parameters": {
+                    "HostPoolName": {
+                        "value": "[variables('HostPoolName')]"
+                    },
                     "HostPoolType": {
                         "value": "[parameters('HostPoolType')]"
                     },

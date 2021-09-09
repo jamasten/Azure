@@ -2,6 +2,9 @@
     "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
+        "HostPoolName": {
+            "type": "string"
+        },
         "HostPoolType": {
             "type": "string"
         },
@@ -93,7 +96,7 @@
             "condition": "[variables('PooledHostPool')]",
             "type": "Microsoft.RecoveryServices/vaults/backupFabrics/protectionContainers",
             "apiVersion": "2016-12-01",
-            "name": "[concat(parameters('RecoveryServicesVaultName'), '/Azure/', variables('BackupContainer'))]",
+            "name": "[concat(parameters('RecoveryServicesVaultName'), '/Azure/', variables('FileShareBackupContainer'))]",
             "dependsOn": [
                 "[parameters('RecoveryServicesVaultName')]",
                 "[concat(parameters('RecoveryServicesVaultName'), '/AvdPolicy')]"
@@ -113,7 +116,7 @@
             "location": "[parameters('Location')]",
             "tags": "[parameters('Tags')]",
             "dependsOn": [
-                "[resourceId('Microsoft.RecoveryServices/vaults/backupFabrics/protectionContainers', parameters('RecoveryServicesVaultName'), 'Azure', variables('BackupContainer'))]"
+                "[resourceId('Microsoft.RecoveryServices/vaults/backupFabrics/protectionContainers', parameters('RecoveryServicesVaultName'), 'Azure', variables('FileShareBackupContainer'))]"
             ],
             "properties": {
                 "protectedItemType": "AzureFileShareProtectedItem",

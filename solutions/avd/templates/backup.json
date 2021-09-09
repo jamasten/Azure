@@ -12,10 +12,10 @@
             "type": "string"
         },
         "SessionHostCount": {
-            "type": "string"
+            "type": "int"
         },
         "SessionHostIndex": {
-            "type": "string"
+            "type": "int"
         },
         "StorageAccountName": {
             "type": "string"

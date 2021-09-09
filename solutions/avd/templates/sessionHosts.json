@@ -53,15 +53,6 @@
         "OuPath": {
             "type": "string"
         },
-        "RecoveryServices": {
-            "type": "bool"
-        },
-        "RecoveryServicesVaultName": {
-            "type": "string"
-        },
-        "RecoveryServicesVaultResourceGroupName": {
-            "type": "string"
-        },
         "ResourceNameSuffix": {
             "type": "string"
         },
@@ -137,9 +128,7 @@
             "managedDisk": {
                 "storageAccountType": "[parameters('DiskSku')]"
             }
-        },
-        "v2VmContainer": "iaasvmcontainer;iaasvmcontainerv2;",
-        "v2Vm": "vm;iaasvmcontainerv2;"
+        }
     },
     "resources": [
         {
@@ -391,27 +380,6 @@
                     }
                 }
             ]
-        },
-        {
-            "comments": "---------- RECOVERY SERVICES > BACKUP ITEM ----------",
-            "condition": "[and(not(variables('PooledHostPool')), parameters('RecoveryServices'))]",
-            "type": "Microsoft.RecoveryServices/vaults/backupFabrics/protectionContainers/protectedItems",
-            "name": "[concat(parameters('RecoveryServicesVaultName'), '/Azure/', variables('v2VmContainer'), parameters('RecoveryServicesVaultResourceGroupName'), ';', parameters('VmName'), padLeft(copyIndex(parameters('SessionHostIndex')), 3, '0'), '/', variables('v2Vm'), resourceGroup().name, ';', parameters('VmName'), padLeft(copyIndex(parameters('SessionHostIndex')), 3, '0'))]",
-            "apiVersion": "2016-06-01",
-            "location": "[resourceGroup().location]",
-            "tags": "[parameters('Tags')]",
-            "dependsOn": [
-                "vmLoop"
-            ],
-            "copy": {
-                "name": "backupLoop",
-                "count": "[parameters('SessionHostCount')]"
-            },
-            "properties": {
-                "protectedItemType": "Microsoft.Compute/virtualMachines",
-                "policyId": "[resourceId(parameters('RecoveryServicesVaultResourceGroupName'), 'Microsoft.RecoveryServices/vaults/backupPolicies', parameters('RecoveryServicesVaultName'), 'AvdPolicy')]",
-                "sourceResourceId": "[resourceId('Microsoft.Compute/virtualMachines', concat(parameters('VmName'), padLeft(copyIndex(parameters('SessionHostIndex')), 3, '0')))]"
-            }
         }
     ]
 }

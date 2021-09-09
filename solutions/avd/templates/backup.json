@@ -11,16 +11,39 @@
         "RecoveryServicesVaultName": {
             "type": "string"
         },
+        "SessionHostCount": {
+            "type": "string"
+        },
+        "SessionHostIndex": {
+            "type": "string"
+        },
+        "StorageAccountName": {
+            "type": "string"
+        },
         "Tags": {
             "type": "object"
         },
         "TimeZone": {
             "type": "string"
+        },
+        "VmName": {
+            "type": "string"
+        },
+        "VmResourceGroupName": {
+            "type": "string"
         }
     },
-    "variables": {},
+    "variables": {
+        "ResourceGroupName": "[resourceGroup().name]",
+        "FileShareBackupContainer": "[concat('storagecontainer;Storage;', variables('ResourceGroupName'), ';', parameters('StorageAccountName'))]",
+        "v2VmContainer": "iaasvmcontainer;iaasvmcontainerv2;",
+        "v2Vm": "vm;iaasvmcontainerv2;",
+        "PooledHostPool": "[equals(split(parameters('HostPoolType'), ' ')[0], 'Pooled')]"
+
+    },
     "resources": [
         {
+            "comments": "---------- RECOVERY SERVICES VAULT ----------",
             "type": "Microsoft.RecoveryServices/vaults",
             "name": "[parameters('RecoveryServicesVaultName')]",
             "apiVersion": "2016-06-01",
@@ -33,6 +56,7 @@
             "properties": {}
         },
         {
+            "comments": "---------- RECOVERY SERVICES > BACKUP POLICY ----------",
             "type": "Microsoft.RecoveryServices/vaults/backupPolicies",
             "name": "[concat(parameters('RecoveryServicesVaultName'), '/AvdPolicy')]",
             "apiVersion": "2016-06-01",
@@ -63,7 +87,62 @@
                 "workLoadType": "[if(equals(split(parameters('HostPoolType'), ' ')[0], 'Pooled'), 'AzureFileShare', 'VM')]"
 
             }
+        },
+        {
+            "comments": "---------- RECOVERY SERVICES > FILE SHARE BACKUP CONTAINER ----------",
+            "condition": "[variables('PooledHostPool')]",
+            "type": "Microsoft.RecoveryServices/vaults/backupFabrics/protectionContainers",
+            "apiVersion": "2016-12-01",
+            "name": "[concat(parameters('RecoveryServicesVaultName'), '/Azure/', variables('BackupContainer'))]",
+            "dependsOn": [
+                "[parameters('RecoveryServicesVaultName')]",
+                "[concat(parameters('RecoveryServicesVaultName'), '/AvdPolicy')]"
+            ],
+            "properties": {
+                "backupManagementType": "AzureStorage",
+                "containerType": "StorageContainer",
+                "sourceResourceId": "[resourceId('Microsoft.Storage/storageAccounts', parameters('StorageAccountName'))]"
+            }
+        },
+        {
+            "comments": "---------- RECOVERY SERVICES > FILE SHARE BACKUP ITEM ----------",
+            "condition": "[variables('PooledHostPool')]",
+            "type": "Microsoft.RecoveryServices/vaults/backupFabrics/protectionContainers/protectedItems",
+            "name": "[concat(parameters('RecoveryServicesVaultName'), '/Azure/', variables('FileShareBackupContainer'), '/', concat('AzureFileShare;', toLower(parameters('HostPoolName'))))]",
+            "apiVersion": "2016-06-01",
+            "location": "[parameters('Location')]",
+            "tags": "[parameters('Tags')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.RecoveryServices/vaults/backupFabrics/protectionContainers', parameters('RecoveryServicesVaultName'), 'Azure', variables('BackupContainer'))]"
+            ],
+            "properties": {
+                "protectedItemType": "AzureFileShareProtectedItem",
+                "policyId": "[resourceId('Microsoft.RecoveryServices/vaults/backupPolicies', parameters('RecoveryServicesVaultName'), 'AvdPolicy')]",
+                "sourceResourceId": "[resourceId('Microsoft.Storage/storageAccounts', parameters('StorageAccountName'))]",
+                "isInlineInquiry": "true"
+            }
+        },
+        {
+            "comments": "---------- RECOVERY SERVICES > VM BACKUP ITEM ----------",
+            "condition": "[not(variables('PooledHostPool'))]",
+            "type": "Microsoft.RecoveryServices/vaults/backupFabrics/protectionContainers/protectedItems",
+            "name": "[concat(parameters('RecoveryServicesVaultName'), '/Azure/', variables('v2VmContainer'), variables('ResourceGroupName'), ';', parameters('VmName'), padLeft(copyIndex(parameters('SessionHostIndex')), 3, '0'), '/', variables('v2Vm'), variables('ResourceGroupName'), ';', parameters('VmName'), padLeft(copyIndex(parameters('SessionHostIndex')), 3, '0'))]",
+            "apiVersion": "2016-06-01",
+            "location": "[parameters('Location')]",
+            "tags": "[parameters('Tags')]",
+            "dependsOn": [
+                "[parameters('RecoveryServicesVaultName')]",
+                "[concat(parameters('RecoveryServicesVaultName'), '/AvdPolicy')]"
+            ],
+            "copy": {
+                "name": "backupLoop",
+                "count": "[parameters('SessionHostCount')]"
+            },
+            "properties": {
+                "protectedItemType": "Microsoft.Compute/virtualMachines",
+                "policyId": "[resourceId('Microsoft.RecoveryServices/vaults/backupPolicies', parameters('RecoveryServicesVaultName'), 'AvdPolicy')]",
+                "sourceResourceId": "[resourceId(parameters('VmResourceGroupName'), 'Microsoft.Compute/virtualMachines', concat(parameters('VmName'), padLeft(copyIndex(parameters('SessionHostIndex')), 3, '0')))]"
+            }
         }
-    ],
-    "outputs": {}
+    ]
 }

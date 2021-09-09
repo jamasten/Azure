@@ -135,7 +135,7 @@
             "tags": "[parameters('Tags')]",
             "dependsOn": [
                 "[parameters('RecoveryServicesVaultName')]",
-                "[concat(parameters('RecoveryServicesVaultName'), '/AvdPolicy')]"
+                "[resourceId('Microsoft.RecoveryServices/vaults/backupPolicies', parameters('RecoveryServicesVaultName'), 'AvdPolicy')]"
             ],
             "copy": {
                 "name": "backupLoop",

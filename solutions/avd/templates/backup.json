@@ -129,7 +129,7 @@
             "comments": "---------- RECOVERY SERVICES > VM BACKUP ITEM ----------",
             "condition": "[not(variables('PooledHostPool'))]",
             "type": "Microsoft.RecoveryServices/vaults/backupFabrics/protectionContainers/protectedItems",
-            "name": "[concat(parameters('RecoveryServicesVaultName'), '/Azure/', variables('v2VmContainer'), variables('ResourceGroupName'), ';', parameters('VmName'), padLeft(copyIndex(parameters('SessionHostIndex')), 3, '0'), '/', variables('v2Vm'), variables('ResourceGroupName'), ';', parameters('VmName'), padLeft(copyIndex(parameters('SessionHostIndex')), 3, '0'))]",
+            "name": "[concat(parameters('RecoveryServicesVaultName'), '/Azure/', variables('v2VmContainer'), parameters('VmResourceGroupName'), ';', parameters('VmName'), padLeft(copyIndex(parameters('SessionHostIndex')), 3, '0'), '/', variables('v2Vm'), parameters('VmResourceGroupName'), ';', parameters('VmName'), padLeft(copyIndex(parameters('SessionHostIndex')), 3, '0'))]",
             "apiVersion": "2016-06-01",
             "location": "[parameters('Location')]",
             "tags": "[parameters('Tags')]",

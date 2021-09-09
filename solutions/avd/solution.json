@@ -423,7 +423,7 @@
             "properties": {
                 "mode": "Incremental",
                 "templateLink": {
-                    "uri": "https://raw.githubusercontent.com/jamasten/Azure/master/solutions/avd/templates/hostPool.json",
+                    "uri": "https://raw.githubusercontent.com/battelle-cube/azure-avd-automation/main/solutions/avd/templates/hostPool.json",
                     "contentVersion": "1.0.0.0"
                 },
                 "parameters": {
@@ -490,7 +490,7 @@
             "properties": {
                 "mode": "Incremental",
                 "templateLink": {
-                    "uri": "https://raw.githubusercontent.com/jamasten/Azure/master/solutions/avd/templates/scale.json",
+                    "uri": "https://raw.githubusercontent.com/battelle-cube/azure-avd-automation/main/solutions/avd/templates/scale.json",
                     "contentVersion": "1.0.0.0"
                 },
                 "parameters": {
@@ -550,7 +550,7 @@
             "properties": {
                 "mode": "Incremental",
                 "templateLink": {
-                    "uri": "https://raw.githubusercontent.com/jamasten/Azure/master/solutions/avd/templates/sessionHosts.json",
+                    "uri": "https://raw.githubusercontent.com/battelle-cube/azure-avd-automation/main/solutions/avd/templates/sessionHosts.json",
                     "contentVersion": "1.0.0.0"
                 },
                 "parameters": {
@@ -662,7 +662,7 @@
             "properties": {
                 "mode": "Incremental",
                 "templateLink": {
-                    "uri": "https://raw.githubusercontent.com/jamasten/Azure/master/solutions/avd/templates/fslogix.json",
+                    "uri": "https://raw.githubusercontent.com/battelle-cube/azure-avd-automation/main/solutions/avd/templates/fslogix.json",
                     "contentVersion": "1.0.0.0"
                 },
                 "parameters": {

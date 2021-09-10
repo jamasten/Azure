@@ -57,7 +57,7 @@ If you are deploying this solution to multiple subscriptions in the same tenant 
 
 ## Post Deployment Requirements
 
-- When deploying a "pooled" host pool, a management VM is deployed to facilitate the domain join of the Azure Storage Account and to set the NTFS permissions on the Azure File Share.  After the deployment succeeds, this VM and its associated resources may be removed.
+When deploying a "pooled" host pool, a management VM is deployed to facilitate the domain join of the Azure Storage Account and to set the NTFS permissions on the Azure File Share.  After the deployment succeeds, this VM and its associated resources may be removed.
 
 ## Deployment Options
 

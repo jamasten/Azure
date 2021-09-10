@@ -2,23 +2,39 @@
 
 This solution will deploy Azure Virtual Desktop in an Azure subscription.  Depending on the options selected, either a personal or pooled host pool can be deployed with this solution.  The pooled option will deploy an App Group with a role assignment and everything to enable FSLogix.
 
-This solution contains many features that are usually enabled manually after deploying a AVD host pool.  Those features are:
+This solution contains many features that are usually enabled manually after deploying an AVD host pool.  Those features are:
 
-- FSLogix:
-  - Configures the recommended registry settings on the session hosts.
-  - Deploys an Azure File Share, domain joins the Storage Account, and sets the Share and NTFS permissions.
-- Scaling Automation:
-  - Enables the solution if the host pool is "pooled".  A system assigned identity is deployed with the Automation Account and is assigned the Contributor role on the resource group containing the session hosts.  This limits the privileges the Automation Account has in your subscription.
-- Start VM On Connect:
-  - Configures the feature for the AVD host pool.
-- VDI Optimization Script:
-  - The script will remove unnecessary apps, services, and processes from your Windows 10 OS, improving performance and resource utilization.
-- AVD Monitoring Solution:
-  - Deploys the Log Analytics Workspace with the required Windows Events and Performance Counters.
-  - Deploys the Microsoft Monitoring Agent on session hosts.
-  - Deploys diagnostic settings on the AVD host pool and workspace.
-- Graphics Drivers:
-  - Deploys the required extension containing the graphics driver when the appropriate VM size is selected.
+- FSLogix (Pooled host pools only):
+  - Deploys the required resources to enable feature:
+    - Azure Storage Account
+    - Azure File Share
+  - Domain joins the Storage Account
+  - Sets the Share and NTFS permissions
+  - Enables FSLogix on the session hosts using registry settings
+- Scaling Automation (Pooled host pools only): deploys the required resources to enable the feature:
+  - Automation Account with a Managed Identity
+    - Runbook
+    - Variable
+    - PowerShell Modules
+  - Logic App
+  - Contributor role assignment on the AVD resource groups, limiting the privileges the Automation Account has in your subscription
+- Start VM On Connect (Optional):
+  - Deployed for both "pooled" and "personal" host pools.
+  - If selected, the solution deploys:
+    - role with appropriate permissions
+    - role assignment
+    - enables the feature on the AVD host pool.
+- VDI Optimization Script: removes unnecessary apps, services, and processes from your Windows 10 OS, improving performance and resource utilization.
+- AVD Monitoring Solution: deploys the required resources to enable the Insights workbook:
+  - Log Analytics Workspace with the required Windows Events and Performance Counters.
+  - Microsoft Monitoring Agent on the session hosts.
+  - Diagnostic settings on the AVD host pool and workspace.
+- Graphics Drivers: deploys the required extension to install the graphics driver when the appropriate VM sizes are selected.
+- Backups (Optional): deploys the required resources to enable backups:
+  - Recovery Services Vault
+  - Backup Policy
+  - Protection Container (File Share Only)
+  - Protected Item
 
 ## Assumptions
 
@@ -29,6 +45,7 @@ To successfully deploy this solution, you will need to ensure your scenario matc
 - Landing zone deployed in Azure:
   - Virtual network and subnet(s)
   - ADDS synchronized with Azure AD
+- Correct RBAC assignment: this solution contains many role assignments so you will need to be a Subscription Owner for a successful deployment of all the features.
 
 ## Prerequisites
 
@@ -42,7 +59,7 @@ If you are deploying this solution to multiple subscriptions in the same tenant 
 
 ## Post Deployment Requirements
 
-- A management VM is deployed to facilitate the domain join of the Azure Storage Account, if using AD for domain services, and to set the NTFS permissions on the Azure File Share.  After the deployment succeeds, this VM and its associated resources may be removed.
+- When deploying a "pooled" host pool, a management VM is deployed to facilitate the domain join of the Azure Storage Account and to set the NTFS permissions on the Azure File Share.  After the deployment succeeds, this VM and its associated resources may be removed.
 
 ## Deployment Options
 

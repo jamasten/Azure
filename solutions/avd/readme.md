@@ -4,13 +4,13 @@ This solution will deploy Azure Virtual Desktop in an Azure subscription.  Depen
 
 This solution contains many features that are usually enabled manually after deploying an AVD host pool.  Those features are:
 
-- FSLogix (Pooled host pools only):
-  - Deploys the required resources to enable feature:
-    - Azure Storage Account
-    - Azure File Share
-  - Domain joins the Storage Account
-  - Sets the Share and NTFS permissions
-  - Enables FSLogix on the session hosts using registry settings
+- FSLogix (Pooled host pools only): deploys the required resources to enable feature:
+  - Azure Storage Account
+  - Azure File Share
+  - Management Virtual Machine with Custom Script Extension to:
+    - Domain join the Storage Account
+    - Sets the Share and NTFS permissions
+  - Custom Script Extension on Session Hosts to enable FSLogix using registry settings
 - Scaling Automation (Pooled host pools only): deploys the required resources to enable the feature:
   - Automation Account with a Managed Identity
     - Runbook

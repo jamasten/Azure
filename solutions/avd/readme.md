@@ -4,7 +4,7 @@ This solution will deploy Azure Virtual Desktop in an Azure subscription.  Depen
 
 This solution contains many features that are usually enabled manually after deploying an AVD host pool.  Those features are:
 
-- FSLogix (Pooled host pools only): deploys the required resources to enable feature:
+- FSLogix (Pooled host pools only): deploys the required resources to enable the feature:
   - Azure Storage Account
   - Azure File Share
   - Management Virtual Machine with Custom Script Extension to:
@@ -18,12 +18,10 @@ This solution contains many features that are usually enabled manually after dep
     - PowerShell Modules
   - Logic App
   - Contributor role assignment on the AVD resource groups, limiting the privileges the Automation Account has in your subscription
-- Start VM On Connect (Optional):
-  - Deployed for both "pooled" and "personal" host pools.
-  - If selected, the solution deploys:
-    - role with appropriate permissions
-    - role assignment
-    - enables the feature on the AVD host pool.
+- Start VM On Connect (Optional): deploys the required resources to enable the feature:
+  - Role with appropriate permissions
+  - Role assignment
+  - Enables the feature on the AVD host pool
 - VDI Optimization Script: removes unnecessary apps, services, and processes from your Windows 10 OS, improving performance and resource utilization.
 - AVD Monitoring Solution: deploys the required resources to enable the Insights workbook:
   - Log Analytics Workspace with the required Windows Events and Performance Counters.

@@ -33,6 +33,7 @@ This solution contains many features that are usually enabled manually after dep
   - Backup Policy
   - Protection Container (File Share Only)
   - Protected Item
+- Screen Capture Protection: deploys the required registry setting on the AVD session hosts to enable the feature.
 
 ## Assumptions
 

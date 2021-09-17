@@ -221,6 +221,13 @@
             },
             "defaultValue": "-4:00"
         },
+        "ScreenCaptureProtection": {
+            "type": "bool",
+            "metadata": {
+                "description": "Determines whether the Screen Capture Protection feature is enabled.  As of 9/17/21, this is only supported in Azure Cloud. https://docs.microsoft.com/en-us/azure/virtual-desktop/screen-capture-protection"
+            },
+            "defaultValue": false
+        },
         "SecurityPrincipalId": {
             "type": "string",
             "metadata": {
@@ -252,7 +259,7 @@
         "StartVmOnConnect": {
             "type": "bool",
             "metadata": {
-                "description": "Enable the 'Start VM On Connect' feature. https://docs.microsoft.com/en-us/azure/virtual-desktop/start-virtual-machine-connect"
+                "description": "Determines whether the Start VM On Connect feature is enabled. https://docs.microsoft.com/en-us/azure/virtual-desktop/start-virtual-machine-connect"
             },
             "defaultValue": true
         },
@@ -601,6 +608,9 @@
                     },
                     "ResourceNameSuffix": {
                         "value": "[parameters('ResourceNameSuffix')]"
+                    },
+                    "ScreenCaptureProtection": {
+                        "value": "[parameters('ScreenCaptureProtection')]"
                     },
                     "SessionHostCount": {
                         "value": "[parameters('SessionHostCount')]"

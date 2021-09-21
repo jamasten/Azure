@@ -187,14 +187,6 @@
                 "description": "Enable backups to an Azure Recovery Services vault.  For a pooled host pool, this will enable backups on the Azure file share.  For a personal host pool, this will enable backups on the AVD sessions hosts."
             }
         },
-        "ResourceNameSuffix": {
-            "type": "string",
-            "metadata": {
-                "description": "Use letters and numbers only.  This suffix is used in conjunction with the resource type prefixes to name most of the Azure resources in this solution.  The only exception is the Storage Account since the value must globally unique and has stricter character requirements."
-            },
-            "maxLength": 10,
-            "defaultValue": "avdpocdeus"
-        },
         "ScalingBeginPeakTime": {
             "type": "string",
             "metadata": {
@@ -367,7 +359,7 @@
         "LogAnalyticsWorkspaceName": "[concat('law-', variables('ResourceNameSuffix'))]",
         "LogicAppName": "[concat('la-',  variables('ResourceNameSuffix'))]",
         "Netbios": "[split(parameters('DomainName'), '.')[0]]",
-        "RecoveryServicesVaultName": "[concat('rsv-', parameters('ResourceNameSuffix'))]",
+        "RecoveryServicesVaultName": "[concat('rsv-', variables('ResourceNameSuffix'))]",
         "ResourceGroups": [
             "[concat('rg-', variables('ResourceNameSuffix'), '-infra')]",
             "[concat('rg-',  variables('ResourceNameSuffix'), '-hosts')]"
@@ -771,7 +763,7 @@
             "properties": {
                 "mode": "Incremental",
                 "templateLink": {
-                    "uri": "https://raw.githubusercontent.com/jamasten/Azure/master/solutions/avd/templates/backup.json",
+                    "uri": "https://raw.githubusercontent.com/battelle-cube/azure-avd-automation/main/solutions/avd/templates/backup.json",
                     "contentVersion": "1.0.0.0"
                 },
                 "parameters": {

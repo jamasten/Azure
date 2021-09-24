@@ -339,7 +339,7 @@
                             "timestamp": "[parameters('Timestamp')]"
                         },
                         "protectedSettings": {
-                            "commandToExecute": "[concat('powershell -ExecutionPolicy Unrestricted -File Set-SessionHostConfiguration.ps1 -Environment ', environment().name, ' -HostPoolName ', parameters('HostPoolName'), ' -ImagePublisher ', parameters('ImagePublisher'), ' -ImageSku ', parameters('ImageSku'), ' -Optimizations ', parameters('Optimizations'), ' -PooledHostPool ', variables('PooledHostPool'), ' ScreenCaptureProtection ', parameters('ScreenCaptureProtection'), ' -StorageAccountName ', parameters('StorageAccountName'))]"
+                            "commandToExecute": "[concat('powershell -ExecutionPolicy Unrestricted -File Set-SessionHostConfiguration.ps1 -Environment ', environment().name, ' -HostPoolName ', parameters('HostPoolName'), ' -ImagePublisher ', parameters('ImagePublisher'), ' -ImageSku ', parameters('ImageSku'), ' -Optimizations ', parameters('Optimizations'), ' -PooledHostPool ', variables('PooledHostPool'), ' -ScreenCaptureProtection ', parameters('ScreenCaptureProtection'), ' -StorageAccountName ', parameters('StorageAccountName'))]"
                         }
                     }
                 },

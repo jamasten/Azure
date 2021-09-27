@@ -356,8 +356,8 @@
             "[concat('rg-', parameters('ResourceNameSuffix'), '-infra')]",
             "[concat('rg-', parameters('ResourceNameSuffix'), '-hosts')]"
         ],
-        "RoleAssignmentName": "[guid(subscription().id, 'WindowsVirtualDesktop')]",
-        "RoleDefinitionName": "[guid(subscription().id, 'StartVmOnConnect')]",
+        "RoleAssignmentName": "[guid(subscription().id, parameters('ResourceNameSuffix'), 'WindowsVirtualDesktop')]",
+        "RoleDefinitionName": "[guid(subscription().id, parameters('ResourceNameSuffix'), 'StartVmOnConnect')]",
         "StorageAccountName": "[concat('stor', toLower(substring(uniqueString(subscription().id, variables('ResourceGroups')[0]), 0, 11)))]",
         "TimeZones": {
             "australiacentral": "Australian Eastern Standard Time",
@@ -440,7 +440,7 @@
             "type": "Microsoft.Authorization/roleDefinitions",
             "apiVersion": "2017-09-01",
             "properties": {
-                "roleName": "StartVmOnConnect",
+                "roleName": "[variables('RoleDefinitionName')]",
                 "description": "Allow AVD session hosts to be started when needed.",
                 "type": "customRole",
                 "permissions": [
@@ -485,7 +485,7 @@
             "properties": {
                 "mode": "Incremental",
                 "templateLink": {
-                    "uri": "https://raw.githubusercontent.com/jamasten/Azure/master/solutions/avd/templates/hostPool.json",
+                    "uri": "https://raw.githubusercontent.com/battelle-cube/azure-avd-automation/main/solutions/avd/templates/hostPool.json",
                     "contentVersion": "1.0.0.0"
                 },
                 "parameters": {
@@ -551,7 +551,7 @@
             "properties": {
                 "mode": "Incremental",
                 "templateLink": {
-                    "uri": "https://raw.githubusercontent.com/jamasten/Azure/master/solutions/avd/templates/sessionHosts.json",
+                    "uri": "https://raw.githubusercontent.com/battelle-cube/azure-avd-automation/main/solutions/avd/templates/sessionHosts.json",
                     "contentVersion": "1.0.0.0"
                 },
                 "parameters": {
@@ -666,7 +666,7 @@
             "properties": {
                 "mode": "Incremental",
                 "templateLink": {
-                    "uri": "https://raw.githubusercontent.com/jamasten/Azure/master/solutions/avd/templates/fslogix.json",
+                    "uri": "https://raw.githubusercontent.com/battelle-cube/azure-avd-automation/main/solutions/avd/templates/fslogix.json",
                     "contentVersion": "1.0.0.0"
                 },
                 "parameters": {
@@ -755,7 +755,7 @@
             "properties": {
                 "mode": "Incremental",
                 "templateLink": {
-                    "uri": "https://raw.githubusercontent.com/jamasten/Azure/master/solutions/avd/templates/backup.json",
+                    "uri": "https://raw.githubusercontent.com/battelle-cube/azure-avd-automation/main/solutions/avd/templates/backup.json",
                     "contentVersion": "1.0.0.0"
                 },
                 "parameters": {
@@ -809,7 +809,7 @@
             "properties": {
                 "mode": "Incremental",
                 "templateLink": {
-                    "uri": "https://raw.githubusercontent.com/jamasten/Azure/master/solutions/avd/templates/scale.json",
+                    "uri": "https://raw.githubusercontent.com/battelle-cube/azure-avd-automation/main/solutions/avd/templates/scale.json",
                     "contentVersion": "1.0.0.0"
                 },
                 "parameters": {

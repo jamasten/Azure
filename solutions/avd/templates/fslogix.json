@@ -72,7 +72,7 @@
     "variables": {
         "NicName": "[concat('nic-', parameters('resourceNameSuffix'), '-mgt')]",
         "ResourceGroupName": "[resourceGroup().name]",
-        "RoleAssignmentName": "[guid(parameters('StorageAccountName'), '0')]",
+        "RoleAssignmentName": "[guid(subscription().id, resourceGroup().name, parameters('StorageAccountName'), '0')]",
         "RoleAssignmentName_Users": "[guid(concat(parameters('StorageAccountName'), '/default/', parameters('HostPoolName')), '0')]",
         "VmName": "[concat(parameters('VmName'), 'mgt')]"
     },

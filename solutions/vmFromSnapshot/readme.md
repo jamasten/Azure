@@ -41,7 +41,7 @@ The following resources should already exist in your Azure subscription before d
 ```powershell
 New-AzResourceGroupDeployment `
     -ResourceGroupName '<Azure Resource Group>' `
-    -TemplateUri 'https://raw.githubusercontent.com/jamasten/Azure/master/solutions/vmFromSnapshot/solution.json'
+    -TemplateUri 'https://raw.githubusercontent.com/battelle-cube/azure-avd-automation/main/solutions/vmFromSnapshot/solution.json'
 ```
 
 ### Try with CLI
@@ -49,5 +49,5 @@ New-AzResourceGroupDeployment `
 ````cli
 az deployment group create \
     --resource-group '<Azure Resource Group>' \
-    --template-uri 'https://raw.githubusercontent.com/jamasten/Azure/master/solutions/vmFromSnapshot/solution.json'
+    --template-uri 'https://raw.githubusercontent.com/battelle-cube/azure-avd-automation/main/solutions/vmFromSnapshot/solution.json'
 ````

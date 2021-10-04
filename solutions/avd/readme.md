@@ -72,7 +72,7 @@ When deploying a "pooled" host pool, a management VM is deployed to facilitate t
 ````powershell
 New-AzDeployment `
     -Location '<Azure location>' `
-    -TemplateFile 'https://raw.githubusercontent.com/jamasten/Azure/master/solutions/avd/solution.json' `
+    -TemplateFile 'https://raw.githubusercontent.com/battelle-cube/azure-avd-automation/main/solutions/avd/solution.json' `
     -Verbose
 ````
 
@@ -81,5 +81,5 @@ New-AzDeployment `
 ````cli
 az deployment sub create \
     --location '<Azure location>' \
-    --template-uri 'https://raw.githubusercontent.com/jamasten/Azure/master/solutions/avd/solution.json'
+    --template-uri 'https://raw.githubusercontent.com/battelle-cube/azure-avd-automation/main/solutions/avd/solution.json'
 ````

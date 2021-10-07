@@ -72,7 +72,7 @@
     "variables": {
         "NicName": "[concat('nic-', parameters('resourceNameSuffix'), '-mgt')]",
         "ResourceGroupName": "[resourceGroup().name]",
-        "RoleAssignmentName": "[guid(parameters('StorageAccountName'), '0')]",
+        "RoleAssignmentName": "[guid(subscription().id, resourceGroup().name, parameters('StorageAccountName'), '0')]",
         "RoleAssignmentName_Users": "[guid(concat(parameters('StorageAccountName'), '/default/', parameters('HostPoolName')), '0')]",
         "VmName": "[concat(parameters('VmName'), 'mgt')]"
     },
@@ -314,7 +314,7 @@
                 "autoUpgradeMinorVersion": true,
                 "settings": {
                     "fileUris": [
-                        "https://raw.githubusercontent.com/jamasten/Azure/master/solutions/avd/scripts/New-DomainJoinStorageAccount.ps1"
+                        "https://raw.githubusercontent.com/battelle-cube/azure-avd-automation/main/solutions/avd/scripts/New-DomainJoinStorageAccount.ps1"
                     ],
                     "timestamp": "[parameters('Timestamp')]"
                 },

@@ -364,8 +364,8 @@
             "[concat('rg-', variables('ResourceNameSuffix'), '-infra')]",
             "[concat('rg-',  variables('ResourceNameSuffix'), '-hosts')]"
         ],
-        "RoleAssignmentName": "[guid(subscription().id, 'WindowsVirtualDesktop')]",
-        "RoleDefinitionName": "[guid(subscription().id, 'StartVmOnConnect')]",
+        "RoleAssignmentName": "[guid(subscription().id, parameters('ResourceNameSuffix'), 'WindowsVirtualDesktop')]",
+        "RoleDefinitionName": "[guid(subscription().id, parameters('ResourceNameSuffix'), 'StartVmOnConnect')]",
         "StorageAccountName": "[concat('stor', toLower(substring(uniqueString(subscription().id, variables('ResourceGroups')[0]), 0, 11)))]",
         "TimeZones": {
             "australiacentral": "Australian Eastern Standard Time",

@@ -21,6 +21,20 @@
             ],
             "defaultValue": "Standard_LRS"
         },
+        "WorkloadName": {
+            "type": "string",
+            "metadata": {
+                "description": "The workload name that will be appended to all resources"
+            },
+            "maxLength": 7
+        },
+        "EnvironmentName": {
+            "type": "string",
+            "metadata": {
+                "description": "The 3 character max length name of the environment that will be appended to all resources.  Some exampels are dev, tst, stg, prod."
+            },
+            "maxLength": 3
+        },
         "DomainJoinPassword": {
             "type": "securestring",
             "metadata": {
@@ -38,10 +52,11 @@
             "metadata": {
                 "description": "The name of the domain that provides ADDS to the AVD session hosts and is synchronized with Azure AD"
             },
-            "defaultValue": "jasonmasten.com"
+            "defaultValue": "battelle.us"
         },
         "DomainServices": {
             "type": "string",
+            "defaultValue": "AzureActiveDirectory",
             "metadata": {
                 "description": "The service providing domain services for Azure Virtual Desktop.  This is needed to determine the proper solution to domain join the Azure Storage Account."
             },
@@ -52,6 +67,7 @@
         },
         "EphemeralOsDisk": {
             "type": "bool",
+            "defaultValue": false,
             "metadata": {
                 "description": "Choose whether the session host uses an ephemeral disk for the operating system.  Be sure to select a VM SKU that offers a temporary disk that meets your image requirements. Reference: https://docs.microsoft.com/en-us/azure/virtual-machines/ephemeral-os-disks"
             }
@@ -163,21 +179,13 @@
             "metadata": {
                 "description": "The distinguished name for the target Organization Unit in Active Directory Domain Services."
             },
-            "defaultValue": "OU=Pooled,OU=AVD,DC=jasonmasten,DC=com"
+            "defaultValue": "OU=AADDC Computers,DC=battelle,DC=us"
         },
         "RecoveryServices": {
             "type": "bool",
             "metadata": {
                 "description": "Enable backups to an Azure Recovery Services vault.  For a pooled host pool, this will enable backups on the Azure file share.  For a personal host pool, this will enable backups on the AVD sessions hosts."
             }
-        },
-        "ResourceNameSuffix": {
-            "type": "string",
-            "metadata": {
-                "description": "Use letters and numbers only.  This suffix is used in conjunction with the resource type prefixes to name most of the Azure resources in this solution.  The only exception is the Storage Account since the value must globally unique and has stricter character requirements."
-            },
-            "maxLength": 10,
-            "defaultValue": "avdpocdeus"
         },
         "ScalingBeginPeakTime": {
             "type": "string",
@@ -233,7 +241,7 @@
             "metadata": {
                 "description": "The Object ID for the Security Principal to assign to the AVD Application Group.  This Security Principal will be assigned the Desktop Virtualization User role on the Application Group."
             },
-            "defaultValue": "5c55bf93-86ee-4e1d-a81a-3a78402e6077"
+            "defaultValue": "8d8e9837-ab22-4de6-9d6d-7768195c6444"
         },
         "SecurityPrincipalName": {
             "type": "string",
@@ -278,8 +286,7 @@
             "type": "string",
             "metadata": {
                 "description": "The subnet for the AVD session hosts."
-            },
-            "defaultValue": "snet-clients-d-eastus"
+            }
         },
         "Tags": {
             "type": "object",
@@ -287,7 +294,7 @@
                 "description": "Key / value pairs of metadata for the Azure resources."
             },
             "defaultValue": {
-                "Owner": "Jason Masten",
+                "Owner": "CUBE",
                 "Purpose": "POC",
                 "Environment": "Development"
             }
@@ -307,15 +314,13 @@
             "type": "string",
             "metadata": {
                 "description": "Virtual network for the AVD sessions hosts"
-            },
-            "defaultValue": "vnet-d-eastus"
+            }
         },
         "VirtualNetworkResourceGroup": {
             "type": "string",
             "metadata": {
                 "description": "Virtual network resource group for the AVD sessions hosts"
-            },
-            "defaultValue": "rg-network-d-eastus"
+            }
         },
         "VmPassword": {
             "type": "securestring",
@@ -334,27 +339,30 @@
             "type": "string",
             "metadata": {
                 "description": "The Local Administrator Username for the Session Hosts"
-            }
+            },
+            "defaultValue": "azadmin"
         },
         "WvdObjectId": {
             "type": "string",
             "metadata": {
                 "description": "The Object ID for the 'Windows Virtual Desktop' Enterprise Application in Azure AD.  The Object ID can found by selecting 'Microsoft Applications' using the 'Application type' filter in the Enterprise Applications blade of Azure AD."
-            }
+            },
+            "defaultValue": "55c182d1-9935-4ed7-a448-5d453e52e2ed"
         }
     },
     "variables": {
-        "AppGroupName": "[concat('dag-', parameters('ResourceNameSuffix'))]",
-        "AutomationAccountName": "[concat('aa-', parameters('ResourceNameSuffix'))]",
-        "HostPoolName": "[concat('hp-', parameters('ResourceNameSuffix'))]",
+        "ResourceNameSuffix": "[concat(parameters('WorkloadName'), parameters('EnvironmentName'))]",
+        "AppGroupName": "[concat('dag-', variables('ResourceNameSuffix'))]",
+        "AutomationAccountName": "[concat('aa-', variables('ResourceNameSuffix'))]",
+        "HostPoolName": "[concat('hp-', variables('ResourceNameSuffix'))]",
         "Location": "[deployment().location]",
-        "LogAnalyticsWorkspaceName": "[concat('law-', parameters('ResourceNameSuffix'))]",
-        "LogicAppName": "[concat('la-', parameters('ResourceNameSuffix'))]",
+        "LogAnalyticsWorkspaceName": "[concat('law-', variables('ResourceNameSuffix'))]",
+        "LogicAppName": "[concat('la-',  variables('ResourceNameSuffix'))]",
         "Netbios": "[split(parameters('DomainName'), '.')[0]]",
-        "RecoveryServicesVaultName": "[concat('rsv-', parameters('ResourceNameSuffix'))]",
+        "RecoveryServicesVaultName": "[concat('rsv-', variables('ResourceNameSuffix'))]",
         "ResourceGroups": [
-            "[concat('rg-', parameters('ResourceNameSuffix'), '-infra')]",
-            "[concat('rg-', parameters('ResourceNameSuffix'), '-hosts')]"
+            "[concat('rg-', variables('ResourceNameSuffix'), '-infra')]",
+            "[concat('rg-',  variables('ResourceNameSuffix'), '-hosts')]"
         ],
         "RoleAssignmentName": "[guid(subscription().id, parameters('ResourceNameSuffix'), 'WindowsVirtualDesktop')]",
         "RoleDefinitionName": "[guid(subscription().id, parameters('ResourceNameSuffix'), 'StartVmOnConnect')]",
@@ -416,8 +424,8 @@
             "westus2": "Pacific Standard Time",
             "westus3": "Mountain Standard Time"
         },
-        "VmName": "[concat('vm', parameters('ResourceNameSuffix'))]",
-        "WorkspaceName": "[concat('ws-', parameters('ResourceNameSuffix'))]"
+        "VmName": "[concat('vm', variables('ResourceNameSuffix'))]",
+        "WorkspaceName": "[concat('ws-', variables('ResourceNameSuffix'))]"
     },
     "resources": [
         {
@@ -607,7 +615,7 @@
                         "value": "[parameters('OuPath')]"
                     },
                     "ResourceNameSuffix": {
-                        "value": "[parameters('ResourceNameSuffix')]"
+                        "value": "[variables('ResourceNameSuffix')]"
                     },
                     "ScreenCaptureProtection": {
                         "value": "[parameters('ScreenCaptureProtection')]"
@@ -698,7 +706,7 @@
                         "value": "[parameters('OuPath')]"
                     },
                     "ResourceNameSuffix": {
-                        "value": "[parameters('ResourceNameSuffix')]"
+                        "value": "[variables('ResourceNameSuffix')]"
                     },
                     "SecurityPrincipalId": {
                         "value": "[parameters('SecurityPrincipalId')]"

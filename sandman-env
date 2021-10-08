@@ -1,8 +1,0 @@
-WORKLOAD=cube-local
-ENV=sandman
-PRINCIPAL=sandman@battelle.us
-echo -n "Domain join password for $PRINCIPAL: "
-read -s PASSWORD
-echo
-echo -n "VM password for azadmin: "
-read -s VM_PASSWORD

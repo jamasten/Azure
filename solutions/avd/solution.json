@@ -261,7 +261,7 @@
         "StorageAccountSku": {
             "type": "string",
             "metadata": {
-                "description": "The SKU for the Azure storage account containing the AVD user profile data."
+                "description": "The SKU for the Azure storage account containing the AVD user profile data.  The selected SKU should provide sufficient IOPS for all of your users. https://docs.microsoft.com/en-us/azure/architecture/example-scenario/wvd/windows-virtual-desktop-fslogix#performance-requirements"
             },
             "allowedValues": [
                 "Standard_LRS",

@@ -2,6 +2,9 @@
     "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
+        "DiskEncryption": {
+            "type": "bool"
+        },
         "DiskSku": {
             "type": "string"
         },
@@ -36,6 +39,9 @@
             "type": "string"
         },
         "ImageVersion": {
+            "type": "string"
+        },
+        "KeyVaultName": {
             "type": "string"
         },
         "Location": {
@@ -104,6 +110,7 @@
         "AvailabilitySetId": { "id": "[resourceId('Microsoft.Compute/availabilitySets', variables('AvailabilitySetName'))]" },
         "AvdAgentUrl_AzureCloud": "https://wvdportalstorageblob.blob.core.windows.net/galleryartifacts/Configuration_6-1-2021.zip",
         "AvdAgentUrl_AzureUsGov": "https://wvdportalstorageblob.blob.core.usgovcloudapi.net/galleryartifacts/Configuration_5-5-2021.zip",
+        "KeyVaultResourceId": "[resourceId(parameters('HostPoolResourceGroupName'), 'Microsoft.KeyVault/vaults', parameters('KeyVaultName'))]",
         "NvidiaVmSizes": [
             "Standard_NV6",
             "Standard_NV12",
@@ -376,6 +383,34 @@
                         "typeHandlerVersion": "1.2",
                         "autoUpgradeMinorVersion": true,
                         "settings": {}
+                    }
+                },
+                {
+                    "comments": "---------- AZURE DISK ENCRYPTION EXTENSION ----------",
+                    "type": "extensions",
+                    "name": "AzureDiskEncryption",
+                    "condition": "[parameters('DiskEncryption')]",
+                    "location": "[parameters('Location')]",
+                    "apiVersion": "2017-03-30",
+                    "dependsOn": [
+                        "[concat(parameters('VmName'), padLeft(copyIndex(parameters('SessionHostIndex')), 3, '0'))]"
+                    ],
+                    "properties": {
+                        "publisher": "Microsoft.Azure.Security",
+                        "type": "AzureDiskEncryption",
+                        "typeHandlerVersion": "2.2",
+                        "autoUpgradeMinorVersion": true,
+                        "forceUpdateTag": "[guid(deployment().name)]",
+                        "settings": {
+                            "EncryptionOperation": "EnableEncryption",
+                            "KeyVaultURL": "[reference(variables('KeyVaultResourceId'),'2016-10-01').vaultUri]",
+                            "KeyVaultResourceId": "[variables('KeyVaultResourceId')]",
+                            "KeyEncryptionKeyURL": "[reference(resourceId(parameters('HostPoolResourceGroupName'), 'Microsoft.Resources/deploymentScripts', 'ds-bitlocker-kek').outputs.text)]",
+                            "KekVaultResourceId": "[variables('KeyVaultResourceId')]",
+                            "KeyEncryptionAlgorithm": "RSA-OAEP",
+                            "VolumeType": "All",
+                            "ResizeOSDisk": false
+                        }
                     }
                 }
             ]

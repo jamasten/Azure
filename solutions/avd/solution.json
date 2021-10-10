@@ -9,6 +9,13 @@
             },
             "defaultValue": "audiocapturemode:i:1;camerastoredirect:s:*;use multimon:i:0;drivestoredirect:s:;"
         },
+        "DiskEncryption": {
+            "type": "bool",
+            "metadata": {
+                "description": "Enable BitLocker encrytion on the AVD session hosts and management VM."
+            },
+            "defaultValue": false
+        },
         "DiskSku": {
             "type": "string",
             "metadata": {
@@ -342,6 +349,7 @@
         "AppGroupName": "[concat('dag-', parameters('ResourceNameSuffix'))]",
         "AutomationAccountName": "[concat('aa-', parameters('ResourceNameSuffix'))]",
         "HostPoolName": "[concat('hp-', parameters('ResourceNameSuffix'))]",
+        "KeyVaultName": "[concat('kv-', parameters('ResourceNameSuffix'))]",
         "Location": "[deployment().location]",
         "LogAnalyticsWorkspaceName": "[concat('law-', parameters('ResourceNameSuffix'))]",
         "LogicAppName": "[concat('la-', parameters('ResourceNameSuffix'))]",
@@ -468,6 +476,36 @@
             }
         },
         {
+            "comments": "---------- LINKED DEPLOYMENT > BITLOCKER ----------",
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2019-10-01",
+            "name": "[concat('BitLocker_', parameters('Timestamp'))]",
+            "condition": "[parameters('DiskEncryption')]",
+            "tags": "[parameters('Tags')]",
+            "resourceGroup": "[variables('ResourceGroups')[0]]",
+            "dependsOn": [
+                "rgLoop"
+            ],
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "https://raw.githubusercontent.com/jamasten/Azure/master/solutions/avd/templates/bitLocker.json",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "KeyVaultName": {
+                        "value": "[variables('KeyVaultName')]"
+                    },
+                    "Location": {
+                        "value": "[variables('Location')]"
+                    },
+                    "Timestamp": {
+                        "value": "[parameters('Timestamp')]"
+                    }
+                }
+            }
+        },
+        {
             "comments": "---------- LINKED DEPLOYMENT > AVD HOST POOL ----------",
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2019-10-01",
@@ -550,6 +588,9 @@
                     "contentVersion": "1.0.0.0"
                 },
                 "parameters": {
+                    "DiskEncryption": {
+                        "value": "[parameters('DiskEncryption')]"
+                    },
                     "DiskSku": {
                         "value": "[parameters('DiskSku')]"
                     },
@@ -585,6 +626,9 @@
                     },
                     "ImageVersion": {
                         "value": "[parameters('ImageVersion')]"
+                    },
+                    "KeyVaultName": {
+                        "value": "[variables('KeyVaultName')]"
                     },
                     "Location": {
                         "value": "[variables('Location')]"
@@ -662,6 +706,9 @@
                     "contentVersion": "1.0.0.0"
                 },
                 "parameters": {
+                    "DiskEncryption": {
+                        "value": "[parameters('DiskEncryption')]"
+                    },
                     "DomainJoinPassword": {
                         "value": "[parameters('DomainJoinPassword')]"
                     },
@@ -679,6 +726,9 @@
                     },
                     "KerberosEncryptionType": {
                         "value": "[parameters('KerberosEncryptionType')]"
+                    },
+                    "KeyVaultName": {
+                        "value": "[variables('KeyVaultName')]"
                     },
                     "Location": {
                         "value": "[variables('Location')]"

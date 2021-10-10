@@ -1,0 +1,104 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "KeyVaultName": {
+            "type": "string"
+        },
+        "Location": {
+            "type": "string"
+        },
+        "Timestamp": {
+            "type": "string"
+        }
+    },
+    "variables": {
+        "ManagedIdentityName": "uami-bitlocker-kek"
+    },
+    "resources": [
+        {
+            "comments": "---------- USER ASSIGNED MANAGED IDENTITY ----------",
+            "type": "Microsoft.ManagedIdentity/userAssignedIdentities",
+            "name": "[variables('ManagedIdentityName')]",
+            "apiVersion": "2018-11-30",
+            "location": "[parameters('Location')]"
+        },
+        {
+            "comments": "---------- KEY VAULT ----------",
+            "type": "Microsoft.KeyVault/vaults",
+            "name": "[parameters('KeyVaultName')]",
+            "apiVersion": "2016-10-01",
+            "location": "[parameters('Location')]",
+            "tags": {},
+            "dependsOn": [],
+            "properties": {
+                "tenantId": "[subscription().tenantId]",
+                "sku": {
+                    "family": "A",
+                    "name": "Standard"
+                },
+                "accessPolicies": [
+                    {
+                        "tenantId": "[subscription().tenantId]",
+                        "objectId": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('ManagedIdentityName')), '2018-11-30', 'Full').properties.principalId]",
+                        "permissions": {
+                            "keys": [
+                                "get",
+                                "list",
+                                "create"
+                            ],
+                            "secrets": []
+                        }
+                    }
+                ],
+                "enabledForDeployment": false,
+                "enabledForTemplateDeployment": false,
+                "enabledForDiskEncryption": true
+            }
+        },
+        {
+            "comments": "---------- KEY VAULT > KEY ENCRYPTION KEY ----------",
+            "name": "ds-bitlocker-kek",
+            "type": "Microsoft.Resources/deploymentScripts",
+            "apiVersion": "2019-10-01-preview",
+            "identity": {
+                "type": "UserAssigned",
+                "userAssignedIdentities": {
+                    "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('ManagedIdentityName'))]": {}
+                }
+            },
+            "location": "[parameters('Location')]",
+            "kind": "AzurePowerShell",
+            "tags": {},
+            "dependsOn": [
+                "[parameters('KeyVaultName')]"
+            ],
+            "properties": {
+                "azPowerShellVersion": "3.0.0",
+                "cleanupPreference": "OnSuccess",
+                "scriptContent": "
+                    param(
+                        [string] [Parameter(Mandatory=$true)] $KeyVault
+                    )
+
+                    if(!(Get-AzKeyVaultKey -Name DiskEncryption -VaultName $KeyVault))
+                    {
+                        Add-AzKeyVaultKey -Name DiskEncryption -VaultName $KeyVault -Destination Software
+                    }
+
+                    $KeyEncryptionKeyURL = (Get-AzKeyVaultKey -VaultName $KeyVault -Name 'DiskEncryption' -IncludeVersions | Where-Object {$_.Enabled -eq $true}).Id
+                
+                    Write-Output $KeyEncryptionKeyURL
+
+                    $DeploymentScriptOutputs = @{}
+            
+                    $DeploymentScriptOutputs['text'] = $KeyEncryptionKeyURL 
+                ",
+                "arguments": "[format(' -KeyVault {0}', parameters('KeyVaultName'))]",
+                "forceUpdateTag": "[parameters('Timestamp')]",
+                "retentionInterval": "P1D",
+                "timeout": "PT30M"
+            }
+        }
+    ]
+}

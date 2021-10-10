@@ -151,13 +151,6 @@
             ],
             "defaultValue": "new"
         },
-        "Optimizations": {
-            "type": "string",
-            "metadata": {
-                "description": "The AVD optimizations to implement on the Session Hosts using the optimization script. Input a string array with any of the following values: 'All','WindowsMediaPlayer','AppxPackages','ScheduledTasks','DefaultUserSettings','Autologgers','Services','NetworkOptimizations','LGPO','DiskCleanup'"
-            },
-            "defaultValue": "All"
-        },
         "OuPath": {
             "type": "string",
             "metadata": {
@@ -599,9 +592,6 @@
                     },
                     "LogAnalyticsWorkspaceResourceGroupName": {
                         "value": "[variables('ResourceGroups')[0]]"
-                    },
-                    "Optimizations": {
-                        "value": "[parameters('Optimizations')]"
                     },
                     "OuPath": {
                         "value": "[parameters('OuPath')]"

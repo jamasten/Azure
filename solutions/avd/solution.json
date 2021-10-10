@@ -796,6 +796,7 @@
             "tags": "[parameters('Tags')]",
             "resourceGroup": "[variables('ResourceGroups')[0]]",
             "dependsOn": [
+                "[concat('SessionHosts_', parameters('Timestamp'))]",
                 "[concat('FSLogix_', parameters('Timestamp'))]"
             ],
             "properties": {

@@ -41,6 +41,9 @@
         "ImageVersion": {
             "type": "string"
         },
+        "KekUrl": {
+            "type": "string"
+        },
         "KeyVaultName": {
             "type": "string"
         },
@@ -405,7 +408,7 @@
                             "EncryptionOperation": "EnableEncryption",
                             "KeyVaultURL": "[reference(variables('KeyVaultResourceId'),'2016-10-01').vaultUri]",
                             "KeyVaultResourceId": "[variables('KeyVaultResourceId')]",
-                            "KeyEncryptionKeyURL": "[reference(resourceId(parameters('HostPoolResourceGroupName'), 'Microsoft.Resources/deploymentScripts', 'ds-bitlocker-kek').outputs.text)]",
+                            "KeyEncryptionKeyURL": "[parameters('KekUrl')]",
                             "KekVaultResourceId": "[variables('KeyVaultResourceId')]",
                             "KeyEncryptionAlgorithm": "RSA-OAEP",
                             "VolumeType": "All",

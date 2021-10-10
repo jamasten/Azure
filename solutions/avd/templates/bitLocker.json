@@ -100,5 +100,11 @@
                 "timeout": "PT30M"
             }
         }
-    ]
+    ],
+    "outputs": {
+        "KekUrl": {
+            "type": "string",
+            "value": "[reference('ds-bitlocker-kek').outputs.text]"
+        }
+    }
 }

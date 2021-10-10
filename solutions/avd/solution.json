@@ -627,6 +627,9 @@
                     "ImageVersion": {
                         "value": "[parameters('ImageVersion')]"
                     },
+                    "KekUrl": {
+                        "value": "[reference(concat('BitLocker_', parameters('Timestamp'))).outputs.KekUrl.value]"
+                    },
                     "KeyVaultName": {
                         "value": "[variables('KeyVaultName')]"
                     },
@@ -723,6 +726,9 @@
                     },
                     "HostPoolName": {
                         "value": "[variables('HostPoolName')]"
+                    },
+                    "KekUrl": {
+                        "value": "[reference(concat('BitLocker_', parameters('Timestamp'))).outputs.KekUrl.value]"
                     },
                     "KerberosEncryptionType": {
                         "value": "[parameters('KerberosEncryptionType')]"

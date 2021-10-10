@@ -13,7 +13,9 @@
         }
     },
     "variables": {
-        "ManagedIdentityName": "uami-bitlocker-kek"
+        "ManagedIdentityName": "uami-bitlocker-kek",
+        "RoleAssignmentName": "[guid(resourceGroup().id, variables('ManagedIdentityName'))]"
+
     },
     "resources": [
         {
@@ -22,6 +24,20 @@
             "name": "[variables('ManagedIdentityName')]",
             "apiVersion": "2018-11-30",
             "location": "[parameters('Location')]"
+        },
+        {
+            "comments": "---------- ROLE ASSIGNMENT > RESOURCE GROUP > CONTRIBUTOR ----------",
+            "type": "Microsoft.Authorization/roleAssignments",
+            "apiVersion": "2020-04-01-preview",
+            "name": "[variables('RoleAssignmentName')]",
+            "dependsOn": [
+                "[variables('ManagedIdentityName')]"
+            ],
+            "properties": {
+                "roleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', 'b24988ac-6180-42a0-ab88-20f7382dd24c')]",
+                "principalId": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('ManagedIdentityName')), '2018-11-30').principalId]",
+                "principalType": "ServicePrincipal"
+            }
         },
         {
             "comments": "---------- KEY VAULT ----------",
@@ -71,7 +87,9 @@
             "kind": "AzurePowerShell",
             "tags": {},
             "dependsOn": [
-                "[parameters('KeyVaultName')]"
+                "[parameters('KeyVaultName')]",
+                "[variables('ManagedIdentityName')]",
+                "[variables('RoleAssignmentName')]"
             ],
             "properties": {
                 "azPowerShellVersion": "3.0.0",

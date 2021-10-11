@@ -44,7 +44,7 @@
         },
         {
             "comments": "---------- HOST POOL > DRAIN SESSION HOSTS ----------",
-            "name": "ds-bitlocker-kek",
+            "name": "ds-drainmode",
             "type": "Microsoft.Resources/deploymentScripts",
             "apiVersion": "2019-10-01-preview",
             "identity": {

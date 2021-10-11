@@ -387,34 +387,6 @@
                         "autoUpgradeMinorVersion": true,
                         "settings": {}
                     }
-                },
-                {
-                    "comments": "---------- AZURE DISK ENCRYPTION EXTENSION ----------",
-                    "type": "extensions",
-                    "name": "AzureDiskEncryption",
-                    "condition": "[parameters('DiskEncryption')]",
-                    "location": "[parameters('Location')]",
-                    "apiVersion": "2017-03-30",
-                    "dependsOn": [
-                        "[concat(parameters('VmName'), padLeft(copyIndex(parameters('SessionHostIndex')), 3, '0'))]"
-                    ],
-                    "properties": {
-                        "publisher": "Microsoft.Azure.Security",
-                        "type": "AzureDiskEncryption",
-                        "typeHandlerVersion": "2.2",
-                        "autoUpgradeMinorVersion": true,
-                        "forceUpdateTag": "[guid(deployment().name)]",
-                        "settings": {
-                            "EncryptionOperation": "EnableEncryption",
-                            "KeyVaultURL": "[reference(variables('KeyVaultResourceId'),'2016-10-01').vaultUri]",
-                            "KeyVaultResourceId": "[variables('KeyVaultResourceId')]",
-                            "KeyEncryptionKeyURL": "[parameters('KekUrl')]",
-                            "KekVaultResourceId": "[variables('KeyVaultResourceId')]",
-                            "KeyEncryptionAlgorithm": "RSA-OAEP",
-                            "VolumeType": "All",
-                            "ResizeOSDisk": false
-                        }
-                    }
                 }
             ]
         }

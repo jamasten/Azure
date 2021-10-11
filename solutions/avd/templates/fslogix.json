@@ -2,9 +2,6 @@
     "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
-        "DiskEncryption": {
-            "type": "bool"
-        },
         "DomainJoinPassword": {
             "type": "securestring"
         },
@@ -18,9 +15,6 @@
             "type": "string"
         },
         "HostPoolName": {
-            "type": "string"
-        },
-        "KekUrl": {
             "type": "string"
         },
         "KerberosEncryptionType": {
@@ -79,7 +73,6 @@
         }
     },
     "variables": {
-        "KeyVaultResourceId": "[resourceId('Microsoft.KeyVault/vaults', parameters('KeyVaultName'))]",
         "NicName": "[concat('nic-', parameters('resourceNameSuffix'), '-mgt')]",
         "ResourceGroupName": "[resourceGroup().name]",
         "RoleAssignmentName": "[guid(parameters('StorageAccountName'), '0')]",
@@ -196,34 +189,6 @@
                         },
                         "protectedSettings": {
                             "Password": "[parameters('DomainJoinPassword')]"
-                        }
-                    }
-                },
-                {
-                    "comments": "---------- AZURE DISK ENCRYPTION EXTENSION ----------",
-                    "type": "extensions",
-                    "name": "AzureDiskEncryption",
-                    "condition": "[parameters('DiskEncryption')]",
-                    "location": "[parameters('Location')]",
-                    "apiVersion": "2017-03-30",
-                    "dependsOn": [
-                        "[variables('VmName')]"
-                    ],
-                    "properties": {
-                        "publisher": "Microsoft.Azure.Security",
-                        "type": "AzureDiskEncryption",
-                        "typeHandlerVersion": "2.2",
-                        "autoUpgradeMinorVersion": true,
-                        "forceUpdateTag": "[guid(deployment().name)]",
-                        "settings": {
-                            "EncryptionOperation": "EnableEncryption",
-                            "KeyVaultURL": "[reference(variables('KeyVaultResourceId'),'2016-10-01').vaultUri]",
-                            "KeyVaultResourceId": "[variables('KeyVaultResourceId')]",
-                            "KeyEncryptionKeyURL": "[parameters('KekUrl')]",
-                            "KekVaultResourceId": "[variables('KeyVaultResourceId')]",
-                            "KeyEncryptionAlgorithm": "RSA-OAEP",
-                            "VolumeType": "All",
-                            "ResizeOSDisk": false
                         }
                     }
                 }

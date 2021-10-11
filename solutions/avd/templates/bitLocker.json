@@ -8,7 +8,16 @@
         "Location": {
             "type": "string"
         },
+        "SessionHostCount": {
+            "type": "int"
+        },
+        "SessionHostIndex": {
+            "type": "int"
+        },
         "Timestamp": {
+            "type": "string"
+        },
+        "VmName": {
             "type": "string"
         }
     },
@@ -117,12 +126,77 @@
                 "retentionInterval": "P1D",
                 "timeout": "PT30M"
             }
+        },
+        {
+            "comments": "---------- MGMT VM > AZURE DISK ENCRYPTION EXTENSION ----------",
+            "type": "Microsoft.Compute/virtualMachines/extensions",
+            "name": "[concat(parameters('VmName'), 'mgt/AzureDiskEncryption')]",
+            "location": "[parameters('Location')]",
+            "apiVersion": "2017-03-30",
+            "dependsOn": [
+                "ds-bitlocker-kek"
+            ],
+            "properties": {
+                "publisher": "Microsoft.Azure.Security",
+                "type": "AzureDiskEncryption",
+                "typeHandlerVersion": "2.2",
+                "autoUpgradeMinorVersion": true,
+                "forceUpdateTag": "[parameters('Timestamp')]",
+                "settings": {
+                    "EncryptionOperation": "EnableEncryption",
+                    "KeyVaultURL": "[reference(parameters('KeyVaultName')).vaultUri]",
+                    "KeyVaultResourceId": "[resourceId('Microsoft.KeyVault/vaults', parameters('KeyVaultName'))]",
+                    "KeyEncryptionKeyURL": "[reference('ds-bitlocker-kek').outputs.text]",
+                    "KekVaultResourceId": "[resourceId('Microsoft.KeyVault/vaults', parameters('KeyVaultName'))]",
+                    "KeyEncryptionAlgorithm": "RSA-OAEP",
+                    "VolumeType": "All",
+                    "ResizeOSDisk": false
+                }
+            }
+        },
+        {
+            "comments": "---------- SESSION HOSTS > AZURE DISK ENCRYPTION EXTENSION ----------",
+            "name": "DeployDiskEncryptionExtension",
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2021-04-01",
+            "dependsOn": [
+                "ds-bitlocker-kek"
+            ],
+            "properties": {
+                "mode": "Incremental",
+                "template": {
+                    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                    "contentVersion": "1.0.0.0",
+                    "resources": [
+                        {
+                            "type": "Microsoft.Compute/virtualMachines/extensions",
+                            "name": "[concat(parameters('VmName'), padLeft(copyIndex(parameters('SessionHostIndex')), 3, '0'), '/AzureDiskEncryption')]",
+                            "apiVersion": "2017-03-30",
+                            "location": "[parameters('Location')]",
+                            "copy": {
+                                "count": "[parameters('SessionHostCount')]"
+                            },
+                            "properties": {
+                                "publisher": "Microsoft.Azure.Security",
+                                "type": "AzureDiskEncryption",
+                                "typeHandlerVersion": "2.2",
+                                "autoUpgradeMinorVersion": true,
+                                "forceUpdateTag": "[parameters('Timestamp')]",
+                                "settings": {
+                                    "EncryptionOperation": "EnableEncryption",
+                                    "KeyVaultURL": "[reference(parameters('KeyVaultName')).vaultUri]",
+                                    "KeyVaultResourceId": "[resourceId('Microsoft.KeyVault/vaults', parameters('KeyVaultName'))]",
+                                    "KeyEncryptionKeyURL": "[reference('ds-bitlocker-kek').outputs.text]",
+                                    "KekVaultResourceId": "[resourceId('Microsoft.KeyVault/vaults', parameters('KeyVaultName'))]",
+                                    "KeyEncryptionAlgorithm": "RSA-OAEP",
+                                    "VolumeType": "All",
+                                    "ResizeOSDisk": false
+                                }
+                            }
+                        }
+                    ]
+                }
+            }
         }
-    ],
-    "outputs": {
-        "KekUrl": {
-            "type": "string",
-            "value": "[reference('ds-bitlocker-kek').outputs.text]"
-        }
-    }
+    ]
 }

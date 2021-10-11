@@ -483,35 +483,6 @@
             }
         },
         {
-            "comments": "---------- LINKED DEPLOYMENT > BITLOCKER ----------",
-            "type": "Microsoft.Resources/deployments",
-            "apiVersion": "2019-10-01",
-            "name": "[concat('BitLocker_', parameters('Timestamp'))]",
-            "tags": "[parameters('Tags')]",
-            "resourceGroup": "[variables('ResourceGroups')[0]]",
-            "dependsOn": [
-                "rgLoop"
-            ],
-            "properties": {
-                "mode": "Incremental",
-                "templateLink": {
-                    "uri": "https://raw.githubusercontent.com/jamasten/Azure/master/solutions/avd/templates/bitLocker.json",
-                    "contentVersion": "1.0.0.0"
-                },
-                "parameters": {
-                    "KeyVaultName": {
-                        "value": "[variables('KeyVaultName')]"
-                    },
-                    "Location": {
-                        "value": "[variables('Location')]"
-                    },
-                    "Timestamp": {
-                        "value": "[parameters('Timestamp')]"
-                    }
-                }
-            }
-        },
-        {
             "comments": "---------- LINKED DEPLOYMENT > AVD HOST POOL ----------",
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2019-10-01",
@@ -594,9 +565,6 @@
                     "contentVersion": "1.0.0.0"
                 },
                 "parameters": {
-                    "DiskEncryption": {
-                        "value": "[parameters('DiskEncryption')]"
-                    },
                     "DiskSku": {
                         "value": "[parameters('DiskSku')]"
                     },
@@ -632,9 +600,6 @@
                     },
                     "ImageVersion": {
                         "value": "[parameters('ImageVersion')]"
-                    },
-                    "KekUrl": {
-                        "value": "[reference(concat('BitLocker_', parameters('Timestamp'))).outputs.KekUrl.value]"
                     },
                     "KeyVaultName": {
                         "value": "[variables('KeyVaultName')]"
@@ -715,9 +680,6 @@
                     "contentVersion": "1.0.0.0"
                 },
                 "parameters": {
-                    "DiskEncryption": {
-                        "value": "[parameters('DiskEncryption')]"
-                    },
                     "DomainJoinPassword": {
                         "value": "[parameters('DomainJoinPassword')]"
                     },
@@ -732,9 +694,6 @@
                     },
                     "HostPoolName": {
                         "value": "[variables('HostPoolName')]"
-                    },
-                    "KekUrl": {
-                        "value": "[reference(concat('BitLocker_', parameters('Timestamp'))).outputs.KekUrl.value]"
                     },
                     "KerberosEncryptionType": {
                         "value": "[parameters('KerberosEncryptionType')]"
@@ -850,6 +809,44 @@
             }
         },
         {
+            "comments": "---------- LINKED DEPLOYMENT > BITLOCKER ----------",
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2019-10-01",
+            "name": "[concat('BitLocker_', parameters('Timestamp'))]",
+            "tags": "[parameters('Tags')]",
+            "resourceGroup": "[variables('ResourceGroups')[0]]",
+            "dependsOn": [
+                "[concat('SessionHosts_', parameters('Timestamp'))]"
+            ],
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "https://raw.githubusercontent.com/jamasten/Azure/master/solutions/avd/templates/bitLocker.json",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "KeyVaultName": {
+                        "value": "[variables('KeyVaultName')]"
+                    },
+                    "Location": {
+                        "value": "[variables('Location')]"
+                    },
+                    "SessionHostCount": {
+                        "value": "[parameters('SessionHostCount')]"
+                    },
+                    "SessionHostIndex": {
+                        "value": "[parameters('SessionHostIndex')]"
+                    },
+                    "Timestamp": {
+                        "value": "[parameters('Timestamp')]"
+                    },
+                    "VmName": {
+                        "value": "[variables('VmName')]"
+                    }
+                }
+            }
+        },
+        {
             "comments": "---------- LINKED DEPLOYMENT > SCALING AUTOMATION ----------",
             "condition": "[equals(split(parameters('HostPoolType'), ' ')[0], 'Pooled')]",
             "type": "Microsoft.Resources/deployments",
@@ -859,7 +856,8 @@
             "resourceGroup": "[variables('ResourceGroups')[0]]",
             "dependsOn": [
                 "[concat('SessionHosts_', parameters('Timestamp'))]",
-                "[concat('FSLogix_', parameters('Timestamp'))]"
+                "[concat('FSLogix_', parameters('Timestamp'))]",
+                "[concat('BitLocker_', parameters('Timestamp'))]"
             ],
             "properties": {
                 "mode": "Incremental",
@@ -910,8 +908,8 @@
                 }
             }
         },
-                {
-            "comments": "---------- LINKED DEPLOYMENT > SCALING AUTOMATION ----------",
+        {
+            "comments": "---------- LINKED DEPLOYMENT > DRAIN MODE ----------",
             "condition": "[and(equals(split(parameters('HostPoolType'), ' ')[0], 'Pooled'), parameters('DrainMode'))]",
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2019-10-01",

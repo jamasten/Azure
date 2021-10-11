@@ -178,6 +178,7 @@
                             "apiVersion": "2017-03-30",
                             "location": "[parameters('Location')]",
                             "copy": {
+                                "name": "vmLoop",
                                 "count": "[parameters('SessionHostCount')]"
                             },
                             "properties": {

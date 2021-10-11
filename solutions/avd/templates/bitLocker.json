@@ -14,6 +14,9 @@
         "SessionHostIndex": {
             "type": "int"
         },
+        "SessionHostResourceGroupName": {
+            "type": "string"
+        },
         "Timestamp": {
             "type": "string"
         },
@@ -162,6 +165,7 @@
             "dependsOn": [
                 "ds-bitlocker-kek"
             ],
+            "resourceGroup": "[parameters('SessionHostResourceGroupName')]",
             "properties": {
                 "mode": "Incremental",
                 "template": {

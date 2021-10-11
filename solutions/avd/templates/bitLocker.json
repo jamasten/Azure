@@ -92,7 +92,7 @@
                 "[variables('RoleAssignmentName')]"
             ],
             "properties": {
-                "azPowerShellVersion": "3.0.0",
+                "azPowerShellVersion": "5.4",
                 "cleanupPreference": "OnSuccess",
                 "scriptContent": "
                     param(

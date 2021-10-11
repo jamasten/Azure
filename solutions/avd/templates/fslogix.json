@@ -20,9 +20,6 @@
         "KerberosEncryptionType": {
             "type": "string"
         },
-        "KeyVaultName": {
-            "type": "string"
-        },
         "Location": {
             "type": "string"
         },

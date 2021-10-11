@@ -601,9 +601,6 @@
                     "ImageVersion": {
                         "value": "[parameters('ImageVersion')]"
                     },
-                    "KeyVaultName": {
-                        "value": "[variables('KeyVaultName')]"
-                    },
                     "Location": {
                         "value": "[variables('Location')]"
                     },

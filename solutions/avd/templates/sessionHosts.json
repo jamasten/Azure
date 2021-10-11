@@ -2,9 +2,6 @@
     "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
-        "DiskEncryption": {
-            "type": "bool"
-        },
         "DiskSku": {
             "type": "string"
         },
@@ -39,12 +36,6 @@
             "type": "string"
         },
         "ImageVersion": {
-            "type": "string"
-        },
-        "KekUrl": {
-            "type": "string"
-        },
-        "KeyVaultName": {
             "type": "string"
         },
         "Location": {
@@ -113,7 +104,6 @@
         "AvailabilitySetId": { "id": "[resourceId('Microsoft.Compute/availabilitySets', variables('AvailabilitySetName'))]" },
         "AvdAgentUrl_AzureCloud": "https://wvdportalstorageblob.blob.core.windows.net/galleryartifacts/Configuration_6-1-2021.zip",
         "AvdAgentUrl_AzureUsGov": "https://wvdportalstorageblob.blob.core.usgovcloudapi.net/galleryartifacts/Configuration_5-5-2021.zip",
-        "KeyVaultResourceId": "[resourceId(parameters('HostPoolResourceGroupName'), 'Microsoft.KeyVault/vaults', parameters('KeyVaultName'))]",
         "NvidiaVmSizes": [
             "Standard_NV6",
             "Standard_NV12",

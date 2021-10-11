@@ -57,6 +57,13 @@
                 "AzureActiveDirectory"
             ]
         },
+        "DrainMode": {
+            "type": "bool",
+            "metadata": {
+                "description": "Enable drain mode on sessions hosts during deployment to prevent users from accessing the session hosts."
+            },
+            "defaultValue": true
+        },
         "EphemeralOsDisk": {
             "type": "bool",
             "metadata": {
@@ -900,6 +907,40 @@
                     },
                     "TimeDifference": {
                         "value": "[parameters('ScalingTimeDifference')]"
+                    }
+                }
+            }
+        },
+                {
+            "comments": "---------- LINKED DEPLOYMENT > SCALING AUTOMATION ----------",
+            "condition": "[and(equals(split(parameters('HostPoolType'), ' ')[0], 'Pooled'), parameters('DrainMode'))]",
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2019-10-01",
+            "name": "[concat('DrainMode_', parameters('Timestamp'))]",
+            "tags": "[parameters('Tags')]",
+            "resourceGroup": "[variables('ResourceGroups')[0]]",
+            "dependsOn": [
+                "[concat('SessionHosts_', parameters('Timestamp'))]",
+                "[concat('FSLogix_', parameters('Timestamp'))]"
+            ],
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "https://raw.githubusercontent.com/jamasten/Azure/master/solutions/avd/templates/drainMode.json",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "HostPoolName": {
+                        "value": "[variables('HostPoolName')]"
+                    },
+                    "HostPoolResourceGroupName": {
+                        "value": "[variables('ResourceGroups')[0]]"
+                    },
+                    "Location": {
+                        "value": "[variables('Location')]"
+                    },
+                    "Timestamp": {
+                        "value": "[parameters('Timestamp')]"
                     }
                 }
             }

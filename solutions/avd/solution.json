@@ -695,9 +695,6 @@
                     "KerberosEncryptionType": {
                         "value": "[parameters('KerberosEncryptionType')]"
                     },
-                    "KeyVaultName": {
-                        "value": "[variables('KeyVaultName')]"
-                    },
                     "Location": {
                         "value": "[variables('Location')]"
                     },

@@ -7,6 +7,10 @@ Param(
 
     [parameter(Mandatory)]
     [string]
+    $FSLogix,
+
+    [parameter(Mandatory)]
+    [string]
     $HostPoolName,
 
     [parameter(Mandatory)]
@@ -61,7 +65,7 @@ if($ScreenCaptureProtection -eq 'true')
 #  FSLogix Configurations
 ###############################
 
-if($PooledHostPool -eq 'true')
+if($PooledHostPool -eq 'true' -and $FSLogix -eq 'true')
 {
     $Suffix = switch($Environment)
     {

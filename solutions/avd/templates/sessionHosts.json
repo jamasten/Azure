@@ -17,6 +17,9 @@
         "EphemeralOsDisk": {
             "type": "bool"
         },
+        "FSLogix": {
+            "type": "bool"
+        },
         "HostPoolName": {
             "type": "string"
         },
@@ -336,7 +339,7 @@
                             "timestamp": "[parameters('Timestamp')]"
                         },
                         "protectedSettings": {
-                            "commandToExecute": "[concat('powershell -ExecutionPolicy Unrestricted -File Set-SessionHostConfiguration.ps1 -Environment ', environment().name, ' -HostPoolName ', parameters('HostPoolName'), ' -ImageOffer ', parameters('ImageOffer'), ' -ImagePublisher ', parameters('ImagePublisher'), ' -PooledHostPool ', variables('PooledHostPool'), ' -ScreenCaptureProtection ', parameters('ScreenCaptureProtection'), ' -StorageAccountName ', parameters('StorageAccountName'))]"
+                            "commandToExecute": "[concat('powershell -ExecutionPolicy Unrestricted -File Set-SessionHostConfiguration.ps1 -Environment ', environment().name, ' -FSLogix ', parameters('FSLogix'), ' -HostPoolName ', parameters('HostPoolName'), ' -ImageOffer ', parameters('ImageOffer'), ' -ImagePublisher ', parameters('ImagePublisher'), ' -PooledHostPool ', variables('PooledHostPool'), ' -ScreenCaptureProtection ', parameters('ScreenCaptureProtection'), ' -StorageAccountName ', parameters('StorageAccountName'))]"
                         }
                     }
                 },

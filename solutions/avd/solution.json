@@ -71,6 +71,12 @@
             },
             "defaultValue": false
         },
+        "FSLogix": {
+            "type": "bool",
+            "metadata": {
+                "description": "Enable FSLogix to manage user profiles on the AVD session hosts."
+            }
+        },
         "HostPoolType": {
             "type": "string",
             "metadata": {
@@ -580,6 +586,9 @@
                     "EphemeralOsDisk": {
                         "value": "[parameters('EphemeralOsDisk')]"
                     },
+                    "FSLogix": {
+                        "value": "[parameters('FSLogix')]"
+                    },
                     "HostPoolName": {
                         "value": "[variables('HostPoolName')]"
                     },
@@ -660,7 +669,7 @@
         },
         {
             "comments": "---------- LINKED DEPLOYMENT > FSLOGIX ----------",
-            "condition": "[equals(split(parameters('HostPoolType'), ' ')[0], 'Pooled')]",
+            "condition": "[and(equals(split(parameters('HostPoolType'), ' ')[0], 'Pooled'), parameters('FSLogix'))]",
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2019-10-01",
             "name": "[concat('FSLogix_', parameters('Timestamp'))]",

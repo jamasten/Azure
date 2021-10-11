@@ -635,7 +635,7 @@
                         "value": "[parameters('ImageVersion')]"
                     },
                     "KekUrl": {
-                        "value": "[reference(concat('BitLocker_', parameters('Timestamp'))).outputs.KekUrl.value]"
+                        "value": "[reference(resourceId('Microsoft.Resources/deployments', concat('BitLocker_', parameters('Timestamp')), '2019-10-01')).outputs.KekUrl.value]"
                     },
                     "KeyVaultName": {
                         "value": "[variables('KeyVaultName')]"
@@ -735,7 +735,7 @@
                         "value": "[variables('HostPoolName')]"
                     },
                     "KekUrl": {
-                        "value": "[reference(concat('BitLocker_', parameters('Timestamp'))).outputs.KekUrl.value]"
+                        "value": "[reference(resourceId('Microsoft.Resources/deployments', concat('BitLocker_', parameters('Timestamp')), '2019-10-01')).outputs.KekUrl.value]"
                     },
                     "KerberosEncryptionType": {
                         "value": "[parameters('KerberosEncryptionType')]"

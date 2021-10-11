@@ -487,7 +487,6 @@
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2019-10-01",
             "name": "[concat('BitLocker_', parameters('Timestamp'))]",
-            "condition": "[parameters('DiskEncryption')]",
             "tags": "[parameters('Tags')]",
             "resourceGroup": "[variables('ResourceGroups')[0]]",
             "dependsOn": [
@@ -635,7 +634,7 @@
                         "value": "[parameters('ImageVersion')]"
                     },
                     "KekUrl": {
-                        "value": "[reference(resourceId('Microsoft.Resources/deployments', concat('BitLocker_', parameters('Timestamp')), '2019-10-01')).outputs.KekUrl.value]"
+                        "value": "[reference(concat('BitLocker_', parameters('Timestamp'))).outputs.KekUrl.value]"
                     },
                     "KeyVaultName": {
                         "value": "[variables('KeyVaultName')]"
@@ -735,7 +734,7 @@
                         "value": "[variables('HostPoolName')]"
                     },
                     "KekUrl": {
-                        "value": "[reference(resourceId('Microsoft.Resources/deployments', concat('BitLocker_', parameters('Timestamp')), '2019-10-01')).outputs.KekUrl.value]"
+                        "value": "[reference(concat('BitLocker_', parameters('Timestamp'))).outputs.KekUrl.value]"
                     },
                     "KerberosEncryptionType": {
                         "value": "[parameters('KerberosEncryptionType')]"

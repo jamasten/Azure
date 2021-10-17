@@ -1,0 +1,78 @@
+{
+	"DomainName": {
+		"value": "battelletest.onmicrosoft.us"
+	},
+	"DomainServices": {
+		"value": "ActiveDirectory"
+	},
+	"DomainJoinUserPrincipalName": {
+		"value": "valerio@battelletest.onmicrosoft.us"
+	},
+  "DomainJoinPassword": {
+    "value": "XXXX"
+  },
+	"EphemeralOsDisk": {
+		"value": false
+	},
+	"OuPath": {
+		"value": "OU=AADDC Computers,DC=battelletest,DC=onmicrosoft,DC=us"
+	},
+	"ResourceNameSuffix": {
+		"value": "mvtest"
+	},
+	"SecurityPrincipalId": {
+		"value": "8d8e9837-ab22-4de6-9d6d-7768195c6444"
+	},
+	"SecurityPrincipalName": {
+		"value": "avd_users"
+	},
+	"Subnet": {
+		"value": "avd-dev"
+	},
+	"VirtualNetwork": {
+		"value": "avd-dev"
+	},
+	"VirtualNetworkResourceGroup": {
+		"value": "avd-dev"
+	},
+	"SessionHostCount": {
+		"value": 1
+	},
+	"VmPassword": {
+		"value": "aaAA11223344"
+	},
+	"VmUsername": {
+		"value": "azadmin"
+	},
+	"WvdObjectId": {
+		"value": "55c182d1-9935-4ed7-a448-5d453e52e2ed"
+	},
+	"Tags": {
+		"value": {
+			"Owner": "Matt Valerio",
+			"Purpose": "POC",
+			"Environment": "Dev"
+		}
+	},
+	"RecoveryServices": {
+		"value": false
+	},
+	"ImageSku": {
+		"value": "20h2-ent-cpc-m365-g2"
+	},
+	"ImageOffer": {
+		"value": "windows-ent-cpc"
+	},
+	"HostPoolType": {
+		"value": "Pooled DepthFirst"
+	},
+	"MaxSessionLimit": {
+		"value": 1
+	},
+	"ScreenCaptureProtection": {
+		"value": true
+	},
+	"CustomRdpProperty": {
+		"value": "audiocapturemode:i:1;camerastoredirect:s:*;use multimon:i:1;drivestoredirect:s:;redirectclipboard:i:0;redirectsmartcards:i:1"
+	}
+}

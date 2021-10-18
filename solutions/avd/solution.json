@@ -825,7 +825,7 @@
             "properties": {
                 "mode": "Incremental",
                 "templateLink": {
-                    "uri": "https://raw.githubusercontent.com/jamasten/Azure/master/solutions/avd/templates/bitLocker.json",
+                    "uri": "https://raw.githubusercontent.com/battelle-cube/azure-avd-automation/main/solutions/avd/templates/bitLocker.json",
                     "contentVersion": "1.0.0.0"
                 },
                 "parameters": {
@@ -930,7 +930,7 @@
             "properties": {
                 "mode": "Incremental",
                 "templateLink": {
-                    "uri": "https://raw.githubusercontent.com/jamasten/Azure/master/solutions/avd/templates/drainMode.json",
+                    "uri": "https://raw.githubusercontent.com/battelle-cube/azure-avd-automation/main/solutions/avd/templates/drainMode.json",
                     "contentVersion": "1.0.0.0"
                 },
                 "parameters": {

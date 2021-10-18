@@ -54,6 +54,7 @@
     "variables": {
         "IdentityName": "[concat('uami-imageBuilder-d-', parameters('LocationShort'))]",
         "RgId": "[resourceGroup().id]",
+        "RoleAssignmentName": "[guid(resourceGroup().id, variables('IdentityName'))]",
         "SharedImageGalleryName": "[concat('sig_d_', parameters('LocationShort'))]",
         "VmProfileWithoutVnet": {
             "vmSize": "[parameters('VirtualMachineSize')]"
@@ -79,7 +80,7 @@
             "comments": "---------- ROLE ASSIGNMENT > IMAGE CONTRIBUTOR ----------",
             "type": "Microsoft.Authorization/roleAssignments",
             "apiVersion": "2018-09-01-preview",
-            "name": "483faf2b-68d9-4b31-a890-b6394e949092",
+            "name": "[variables('RoleAssignmentName')]",
             "dependsOn": [
                 "[variables('IdentityName')]"
             ],
@@ -98,7 +99,7 @@
             "tags": {},
             "dependsOn": [
                 "[variables('IdentityName')]",
-                "483faf2b-68d9-4b31-a890-b6394e949092"
+                "[variables('RoleAssignmentName')]"
             ],
             "resourceGroup": "[parameters('VirtualNetworkResourceGroupName')]",
             "properties": {

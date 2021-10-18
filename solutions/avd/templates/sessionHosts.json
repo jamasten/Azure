@@ -17,6 +17,9 @@
         "EphemeralOsDisk": {
             "type": "bool"
         },
+        "FSLogix": {
+            "type": "bool"
+        },
         "HostPoolName": {
             "type": "string"
         },
@@ -45,9 +48,6 @@
             "type": "string"
         },
         "LogAnalyticsWorkspaceResourceGroupName": {
-            "type": "string"
-        },
-        "Optimizations": {
             "type": "string"
         },
         "OuPath": {
@@ -339,7 +339,7 @@
                             "timestamp": "[parameters('Timestamp')]"
                         },
                         "protectedSettings": {
-                            "commandToExecute": "[concat('powershell -ExecutionPolicy Unrestricted -File Set-SessionHostConfiguration.ps1 -Environment ', environment().name, ' -HostPoolName ', parameters('HostPoolName'), ' -ImagePublisher ', parameters('ImagePublisher'), ' -ImageSku ', parameters('ImageSku'), ' -Optimizations ', parameters('Optimizations'), ' -PooledHostPool ', variables('PooledHostPool'), ' -ScreenCaptureProtection ', parameters('ScreenCaptureProtection'), ' -StorageAccountName ', parameters('StorageAccountName'))]"
+                            "commandToExecute": "[concat('powershell -ExecutionPolicy Unrestricted -File Set-SessionHostConfiguration.ps1 -Environment ', environment().name, ' -FSLogix ', parameters('FSLogix'), ' -HostPoolName ', parameters('HostPoolName'), ' -ImageOffer ', parameters('ImageOffer'), ' -ImagePublisher ', parameters('ImagePublisher'), ' -PooledHostPool ', variables('PooledHostPool'), ' -ScreenCaptureProtection ', parameters('ScreenCaptureProtection'), ' -StorageAccountName ', parameters('StorageAccountName'))]"
                         }
                     }
                 },

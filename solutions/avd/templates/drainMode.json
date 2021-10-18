@@ -1,0 +1,89 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "HostPoolName": {
+            "type": "string"
+        },
+        "HostPoolResourceGroupName": {
+            "type": "string"
+        },
+        "Location": {
+            "type": "string"
+        },
+        "Timestamp": {
+            "type": "string"
+        }
+    },
+    "functions": [],
+    "variables": {
+        "ManagedIdentityName": "uami-drainmode",
+        "RoleAssignmentName": "[guid(resourceGroup().id, variables('ManagedIdentityName'))]"
+    },
+    "resources": [
+        {
+            "comments": "---------- USER ASSIGNED MANAGED IDENTITY ----------",
+            "type": "Microsoft.ManagedIdentity/userAssignedIdentities",
+            "name": "[variables('ManagedIdentityName')]",
+            "apiVersion": "2018-11-30",
+            "location": "[parameters('Location')]"
+        },
+        {
+            "comments": "---------- ROLE ASSIGNMENT > RESOURCE GROUP > CONTRIBUTOR ----------",
+            "type": "Microsoft.Authorization/roleAssignments",
+            "apiVersion": "2020-04-01-preview",
+            "name": "[variables('RoleAssignmentName')]",
+            "dependsOn": [
+                "[variables('ManagedIdentityName')]"
+            ],
+            "properties": {
+                "roleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', 'b24988ac-6180-42a0-ab88-20f7382dd24c')]",
+                "principalId": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('ManagedIdentityName')), '2018-11-30').principalId]",
+                "principalType": "ServicePrincipal"
+            }
+        },
+        {
+            "comments": "---------- HOST POOL > DRAIN SESSION HOSTS ----------",
+            "name": "ds-drainmode",
+            "type": "Microsoft.Resources/deploymentScripts",
+            "apiVersion": "2019-10-01-preview",
+            "identity": {
+                "type": "UserAssigned",
+                "userAssignedIdentities": {
+                    "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('ManagedIdentityName'))]": {}
+                }
+            },
+            "location": "[parameters('Location')]",
+            "kind": "AzurePowerShell",
+            "tags": {},
+            "dependsOn": [
+                "[variables('ManagedIdentityName')]",
+                "[variables('RoleAssignmentName')]"
+            ],
+            "properties": {
+                "azPowerShellVersion": "5.4",
+                "cleanupPreference": "OnSuccess",
+                "scriptContent": "
+                    param(
+                        [string] [Parameter(Mandatory=$true)] $HostPool,
+                        [string] [Parameter(Mandatory=$true)] $ResourceGroup
+                    )
+
+                    $SessionHosts = (Get-AzWvdSessionHost -ResourceGroupName $ResourceGroup -HostPoolName $HostPool).Name
+                    foreach($SessionHost in $SessionHosts)
+                    {
+                        $Name = ($SessionHost -split '/')[1]
+                        Update-AzWvdSessionHost -ResourceGroupName $ResourceGroup -HostPoolName $HostPool -Name $Name -AllowNewSession:$False
+                    }
+
+                    $DeploymentScriptOutputs = @{}
+                ",
+                "arguments": "[format(' -ResourceGroup {0} -HostPool {1}', parameters('HostPoolResourceGroupName'), parameters('HostPoolName'))]",
+                "forceUpdateTag": "[parameters('Timestamp')]",
+                "retentionInterval": "P1D",
+                "timeout": "PT30M"
+            }
+        }
+    ],
+    "outputs": {}
+}

@@ -7,20 +7,19 @@ Param(
 
     [parameter(Mandatory)]
     [string]
+    $FSLogix,
+
+    [parameter(Mandatory)]
+    [string]
     $HostPoolName,
 
     [parameter(Mandatory)]
     [string]
-    $ImagePublisher,
-
-    [parameter(Mandatory)]
-    [string]
-    $ImageSku,
+    $ImageOffer,
     
     [parameter(Mandatory)]
-    [ValidateSet('All','WindowsMediaPlayer','AppxPackages','ScheduledTasks','DefaultUserSettings','Autologgers','Services','NetworkOptimizations','LGPO','DiskCleanup')] 
-    [String[]]
-    $Optimizations,
+    [string]
+    $ImagePublisher,
     
     [parameter(Mandatory)]
     [string]
@@ -66,7 +65,7 @@ if($ScreenCaptureProtection -eq 'true')
 #  FSLogix Configurations
 ###############################
 
-if($PooledHostPool -eq 'true')
+if($PooledHostPool -eq 'true' -and $FSLogix -eq 'true')
 {
     $Suffix = switch($Environment)
     {
@@ -135,10 +134,10 @@ if($PooledHostPool -eq 'true')
 }
 
 ###############################
-#  Windows 10 Optimizations
+#  Windows Client Optimizations
 ###############################
 
-if($ImagePublisher -eq 'MicrosoftWindowsDesktop')
+if($ImagePublisher -eq 'MicrosoftWindowsDesktop' -and $ImageOffer -ne 'windows-7')
 {
     # Download WVD Optimizer
     New-Item -Path C:\ -Name Optimize -ItemType Directory -ErrorAction SilentlyContinue
@@ -153,11 +152,10 @@ if($ImagePublisher -eq 'MicrosoftWindowsDesktop')
     Expand-Archive `
         -LiteralPath "C:\Optimize\Windows_10_VDI_Optimize-master.zip" `
         -DestinationPath "$Localpath" `
-        -Force `
-        -Verbose
+        -Force
 
     # Run WVD Optimize Script
     New-Item -Path C:\Optimize\ -Name install.log -ItemType File -Force
-    Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Force -Verbose
-    & C:\Optimize\Virtual-Desktop-Optimization-Tool-main\Win10_VirtualDesktop_Optimize.ps1 -Optimizations $Optimizations -Restart -AcceptEULA -Verbose
+    Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Force
+    & C:\Optimize\Virtual-Desktop-Optimization-Tool-main\Win10_VirtualDesktop_Optimize.ps1 -Restart -AcceptEULA
 }

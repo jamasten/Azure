@@ -9,6 +9,13 @@
             },
             "defaultValue": "audiocapturemode:i:1;camerastoredirect:s:*;use multimon:i:0;drivestoredirect:s:;"
         },
+        "DiskEncryption": {
+            "type": "bool",
+            "metadata": {
+                "description": "Enable BitLocker encrytion on the AVD session hosts and management VM."
+            },
+            "defaultValue": false
+        },
         "DiskSku": {
             "type": "string",
             "metadata": {
@@ -50,10 +57,24 @@
                 "AzureActiveDirectory"
             ]
         },
+        "DrainMode": {
+            "type": "bool",
+            "metadata": {
+                "description": "Enable drain mode on sessions hosts during deployment to prevent users from accessing the session hosts."
+            },
+            "defaultValue": true
+        },
         "EphemeralOsDisk": {
             "type": "bool",
             "metadata": {
                 "description": "Choose whether the session host uses an ephemeral disk for the operating system.  Be sure to select a VM SKU that offers a temporary disk that meets your image requirements. Reference: https://docs.microsoft.com/en-us/azure/virtual-machines/ephemeral-os-disks"
+            },
+            "defaultValue": false
+        },
+        "FSLogix": {
+            "type": "bool",
+            "metadata": {
+                "description": "Enable FSLogix to manage user profiles on the AVD session hosts."
             }
         },
         "HostPoolType": {
@@ -151,13 +172,6 @@
             ],
             "defaultValue": "new"
         },
-        "Optimizations": {
-            "type": "string",
-            "metadata": {
-                "description": "The AVD optimizations to implement on the Session Hosts using the optimization script. Input a string array with any of the following values: 'All','WindowsMediaPlayer','AppxPackages','ScheduledTasks','DefaultUserSettings','Autologgers','Services','NetworkOptimizations','LGPO','DiskCleanup'"
-            },
-            "defaultValue": "All"
-        },
         "OuPath": {
             "type": "string",
             "metadata": {
@@ -169,7 +183,8 @@
             "type": "bool",
             "metadata": {
                 "description": "Enable backups to an Azure Recovery Services vault.  For a pooled host pool, this will enable backups on the Azure file share.  For a personal host pool, this will enable backups on the AVD sessions hosts."
-            }
+            },
+            "defaultValue": false
         },
         "ResourceNameSuffix": {
             "type": "string",
@@ -266,7 +281,7 @@
         "StorageAccountSku": {
             "type": "string",
             "metadata": {
-                "description": "The SKU for the Azure storage account containing the AVD user profile data."
+                "description": "The SKU for the Azure storage account containing the AVD user profile data.  The selected SKU should provide sufficient IOPS for all of your users. https://docs.microsoft.com/en-us/azure/architecture/example-scenario/wvd/windows-virtual-desktop-fslogix#performance-requirements"
             },
             "allowedValues": [
                 "Standard_LRS",
@@ -347,6 +362,7 @@
         "AppGroupName": "[concat('dag-', parameters('ResourceNameSuffix'))]",
         "AutomationAccountName": "[concat('aa-', parameters('ResourceNameSuffix'))]",
         "HostPoolName": "[concat('hp-', parameters('ResourceNameSuffix'))]",
+        "KeyVaultName": "[concat('kv-', parameters('ResourceNameSuffix'))]",
         "Location": "[deployment().location]",
         "LogAnalyticsWorkspaceName": "[concat('law-', parameters('ResourceNameSuffix'))]",
         "LogicAppName": "[concat('la-', parameters('ResourceNameSuffix'))]",
@@ -570,6 +586,9 @@
                     "EphemeralOsDisk": {
                         "value": "[parameters('EphemeralOsDisk')]"
                     },
+                    "FSLogix": {
+                        "value": "[parameters('FSLogix')]"
+                    },
                     "HostPoolName": {
                         "value": "[variables('HostPoolName')]"
                     },
@@ -599,9 +618,6 @@
                     },
                     "LogAnalyticsWorkspaceResourceGroupName": {
                         "value": "[variables('ResourceGroups')[0]]"
-                    },
-                    "Optimizations": {
-                        "value": "[parameters('Optimizations')]"
                     },
                     "OuPath": {
                         "value": "[parameters('OuPath')]"
@@ -653,7 +669,7 @@
         },
         {
             "comments": "---------- LINKED DEPLOYMENT > FSLOGIX ----------",
-            "condition": "[equals(split(parameters('HostPoolType'), ' ')[0], 'Pooled')]",
+            "condition": "[and(equals(split(parameters('HostPoolType'), ' ')[0], 'Pooled'), parameters('FSLogix'))]",
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2019-10-01",
             "name": "[concat('FSLogix_', parameters('Timestamp'))]",
@@ -796,6 +812,48 @@
             }
         },
         {
+            "comments": "---------- LINKED DEPLOYMENT > BITLOCKER ----------",
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2019-10-01",
+            "name": "[concat('BitLocker_', parameters('Timestamp'))]",
+            "condition": "[parameters('DiskEncryption')]",
+            "tags": "[parameters('Tags')]",
+            "resourceGroup": "[variables('ResourceGroups')[0]]",
+            "dependsOn": [
+                "[concat('SessionHosts_', parameters('Timestamp'))]"
+            ],
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "https://raw.githubusercontent.com/jamasten/Azure/master/solutions/avd/templates/bitLocker.json",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "KeyVaultName": {
+                        "value": "[variables('KeyVaultName')]"
+                    },
+                    "Location": {
+                        "value": "[variables('Location')]"
+                    },
+                    "SessionHostCount": {
+                        "value": "[parameters('SessionHostCount')]"
+                    },
+                    "SessionHostIndex": {
+                        "value": "[parameters('SessionHostIndex')]"
+                    },
+                    "SessionHostResourceGroupName": {
+                        "value": "[variables('ResourceGroups')[1]]"
+                    },
+                    "Timestamp": {
+                        "value": "[parameters('Timestamp')]"
+                    },
+                    "VmName": {
+                        "value": "[variables('VmName')]"
+                    }
+                }
+            }
+        },
+        {
             "comments": "---------- LINKED DEPLOYMENT > SCALING AUTOMATION ----------",
             "condition": "[equals(split(parameters('HostPoolType'), ' ')[0], 'Pooled')]",
             "type": "Microsoft.Resources/deployments",
@@ -804,7 +862,9 @@
             "tags": "[parameters('Tags')]",
             "resourceGroup": "[variables('ResourceGroups')[0]]",
             "dependsOn": [
-                "[concat('FSLogix_', parameters('Timestamp'))]"
+                "[concat('SessionHosts_', parameters('Timestamp'))]",
+                "[concat('FSLogix_', parameters('Timestamp'))]",
+                "[concat('BitLocker_', parameters('Timestamp'))]"
             ],
             "properties": {
                 "mode": "Incremental",
@@ -851,6 +911,40 @@
                     },
                     "TimeDifference": {
                         "value": "[parameters('ScalingTimeDifference')]"
+                    }
+                }
+            }
+        },
+        {
+            "comments": "---------- LINKED DEPLOYMENT > DRAIN MODE ----------",
+            "condition": "[and(equals(split(parameters('HostPoolType'), ' ')[0], 'Pooled'), parameters('DrainMode'))]",
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2019-10-01",
+            "name": "[concat('DrainMode_', parameters('Timestamp'))]",
+            "tags": "[parameters('Tags')]",
+            "resourceGroup": "[variables('ResourceGroups')[0]]",
+            "dependsOn": [
+                "[concat('SessionHosts_', parameters('Timestamp'))]",
+                "[concat('FSLogix_', parameters('Timestamp'))]"
+            ],
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "https://raw.githubusercontent.com/jamasten/Azure/master/solutions/avd/templates/drainMode.json",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "HostPoolName": {
+                        "value": "[variables('HostPoolName')]"
+                    },
+                    "HostPoolResourceGroupName": {
+                        "value": "[variables('ResourceGroups')[0]]"
+                    },
+                    "Location": {
+                        "value": "[variables('Location')]"
+                    },
+                    "Timestamp": {
+                        "value": "[parameters('Timestamp')]"
                     }
                 }
             }

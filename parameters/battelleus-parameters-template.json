@@ -11,8 +11,14 @@
   "DomainJoinPassword": {
     "value": "XXXXXXX"
   },
+	"DrainMode": {
+		"value": false
+	},
 	"EphemeralOsDisk": {
 		"value": false
+	},
+	"newOrExisting": {
+		"value": "new"
 	},
 	"OuPath": {
 		"value": "OU=AADDC Computers,DC=battelle,DC=us"

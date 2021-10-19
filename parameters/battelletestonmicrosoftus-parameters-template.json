@@ -1,24 +1,33 @@
 {
 	"DomainName": {
-		"value": "battelletest.onmicrosoft.us"
+		"value": "battelle.us"
 	},
 	"DomainServices": {
 		"value": "ActiveDirectory"
 	},
 	"DomainJoinUserPrincipalName": {
-		"value": "valerio@battelletest.onmicrosoft.us"
+		"value": "XXXXXXXXXX@XXXXXXXXXX.us"
 	},
   "DomainJoinPassword": {
-    "value": "XXXX"
+    "value": "XXXXXXXXXX"
   },
+	"DrainMode": {
+		"value": false
+	},
 	"EphemeralOsDisk": {
 		"value": false
 	},
+	"FSLogix": {
+		"value": true
+	},
+	"newOrExisting": {
+		"value": "new"
+	},
 	"OuPath": {
-		"value": "OU=AADDC Computers,DC=battelletest,DC=onmicrosoft,DC=us"
+		"value": "OU=AADDC Computers,DC=battelle,DC=us"
 	},
 	"ResourceNameSuffix": {
-		"value": "mvtest"
+		"value": "mvtest4"
 	},
 	"SecurityPrincipalId": {
 		"value": "8d8e9837-ab22-4de6-9d6d-7768195c6444"

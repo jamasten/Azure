@@ -140,7 +140,7 @@ resource "azuread_group_member" "admin" {
 }
 
 resource "azurerm_subscription_template_deployment" "avd" {
-    name = "avd"
+    name = var.resource_name_suffix
     location = "usgovvirginia"
     template_content = file("./solutions/avd/solution.json")
     parameters_content = jsonencode({

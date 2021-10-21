@@ -17,7 +17,6 @@ provider "azuread" {
 provider "azurerm" {
   features {}
   skip_provider_registration = true
-  # delete_nested_items_during_deletion = true
 }
 
 ########################################
@@ -117,16 +116,9 @@ variable "custom_rdp_property" {
 }
 
 locals {
-  user_principal_name = "${var.resource_name_suffix}-temp-admin-user@${var.domain_name}"
+  user_principal_name = "avd-${var.resource_name_suffix}-temp-admin-user@${var.domain_name}"
   user_principal_password = "Pa55w0Rd!!1"
   avd_users_group_name = "avd_users_${var.resource_name_suffix}"
-}
-
-# setup the temp user
-resource "azuread_user" "admin" {
-  user_principal_name = local.user_principal_name
-  display_name        = "DC Administrator"
-  password            = local.user_principal_password
 }
 
 #setup the avd_users_group
@@ -134,6 +126,14 @@ resource "azuread_group" "avd_users" {
   display_name = local.avd_users_group_name
   security_enabled = true
 }
+
+# create a temporary user that will be used to join vms to the domain
+resource "azuread_user" "admin" {
+  user_principal_name = local.user_principal_name
+  display_name        = "AVD ${var.resource_name_suffix} DC Administrator"
+  password            = local.user_principal_password
+}
+
 resource "azuread_group_member" "admin" {
   group_object_id  = "${var.dc_admins_group_object_id}"
   member_object_id = azuread_user.admin.object_id

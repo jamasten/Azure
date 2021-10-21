@@ -463,7 +463,8 @@
                     {
                         "actions": [
                             "Microsoft.Compute/virtualMachines/start/action",
-                            "Microsoft.Compute/virtualMachines/read"
+                            "Microsoft.Compute/virtualMachines/read",
+                            "Microsoft.Compute/virtualMachines/instanceView/read"
                         ],
                         "notActions": []
                     }

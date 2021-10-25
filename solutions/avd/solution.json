@@ -12,7 +12,7 @@
         "DiskEncryption": {
             "type": "bool",
             "metadata": {
-                "description": "Enable BitLocker encrytion on the AVD session hosts and management VM."
+                "description": "Enable BitLocker encrytion on the AVD session hosts and management VM, if applicable."
             },
             "defaultValue": false
         },
@@ -74,7 +74,7 @@
         "FSLogix": {
             "type": "bool",
             "metadata": {
-                "description": "Enable FSLogix to manage user profiles on the AVD session hosts."
+                "description": "Enable FSLogix to manage user profiles for the AVD session hosts."
             }
         },
         "HostPoolType": {
@@ -463,7 +463,8 @@
                     {
                         "actions": [
                             "Microsoft.Compute/virtualMachines/start/action",
-                            "Microsoft.Compute/virtualMachines/read"
+                            "Microsoft.Compute/virtualMachines/read",
+                            "Microsoft.Compute/virtualMachines/instanceView/read"
                         ],
                         "notActions": []
                     }

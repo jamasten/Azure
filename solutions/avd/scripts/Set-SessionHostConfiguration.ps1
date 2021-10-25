@@ -1,5 +1,8 @@
 ﻿[Cmdletbinding()]
 Param(
+    [parameter(Mandatory)]
+    [string]
+    $AmdVmSize, 
 
     [parameter(Mandatory)]
     [string]
@@ -20,7 +23,11 @@ Param(
     [parameter(Mandatory)]
     [string]
     $ImagePublisher,
-    
+
+    [parameter(Mandatory)]
+    [string]
+    $NvidiaVmSize,
+
     [parameter(Mandatory)]
     [string]
     $PooledHostPool,
@@ -48,6 +55,28 @@ New-ItemProperty -Path 'HKLM:\SOFTWARE\Policies\Microsoft\Windows NT\Terminal Se
 
 # Disable Storage Sense: https://docs.microsoft.com/en-us/azure/virtual-desktop/set-up-customize-master-image#disable-storage-sense
 New-ItemProperty -Path 'HKCU:\Software\Microsoft\Windows\CurrentVersion\StorageSense\Parameters\StoragePolicy' -Name '01' -PropertyType 'DWord' -Value 0
+
+
+###############################
+#  GPU Settings
+###############################
+
+# These settings apply to any VM Size with a GPU
+if ($AmdVmSize -eq 'true' -or $NvidiaVmSize -eq 'true') 
+{
+    # Configure GPU-accelerated app rendering: https://docs.microsoft.com/en-us/azure/virtual-desktop/configure-vm-gpu#configure-gpu-accelerated-app-rendering
+    New-ItemProperty -Path 'HKLM:\SOFTWARE\Policies\Microsoft\Windows NT\Terminal Services' -Name 'bEnumerateHWBeforeSW' -PropertyType 'DWord' -Value 1
+
+    # Configure fullscreen video encoding: https://docs.microsoft.com/en-us/azure/virtual-desktop/configure-vm-gpu#configure-fullscreen-video-encoding
+    New-ItemProperty -Path 'HKLM:\SOFTWARE\Policies\Microsoft\Windows NT\Terminal Services' -Name 'AVC444ModePreferred' -PropertyType 'DWord' -Value 1     
+}
+
+# This setting applies only to VM Size's with a Nvidia GPU
+if($NvidiaVmSize -eq 'true')
+{
+    # Configure GPU-accelerated frame encoding: https://docs.microsoft.com/en-us/azure/virtual-desktop/configure-vm-gpu#configure-gpu-accelerated-frame-encoding
+    New-ItemProperty -Path 'HKLM:\SOFTWARE\Policies\Microsoft\Windows NT\Terminal Services' -Name 'AVChardwareEncodePreferred' -PropertyType 'DWord' -Value 1
+}
 
 
 ###############################

@@ -49,11 +49,14 @@ This solution contains many features that are usually enabled manually after dep
   - Role assignment
   - Enables the feature on the AVD host pool
 - VDI Optimization Script: removes unnecessary apps, services, and processes from your Windows 10 OS, improving performance and resource utilization.
-- AVD Monitoring Solution: deploys the required resources to enable the Insights workbook:
+- Monitoring: deploys the required resources to enable the Insights workbook:
   - Log Analytics Workspace with the required Windows Events and Performance Counters.
   - Microsoft Monitoring Agent on the session hosts.
   - Diagnostic settings on the AVD host pool and workspace.
 - Graphics Drivers & Settings: deploys the extension to install the graphics driver and creates the recommended registry settings when an appropriate VM size (Nv, Nvv3, & Nvv4 series) is selected.
+- BitLocker Encryption: deploys the required resources & configuration to enable BitLocker encryption on the session hosts:
+  - Key Vault with a Key Encryption Key
+  - VM Extension to enable the feature on the virtual machines.
 - Backups (Optional): deploys the required resources to enable backups:
   - Recovery Services Vault
   - Backup Policy

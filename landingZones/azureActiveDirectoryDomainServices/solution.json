@@ -41,13 +41,13 @@
   "variables": {
     "BastionName": "[concat('bastion-', parameters('UnitDept'),'-', parameters('ProjAppSvc')[1], '-', parameters('Environment'), '-', parameters('LocationAbbr'), '-', parameters('Instance'))]",
     "ManagedIdentityName": "[concat('uami-', parameters('UnitDept'),'-', parameters('ProjAppSvc')[1], '-', parameters('Environment'), '-', parameters('LocationAbbr'), '-', parameters('Instance'))]",
+    "NetworkContributorId": "4d97b98b-1d4f-4787-a291-c67834d212e7",
     "NetworkWatcherName": "[concat('nw-', parameters('UnitDept'),'-', parameters('ProjAppSvc')[1], '-', parameters('Environment'), '-', parameters('LocationAbbr'), '-', parameters('Instance'))]",
     "PublicIpAddressName": "[concat('pip-bastion-', parameters('UnitDept'),'-', parameters('ProjAppSvc')[1], parameters('Environment'), '-', parameters('LocationAbbr'), '-', parameters('Instance'))]",
     "ResourceGroupNames": [
       "[concat('rg-', parameters('UnitDept'),'-', parameters('ProjAppSvc')[0], '-', parameters('Environment'),'-', parameters('LocationAbbr'), '-', parameters('Instance'))]",
       "[concat('rg-', parameters('UnitDept'),'-', parameters('ProjAppSvc')[1], '-', parameters('Environment'),'-', parameters('LocationAbbr'), '-', parameters('Instance'))]"
     ],
-    "RoleAssignmentName": "[guid(variables('ResourceGroupNames')[1], variables('ManagedIdentityName'))]",
     "VnetName": "[concat('vnet-', parameters('UnitDept'), '-', parameters('ProjAppSvc')[1], '-', parameters('Environment'), '-', parameters('LocationAbbr'), '-', parameters('Instance'))]"
   },
   "resources": [
@@ -82,6 +82,9 @@
           },
           "ManagedIdentityName": {
             "value": "[variables('ManagedIdentityName')]"
+          },
+          "NetworkContributorId": {
+            "value": "[variables('NetworkContributorId')]"
           }
         },
         "mode": "Incremental",
@@ -94,7 +97,13 @@
             },
             "ManagedIdentityName": {
               "type": "string"
+            },
+            "NetworkContributorId": {
+              "type": "string"
             }
+          },
+          "variables": {
+            "RoleAssignmentName": "[guid(resourceGroup().name, parameters('ManagedIdentityName'), parameters('NetworkContributorId'))]"
           },
           "resources": [
             {
@@ -103,6 +112,17 @@
               "name": "[parameters('ManagedIdentityName')]",
               "apiVersion": "2018-11-30",
               "location": "[parameters('Location')]"
+            },
+            {
+              "comments": "---------- ROLE ASSIGNMENT > RESOURCE GROUP > NETWORK CONTRIBUTOR ----------",
+              "type": "Microsoft.Authorization/roleAssignments",
+              "apiVersion": "2020-04-01-preview",
+              "name": "[variables('RoleAssignmentName')]",
+              "properties": {
+                "roleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', parameters('NetworkContributorId'))]",
+                "principalId": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', parameters('ManagedIdentityName')), '2018-11-30').principalId]",
+                "principalType": "ServicePrincipal"
+              }
             }
           ],
           "outputs": {
@@ -131,8 +151,11 @@
           "PrincipalId": {
             "value": "[reference('ManagedIdentityTemplate').outputs.principalId.value]"
           },
-          "RoleAssignmentName": {
-            "value": "[variables('RoleAssignmentName')]"
+          "ManagedIdentityName": {
+            "value": "[variables('ManagedIdentityName')]"
+          },
+          "NetworkContributorId": {
+            "value": "[variables('NetworkContributorId')]"
           }
         },
         "template": {
@@ -142,16 +165,22 @@
             "PrincipalId": {
               "type": "string"
             },
-            "RoleAssignmentName": {
+            "ManagedIdentityName": {
+              "type": "string"
+            },
+            "NetworkContributorId": {
               "type": "string"
             }
+          },
+          "variables": {
+            "RoleAssignmentName": "[guid(resourceGroup().name, parameters('ManagedIdentityName'), parameters('NetworkContributorId'))]"
           },
           "resources": [
             {
               "comments": "---------- ROLE ASSIGNMENT > RESOURCE GROUP > NETWORK CONTRIBUTOR ----------",
               "type": "Microsoft.Authorization/roleAssignments",
               "apiVersion": "2020-04-01-preview",
-              "name": "[parameters('RoleAssignmentName')]",
+              "name": "[variables('RoleAssignmentName')]",
               "properties": {
                 "roleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', '4d97b98b-1d4f-4787-a291-c67834d212e7')]",
                 "principalId": "[parameters('PrincipalId')]",

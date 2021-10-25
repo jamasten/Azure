@@ -27,7 +27,7 @@ This solution contains many features that are usually enabled manually after dep
   - Log Analytics Workspace with the required Windows Events and Performance Counters.
   - Microsoft Monitoring Agent on the session hosts.
   - Diagnostic settings on the AVD host pool and workspace.
-- Graphics Drivers: deploys the required extension to install the graphics driver when the appropriate VM sizes are selected.
+- Graphics Drivers & Settings: deploys the extension to install the graphics driver and creates the recommended registry settings when an appropriate VM size (Nv, Nvv3, & Nvv4 series) is selected.
 - Backups (Optional): deploys the required resources to enable backups:
   - Recovery Services Vault
   - Backup Policy

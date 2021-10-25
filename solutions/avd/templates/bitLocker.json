@@ -2,6 +2,9 @@
     "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
+        "FSLogix": {
+            "type": "string"
+        },
         "KeyVaultName": {
             "type": "string"
         },
@@ -132,6 +135,7 @@
         },
         {
             "comments": "---------- MGMT VM > AZURE DISK ENCRYPTION EXTENSION ----------",
+            "condition": "[parameters('FSLogix')]",
             "type": "Microsoft.Compute/virtualMachines/extensions",
             "name": "[concat(parameters('VmName'), 'mgt/AzureDiskEncryption')]",
             "location": "[parameters('Location')]",

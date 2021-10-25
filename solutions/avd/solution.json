@@ -830,6 +830,9 @@
                     "contentVersion": "1.0.0.0"
                 },
                 "parameters": {
+                    "FSLogix": {
+                        "value": "[parameters('FSLogix')]"
+                    },
                     "KeyVaultName": {
                         "value": "[variables('KeyVaultName')]"
                     },

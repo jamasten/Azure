@@ -103,6 +103,7 @@
             "Standard_NV16as_v4",
             "Standard_NV32as_v4"
         ],
+        "AmdVmSize": "[contains(variables('AmdVmSizes'), parameters('VmSize'))]",
         "AvailabilitySetName": "[concat('as-', parameters('ResourceNameSuffix'))]",
         "AvailabilitySetId": { "id": "[resourceId('Microsoft.Compute/availabilitySets', variables('AvailabilitySetName'))]" },
         "AvdAgentUrl_AzureCloud": "https://wvdportalstorageblob.blob.core.windows.net/galleryartifacts/Configuration_6-1-2021.zip",
@@ -115,6 +116,7 @@
             "Standard_NV24s_v3",
             "Standard_NV48s_v3"
         ],
+        "NvidiaVmSize": "[contains(variables('NvidiaVmSizes'), parameters('VmSize'))]",
         "PooledHostPool": "[equals(split(parameters('HostPoolType'), ' ')[0], 'Pooled')]",
         "EphemeralOsDisk": {
             "osType": "Windows",
@@ -339,13 +341,13 @@
                             "timestamp": "[parameters('Timestamp')]"
                         },
                         "protectedSettings": {
-                            "commandToExecute": "[concat('powershell -ExecutionPolicy Unrestricted -File Set-SessionHostConfiguration.ps1 -Environment ', environment().name, ' -FSLogix ', parameters('FSLogix'), ' -HostPoolName ', parameters('HostPoolName'), ' -ImageOffer ', parameters('ImageOffer'), ' -ImagePublisher ', parameters('ImagePublisher'), ' -PooledHostPool ', variables('PooledHostPool'), ' -ScreenCaptureProtection ', parameters('ScreenCaptureProtection'), ' -StorageAccountName ', parameters('StorageAccountName'))]"
+                            "commandToExecute": "[concat('powershell -ExecutionPolicy Unrestricted -File Set-SessionHostConfiguration.ps1 -AmdVmSize ', variables('AmdVmSize'), ' -Environment ', environment().name, ' -FSLogix ', parameters('FSLogix'), ' -HostPoolName ', parameters('HostPoolName'), ' -ImageOffer ', parameters('ImageOffer'), ' -ImagePublisher ', parameters('ImagePublisher'), ' -NvidiaVmSize ', variables('NvidiaVmSize'), ' -PooledHostPool ', variables('PooledHostPool'), ' -ScreenCaptureProtection ', parameters('ScreenCaptureProtection'), ' -StorageAccountName ', parameters('StorageAccountName'))]"
                         }
                     }
                 },
                 {
                     "comments": "---------- AMD DRIVER EXTENSION ----------",
-                    "condition": "[contains(variables('AmdVmSizes'), parameters('VmSize'))]",
+                    "condition": "[variables('AmdVmSize')]",
                     "type": "extensions",
                     "apiVersion": "2021-03-01",
                     "name": "AmdGpuDriverWindows",
@@ -364,7 +366,7 @@
                 },
                 {
                     "comments": "---------- NVIDIA DRIVER EXTENSION ----------",
-                    "condition": "[contains(variables('NvidiaVmSizes'), parameters('VmSize'))]",
+                    "condition": "[variables('NvidiaVmSize')]",
                     "type": "extensions",
                     "apiVersion": "2021-03-01",
                     "name": "NvidiaGpuDriverWindows",

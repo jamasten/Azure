@@ -40,7 +40,7 @@
   },
   "variables": {
     "BastionName": "[concat('bastion-', parameters('UnitDept'),'-', parameters('ProjAppSvc')[1], '-', parameters('Environment'), '-', parameters('LocationAbbr'), '-', parameters('Instance'))]",
-    "ManagedIdentityName": "[concat('uami-dns-', parameters('UnitDept'),'-', parameters('ProjAppSvc')[1], '-', parameters('Environment'), '-', parameters('LocationAbbr'), '-', parameters('Instance'))]",
+    "ManagedIdentityName": "[concat('uami-', parameters('UnitDept'),'-', parameters('ProjAppSvc')[1], '-', parameters('Environment'), '-', parameters('LocationAbbr'), '-', parameters('Instance'))]",
     "NetworkWatcherName": "[concat('nw-', parameters('UnitDept'),'-', parameters('ProjAppSvc')[1], '-', parameters('Environment'), '-', parameters('LocationAbbr'), '-', parameters('Instance'))]",
     "PublicIpAddressName": "[concat('pip-bastion-', parameters('UnitDept'),'-', parameters('ProjAppSvc')[1], parameters('Environment'), '-', parameters('LocationAbbr'), '-', parameters('Instance'))]",
     "ResourceGroupNames": [
@@ -65,7 +65,7 @@
       }
     },
     {
-      "name": "ManagedIdentity",
+      "name": "ManagedIdentityTemplate",
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2021-04-01",
       "resourceGroup": "[variables('ResourceGroupNames')[0]]",
@@ -104,16 +104,22 @@
               "apiVersion": "2018-11-30",
               "location": "[parameters('Location')]"
             }
-          ]
+          ],
+          "outputs": {
+            "principalId": {
+              "type": "string",
+              "value": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', parameters('ManagedIdentityName')), '2018-11-30').principalId]"
+            }
+          }
         }
       }
     },
     {
-      "name": "RoleAssignment",
+      "name": "RoleAssignmentTemplate",
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2021-04-01",
       "dependsOn": [
-        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroupNames')[0]), 'Microsoft.Resources/deployments', 'ManagedIdentity')]"
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroupNames')[0]), 'Microsoft.Resources/deployments', 'ManagedIdentityTemplate')]"
       ],
       "resourceGroup": "[variables('ResourceGroupNames')[1]]",
       "properties": {
@@ -122,11 +128,8 @@
         },
         "mode": "Incremental",
         "parameters": {
-          "ManagedIdentityName": {
-            "value": "[variables('ManagedIdentityName')]"
-          },
-          "ResourceGroupName": {
-            "value": "[variables('ResourceGroupNames')[0]]"
+          "PrincipalId": {
+            "value": "[reference('ManagedIdentityTemplate').outputs.principalId.value]"
           },
           "RoleAssignmentName": {
             "value": "[variables('RoleAssignmentName')]"
@@ -136,10 +139,7 @@
           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
           "contentVersion": "1.0.0.0",
           "parameters": {
-            "ManagedIdentityName": {
-              "type": "string"
-            },
-            "ResourceGroupName": {
+            "PrincipalId": {
               "type": "string"
             },
             "RoleAssignmentName": {
@@ -148,13 +148,13 @@
           },
           "resources": [
             {
-              "comments": "---------- ROLE ASSIGNMENT > RESOURCE GROUP > CONTRIBUTOR ----------",
+              "comments": "---------- ROLE ASSIGNMENT > RESOURCE GROUP > NETWORK CONTRIBUTOR ----------",
               "type": "Microsoft.Authorization/roleAssignments",
               "apiVersion": "2020-04-01-preview",
               "name": "[parameters('RoleAssignmentName')]",
               "properties": {
-                "roleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', 'b24988ac-6180-42a0-ab88-20f7382dd24c')]",
-                "principalId": "[reference(resourceId(parameters('ResourceGroupName'), 'Microsoft.ManagedIdentity/userAssignedIdentities', parameters('ManagedIdentityName')), '2018-11-30').principalId]",
+                "roleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', '4d97b98b-1d4f-4787-a291-c67834d212e7')]",
+                "principalId": "[parameters('PrincipalId')]",
                 "principalType": "ServicePrincipal"
               }
             }
@@ -163,7 +163,7 @@
       }
     },
     {
-      "name": "Networking",
+      "name": "NetworkingTemplate",
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2021-04-01",
       "dependsOn": [
@@ -405,12 +405,12 @@
       }
     },
     {
-      "name": "DomainServices",
+      "name": "DomainServicesTemplate",
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2021-04-01",
       "resourceGroup": "[variables('ResourceGroupNames')[0]]",
       "dependsOn": [
-        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroupNames')[1]), 'Microsoft.Resources/deployments', 'Networking')]"
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroupNames')[1]), 'Microsoft.Resources/deployments', 'NetworkingTemplate')]"
       ],
       "properties": {
         "expressionEvaluationOptions": {
@@ -477,12 +477,12 @@
       }
     },
     {
-      "name": "DnsAndAdminGroup",
+      "name": "DnsAndAdminGroupTemplate",
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2021-04-01",
       "resourceGroup": "[variables('ResourceGroupNames')[0]]",
       "dependsOn": [
-        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroupNames')[0]), 'Microsoft.Resources/deployments', 'DomainServices')]"
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroupNames')[0]), 'Microsoft.Resources/deployments', 'DomainServicesTemplate')]"
       ],
       "properties": {
         "expressionEvaluationOptions": {
@@ -549,6 +549,7 @@
                     [string] [parameter(Mandatory=$true)] $VnetName
                   )
 
+                  Start-Sleep 300
                   # Update DNS on the Azure Virtual Network
                   $vnet = Get-AzVirtualNetwork -Name $VnetName -ResourceGroupName $ResourceGroupName
                   $subnet = Get-AzVirtualNetworkSubnetConfig -Name 'AzureADDSSubnet' -VirtualNetwork $vnet
@@ -567,29 +568,6 @@
                   $obj = new-object -type PSObject -Property @{'DnsServers' = $dnsIPs}
                   $vnet.DhcpOptions = $obj
                   $vnet | Set-AzVirtualNetwork | Out-Null
-
-                  $AdminGroupName = 'AAD DC Administrators'
-
-                  # Create Security Group for Azure ADDS administration in Azure AD
-                  if ($null -eq (Get-AzADGroup -DisplayName $AdminGroupName))
-                  {
-                    $AdminGroupPrincipal = New-AzADGroup `
-                      -DisplayName $AdminGroupName `
-                      -MailNickname $($AdminGroupName -replace '[\\W]','')
-                  }
-
-                  # Add Azure ADDS Admin Account to Security Group in Azure AD
-                  Start-Sleep 10
-                  $Users = Get-AzADUser | Where-Object {$_.UserPrincipalName -like \"jamasten*\" -or $_.UserPrincipalName -like \"admin*\"}
-                  foreach($User in $Users)
-                  {
-                    if ($null -eq (Get-AzADGroupMember -GroupDisplayName $AdminGroupName | Where-Object {$_.UserPrincipalName -eq $User.UserPrincipalName}))
-                    {
-                      Add-AzADGroupMember `
-                        -TargetGroupDisplayName $AdminGroupName `
-                        -MemberUserPrincipalName $User.UserPrincipalName
-                    }
-                  }
 
                   $DeploymentScriptOutputs = @{}
                 ",

@@ -1,5 +1,31 @@
 # Azure Virtual Desktop solution
 
+## Deployment Options
+
+### Azure Portal
+
+[![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fjamasten%2FAzure%2Fmaster%2Fsolutions%2Favd%2Fsolution.json)
+[![Deploy to Azure Gov](https://raw.githubusercontent.com/Azure/azure-quickstart-templates/master/1-CONTRIBUTION-GUIDE/images/deploytoazuregov.svg?sanitize=true)](https://portal.azure.us/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fjamasten%2FAzure%2Fmaster%2Fsolutions%2Favd%2Fsolution.json)
+
+### PowerShell
+
+````powershell
+New-AzDeployment `
+    -Location '<Azure location>' `
+    -TemplateFile 'https://raw.githubusercontent.com/jamasten/Azure/master/solutions/avd/solution.json' `
+    -Verbose
+````
+
+### Azure CLI
+
+````cli
+az deployment sub create \
+    --location '<Azure location>' \
+    --template-uri 'https://raw.githubusercontent.com/jamasten/Azure/master/solutions/avd/solution.json'
+````
+
+## Description
+
 This solution will deploy Azure Virtual Desktop in an Azure subscription.  Depending on the options selected, either a personal or pooled host pool can be deployed with this solution.  The pooled option will deploy an App Group with a role assignment and everything to enable FSLogix.
 
 This solution contains many features that are usually enabled manually after deploying an AVD host pool.  Those features are:
@@ -34,6 +60,7 @@ This solution contains many features that are usually enabled manually after dep
   - Protection Container (File Share Only)
   - Protected Item
 - Screen Capture Protection: deploys the required registry setting on the AVD session hosts to enable the feature.
+- Drain Mode: when enabled, the sessions hosts will be deployed in drain mode to ensure end users cannot access the host pool until operations is ready to allow connections.
 
 ## Assumptions
 
@@ -59,27 +86,3 @@ If you are deploying this solution to multiple subscriptions in the same tenant 
 ## Post Deployment Requirements
 
 When deploying a "pooled" host pool, a management VM is deployed to facilitate the domain join of the Azure Storage Account and to set the NTFS permissions on the Azure File Share.  After the deployment succeeds, this VM and its associated resources may be removed.
-
-## Deployment Options
-
-### Try with Azure Portal
-
-[![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fjamasten%2FAzure%2Fmaster%2Fsolutions%2Favd%2Fsolution.json)
-[![Deploy to Azure Gov](https://raw.githubusercontent.com/Azure/azure-quickstart-templates/master/1-CONTRIBUTION-GUIDE/images/deploytoazuregov.svg?sanitize=true)](https://portal.azure.us/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fjamasten%2FAzure%2Fmaster%2Fsolutions%2Favd%2Fsolution.json)
-
-### Try with PowerShell
-
-````powershell
-New-AzDeployment `
-    -Location '<Azure location>' `
-    -TemplateFile 'https://raw.githubusercontent.com/jamasten/Azure/master/solutions/avd/solution.json' `
-    -Verbose
-````
-
-### Try with CLI
-
-````cli
-az deployment sub create \
-    --location '<Azure location>' \
-    --template-uri 'https://raw.githubusercontent.com/jamasten/Azure/master/solutions/avd/solution.json'
-````

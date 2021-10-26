@@ -55,14 +55,15 @@
             "allowedValues": [
                 "ActiveDirectory",
                 "AzureActiveDirectory"
-            ]
+            ],
+            "defaultValue": "AzureActiveDirectory"
         },
         "DrainMode": {
             "type": "bool",
             "metadata": {
                 "description": "Enable drain mode on sessions hosts during deployment to prevent users from accessing the session hosts."
             },
-            "defaultValue": true
+            "defaultValue": false
         },
         "EphemeralOsDisk": {
             "type": "bool",
@@ -75,7 +76,8 @@
             "type": "bool",
             "metadata": {
                 "description": "Enable FSLogix to manage user profiles for the AVD session hosts."
-            }
+            },
+            "defaultValue": true
         },
         "HostPoolType": {
             "type": "string",
@@ -134,16 +136,16 @@
             "metadata": {
                 "description": "The retention for the Log Analytics Workspace to setup the AVD Monitoring solution"
             },
-            "defaultValue": 30,
             "maxValue": 730,
-            "minValue": 30
+            "minValue": 30,
+            "defaultValue": 30
+
         },
         "LogAnalyticsWorkspaceSku": {
             "type": "string",
             "metadata": {
                 "description": "The SKU for the Log Analytics Workspace to setup the AVD Monitoring solution"
             },
-            "defaultValue": "PerGB2018",
             "allowedValues": [
                 "Free",
                 "Standard",
@@ -152,7 +154,8 @@
                 "PerGB2018",
                 "Standalone",
                 "CapacityReservation"
-            ]
+            ],
+            "defaultValue": "PerGB2018"
         },
         "MaxSessionLimit": {
             "type": "int",
@@ -177,7 +180,7 @@
             "metadata": {
                 "description": "The distinguished name for the target Organization Unit in Active Directory Domain Services."
             },
-            "defaultValue": "OU=Pooled,OU=AVD,DC=jasonmasten,DC=com"
+            "defaultValue": "OU=AADDC Computers,DC=jasonmasten,DC=com"
         },
         "RecoveryServices": {
             "type": "bool",
@@ -192,7 +195,7 @@
                 "description": "Use letters and numbers only.  This suffix is used in conjunction with the resource type prefixes to name most of the Azure resources in this solution.  The only exception is the Storage Account since the value must globally unique and has stricter character requirements."
             },
             "maxLength": 10,
-            "defaultValue": "avdpocdeus"
+            "defaultValue": "avddeu"
         },
         "ScalingBeginPeakTime": {
             "type": "string",
@@ -262,7 +265,7 @@
             "metadata": {
                 "description": "The number of session hosts to deploy in the host pool"
             },
-            "defaultValue": 2
+            "defaultValue": 1
         },
         "SessionHostIndex": {
             "type": "int",
@@ -294,7 +297,7 @@
             "metadata": {
                 "description": "The subnet for the AVD session hosts."
             },
-            "defaultValue": "snet-clients-d-eastus"
+            "defaultValue": "Clients"
         },
         "Tags": {
             "type": "object",
@@ -323,14 +326,14 @@
             "metadata": {
                 "description": "Virtual network for the AVD sessions hosts"
             },
-            "defaultValue": "vnet-d-eastus"
+            "defaultValue": "vnet-shd-net-d-eu-000"
         },
         "VirtualNetworkResourceGroup": {
             "type": "string",
             "metadata": {
                 "description": "Virtual network resource group for the AVD sessions hosts"
             },
-            "defaultValue": "rg-network-d-eastus"
+            "defaultValue": "rg-shd-net-d-eu-000"
         },
         "VmPassword": {
             "type": "securestring",
@@ -355,7 +358,8 @@
             "type": "string",
             "metadata": {
                 "description": "The Object ID for the 'Windows Virtual Desktop' Enterprise Application in Azure AD.  The Object ID can found by selecting 'Microsoft Applications' using the 'Application type' filter in the Enterprise Applications blade of Azure AD."
-            }
+            },
+            "defaultValue": "cdcfb416-e2fe-41e2-be12-33813c1cd427"
         }
     },
     "variables": {

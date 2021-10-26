@@ -228,12 +228,12 @@ try
         $Value = Get-ItemProperty -Path $Setting.Path -Name $Setting.Name -ErrorAction 'SilentlyContinue'
         if(!$Value)
         {
-            New-ItemProperty -Path $Setting.Path -Name $Setting.Name -PropertyType $Setting.PropertyType -Value $Setting.Value
+            New-ItemProperty -Path $Setting.Path -Name $Setting.Name -PropertyType $Setting.PropertyType -Value $Setting.Value -Force
             Write-Log -Message "Added registry setting: $($Setting.Name)" -Type 'INFO'
         }
         elseif($Value -ne $Setting.Value)
         {
-            Set-ItemProperty -Path $Setting.Path -Name $Setting.Name -PropertyType -Value $Setting.Value
+            Set-ItemProperty -Path $Setting.Path -Name $Setting.Name -Value $Setting.Value -Force
             Write-Log -Message "Updated registry setting: $($Setting.Name)" -Type 'INFO'
         }
         else 
@@ -330,7 +330,6 @@ try
 
         # Run VDOT
         New-Item -Path 'C:\Optimize\' -Name 'install.log' -ItemType 'File' -Force
-        Set-ExecutionPolicy -ExecutionPolicy 'RemoteSigned' -Force
         & C:\Optimize\Virtual-Desktop-Optimization-Tool-main\Win10_VirtualDesktop_Optimize.ps1 -Restart -AcceptEULA
         Write-Log -Message 'Optimized the operating system using the VDOT' -Type 'INFO'
     }

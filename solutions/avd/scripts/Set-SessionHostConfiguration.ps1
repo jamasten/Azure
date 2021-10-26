@@ -251,6 +251,7 @@ try
         {
             Write-Log -Message "Registry setting exists with correct value: $($Setting.Name)" -Type 'INFO'    
         }
+        Start-Sleep -Seconds 1
     }
 }
 catch 

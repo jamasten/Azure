@@ -63,6 +63,18 @@ function Write-Log
     $Entry | Out-File -FilePath $Path -Append
 }
 
+Write-Log -Message "AmdVmSize: $AmdVmSize" -Type 'INFO'
+Write-Log -Message "Environment: $Environment" -Type 'INFO'
+Write-Log -Message "FSLogix: $FSLogix" -Type 'INFO'
+Write-Log -Message "HostPoolName: $HostPoolName" -Type 'INFO'
+Write-Log -Message "ImageOffer: $ImageOffer" -Type 'INFO'
+Write-Log -Message "ImagePublisher: $ImagePublisher" -Type 'INFO'
+Write-Log -Message "NvidiaVmSize: $NvidiaVmSize" -Type 'INFO'
+Write-Log -Message "PooledHostPool: $PooledHostPool" -Type 'INFO'
+Write-Log -Message "ScreenCaptureProtection: $ScreenCaptureProtection" -Type 'INFO'
+Write-Log -Message "AmdVmSize: $AmdVmSize" -Type 'INFO'
+Write-Log -Message "StorageAccountName: $StorageAccountName" -Type 'INFO'
+
 
 ###############################
 #  Recommended Settings
@@ -231,7 +243,7 @@ try
             New-ItemProperty -Path $Setting.Path -Name $Setting.Name -PropertyType $Setting.PropertyType -Value $Setting.Value -Force
             Write-Log -Message "Added registry setting: $($Setting.Name)" -Type 'INFO'
         }
-        elseif($Value -ne $Setting.Value)
+        elseif($Value.$($Setting.Name) -ne $Setting.Value)
         {
             Set-ItemProperty -Path $Setting.Path -Name $Setting.Name -Value $Setting.Value -Force
             Write-Log -Message "Updated registry setting: $($Setting.Name)" -Type 'INFO'

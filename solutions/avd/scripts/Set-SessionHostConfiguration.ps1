@@ -94,15 +94,15 @@ $Settings = @(
         Path = 'HKLM:\SOFTWARE\Policies\Microsoft\Windows NT\Terminal Services'
         PropertyType = 'DWord'
         Value = 1
-    },
+    }#,
 
     # Disable Storage Sense: https://docs.microsoft.com/en-us/azure/virtual-desktop/set-up-customize-master-image#disable-storage-sense
-    [PSCustomObject]@{
+    <# [PSCustomObject]@{
         Name = '01'
         Path = 'HKCU:\Software\Microsoft\Windows\CurrentVersion\StorageSense\Parameters\StoragePolicy'
         PropertyType = 'DWord'
         Value = 0
-    }
+    } #>
 )
 
 

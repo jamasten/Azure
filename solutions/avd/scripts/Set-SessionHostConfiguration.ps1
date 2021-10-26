@@ -70,7 +70,7 @@ try
     ###############################
 
     # Disable Automatic Updates: https://docs.microsoft.com/en-us/azure/virtual-desktop/set-up-customize-master-image#disable-automatic-updates
-    New-ItemProperty -Path 'HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate\AU' -Name 'NoAutoUpdate' -PropertyType 'DWord' -Value 1
+    Set-ItemProperty -Path 'HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate\AU' -Name 'NoAutoUpdate' -Value 1
     Write-Log -Message 'Disabled Automatic Updates' -Type 'INFO'
 
     # Enable Time Zone Redirection: https://docs.microsoft.com/en-us/azure/virtual-desktop/set-up-customize-master-image#set-up-time-zone-redirection
@@ -78,7 +78,7 @@ try
     Write-Log -Message 'Enabled Time Zone Redirection' -Type 'INFO'
 
     # Disable Storage Sense: https://docs.microsoft.com/en-us/azure/virtual-desktop/set-up-customize-master-image#disable-storage-sense
-    New-ItemProperty -Path 'HKCU:\Software\Microsoft\Windows\CurrentVersion\StorageSense\Parameters\StoragePolicy' -Name '01' -PropertyType 'DWord' -Value 0
+    Set-ItemProperty -Path 'HKCU:\Software\Microsoft\Windows\CurrentVersion\StorageSense\Parameters\StoragePolicy' -Name '01' -Value 0
     Write-Log -Message 'Disabled Storage Sense' -Type 'INFO'
 
 
@@ -131,6 +131,7 @@ try
             AzureUSGovernment {'.file.core.usgovcloudapi.net'}
         }
         $FileShare = '\\' + $StorageAccountName + $Suffix + '\' + $HostPoolName
+        Write-Log -Message "File Share: $FileShare" -Type 'INFO'
 
         # Enables FSLogix profile containers: https://docs.microsoft.com/en-us/fslogix/profile-container-configuration-reference#enabled
         New-ItemProperty -Path 'HKLM:\SOFTWARE\FSLogix\Profiles' -Name 'Enabled' -PropertyType 'DWord' -Value 1

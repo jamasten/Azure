@@ -63,101 +63,200 @@ function Write-Log
     $Entry | Out-File -FilePath $Path -Append
 }
 
-try 
-{
-    ###############################
-    #  Recommended Settings
-    ###############################
+
+###############################
+#  Recommended Settings
+###############################
+$Settings = @(
 
     # Disable Automatic Updates: https://docs.microsoft.com/en-us/azure/virtual-desktop/set-up-customize-master-image#disable-automatic-updates
-    Set-ItemProperty -Path 'HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate\AU' -Name 'NoAutoUpdate' -Value 1
-    Write-Log -Message 'Disabled Automatic Updates' -Type 'INFO'
+    [PSCustomObject]@{
+        Name = 'NoAutoUpdate'
+        Path = 'HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate\AU'
+        PropertyType = 'DWord'
+        Value = 1
+    },
 
     # Enable Time Zone Redirection: https://docs.microsoft.com/en-us/azure/virtual-desktop/set-up-customize-master-image#set-up-time-zone-redirection
-    New-ItemProperty -Path 'HKLM:\SOFTWARE\Policies\Microsoft\Windows NT\Terminal Services' -Name 'fEnableTimeZoneRedirection' -PropertyType 'DWord' -Value 1
-    Write-Log -Message 'Enabled Time Zone Redirection' -Type 'INFO'
+    [PSCustomObject]@{
+        Name = 'fEnableTimeZoneRedirection'
+        Path = 'HKLM:\SOFTWARE\Policies\Microsoft\Windows NT\Terminal Services'
+        PropertyType = 'DWord'
+        Value = 1
+    },
 
     # Disable Storage Sense: https://docs.microsoft.com/en-us/azure/virtual-desktop/set-up-customize-master-image#disable-storage-sense
-    Set-ItemProperty -Path 'HKCU:\Software\Microsoft\Windows\CurrentVersion\StorageSense\Parameters\StoragePolicy' -Name '01' -Value 0
-    Write-Log -Message 'Disabled Storage Sense' -Type 'INFO'
+    [PSCustomObject]@{
+        Name = '01'
+        Path = 'HKCU:\Software\Microsoft\Windows\CurrentVersion\StorageSense\Parameters\StoragePolicy'
+        PropertyType = 'DWord'
+        Value = 0
+    }
+)
 
 
-    ###############################
-    #  GPU Settings
-    ###############################
+###############################
+#  GPU Settings
+###############################
+# This setting applies to the VM Size's recommended for AVD with a GPU
+if ($AmdVmSize -eq 'true' -or $NvidiaVmSize -eq 'true') 
+{
+    $Settings += @(
 
-    # These settings apply to any VM Size with a GPU
-    if ($AmdVmSize -eq 'true' -or $NvidiaVmSize -eq 'true') 
-    {
         # Configure GPU-accelerated app rendering: https://docs.microsoft.com/en-us/azure/virtual-desktop/configure-vm-gpu#configure-gpu-accelerated-app-rendering
-        New-ItemProperty -Path 'HKLM:\SOFTWARE\Policies\Microsoft\Windows NT\Terminal Services' -Name 'bEnumerateHWBeforeSW' -PropertyType 'DWord' -Value 1
-        Write-Log -Message 'Configured GPU-accelerated app rendering' -Type 'INFO'
+        [PSCustomObject]@{
+            Name = 'bEnumerateHWBeforeSW'
+            Path = 'HKLM:\SOFTWARE\Policies\Microsoft\Windows NT\Terminal Services'
+            PropertyType = 'DWord'
+            Value = 1
+        },
 
         # Configure fullscreen video encoding: https://docs.microsoft.com/en-us/azure/virtual-desktop/configure-vm-gpu#configure-fullscreen-video-encoding
-        New-ItemProperty -Path 'HKLM:\SOFTWARE\Policies\Microsoft\Windows NT\Terminal Services' -Name 'AVC444ModePreferred' -PropertyType 'DWord' -Value 1     
-        Write-Log -Message 'Configured fullscreen video encoding' -Type 'INFO'
-    }
-
-    # This setting applies only to VM Size's with a Nvidia GPU
-    if($NvidiaVmSize -eq 'true')
-    {
-        # Configure GPU-accelerated frame encoding: https://docs.microsoft.com/en-us/azure/virtual-desktop/configure-vm-gpu#configure-gpu-accelerated-frame-encoding
-        New-ItemProperty -Path 'HKLM:\SOFTWARE\Policies\Microsoft\Windows NT\Terminal Services' -Name 'AVChardwareEncodePreferred' -PropertyType 'DWord' -Value 1
-        Write-Log -Message 'Configured GPU-accelerated frame encoding' -Type 'INFO'
-    }
-
-
-    ###############################
-    #  Screen Capture Protection
-    ###############################
-
-    if($ScreenCaptureProtection -eq 'true')
-    {
-        # Enable Screen Capture Protection: https://docs.microsoft.com/en-us/azure/virtual-desktop/screen-capture-protection
-        New-ItemProperty -Path 'HKLM:\SOFTWARE\Policies\Microsoft\Windows NT\Terminal Services' -Name 'fEnableScreenCaptureProtect' -PropertyType 'DWord' -Value 1
-        Write-Log -Message 'Enabled Screen Capture Protection' -Type 'INFO'
-    }
-
-
-    ###############################
-    #  FSLogix Configurations
-    ###############################
-
-    if($PooledHostPool -eq 'true' -and $FSLogix -eq 'true')
-    {
-        $Suffix = switch($Environment)
-        {
-            AzureCloud {'.file.core.windows.net'}
-            AzureUSGovernment {'.file.core.usgovcloudapi.net'}
+        [PSCustomObject]@{
+            Name = 'AVC444ModePreferred'
+            Path = 'HKLM:\SOFTWARE\Policies\Microsoft\Windows NT\Terminal Services'
+            PropertyType = 'DWord'
+            Value = 1
         }
-        $FileShare = '\\' + $StorageAccountName + $Suffix + '\' + $HostPoolName
-        Write-Log -Message "File Share: $FileShare" -Type 'INFO'
+    )
+}
+
+# This setting applies only to VM Size's recommended for AVD with a Nvidia GPU
+if($NvidiaVmSize -eq 'true')
+{
+    $Settings += @(
+
+        # Configure GPU-accelerated frame encoding: https://docs.microsoft.com/en-us/azure/virtual-desktop/configure-vm-gpu#configure-gpu-accelerated-frame-encoding
+        [PSCustomObject]@{
+            Name = 'AVChardwareEncodePreferred'
+            Path = 'HKLM:\SOFTWARE\Policies\Microsoft\Windows NT\Terminal Services'
+            PropertyType = 'DWord'
+            Value = 1
+        }
+    )
+}
+
+
+###############################
+#  Screen Capture Protection
+###############################
+if($ScreenCaptureProtection -eq 'true')
+{
+    $Settings += @(
+
+        # Enable Screen Capture Protection: https://docs.microsoft.com/en-us/azure/virtual-desktop/screen-capture-protection
+        [PSCustomObject]@{
+            Name = 'fEnableScreenCaptureProtect'
+            Path = 'HKLM:\SOFTWARE\Policies\Microsoft\Windows NT\Terminal Services'
+            PropertyType = 'DWord'
+            Value = 1
+        }
+    )
+}
+
+
+###############################
+#  FSLogix Configurations
+###############################
+if($PooledHostPool -eq 'true' -and $FSLogix -eq 'true')
+{
+    $Suffix = switch($Environment)
+    {
+        AzureCloud {'.file.core.windows.net'}
+        AzureUSGovernment {'.file.core.usgovcloudapi.net'}
+    }
+    $FileShare = '\\' + $StorageAccountName + $Suffix + '\' + $HostPoolName
+    Write-Log -Message "File Share: $FileShare" -Type 'INFO'
+
+    $Settings += @(
 
         # Enables FSLogix profile containers: https://docs.microsoft.com/en-us/fslogix/profile-container-configuration-reference#enabled
-        New-ItemProperty -Path 'HKLM:\SOFTWARE\FSLogix\Profiles' -Name 'Enabled' -PropertyType 'DWord' -Value 1
-        Write-Log -Message 'Enabled FSLogix profile containers' -Type 'INFO'
+        [PSCustomObject]@{
+            Name = 'Enabled'
+            Path = 'HKLM:\SOFTWARE\FSLogix\Profiles'
+            PropertyType = 'DWord'
+            Value = 1
+        },
 
         # Deletes a local profile if it exists and matches the profile being loaded from VHD: https://docs.microsoft.com/en-us/fslogix/profile-container-configuration-reference#deletelocalprofilewhenvhdshouldapply
-        New-ItemProperty -Path 'HKLM:\SOFTWARE\FSLogix\Profiles' -Name 'DeleteLocalProfileWhenVHDShouldApply' -PropertyType 'DWord' -Value 1
-        Write-Log -Message 'Enabled FSLogix profile deletion for local profiles' -Type 'INFO'
+        [PSCustomObject]@{
+            Name = 'DeleteLocalProfileWhenVHDShouldApply'
+            Path = 'HKLM:\SOFTWARE\FSLogix\Profiles'
+            PropertyType = 'DWord'
+            Value = 1
+        },
 
         # The folder created in the FSLogix fileshare will begin with the username instead of the SID: https://docs.microsoft.com/en-us/fslogix/profile-container-configuration-reference#flipflopprofiledirectoryname
-        New-ItemProperty -Path 'HKLM:\SOFTWARE\FSLogix\Profiles' -Name 'FlipFlopProfileDirectoryName' -PropertyType 'DWord' -Value 1
-        Write-Log -Message 'Enabled FSLogix folder name swap for SID and username' -Type 'INFO'
+        [PSCustomObject]@{
+            Name = 'FlipFlopProfileDirectoryName'
+            Path = 'HKLM:\SOFTWARE\FSLogix\Profiles'
+            PropertyType = 'DWord'
+            Value = 1
+        },
 
         # Loads FRXShell if there's a failure attaching to, or using an existing profile VHD(X): https://docs.microsoft.com/en-us/fslogix/profile-container-configuration-reference#preventloginwithfailure
-        New-ItemProperty -Path 'HKLM:\SOFTWARE\FSLogix\Profiles' -Name 'PreventLoginWithFailure' -PropertyType 'DWord' -Value 1
-        Write-Log -Message 'Enabled FSLogix failure message for existing profile' -Type 'INFO'
+        [PSCustomObject]@{
+            Name = 'PreventLoginWithFailure'
+            Path = 'HKLM:\SOFTWARE\FSLogix\Profiles'
+            PropertyType = 'DWord'
+            Value = 1
+        },
 
         # Loads FRXShell if it's determined a temp profile has been created: https://docs.microsoft.com/en-us/fslogix/profile-container-configuration-reference#preventloginwithtempprofile
-        New-ItemProperty -Path 'HKLM:\SOFTWARE\FSLogix\Profiles' -Name 'PreventLoginWithTempProfile' -PropertyType 'DWord' -Value 1
-        Write-Log -Message 'Enabled FSLogix failure for a temp profile' -Type 'INFO'
+        [PSCustomObject]@{
+            Name = 'PreventLoginWithTempProfile'
+            Path = 'HKLM:\SOFTWARE\FSLogix\Profiles'
+            PropertyType = 'DWord'
+            Value = 1
+        },
 
         # List of file system locations to search for the user's profile VHD(X) file: https://docs.microsoft.com/en-us/fslogix/profile-container-configuration-reference#vhdlocations
-        New-ItemProperty -Path 'HKLM:\SOFTWARE\FSLogix\Profiles' -Name 'VHDLocations' -PropertyType 'MultiString' -Value $FileShare
-        Write-Log -Message 'Enabled FSLogix fileshare location' -Type 'INFO'
+        [PSCustomObject]@{
+            Name = 'VHDLocations'
+            Path = 'HKLM:\SOFTWARE\FSLogix\Profiles'
+            PropertyType = 'MultiString'
+            Value = $FileShare
+        }
+    )
+}
 
-        # Defender Exclusions for FSLogix: https://docs.microsoft.com/en-us/azure/architecture/example-scenario/wvd/windows-virtual-desktop-fslogix#antivirus-exclusions
+# Set registry settings
+try 
+{
+    foreach($Setting in $Settings)
+    {
+        $Value = Get-ItemProperty -Path $Setting.Path -Name $Setting.Name -ErrorAction 'SilentlyContinue'
+        if(!$Value)
+        {
+            New-ItemProperty -Path $Setting.Path -Name $Setting.Name -PropertyType $Setting.PropertyType -Value $Setting.Value
+            Write-Log -Message "Added registry setting: $($Setting.Name)" -Type 'INFO'
+        }
+        elseif($Value -ne $Setting.Value)
+        {
+            Set-ItemProperty -Path $Setting.Path -Name $Setting.Name -PropertyType -Value $Setting.Value
+            Write-Log -Message "Updated registry setting: $($Setting.Name)" -Type 'INFO'
+        }
+        else 
+        {
+            Write-Log -Message "Registry setting exists with correct value: $($Setting.Name)" -Type 'INFO'    
+        }
+    }
+}
+catch 
+{
+    Write-Log -Message $_ -Type 'ERROR'
+}
+
+
+#####################################
+# Defender Exclusions for FSLogix 
+#####################################
+# https://docs.microsoft.com/en-us/azure/architecture/example-scenario/wvd/windows-virtual-desktop-fslogix#antivirus-exclusions
+try
+{
+    if($PooledHostPool -eq 'true' -and $FSLogix -eq 'true')
+    {
+
         $Files = @(
             "%ProgramFiles%\FSLogix\Apps\frxdrv.sys",
             "%ProgramFiles%\FSLogix\Apps\frxdrvvt.sys",
@@ -199,31 +298,39 @@ try
         }
         Write-Log -Message 'Enabled Defender exlusions for FSLogix processes' -Type 'INFO'
     }
+}
+catch 
+{
+    Write-Log -Message $_ -Type 'ERROR'
+}
 
-    ######################################
-    #  Virtual Desktop Optimization Tool: https://github.com/The-Virtual-Desktop-Team/Virtual-Desktop-Optimization-Tool
-    ######################################
 
+######################################
+#  Virtual Desktop Optimization Tool
+######################################
+# https://github.com/The-Virtual-Desktop-Team/Virtual-Desktop-Optimization-Tool
+try 
+{
     if($ImagePublisher -eq 'MicrosoftWindowsDesktop' -and $ImageOffer -ne 'windows-7')
     {
         # Download VDOT
-        New-Item -Path C:\ -Name Optimize -ItemType Directory -ErrorAction SilentlyContinue
-        $LocalPath = "C:\Optimize\"
+        New-Item -Path C:\ -Name Optimize -ItemType Directory -ErrorAction 'SilentlyContinue'
+        $LocalPath = 'C:\Optimize\'
         $WVDOptimizeURL = 'https://github.com/The-Virtual-Desktop-Team/Virtual-Desktop-Optimization-Tool/archive/refs/heads/main.zip'
-        $WVDOptimizeInstaller = "Windows_10_VDI_Optimize-master.zip"
+        $WVDOptimizeInstaller = 'Windows_10_VDI_Optimize-master.zip'
         Invoke-WebRequest `
             -Uri $WVDOptimizeURL `
             -OutFile "$Localpath$WVDOptimizeInstaller"
 
         # Extract VDOT from ZIP archive
         Expand-Archive `
-            -LiteralPath "C:\Optimize\Windows_10_VDI_Optimize-master.zip" `
+            -LiteralPath 'C:\Optimize\Windows_10_VDI_Optimize-master.zip' `
             -DestinationPath "$Localpath" `
             -Force
 
         # Run VDOT
-        New-Item -Path C:\Optimize\ -Name install.log -ItemType File -Force
-        Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Force
+        New-Item -Path 'C:\Optimize\' -Name 'install.log' -ItemType 'File' -Force
+        Set-ExecutionPolicy -ExecutionPolicy 'RemoteSigned' -Force
         & C:\Optimize\Virtual-Desktop-Optimization-Tool-main\Win10_VirtualDesktop_Optimize.ps1 -Restart -AcceptEULA
         Write-Log -Message 'Optimized the operating system using the VDOT' -Type 'INFO'
     }

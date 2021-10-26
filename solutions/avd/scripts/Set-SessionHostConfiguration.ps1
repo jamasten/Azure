@@ -39,7 +39,6 @@ Param(
     [parameter(Mandatory)]
     [string]
     $StorageAccountName
-
 )
 
 $ErrorActionPreference = 'Stop'
@@ -53,10 +52,10 @@ function Write-Log
         [parameter(Mandatory)]
         [string]$Type
     )
-    $Path = 'C:\cse.log'
-    if(!(Test-Path -Path C:\cse.log))
+    $Path = 'C:\cse.txt'
+    if(!(Test-Path -Path $Path))
     {
-        New-Item -Path C:\ -Name cse.log | Out-Null
+        New-Item -Path 'C:\' -Name 'cse.txt' | Out-Null
     }
     $Timestamp = Get-Date -Format 'MM/dd/yyyy HH:mm:ss.ff'
     $Entry = '[' + $Timestamp + '] [' + $Type + '] ' + $Message

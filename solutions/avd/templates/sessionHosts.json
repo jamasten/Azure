@@ -106,8 +106,6 @@
         "AmdVmSize": "[contains(variables('AmdVmSizes'), parameters('VmSize'))]",
         "AvailabilitySetName": "[concat('as-', parameters('ResourceNameSuffix'))]",
         "AvailabilitySetId": { "id": "[resourceId('Microsoft.Compute/availabilitySets', variables('AvailabilitySetName'))]" },
-        "AvdAgentUrl_AzureCloud": "https://wvdportalstorageblob.blob.core.windows.net/galleryartifacts/Configuration_8-16-2021.zip",
-        "AvdAgentUrl_AzureUsGov": "https://wvdportalstorageblob.blob.core.usgovcloudapi.net/galleryartifacts/Configuration_5-5-2021.zip",
         "NvidiaVmSizes": [
             "Standard_NV6",
             "Standard_NV12",

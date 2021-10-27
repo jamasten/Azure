@@ -337,11 +337,17 @@ try
         Expand-Archive -LiteralPath $ZIP -Force
         
         # Run VDOT
-        & .\VDOT\Virtual-Desktop-Optimization-Tool-main\Win10_VirtualDesktop_Optimize.ps1 -Restart -AcceptEULA
+        & .\VDOT\Virtual-Desktop-Optimization-Tool-main\Win10_VirtualDesktop_Optimize.ps1 -AcceptEULA
         Write-Log -Message 'Optimized the operating system using the VDOT' -Type 'INFO'
     }
 }
 catch 
 {
     Write-Log -Message $_ -Type 'ERROR'
+}
+
+# If the GPU extensions are not deployed then force a reboot for VDOT
+if ($AmdVmSize -eq 'false' -and $NvidiaVmSize -eq 'false') 
+{
+    Start-Process -FilePath 'shutdown' -ArgumentList '/r /t 30'
 }

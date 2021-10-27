@@ -288,6 +288,33 @@
                         }
                     }
                 },
+                                {
+                    "comments": "---------- CUSTOM SCRIPT EXTENSION ----------",
+                    "type": "extensions",
+                    "apiVersion": "2021-03-01",
+                    "name": "CustomScriptExtension",
+                    "location": "[parameters('location')]",
+                    "dependsOn": [
+                        "[concat(parameters('VmName'), padLeft(copyIndex(parameters('SessionHostIndex')), 3, '0'))]",
+                        "JsonADDomainExtension"
+                    ],
+                    "tags": "[parameters('Tags')]",
+                    "properties": {
+                        "publisher": "Microsoft.Compute",
+                        "type": "CustomScriptExtension",
+                        "typeHandlerVersion": "1.10",
+                        "autoUpgradeMinorVersion": true,
+                        "settings": {
+                            "fileUris": [
+                                "https://raw.githubusercontent.com/jamasten/Azure/master/solutions/avd/scripts/Set-SessionHostConfiguration.ps1"
+                            ],
+                            "timestamp": "[parameters('Timestamp')]"
+                        },
+                        "protectedSettings": {
+                            "commandToExecute": "[concat('powershell -ExecutionPolicy Unrestricted -File Set-SessionHostConfiguration.ps1 -AmdVmSize ', variables('AmdVmSize'), ' -Environment ', environment().name, ' -FSLogix ', parameters('FSLogix'), ' -HostPoolName ', parameters('HostPoolName'), ' -HostPoolRegistrationToken ', reference(resourceId(parameters('HostPoolResourceGroupName'), 'Microsoft.DesktopVirtualization/hostpools', parameters('HostPoolName')), '2019-12-10-preview').registrationInfo.token, ' -ImageOffer ', parameters('ImageOffer'), ' -ImagePublisher ', parameters('ImagePublisher'), ' -NvidiaVmSize ', variables('NvidiaVmSize'), ' -PooledHostPool ', variables('PooledHostPool'), ' -ScreenCaptureProtection ', parameters('ScreenCaptureProtection'), ' -StorageAccountName ', parameters('StorageAccountName'))]"
+                        }
+                    }
+                },
                 {
                     "comments": "---------- AMD DRIVER EXTENSION ----------",
                     "condition": "[variables('AmdVmSize')]",
@@ -298,7 +325,7 @@
                     "tags": "[parameters('Tags')]",
                     "dependsOn": [
                         "[concat(parameters('VmName'), padLeft(copyIndex(parameters('SessionHostIndex')), 3, '0'))]",
-                        "JsonADDomainExtension"
+                        "CustomScriptExtension"
                     ],
                     "properties": {
                         "publisher": "Microsoft.HpcCompute",
@@ -318,7 +345,7 @@
                     "tags": "[parameters('Tags')]",
                     "dependsOn": [
                         "[concat(parameters('VmName'), padLeft(copyIndex(parameters('SessionHostIndex')), 3, '0'))]",
-                        "JsonADDomainExtension"
+                        "CustomScriptExtension"
                     ],
                     "properties": {
                         "publisher": "Microsoft.HpcCompute",
@@ -326,35 +353,6 @@
                         "typeHandlerVersion": "1.2",
                         "autoUpgradeMinorVersion": true,
                         "settings": {}
-                    }
-                },
-                {
-                    "comments": "---------- CUSTOM SCRIPT EXTENSION ----------",
-                    "type": "extensions",
-                    "apiVersion": "2021-03-01",
-                    "name": "CustomScriptExtension",
-                    "location": "[parameters('location')]",
-                    "dependsOn": [
-                        "[concat(parameters('VmName'), padLeft(copyIndex(parameters('SessionHostIndex')), 3, '0'))]",
-                        "JsonADDomainExtension",
-                        "AmdGpuDriverWindows",
-                        "NvidiaGpuDriverWindows"
-                    ],
-                    "tags": "[parameters('Tags')]",
-                    "properties": {
-                        "publisher": "Microsoft.Compute",
-                        "type": "CustomScriptExtension",
-                        "typeHandlerVersion": "1.10",
-                        "autoUpgradeMinorVersion": true,
-                        "settings": {
-                            "fileUris": [
-                                "https://raw.githubusercontent.com/jamasten/Azure/master/solutions/avd/scripts/Set-SessionHostConfiguration.ps1"
-                            ],
-                            "timestamp": "[parameters('Timestamp')]"
-                        },
-                        "protectedSettings": {
-                            "commandToExecute": "[concat('powershell -ExecutionPolicy Unrestricted -File Set-SessionHostConfiguration.ps1 -AmdVmSize ', variables('AmdVmSize'), ' -Environment ', environment().name, ' -FSLogix ', parameters('FSLogix'), ' -HostPoolName ', parameters('HostPoolName'), ' -HostPoolRegistrationToken ', reference(resourceId(parameters('HostPoolResourceGroupName'), 'Microsoft.DesktopVirtualization/hostpools', parameters('HostPoolName')), '2019-12-10-preview').registrationInfo.token, ' -ImageOffer ', parameters('ImageOffer'), ' -ImagePublisher ', parameters('ImagePublisher'), ' -NvidiaVmSize ', variables('NvidiaVmSize'), ' -PooledHostPool ', variables('PooledHostPool'), ' -ScreenCaptureProtection ', parameters('ScreenCaptureProtection'), ' -StorageAccountName ', parameters('StorageAccountName'))]"
-                        }
                     }
                 }
             ]

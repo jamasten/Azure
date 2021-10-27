@@ -76,7 +76,7 @@ Write-Log -Message "StorageAccountName: $StorageAccountName" -Type 'INFO'
 
 
 ###############################
-#  Recommended Settings
+#  Recommended AVD Settings
 ###############################
 $Settings = @(
 
@@ -292,6 +292,29 @@ catch
     Write-Log -Message $_ -Type 'ERROR'
 }
 
+
+######################################
+#  AVD Agent
+######################################
+try 
+{   
+    $BootInstaller = 'AVD-Bootloader.msi'
+    Invoke-WebRequest -Uri 'https://query.prod.cms.rt.microsoft.com/cms/api/am/binary/RWrxrH' -OutFile $BootInstaller
+    Start-Process -FilePath 'msiexec.exe' -ArgumentList "/i $BootInstaller /quiet /qn /norestart /passive" -Wait -Passthru
+    Write-Log -Message 'Installed AVD Bootloader' -Type 'INFO'
+    Start-Sleep -Seconds 5
+
+    $AgentInstaller = 'AVD-Agent.msi'
+    Invoke-WebRequest -Uri 'https://query.prod.cms.rt.microsoft.com/cms/api/am/binary/RWrmXv' -OutFile $AgentInstaller
+    Start-Process -FilePath 'msiexec.exe' -ArgumentList "/i $AgentInstaller /quiet /qn /norestart /passive REGISTRATIONTOKEN=$HostPoolRegistrationToken" -Wait -PassThru
+    Write-Log -Message 'Installed AVD Agent' -Type 'INFO'
+    Start-Sleep -Seconds 5
+}
+catch 
+{
+    Write-Log -Message $_ -Type 'ERROR'    
+}
+   
 
 ######################################
 #  Virtual Desktop Optimization Tool

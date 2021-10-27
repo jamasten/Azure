@@ -260,35 +260,6 @@
                     }
                 },
                 {
-                    "comments": "---------- DESIRED STATE CONFIGURATION EXTENSION ----------",
-                    "type": "extensions",
-                    "apiVersion": "2021-03-01",
-                    "name": "DSC",
-                    "location": "[parameters('Location')]",
-                    "tags": "[parameters('Tags')]",
-                    "dependsOn": [
-                        "[concat(parameters('VmName'), padLeft(copyIndex(parameters('SessionHostIndex')), 3, '0'))]",
-                        "MicrosoftMonitoringAgent"
-                    ],
-                    "properties": {
-                        "forceUpdateTag": "[parameters('Timestamp')]",
-                        "autoUpgradeMinorVersion": true,
-                        "publisher": "Microsoft.Powershell",
-                        "type": "DSC",
-                        "typeHandlerVersion": "2.73",
-                        "settings": {
-                            "modulesUrl": "[if(equals(environment().name, 'AzureUSGovernment'), variables('AvdAgentUrl_AzureUsGov'), variables('AvdAgentUrl_AzureCloud'))]",
-                            "configurationFunction": "Configuration.ps1\\AddSessionHost",
-                            "properties": {
-                                "hostPoolName": "[parameters('HostPoolName')]",
-                                "registrationInfoToken": "[reference(resourceId(parameters('HostPoolResourceGroupName'), 'Microsoft.DesktopVirtualization/hostpools', parameters('HostPoolName')), '2019-12-10-preview').registrationInfo.token]",
-                                "aadJoin": false
-                            }
-                        },
-                        "protectedSettings": {}
-                    }
-                },
-                {
                     "comments": "---------- DOMAIN JOIN EXTENSION ----------",
                     "apiVersion": "2021-03-01",
                     "type": "extensions",
@@ -297,7 +268,7 @@
                     "tags": "[parameters('Tags')]",
                     "dependsOn": [
                         "[concat(parameters('VmName'), padLeft(copyIndex(parameters('SessionHostIndex')), 3, '0'))]",
-                        "Dsc"
+                        "MicrosoftMonitoringAgent"
                     ],
                     "properties": {
                         "forceUpdateTag": "[parameters('Timestamp')]",
@@ -318,34 +289,6 @@
                     }
                 },
                 {
-                    "comments": "---------- CUSTOM SCRIPT EXTENSION ----------",
-                    "type": "extensions",
-                    "apiVersion": "2021-03-01",
-                    "name": "CustomScriptExtension",
-                    "location": "[parameters('location')]",
-                    "dependsOn": [
-                        "[concat(parameters('VmName'), padLeft(copyIndex(parameters('SessionHostIndex')), 3, '0'))]",
-                        "Dsc",
-                        "JsonADDomainExtension"
-                    ],
-                    "tags": "[parameters('Tags')]",
-                    "properties": {
-                        "publisher": "Microsoft.Compute",
-                        "type": "CustomScriptExtension",
-                        "typeHandlerVersion": "1.10",
-                        "autoUpgradeMinorVersion": true,
-                        "settings": {
-                            "fileUris": [
-                                "https://raw.githubusercontent.com/jamasten/Azure/master/solutions/avd/scripts/Set-SessionHostConfiguration.ps1"
-                            ],
-                            "timestamp": "[parameters('Timestamp')]"
-                        },
-                        "protectedSettings": {
-                            "commandToExecute": "[concat('powershell -ExecutionPolicy Unrestricted -File Set-SessionHostConfiguration.ps1 -AmdVmSize ', variables('AmdVmSize'), ' -Environment ', environment().name, ' -FSLogix ', parameters('FSLogix'), ' -HostPoolName ', parameters('HostPoolName'), ' -ImageOffer ', parameters('ImageOffer'), ' -ImagePublisher ', parameters('ImagePublisher'), ' -NvidiaVmSize ', variables('NvidiaVmSize'), ' -PooledHostPool ', variables('PooledHostPool'), ' -ScreenCaptureProtection ', parameters('ScreenCaptureProtection'), ' -StorageAccountName ', parameters('StorageAccountName'))]"
-                        }
-                    }
-                },
-                {
                     "comments": "---------- AMD DRIVER EXTENSION ----------",
                     "condition": "[variables('AmdVmSize')]",
                     "type": "extensions",
@@ -354,7 +297,8 @@
                     "location": "[parameters('Location')]",
                     "tags": "[parameters('Tags')]",
                     "dependsOn": [
-                        "[concat(parameters('VmName'), padLeft(copyIndex(parameters('SessionHostIndex')), 3, '0'))]"
+                        "[concat(parameters('VmName'), padLeft(copyIndex(parameters('SessionHostIndex')), 3, '0'))]",
+                        "JsonADDomainExtension"
                     ],
                     "properties": {
                         "publisher": "Microsoft.HpcCompute",
@@ -373,7 +317,8 @@
                     "location": "[parameters('Location')]",
                     "tags": "[parameters('Tags')]",
                     "dependsOn": [
-                        "[concat(parameters('VmName'), padLeft(copyIndex(parameters('SessionHostIndex')), 3, '0'))]"
+                        "[concat(parameters('VmName'), padLeft(copyIndex(parameters('SessionHostIndex')), 3, '0'))]",
+                        "JsonADDomainExtension"
                     ],
                     "properties": {
                         "publisher": "Microsoft.HpcCompute",
@@ -381,6 +326,35 @@
                         "typeHandlerVersion": "1.2",
                         "autoUpgradeMinorVersion": true,
                         "settings": {}
+                    }
+                },
+                {
+                    "comments": "---------- CUSTOM SCRIPT EXTENSION ----------",
+                    "type": "extensions",
+                    "apiVersion": "2021-03-01",
+                    "name": "CustomScriptExtension",
+                    "location": "[parameters('location')]",
+                    "dependsOn": [
+                        "[concat(parameters('VmName'), padLeft(copyIndex(parameters('SessionHostIndex')), 3, '0'))]",
+                        "JsonADDomainExtension",
+                        "AmdGpuDriverWindows",
+                        "NvidiaGpuDriverWindows"
+                    ],
+                    "tags": "[parameters('Tags')]",
+                    "properties": {
+                        "publisher": "Microsoft.Compute",
+                        "type": "CustomScriptExtension",
+                        "typeHandlerVersion": "1.10",
+                        "autoUpgradeMinorVersion": true,
+                        "settings": {
+                            "fileUris": [
+                                "https://raw.githubusercontent.com/jamasten/Azure/master/solutions/avd/scripts/Set-SessionHostConfiguration.ps1"
+                            ],
+                            "timestamp": "[parameters('Timestamp')]"
+                        },
+                        "protectedSettings": {
+                            "commandToExecute": "[concat('powershell -ExecutionPolicy Unrestricted -File Set-SessionHostConfiguration.ps1 -AmdVmSize ', variables('AmdVmSize'), ' -Environment ', environment().name, ' -FSLogix ', parameters('FSLogix'), ' -HostPoolName ', parameters('HostPoolName'), ' -HostPoolRegistrationToken ', reference(resourceId(parameters('HostPoolResourceGroupName'), 'Microsoft.DesktopVirtualization/hostpools', parameters('HostPoolName')), '2019-12-10-preview').registrationInfo.token, ' -ImageOffer ', parameters('ImageOffer'), ' -ImagePublisher ', parameters('ImagePublisher'), ' -NvidiaVmSize ', variables('NvidiaVmSize'), ' -PooledHostPool ', variables('PooledHostPool'), ' -ScreenCaptureProtection ', parameters('ScreenCaptureProtection'), ' -StorageAccountName ', parameters('StorageAccountName'))]"
+                        }
                     }
                 }
             ]

@@ -18,6 +18,10 @@ Param(
 
     [parameter(Mandatory)]
     [string]
+    $HostPoolRegistrationToken,    
+
+    [parameter(Mandatory)]
+    [string]
     $ImageOffer,
     
     [parameter(Mandatory)]

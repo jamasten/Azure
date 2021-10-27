@@ -302,23 +302,15 @@ try
     if($ImagePublisher -eq 'MicrosoftWindowsDesktop' -and $ImageOffer -ne 'windows-7')
     {
         # Download VDOT
-        New-Item -Path C:\ -Name Optimize -ItemType Directory -ErrorAction 'SilentlyContinue'
-        $LocalPath = 'C:\Optimize\'
-        $WVDOptimizeURL = 'https://github.com/The-Virtual-Desktop-Team/Virtual-Desktop-Optimization-Tool/archive/refs/heads/main.zip'
-        $WVDOptimizeInstaller = 'Windows_10_VDI_Optimize-master.zip'
-        Invoke-WebRequest `
-            -Uri $WVDOptimizeURL `
-            -OutFile "$Localpath$WVDOptimizeInstaller"
-
+        $URL = 'https://github.com/The-Virtual-Desktop-Team/Virtual-Desktop-Optimization-Tool/archive/refs/heads/main.zip'
+        $ZIP = 'VDOT.zip'
+        Invoke-WebRequest -Uri $URL -OutFile $ZIP
+        
         # Extract VDOT from ZIP archive
-        Expand-Archive `
-            -LiteralPath 'C:\Optimize\Windows_10_VDI_Optimize-master.zip' `
-            -DestinationPath "$Localpath" `
-            -Force
-
+        Expand-Archive -LiteralPath $ZIP -Force
+        
         # Run VDOT
-        New-Item -Path 'C:\Optimize\' -Name 'install.log' -ItemType 'File' -Force
-        & C:\Optimize\Virtual-Desktop-Optimization-Tool-main\Win10_VirtualDesktop_Optimize.ps1 -Restart -AcceptEULA
+        & .\VDOT\Virtual-Desktop-Optimization-Tool-main\Win10_VirtualDesktop_Optimize.ps1 -Restart -AcceptEULA
         Write-Log -Message 'Optimized the operating system using the VDOT' -Type 'INFO'
     }
 }

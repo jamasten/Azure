@@ -324,7 +324,7 @@ catch
 #  Virtual Desktop Optimization Tool
 ######################################
 # https://github.com/The-Virtual-Desktop-Team/Virtual-Desktop-Optimization-Tool
-try 
+<# try 
 {
     if($ImagePublisher -eq 'MicrosoftWindowsDesktop' -and $ImageOffer -ne 'windows-7')
     {
@@ -335,7 +335,7 @@ try
         
         # Extract VDOT from ZIP archive
         Expand-Archive -LiteralPath $ZIP -Force
-        
+            
         # Run VDOT
         & .\VDOT\Virtual-Desktop-Optimization-Tool-main\Win10_VirtualDesktop_Optimize.ps1 -AcceptEULA
         Write-Log -Message 'Optimized the operating system using the VDOT' -Type 'INFO'
@@ -350,4 +350,4 @@ catch
 if ($AmdVmSize -eq 'false' -and $NvidiaVmSize -eq 'false') 
 {
     Start-Process -FilePath 'shutdown' -ArgumentList '/r /t 30'
-}
+} #>

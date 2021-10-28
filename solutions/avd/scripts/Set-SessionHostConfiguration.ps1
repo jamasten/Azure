@@ -45,8 +45,6 @@ Param(
     $StorageAccountName
 )
 
-$ErrorActionPreference = 'Stop'
-
 function Write-Log
 {
     param(
@@ -219,12 +217,12 @@ try
         $Value = Get-ItemProperty -Path $Setting.Path -Name $Setting.Name -ErrorAction 'SilentlyContinue'
         if(!$Value)
         {
-            New-ItemProperty -Path $Setting.Path -Name $Setting.Name -PropertyType $Setting.PropertyType -Value $Setting.Value -Force
+            New-ItemProperty -Path $Setting.Path -Name $Setting.Name -PropertyType $Setting.PropertyType -Value $Setting.Value -Force -ErrorAction 'Stop'
             Write-Log -Message "Added registry setting: $($Setting.Name)" -Type 'INFO'
         }
         elseif($Value.$($Setting.Name) -ne $Setting.Value)
         {
-            Set-ItemProperty -Path $Setting.Path -Name $Setting.Name -Value $Setting.Value -Force
+            Set-ItemProperty -Path $Setting.Path -Name $Setting.Name -Value $Setting.Value -Force -ErrorAction 'Stop'
             Write-Log -Message "Updated registry setting: $($Setting.Name)" -Type 'INFO'
         }
         else 
@@ -274,7 +272,7 @@ try
 
         foreach($File in $Files)
         {
-            Add-MpPreference -ExclusionPath $File
+            Add-MpPreference -ExclusionPath $File -ErrorAction 'Stop'
         }
         Write-Log -Message 'Enabled Defender exlusions for FSLogix paths' -Type 'INFO'
 
@@ -286,7 +284,7 @@ try
 
         foreach($Process in $Processes)
         {
-            Add-MpPreference -ExclusionProcess $Process
+            Add-MpPreference -ExclusionProcess $Process -ErrorAction 'Stop'
         }
         Write-Log -Message 'Enabled Defender exlusions for FSLogix processes' -Type 'INFO'
     }
@@ -303,14 +301,14 @@ catch
 try 
 {   
     $BootInstaller = 'AVD-Bootloader.msi'
-    Invoke-WebRequest -Uri 'https://query.prod.cms.rt.microsoft.com/cms/api/am/binary/RWrxrH' -OutFile $BootInstaller
-    Start-Process -FilePath 'msiexec.exe' -ArgumentList "/i $BootInstaller /quiet /qn /norestart /passive" -Wait -Passthru
+    Invoke-WebRequest -Uri 'https://query.prod.cms.rt.microsoft.com/cms/api/am/binary/RWrxrH' -OutFile $BootInstaller -ErrorAction 'Stop'
+    Start-Process -FilePath 'msiexec.exe' -ArgumentList "/i $BootInstaller /quiet /qn /norestart /passive" -Wait -Passthru -ErrorAction 'Stop'
     Write-Log -Message 'Installed AVD Bootloader' -Type 'INFO'
     Start-Sleep -Seconds 5
 
     $AgentInstaller = 'AVD-Agent.msi'
-    Invoke-WebRequest -Uri 'https://query.prod.cms.rt.microsoft.com/cms/api/am/binary/RWrmXv' -OutFile $AgentInstaller
-    Start-Process -FilePath 'msiexec.exe' -ArgumentList "/i $AgentInstaller /quiet /qn /norestart /passive REGISTRATIONTOKEN=$HostPoolRegistrationToken" -Wait -PassThru
+    Invoke-WebRequest -Uri 'https://query.prod.cms.rt.microsoft.com/cms/api/am/binary/RWrmXv' -OutFile $AgentInstaller -ErrorAction 'Stop'
+    Start-Process -FilePath 'msiexec.exe' -ArgumentList "/i $AgentInstaller /quiet /qn /norestart /passive REGISTRATIONTOKEN=$HostPoolRegistrationToken" -Wait -PassThru -ErrorAction 'Stop'
     Write-Log -Message 'Installed AVD Agent' -Type 'INFO'
     Start-Sleep -Seconds 5
 }
@@ -324,17 +322,17 @@ catch
 #  Virtual Desktop Optimization Tool
 ######################################
 # https://github.com/The-Virtual-Desktop-Team/Virtual-Desktop-Optimization-Tool
-<# try 
+try 
 {
     if($ImagePublisher -eq 'MicrosoftWindowsDesktop' -and $ImageOffer -ne 'windows-7')
     {
         # Download VDOT
         $URL = 'https://github.com/The-Virtual-Desktop-Team/Virtual-Desktop-Optimization-Tool/archive/refs/heads/main.zip'
         $ZIP = 'VDOT.zip'
-        Invoke-WebRequest -Uri $URL -OutFile $ZIP
+        Invoke-WebRequest -Uri $URL -OutFile $ZIP -ErrorAction 'Stop'
         
         # Extract VDOT from ZIP archive
-        Expand-Archive -LiteralPath $ZIP -Force
+        Expand-Archive -LiteralPath $ZIP -Force -ErrorAction 'Stop'
             
         # Run VDOT
         & .\VDOT\Virtual-Desktop-Optimization-Tool-main\Win10_VirtualDesktop_Optimize.ps1 -AcceptEULA
@@ -346,8 +344,20 @@ catch
     Write-Log -Message $_ -Type 'ERROR'
 }
 
+
+######################################
+#  Reboot
+######################################
 # If the GPU extensions are not deployed then force a reboot for VDOT
-if ($AmdVmSize -eq 'false' -and $NvidiaVmSize -eq 'false') 
+try 
 {
-    Start-Process -FilePath 'shutdown' -ArgumentList '/r /t 30'
-} #>
+    if ($AmdVmSize -eq 'false' -and $NvidiaVmSize -eq 'false') 
+    {
+        Start-Process -FilePath 'shutdown' -ArgumentList '/r /t 30' -ErrorAction 'Stop'
+        Write-Log -Message 'Rebooted virtual machine' -Type 'INFO'
+    }
+}
+catch 
+{
+    Write-Log -Message $_ -Type 'ERROR'
+}

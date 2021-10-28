@@ -7,24 +7,24 @@ param SessionHostResourceGroupName string
 param Timestamp string
 param VmName string
 
-var ManagedIdentityName_var = 'uami-bitlocker-kek'
-var RoleAssignmentName_var = guid(resourceGroup().id, ManagedIdentityName_var)
+var ManagedIdentityName = 'uami-bitlocker-kek'
+var RoleAssignmentName = guid(resourceGroup().id, ManagedIdentityName)
 
-resource ManagedIdentityName 'Microsoft.ManagedIdentity/userAssignedIdentities@2018-11-30' = {
-  name: ManagedIdentityName_var
+resource uami 'Microsoft.ManagedIdentity/userAssignedIdentities@2018-11-30' = {
+  name: ManagedIdentityName
   location: Location
 }
 
-resource RoleAssignmentName 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = {
-  name: RoleAssignmentName_var
+resource roleAssignment 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = {
+  name: RoleAssignmentName
   properties: {
     roleDefinitionId: resourceId('Microsoft.Authorization/roleDefinitions', 'b24988ac-6180-42a0-ab88-20f7382dd24c')
-    principalId: reference(ManagedIdentityName.id, '2018-11-30').principalId
+    principalId: reference(uami.id, '2018-11-30').principalId
     principalType: 'ServicePrincipal'
   }
 }
 
-resource KeyVaultName_resource 'Microsoft.KeyVault/vaults@2016-10-01' = {
+resource vault 'Microsoft.KeyVault/vaults@2016-10-01' = {
   name: KeyVaultName
   location: Location
   tags: {}
@@ -37,7 +37,7 @@ resource KeyVaultName_resource 'Microsoft.KeyVault/vaults@2016-10-01' = {
     accessPolicies: [
       {
         tenantId: subscription().tenantId
-        objectId: reference(ManagedIdentityName.id, '2018-11-30', 'Full').properties.principalId
+        objectId: reference(uami.id, '2018-11-30', 'Full').properties.principalId
         permissions: {
           keys: [
             'get'
@@ -55,12 +55,12 @@ resource KeyVaultName_resource 'Microsoft.KeyVault/vaults@2016-10-01' = {
   dependsOn: []
 }
 
-resource ds_bitlocker_kek 'Microsoft.Resources/deploymentScripts@2019-10-01-preview' = {
+resource deploymentScript 'Microsoft.Resources/deploymentScripts@2019-10-01-preview' = {
   name: 'ds-bitlocker-kek'
   identity: {
     type: 'UserAssigned'
     userAssignedIdentities: {
-      '${ManagedIdentityName.id}': {}
+      '${uami.id}': {}
     }
   }
   location: Location
@@ -69,16 +69,15 @@ resource ds_bitlocker_kek 'Microsoft.Resources/deploymentScripts@2019-10-01-prev
   properties: {
     azPowerShellVersion: '5.4'
     cleanupPreference: 'OnSuccess'
-    scriptContent: '\r\n                    param(\r\n                        [string] [Parameter(Mandatory=$true)] $KeyVault\r\n                    )\r\n\r\n                    if(!(Get-AzKeyVaultKey -Name DiskEncryption -VaultName $KeyVault))\r\n                    {\r\n                        Add-AzKeyVaultKey -Name DiskEncryption -VaultName $KeyVault -Destination Software\r\n                    }\r\n\r\n                    $KeyEncryptionKeyURL = (Get-AzKeyVaultKey -VaultName $KeyVault -Name \'DiskEncryption\' -IncludeVersions | Where-Object {$_.Enabled -eq $true}).Id\r\n                \r\n                    Write-Output $KeyEncryptionKeyURL\r\n\r\n                    $DeploymentScriptOutputs = @{}\r\n            \r\n                    $DeploymentScriptOutputs[\'text\'] = $KeyEncryptionKeyURL \r\n                '
+    scriptContent: 'param([string] [Parameter(Mandatory=$true)] $KeyVault\r\n                    )\r\n\r\n                    if(!(Get-AzKeyVaultKey -Name DiskEncryption -VaultName $KeyVault))\r\n                    {\r\n                        Add-AzKeyVaultKey -Name DiskEncryption -VaultName $KeyVault -Destination Software\r\n                    }\r\n\r\n                    $KeyEncryptionKeyURL = (Get-AzKeyVaultKey -VaultName $KeyVault -Name \'DiskEncryption\' -IncludeVersions | Where-Object {$_.Enabled -eq $true}).Id\r\n                \r\n                    Write-Output $KeyEncryptionKeyURL\r\n\r\n                    $DeploymentScriptOutputs = @{}\r\n            \r\n                    $DeploymentScriptOutputs[\'text\'] = $KeyEncryptionKeyURL \r\n                '
     arguments: ' -KeyVault ${KeyVaultName}'
     forceUpdateTag: Timestamp
     retentionInterval: 'P1D'
     timeout: 'PT30M'
   }
   dependsOn: [
-    KeyVaultName_resource
-
-    RoleAssignmentName
+    vault
+    roleAssignment
   ]
 }
 

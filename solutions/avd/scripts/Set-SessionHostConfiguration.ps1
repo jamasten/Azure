@@ -45,6 +45,10 @@ Param(
     $StorageAccountName
 )
 
+
+##############################################################
+#  Functions
+##############################################################
 function Write-Log
 {
     param(
@@ -64,6 +68,33 @@ function Write-Log
     $Entry | Out-File -FilePath $Path -Append
 }
 
+
+function Get-WebFile
+{
+    param(
+        [parameter(Mandatory)]
+        [string]$FileName,
+
+        [parameter(Mandatory)]
+        [string]$URL
+    )
+    $Counter = 0
+    do
+    {
+        Invoke-WebRequest -Uri $URL -OutFile $FileName
+        if($Counter -gt 0)
+        {
+            Start-Sleep -Seconds 30
+        }
+        $Counter++
+    }
+    until((Test-Path $FileName) -or $Counter -eq 9)
+}
+
+
+##############################################################
+#  Output parameter values for validation
+##############################################################
 Write-Log -Message "AmdVmSize: $AmdVmSize" -Type 'INFO'
 Write-Log -Message "Environment: $Environment" -Type 'INFO'
 Write-Log -Message "FSLogix: $FSLogix" -Type 'INFO'
@@ -77,9 +108,9 @@ Write-Log -Message "AmdVmSize: $AmdVmSize" -Type 'INFO'
 Write-Log -Message "StorageAccountName: $StorageAccountName" -Type 'INFO'
 
 
-###############################
-#  Recommended AVD Settings
-###############################
+##############################################################
+#  Add Recommended AVD Settings
+##############################################################
 $Settings = @(
 
     # Disable Automatic Updates: https://docs.microsoft.com/en-us/azure/virtual-desktop/set-up-customize-master-image#disable-automatic-updates
@@ -100,9 +131,9 @@ $Settings = @(
 )
 
 
-###############################
-#  GPU Settings
-###############################
+##############################################################
+#  Add GPU Settings
+##############################################################
 # This setting applies to the VM Size's recommended for AVD with a GPU
 if ($AmdVmSize -eq 'true' -or $NvidiaVmSize -eq 'true') 
 {
@@ -142,9 +173,9 @@ if($NvidiaVmSize -eq 'true')
 }
 
 
-###############################
-#  Screen Capture Protection
-###############################
+##############################################################
+#  Add Screen Capture Protection
+##############################################################
 if($ScreenCaptureProtection -eq 'true')
 {
     $Settings += @(
@@ -160,9 +191,9 @@ if($ScreenCaptureProtection -eq 'true')
 }
 
 
-###############################
-#  FSLogix Configurations
-###############################
+##############################################################
+#  Add FSLogix Configurations
+##############################################################
 if($PooledHostPool -eq 'true' -and $FSLogix -eq 'true')
 {
     $Suffix = switch($Environment)
@@ -238,9 +269,9 @@ catch
 }
 
 
-#####################################
-# Defender Exclusions for FSLogix 
-#####################################
+##############################################################
+# Add Defender Exclusions for FSLogix 
+##############################################################
 # https://docs.microsoft.com/en-us/azure/architecture/example-scenario/wvd/windows-virtual-desktop-fslogix#antivirus-exclusions
 try
 {
@@ -295,19 +326,19 @@ catch
 }
 
 
-######################################
-#  AVD Agent
-######################################
+##############################################################
+#  Install the AVD Agent
+##############################################################
 try 
 {   
     $BootInstaller = 'AVD-Bootloader.msi'
-    Invoke-WebRequest -Uri 'https://query.prod.cms.rt.microsoft.com/cms/api/am/binary/RWrxrH' -OutFile $BootInstaller -ErrorAction 'Stop'
+    Get-WebFile -FileName $BootInstaller -URL 'https://query.prod.cms.rt.microsoft.com/cms/api/am/binary/RWrxrH'
     Start-Process -FilePath 'msiexec.exe' -ArgumentList "/i $BootInstaller /quiet /qn /norestart /passive" -Wait -Passthru -ErrorAction 'Stop'
     Write-Log -Message 'Installed AVD Bootloader' -Type 'INFO'
     Start-Sleep -Seconds 5
 
     $AgentInstaller = 'AVD-Agent.msi'
-    Invoke-WebRequest -Uri 'https://query.prod.cms.rt.microsoft.com/cms/api/am/binary/RWrmXv' -OutFile $AgentInstaller -ErrorAction 'Stop'
+    Get-WebFile -FileName $AgentInstaller -URL 'https://query.prod.cms.rt.microsoft.com/cms/api/am/binary/RWrmXv'
     Start-Process -FilePath 'msiexec.exe' -ArgumentList "/i $AgentInstaller /quiet /qn /norestart /passive REGISTRATIONTOKEN=$HostPoolRegistrationToken" -Wait -PassThru -ErrorAction 'Stop'
     Write-Log -Message 'Installed AVD Agent' -Type 'INFO'
     Start-Sleep -Seconds 5
@@ -318,9 +349,9 @@ catch
 }
    
 
-######################################
-#  Virtual Desktop Optimization Tool
-######################################
+##############################################################
+#  Run the Virtual Desktop Optimization Tool (VDOT)
+##############################################################
 # https://github.com/The-Virtual-Desktop-Team/Virtual-Desktop-Optimization-Tool
 try 
 {
@@ -345,9 +376,9 @@ catch
 }
 
 
-######################################
-#  Reboot
-######################################
+##############################################################
+#  Reboot the Virtual Machine
+##############################################################
 # If the GPU extensions are not deployed then force a reboot for VDOT
 try 
 {

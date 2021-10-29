@@ -48,6 +48,9 @@
         "ValidationEnvironment": {
             "type": "bool"
         },
+        "VmTemplate": {
+            "type": "string"
+        },
         "WorkspaceName": {
             "type": "string"
         }
@@ -564,7 +567,8 @@
                 "preferredAppGroupType": "Desktop",
                 "customRdpProperty": "[parameters('CustomRdpProperty')]",
                 "personalDesktopAssignmentType": "[if(contains(parameters('HostPoolType'), 'Personal'), split(parameters('HostPoolType'), ' ')[1], null())]",
-                "startVMOnConnect": "[parameters('StartVmOnConnect')]"
+                "startVMOnConnect": "[parameters('StartVmOnConnect')]",
+                "vmTemplate": "[parameters('VmTemplate')]"
             }
         },
         {

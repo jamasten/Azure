@@ -437,6 +437,7 @@
             "westus3": "Mountain Standard Time"
         },
         "VmName": "[concat('vm', parameters('ResourceNameSuffix'))]",
+        "VmTemplate": "[concat('{\"domain\":\"', parameters('DomainName'), '\",\"galleryImageOffer\":\"', parameters('ImageOffer'), '\",\"galleryImagePublisher\":\"', parameters('ImagePublisher'), '\",\"galleryImageSKU\":\"', parameters('ImageSku'), '\",\"imageType\":\"Gallery\",\"imageUri\":null,\"customImageId\":null,\"namePrefix\":\"', variables('VmName'), '\",\"osDiskType\":\"', parameters('DiskSku'), '\",\"useManagedDisks\":true,\"vmSize\":{\"id\":\"', parameters('VmSize'), '\",\"cores\":null,\"ram\":null},\"galleryItemId\":\"', parameters('ImagePublisher'), '.', parameters('ImageOffer'), parameters('ImageSku'), '\"}')]",
         "WorkspaceName": "[concat('ws-', parameters('ResourceNameSuffix'))]"
     },
     "resources": [
@@ -551,6 +552,9 @@
                     },
                     "ValidationEnvironment": {
                         "value": "[parameters('ValidationEnvironment')]"
+                    },
+                    "VmTemplate": {
+                        "value": "[variables('VmTemplate')]"
                     },
                     "WorkspaceName": {
                         "value": "[variables('WorkspaceName')]"

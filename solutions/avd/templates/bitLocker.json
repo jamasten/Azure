@@ -171,10 +171,65 @@
             ],
             "resourceGroup": "[parameters('SessionHostResourceGroupName')]",
             "properties": {
+                "parameters": {
+                    "KeyEncryptionKeyURL": {
+                        "value": "[reference('ds-bitlocker-kek').outputs.text]"
+                    },
+                    "KeyVaultResourceId": {
+                        "value": "[resourceId('Microsoft.KeyVault/vaults', parameters('KeyVaultName'))]"
+                    },
+                    "KeyVaultURL": {
+                        "value": "[reference(parameters('KeyVaultName')).vaultUri]"
+                    },
+                    "Location": {
+                        "value": "[parameters('Location')]"
+                    },
+                    "SessionHostCount": {
+                        "value": "[parameters('SessionHostCount')]"
+                    },
+                    "SessionHostIndex": {
+                        "value": "[parameters('SessionHostIndex')]"
+                    },
+                    "Timestamp": {
+                        "value": "[parameters('Timestamp')]"
+                    },
+                    "VmName": {
+                        "value": "[parameters('VmName')]"
+                    }
+                },
+                "expressionEvaluationOptions": {
+                    "scope": "Inner"
+                },
                 "mode": "Incremental",
                 "template": {
                     "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
                     "contentVersion": "1.0.0.0",
+                    "parameters": {
+                        "KeyEncryptionKeyURL": {
+                            "type": "string"
+                        },
+                        "KeyVaultResourceId": {
+                            "type": "string"
+                        },
+                        "KeyVaultURL": {
+                            "type": "string"
+                        },
+                        "Location": {
+                            "type": "string"
+                        },
+                        "SessionHostCount": {
+                            "type": "int"
+                        },
+                        "SessionHostIndex": {
+                            "type": "int"
+                        },
+                        "Timestamp": {
+                            "type": "string"
+                        },
+                        "VmName": {
+                            "type": "string"
+                        }
+                    },
                     "resources": [
                         {
                             "type": "Microsoft.Compute/virtualMachines/extensions",
@@ -182,7 +237,7 @@
                             "apiVersion": "2017-03-30",
                             "location": "[parameters('Location')]",
                             "copy": {
-                                "name": "vmLoop",
+                                "name": "encryptionLoop",
                                 "count": "[parameters('SessionHostCount')]"
                             },
                             "properties": {
@@ -193,10 +248,10 @@
                                 "forceUpdateTag": "[parameters('Timestamp')]",
                                 "settings": {
                                     "EncryptionOperation": "EnableEncryption",
-                                    "KeyVaultURL": "[reference(parameters('KeyVaultName')).vaultUri]",
-                                    "KeyVaultResourceId": "[resourceId('Microsoft.KeyVault/vaults', parameters('KeyVaultName'))]",
-                                    "KeyEncryptionKeyURL": "[reference('ds-bitlocker-kek').outputs.text]",
-                                    "KekVaultResourceId": "[resourceId('Microsoft.KeyVault/vaults', parameters('KeyVaultName'))]",
+                                    "KeyVaultURL": "[parameters('KeyVaultURL')]",
+                                    "KeyVaultResourceId": "[parameters('KeyVaultResourceId')]",
+                                    "KeyEncryptionKeyURL": "[parameters('KeyEncryptionKeyURL')]",
+                                    "KekVaultResourceId": "[parameters('KeyVaultResourceId')]",
                                     "KeyEncryptionAlgorithm": "RSA-OAEP",
                                     "VolumeType": "All",
                                     "ResizeOSDisk": false

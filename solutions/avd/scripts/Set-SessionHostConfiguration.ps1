@@ -262,19 +262,20 @@ try
     foreach($Setting in $Settings)
     {
         $Value = Get-ItemProperty -Path $Setting.Path -Name $Setting.Name -ErrorAction 'SilentlyContinue'
+        $LogOutputValue = 'Path: ' + $Setting.Path + ', Name: ' + $Setting.Name + ', PropertyType: ' + $Setting.PropertyType + ', Value: ' + $Setting.Value
         if(!$Value)
         {
             New-ItemProperty -Path $Setting.Path -Name $Setting.Name -PropertyType $Setting.PropertyType -Value $Setting.Value -Force -ErrorAction 'Stop'
-            Write-Log -Message "Added registry setting: $($Setting.Name)" -Type 'INFO'
+            Write-Log -Message "Added registry setting: $LogOutputValue" -Type 'INFO'
         }
         elseif($Value.$($Setting.Name) -ne $Setting.Value)
         {
             Set-ItemProperty -Path $Setting.Path -Name $Setting.Name -Value $Setting.Value -Force -ErrorAction 'Stop'
-            Write-Log -Message "Updated registry setting: $($Setting.Name)" -Type 'INFO'
+            Write-Log -Message "Updated registry setting: $LogOutputValue" -Type 'INFO'
         }
         else 
         {
-            Write-Log -Message "Registry setting exists with correct value: $($Setting.Name)" -Type 'INFO'    
+            Write-Log -Message "Registry setting exists with correct value: $LogOutputValue" -Type 'INFO'    
         }
         Start-Sleep -Seconds 1
     }

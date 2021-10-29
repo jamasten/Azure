@@ -81,7 +81,7 @@ function Get-WebFile
     $Counter = 0
     do
     {
-        Invoke-WebRequest -Uri $URL -OutFile $FileName
+        Invoke-WebRequest -Uri $URL -OutFile $FileName -ErrorAction 'SilentlyContinue'
         if($Counter -gt 0)
         {
             Start-Sleep -Seconds 30

@@ -55,9 +55,9 @@ var Modules = [
 ]
 var Runbook = 'WVDAutoScaleRunbookARMBased'
 var Variable = 'WebhookURIARMBased'
-var Webhook = 'WVDAutoScaleWebhookARMBased'
+var Webhook = 'WVDAutoScaleWebhookARMBased_${dateTimeAdd(Timestamp, 'PT0H', 'yyyyMMddhhmmss')}'
 
-resource AutomationAccountName_resource 'Microsoft.Automation/automationAccounts@2020-01-13-preview' = {
+resource automationAccount 'Microsoft.Automation/automationAccounts@2020-01-13-preview' = {
   name: AutomationAccountName
   location: Location
   identity: {
@@ -71,22 +71,19 @@ resource AutomationAccountName_resource 'Microsoft.Automation/automationAccounts
 }
 
 @batchSize(1)
-resource AutomationAccountName_Modules_name 'Microsoft.Automation/automationAccounts/modules@2020-01-13-preview' = [for item in Modules: {
-  name: '${AutomationAccountName}/${item.name}'
+resource modules 'Microsoft.Automation/automationAccounts/modules@2020-01-13-preview' = [for item in Modules: {
+  name: '${automationAccount.name}/${item.name}'
   location: Location
   properties: {
     contentLink: {
       uri: item.uri
     }
   }
-  dependsOn: [
-    AutomationAccountName_resource
-  ]
 }]
 
-resource AutomationAccountName_Runbook 'Microsoft.Automation/automationAccounts/runbooks@2015-10-31' = {
-  parent: AutomationAccountName_resource
-  name: '${Runbook}'
+resource runbook 'Microsoft.Automation/automationAccounts/runbooks@2015-10-31' = {
+  parent: automationAccount
+  name: Runbook
   location: Location
   properties: {
     runbookType: 'PowerShell'
@@ -98,45 +95,34 @@ resource AutomationAccountName_Runbook 'Microsoft.Automation/automationAccounts/
     }
   }
   dependsOn: [
-    AutomationAccountName_Modules_name
+    modules
   ]
 }
 
-resource AutomationAccountName_Webhook 'Microsoft.Automation/automationAccounts/webhooks@2015-10-31' = {
-  parent: AutomationAccountName_resource
-  name: '${Webhook}'
-  location: Location
+resource webhook 'Microsoft.Automation/automationAccounts/webhooks@2015-10-31' = {
+  parent: automationAccount
+  name: Webhook
   properties: {
     isEnabled: true
     expiryTime: dateTimeAdd(Timestamp, 'P5Y')
     runbook: {
-      name: Runbook
+      name: runbook.name
     }
   }
-  dependsOn: [
-    AutomationAccountName_Modules_name
-    AutomationAccountName_Runbook
-  ]
 }
 
-resource AutomationAccountName_Variable 'Microsoft.Automation/automationAccounts/variables@2020-01-13-preview' = {
-  parent: AutomationAccountName_resource
-  name: '${Variable}'
-  location: Location
+resource variable 'Microsoft.Automation/automationAccounts/variables@2020-01-13-preview' = {
+  parent: automationAccount
+  name: Variable
   properties: {
-    value: '"${AutomationAccountName_Webhook.properties.uri}"'
+    value: webhook.properties.uri
     isEncrypted: false
   }
-  dependsOn: [
-    AutomationAccountName_Modules_name
-    AutomationAccountName_Runbook
-  ]
 }
 
-resource diag_AutomationAccountName 'Microsoft.Insights/diagnosticsettings@2017-05-01-preview' = if (!empty(LogAnalyticsWorkspaceResourceId)) {
-  scope: AutomationAccountName_resource
-  name: 'diag-${AutomationAccountName}'
-  location: Location
+resource diagnostics 'Microsoft.Insights/diagnosticsettings@2017-05-01-preview' = if (!empty(LogAnalyticsWorkspaceResourceId)) {
+  scope: automationAccount
+  name: 'diag-${automationAccount.name}'
   properties: {
     logs: [
       {
@@ -151,33 +137,29 @@ resource diag_AutomationAccountName 'Microsoft.Insights/diagnosticsettings@2017-
     workspaceId: LogAnalyticsWorkspaceResourceId
   }
   dependsOn: [
-    AutomationAccountName_resource
-    AutomationAccountName_Modules_name
+    modules
   ]
 }
 
-resource id_ScalingContributor 'Microsoft.Authorization/roleAssignments@2018-09-01-preview' = {
+resource roleAssignment 'Microsoft.Authorization/roleAssignments@2018-09-01-preview' = {
   name: guid(resourceGroup().id, 'ScalingContributor')
   properties: {
     roleDefinitionId: resourceId('Microsoft.Authorization/roleDefinitions', 'b24988ac-6180-42a0-ab88-20f7382dd24c')
-    principalId: reference(AutomationAccountName_resource.id, '2020-01-13-preview', 'Full').identity.principalId
+    principalId: reference(automationAccount.id, '2020-01-13-preview', 'Full').identity.principalId
     principalType: 'ServicePrincipal'
   }
 }
 
-module RoleAssignmentForSystemAssignedIdentity './nested_RoleAssignmentForSystemAssignedIdentity.bicep' = {
+module RoleAssignmentForSystemAssignedIdentity './scale_RoleAssignment.bicep' = {
   name: 'RoleAssignmentForSystemAssignedIdentity'
   scope: resourceGroup(SessionHostsResourceGroupName)
   params: {
-    AutomationAccountName: AutomationAccountName
+    AutomationAccountName: automationAccount.name
     AutomationAccountResourceGroupName: resourceGroup().name
   }
-  dependsOn: [
-    AutomationAccountName_resource
-  ]
 }
 
-resource LogicAppName_resource 'Microsoft.Logic/workflows@2016-06-01' = {
+resource logicApp 'Microsoft.Logic/workflows@2016-06-01' = {
   name: LogicAppName
   location: Location
   properties: {
@@ -189,7 +171,7 @@ resource LogicAppName_resource 'Microsoft.Logic/workflows@2016-06-01' = {
           type: 'Http'
           inputs: {
             method: 'POST'
-            uri: replace(reference(AutomationAccountName_Variable.id, '2015-10-31', 'Full').properties.value, '"', '')
+            uri: replace(reference(variable.id, '2015-10-31', 'Full').properties.value, '"', '')
             body: ActionSettingsBody
           }
         }

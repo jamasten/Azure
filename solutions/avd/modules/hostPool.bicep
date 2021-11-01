@@ -13,6 +13,7 @@ param StartVmOnConnect bool
 param Tags object
 param Timestamp string = utcNow('u')
 param ValidationEnvironment bool
+param VmTemplate string
 param WorkspaceName string
 
 var HostPoolLogs_AzureCloud = [
@@ -446,7 +447,7 @@ var WindowsPerformanceCounters = [
   }
 ]
 
-resource LogAnalyticsWorkspaceName_resource 'Microsoft.OperationalInsights/workspaces@2020-03-01-preview' = {
+resource logAnalyticsWorkspace 'Microsoft.OperationalInsights/workspaces@2020-03-01-preview' = {
   name: LogAnalyticsWorkspaceName
   location: Location
   tags: Tags
@@ -464,22 +465,19 @@ resource LogAnalyticsWorkspaceName_resource 'Microsoft.OperationalInsights/works
 }
 
 @batchSize(1)
-resource LogAnalyticsWorkspaceName_WindowsEvent 'Microsoft.OperationalInsights/workspaces/dataSources@2020-08-01' = [for (item, i) in WindowsEvents: {
-  name: '${LogAnalyticsWorkspaceName}/WindowsEvent${i}'
+resource logAnalyticsWorkspace_WindowsEvents 'Microsoft.OperationalInsights/workspaces/dataSources@2020-08-01' = [for (item, i) in WindowsEvents: {
+  name: '${logAnalyticsWorkspace.name}/WindowsEvent${i}'
   tags: Tags
   kind: 'WindowsEvent'
   properties: {
     eventLogName: item.name
     eventTypes: item.types
   }
-  dependsOn: [
-    LogAnalyticsWorkspaceName_resource
-  ]
 }]
 
 @batchSize(1)
-resource LogAnalyticsWorkspaceName_WindowsPerformanceCounter 'Microsoft.OperationalInsights/workspaces/dataSources@2020-08-01' = [for (item, i) in WindowsPerformanceCounters: {
-  name: '${LogAnalyticsWorkspaceName}/WindowsPerformanceCounter${i}'
+resource logAnalyticsWorkspace_WindowsPerformanceCounters 'Microsoft.OperationalInsights/workspaces/dataSources@2020-08-01' = [for (item, i) in WindowsPerformanceCounters: {
+  name: '${logAnalyticsWorkspace.name}/WindowsPerformanceCounter${i}'
   tags: Tags
   kind: 'WindowsPerformanceCounter'
   properties: {
@@ -489,19 +487,18 @@ resource LogAnalyticsWorkspaceName_WindowsPerformanceCounter 'Microsoft.Operatio
     counterName: item.counterName
   }
   dependsOn: [
-    LogAnalyticsWorkspaceName_resource
-    LogAnalyticsWorkspaceName_WindowsEvent
+    logAnalyticsWorkspace_WindowsEvents
   ]
 }]
 
-resource HostPoolName_resource 'Microsoft.DesktopVirtualization/hostpools@2019-12-10-preview' = {
+resource hostPool 'Microsoft.DesktopVirtualization/hostPools@2021-07-12' = {
   name: HostPoolName
   location: Location
   tags: Tags
   properties: {
     hostPoolType: split(HostPoolType, ' ')[0]
     maxSessionLimit: MaxSessionLimit
-    loadBalancerType: (contains(HostPoolType, 'Pooled') ? split(HostPoolType, ' ')[1] : null())
+    loadBalancerType: contains(HostPoolType, 'Pooled') ? split(HostPoolType, ' ')[1] : null
     validationEnvironment: ValidationEnvironment
     registrationInfo: {
       expirationTime: dateTimeAdd(Timestamp, 'PT2H')
@@ -509,66 +506,55 @@ resource HostPoolName_resource 'Microsoft.DesktopVirtualization/hostpools@2019-1
     }
     preferredAppGroupType: 'Desktop'
     customRdpProperty: CustomRdpProperty
-    personalDesktopAssignmentType: (contains(HostPoolType, 'Personal') ? split(HostPoolType, ' ')[1] : null())
+    personalDesktopAssignmentType: contains(HostPoolType, 'Personal') ? split(HostPoolType, ' ')[1] : null
     startVMOnConnect: StartVmOnConnect
+    vmTemplate: VmTemplate
+
   }
 }
 
-resource diag_HostPoolName 'Microsoft.Insights/diagnosticsettings@2017-05-01-preview' = if (newOrExisting == 'new') {
-  scope: HostPoolName_resource
-  name: 'diag-${HostPoolName}'
-  location: Location
+resource hostPoolDiagnostics 'Microsoft.Insights/diagnosticsettings@2017-05-01-preview' = if (newOrExisting == 'new') {
+  scope: hostPool
+  name: 'diag-${hostPool.name}'
   properties: {
     logs: ((environment().name == 'AzureCloud') ? HostPoolLogs_AzureCloud : HostPoolLogs_AzureUsGov)
-    workspaceId: LogAnalyticsWorkspaceName_resource.id
+    workspaceId: logAnalyticsWorkspace.id
   }
-  dependsOn: [
-    HostPoolName_resource
-  ]
 }
 
-resource AppGroupName_resource 'Microsoft.DesktopVirtualization/applicationgroups@2019-12-10-preview' = if (newOrExisting == 'new') {
+resource appGroup 'Microsoft.DesktopVirtualization/applicationgroups@2019-12-10-preview' = if (newOrExisting == 'new') {
   name: AppGroupName
   location: Location
   tags: Tags
   properties: {
-    hostPoolArmPath: HostPoolName_resource.id
+    hostPoolArmPath: hostPool.id
     applicationGroupType: 'Desktop'
   }
-  dependsOn: [
-    HostPoolName
-  ]
 }
 
-resource AppGroupName_Microsoft_Authorization_HostPoolName 'Microsoft.DesktopVirtualization/applicationgroups/providers/roleAssignments@2018-01-01-preview' = if (newOrExisting == 'new') {
-  name: '${AppGroupName}/Microsoft.Authorization/${guid(HostPoolName)}'
+resource appGroupAssignment 'Microsoft.Authorization/roleAssignments@2020-10-01-preview' = if (newOrExisting == 'new') {
+  scope: appGroup
+  name: guid(HostPoolName)
   properties: {
     roleDefinitionId: resourceId('Microsoft.Authorization/roleDefinitions', '1d18fff3-a72a-46b5-b4a9-0b38a3cd7e63')
     principalId: SecurityPrincipalId
   }
-  dependsOn: [
-    AppGroupName_resource
-  ]
 }
 
-resource WorkspaceName_resource 'Microsoft.DesktopVirtualization/workspaces@2019-12-10-preview' = if (newOrExisting == 'new') {
+resource workspace 'Microsoft.DesktopVirtualization/workspaces@2019-12-10-preview' = if (newOrExisting == 'new') {
   name: WorkspaceName
   location: Location
   tags: Tags
   properties: {
     applicationGroupReferences: [
-      AppGroupName_resource.id
+      appGroup.id
     ]
   }
-  dependsOn: [
-    HostPoolName
-  ]
 }
 
-resource diag_WorkspaceName 'Microsoft.Insights/diagnosticsettings@2017-05-01-preview' = if (newOrExisting == 'new') {
-  scope: WorkspaceName_resource
-  name: 'diag-${WorkspaceName}'
-  location: Location
+resource workspaceDiagnostics 'Microsoft.Insights/diagnosticsettings@2017-05-01-preview' = if (newOrExisting == 'new') {
+  scope: workspace
+  name: 'diag-${workspace.name}'
   properties: {
     logs: [
       {
@@ -588,9 +574,6 @@ resource diag_WorkspaceName 'Microsoft.Insights/diagnosticsettings@2017-05-01-pr
         enabled: true
       }
     ]
-    workspaceId: LogAnalyticsWorkspaceName_resource.id
+    workspaceId: logAnalyticsWorkspace.id
   }
-  dependsOn: [
-    WorkspaceName_resource
-  ]
 }

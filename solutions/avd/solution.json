@@ -194,7 +194,7 @@
             "metadata": {
                 "description": "Use letters and numbers only.  This suffix is used in conjunction with the resource type prefixes to name most of the Azure resources in this solution.  The only exception is the Storage Account since the value must globally unique and has stricter character requirements."
             },
-            "maxLength": 9,
+            "maxLength": 10,
             "defaultValue": "avddeu"
         },
         "ScalingBeginPeakTime": {
@@ -436,7 +436,7 @@
             "westus2": "Pacific Standard Time",
             "westus3": "Mountain Standard Time"
         },
-        "VmName": "[concat('vm', parameters('ResourceNameSuffix'), '-')]",
+        "VmName": "[concat('vm', parameters('ResourceNameSuffix'))]",
         "VmTemplate": "[concat('{\"domain\":\"', parameters('DomainName'), '\",\"galleryImageOffer\":\"', parameters('ImageOffer'), '\",\"galleryImagePublisher\":\"', parameters('ImagePublisher'), '\",\"galleryImageSKU\":\"', parameters('ImageSku'), '\",\"imageType\":\"Gallery\",\"imageUri\":null,\"customImageId\":null,\"namePrefix\":\"', variables('VmName'), '\",\"osDiskType\":\"', parameters('DiskSku'), '\",\"useManagedDisks\":true,\"vmSize\":{\"id\":\"', parameters('VmSize'), '\",\"cores\":null,\"ram\":null},\"galleryItemId\":\"', parameters('ImagePublisher'), '.', parameters('ImageOffer'), parameters('ImageSku'), '\"}')]",
         "WorkspaceName": "[concat('ws-', parameters('ResourceNameSuffix'))]"
     },

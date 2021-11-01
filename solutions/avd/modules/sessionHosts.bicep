@@ -41,12 +41,10 @@ var AmdVmSizes = [
   'Standard_NV32as_v4'
 ]
 var AmdVmSize = contains(AmdVmSizes, VmSize)
-var AvailabilitySetName_var = 'as-${ResourceNameSuffix}'
+var AvailabilitySetName = 'as-${ResourceNameSuffix}'
 var AvailabilitySetId = {
-  id: AvailabilitySetName.id
+  id: resourceId('Microsoft.Compute/availabilitySets', AvailabilitySetName)
 }
-var AvdAgentUrl_AzureCloud = 'https://wvdportalstorageblob.blob.core.windows.net/galleryartifacts/Configuration_8-16-2021.zip'
-var AvdAgentUrl_AzureUsGov = 'https://wvdportalstorageblob.blob.core.usgovcloudapi.net/galleryartifacts/Configuration_5-5-2021.zip'
 var NvidiaVmSizes = [
   'Standard_NV6'
   'Standard_NV12'
@@ -74,8 +72,8 @@ var StatefulOsDisk = {
   }
 }
 
-resource AvailabilitySetName 'Microsoft.Compute/availabilitySets@2019-07-01' = if (PooledHostPool) {
-  name: AvailabilitySetName_var
+resource availabilitySet 'Microsoft.Compute/availabilitySets@2019-07-01' = if (PooledHostPool) {
+  name: AvailabilitySetName
   location: Location
   tags: Tags
   sku: {
@@ -87,7 +85,7 @@ resource AvailabilitySetName 'Microsoft.Compute/availabilitySets@2019-07-01' = i
   }
 }
 
-resource nic_resourceNameSuffix_SessionHostIndex_3_0 'Microsoft.Network/networkInterfaces@2020-05-01' = [for i in range(0, SessionHostCount): {
+resource nic 'Microsoft.Network/networkInterfaces@2020-05-01' = [for i in range(0, SessionHostCount): {
   name: 'nic-${ResourceNameSuffix}${padLeft((i + SessionHostIndex), 3, '0')}'
   location: Location
   tags: Tags
@@ -110,12 +108,12 @@ resource nic_resourceNameSuffix_SessionHostIndex_3_0 'Microsoft.Network/networkI
   }
 }]
 
-resource VmName_SessionHostIndex_3_0 'Microsoft.Compute/virtualMachines@2021-03-01' = [for i in range(0, SessionHostCount): {
-  name: concat(VmName, padLeft((i + SessionHostIndex), 3, '0'))
+resource sessionHosts 'Microsoft.Compute/virtualMachines@2021-03-01' = [for i in range(0, SessionHostCount): {
+  name: '${VmName}${padLeft((i + SessionHostIndex), 3, '0')}'
   location: Location
   tags: Tags
   properties: {
-    availabilitySet: (PooledHostPool ? AvailabilitySetId : null())
+    availabilitySet: PooledHostPool ? AvailabilitySetId : null
     hardwareProfile: {
       vmSize: VmSize
     }
@@ -130,7 +128,7 @@ resource VmName_SessionHostIndex_3_0 'Microsoft.Compute/virtualMachines@2021-03-
       dataDisks: []
     }
     osProfile: {
-      computerName: concat(VmName, padLeft((i + SessionHostIndex), 3, '0'))
+      computerName: '${VmName}${padLeft((i + SessionHostIndex), 3, '0')}'
       adminUsername: VmUsername
       adminPassword: VmPassword
       windowsConfiguration: {
@@ -155,12 +153,12 @@ resource VmName_SessionHostIndex_3_0 'Microsoft.Compute/virtualMachines@2021-03-
     licenseType: ((ImagePublisher == 'MicrosoftWindowsServer') ? 'Windows_Server' : 'Windows_Client')
   }
   dependsOn: [
-    AvailabilitySetName
-    nic_resourceNameSuffix_SessionHostIndex_3_0
+    availabilitySet
+    nic
   ]
 }]
 
-resource VmName_SessionHostIndex_3_0_MicrosoftMonitoringAgent 'Microsoft.Compute/virtualMachines/extensions@2021-03-01' = [for i in range(0, SessionHostCount): {
+resource microsoftMonitoringAgent 'Microsoft.Compute/virtualMachines/extensions@2021-03-01' = [for i in range(0, SessionHostCount): {
   name: '${VmName}${padLeft((i + SessionHostIndex), 3, '0')}/MicrosoftMonitoringAgent'
   location: resourceGroup().location
   properties: {
@@ -176,11 +174,11 @@ resource VmName_SessionHostIndex_3_0_MicrosoftMonitoringAgent 'Microsoft.Compute
     }
   }
   dependsOn: [
-    concat(VmName, padLeft((i + SessionHostIndex), 3, '0'))
+    sessionHosts
   ]
 }]
 
-resource VmName_SessionHostIndex_3_0_JsonADDomainExtension 'Microsoft.Compute/virtualMachines/extensions@2021-03-01' = [for i in range(0, SessionHostCount): {
+resource jsonADDomainExtension 'Microsoft.Compute/virtualMachines/extensions@2021-03-01' = [for i in range(0, SessionHostCount): {
   name: '${VmName}${padLeft((i + SessionHostIndex), 3, '0')}/JsonADDomainExtension'
   location: Location
   tags: Tags
@@ -202,46 +200,12 @@ resource VmName_SessionHostIndex_3_0_JsonADDomainExtension 'Microsoft.Compute/vi
     }
   }
   dependsOn: [
-    concat(VmName, padLeft((i + SessionHostIndex), 3, '0'))
-    VmName_SessionHostIndex_3_0_MicrosoftMonitoringAgent
+    sessionHosts
+    microsoftMonitoringAgent
   ]
 }]
 
-resource VmName_SessionHostIndex_3_0_AmdGpuDriverWindows 'Microsoft.Compute/virtualMachines/extensions@2021-03-01' = [for i in range(0, SessionHostCount): if (AmdVmSize) {
-  name: '${VmName}${padLeft((i + SessionHostIndex), 3, '0')}/AmdGpuDriverWindows'
-  location: Location
-  tags: Tags
-  properties: {
-    publisher: 'Microsoft.HpcCompute'
-    type: 'AmdGpuDriverWindows'
-    typeHandlerVersion: '1.0'
-    autoUpgradeMinorVersion: true
-    settings: {}
-  }
-  dependsOn: [
-    concat(VmName, padLeft((i + SessionHostIndex), 3, '0'))
-    VmName_SessionHostIndex_3_0_JsonADDomainExtension
-  ]
-}]
-
-resource VmName_SessionHostIndex_3_0_NvidiaGpuDriverWindows 'Microsoft.Compute/virtualMachines/extensions@2021-03-01' = [for i in range(0, SessionHostCount): if (NvidiaVmSize) {
-  name: '${VmName}${padLeft((i + SessionHostIndex), 3, '0')}/NvidiaGpuDriverWindows'
-  location: Location
-  tags: Tags
-  properties: {
-    publisher: 'Microsoft.HpcCompute'
-    type: 'NvidiaGpuDriverWindows'
-    typeHandlerVersion: '1.2'
-    autoUpgradeMinorVersion: true
-    settings: {}
-  }
-  dependsOn: [
-    concat(VmName, padLeft((i + SessionHostIndex), 3, '0'))
-    VmName_SessionHostIndex_3_0_JsonADDomainExtension
-  ]
-}]
-
-resource VmName_SessionHostIndex_3_0_CustomScriptExtension 'Microsoft.Compute/virtualMachines/extensions@2021-03-01' = [for i in range(0, SessionHostCount): {
+resource customScriptExtension 'Microsoft.Compute/virtualMachines/extensions@2021-03-01' = [for i in range(0, SessionHostCount): {
   name: '${VmName}${padLeft((i + SessionHostIndex), 3, '0')}/CustomScriptExtension'
   location: Location
   tags: Tags
@@ -261,9 +225,41 @@ resource VmName_SessionHostIndex_3_0_CustomScriptExtension 'Microsoft.Compute/vi
     }
   }
   dependsOn: [
-    concat(VmName, padLeft((i + SessionHostIndex), 3, '0'))
-    VmName_SessionHostIndex_3_0_JsonADDomainExtension
-    VmName_SessionHostIndex_3_0_AmdGpuDriverWindows
-    VmName_SessionHostIndex_3_0_NvidiaGpuDriverWindows
+    sessionHosts
+    jsonADDomainExtension
+  ]
+}]
+
+resource amdGpuDriverWindows 'Microsoft.Compute/virtualMachines/extensions@2021-03-01' = [for i in range(0, SessionHostCount): if (AmdVmSize) {
+  name: '${VmName}${padLeft((i + SessionHostIndex), 3, '0')}/AmdGpuDriverWindows'
+  location: Location
+  tags: Tags
+  properties: {
+    publisher: 'Microsoft.HpcCompute'
+    type: 'AmdGpuDriverWindows'
+    typeHandlerVersion: '1.0'
+    autoUpgradeMinorVersion: true
+    settings: {}
+  }
+  dependsOn: [
+    sessionHosts
+    customScriptExtension
+  ]
+}]
+
+resource nvidiaGpuDriverWindows 'Microsoft.Compute/virtualMachines/extensions@2021-03-01' = [for i in range(0, SessionHostCount): if (NvidiaVmSize) {
+  name: '${VmName}${padLeft((i + SessionHostIndex), 3, '0')}/NvidiaGpuDriverWindows'
+  location: Location
+  tags: Tags
+  properties: {
+    publisher: 'Microsoft.HpcCompute'
+    type: 'NvidiaGpuDriverWindows'
+    typeHandlerVersion: '1.2'
+    autoUpgradeMinorVersion: true
+    settings: {}
+  }
+  dependsOn: [
+    sessionHosts
+    customScriptExtension
   ]
 }]

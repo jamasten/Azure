@@ -24,14 +24,14 @@ param VmName string
 param VmPassword string
 param VmUsername string
 
-var NicName_var = 'nic-${ResourceNameSuffix}-mgt'
+var NicName = 'nic-${ResourceNameSuffix}-mgt'
 var ResourceGroupName = resourceGroup().name
-var RoleAssignmentName_var = guid(StorageAccountName, '0')
-var RoleAssignmentName_Users_var = guid('${StorageAccountName}/default/${HostPoolName}', '0')
-var VmName_var = '${VmName}mgt'
+var RoleAssignmentName = guid(StorageAccountName, '0')
+var RoleAssignmentName_Users = guid('${StorageAccountName}/default/${HostPoolName}', '0')
+var VmNameFull = '${VmName}mgt'
 
-resource NicName 'Microsoft.Network/networkInterfaces@2020-05-01' = {
-  name: NicName_var
+resource nic 'Microsoft.Network/networkInterfaces@2020-05-01' = {
+  name: NicName
   location: Location
   tags: Tags
   properties: {
@@ -53,8 +53,8 @@ resource NicName 'Microsoft.Network/networkInterfaces@2020-05-01' = {
   }
 }
 
-resource VmName_resource 'Microsoft.Compute/virtualMachines@2020-12-01' = {
-  name: VmName_var
+resource vm 'Microsoft.Compute/virtualMachines@2020-12-01' = {
+  name: VmNameFull
   location: Location
   tags: Tags
   properties: {
@@ -79,7 +79,7 @@ resource VmName_resource 'Microsoft.Compute/virtualMachines@2020-12-01' = {
       dataDisks: []
     }
     osProfile: {
-      computerName: VmName_var
+      computerName: VmNameFull
       adminUsername: VmUsername
       adminPassword: VmPassword
       windowsConfiguration: {
@@ -92,7 +92,7 @@ resource VmName_resource 'Microsoft.Compute/virtualMachines@2020-12-01' = {
     networkProfile: {
       networkInterfaces: [
         {
-          id: NicName.id
+          id: nic.id
         }
       ]
     }
@@ -108,8 +108,8 @@ resource VmName_resource 'Microsoft.Compute/virtualMachines@2020-12-01' = {
   }
 }
 
-resource VmName_JsonADDomainExtension 'Microsoft.Compute/virtualMachines/extensions@2019-07-01' = {
-  parent: VmName_resource
+resource jsonADDomainExtension 'Microsoft.Compute/virtualMachines/extensions@2019-07-01' = {
+  parent: vm
   name: 'JsonADDomainExtension'
   location: Location
   tags: Tags
@@ -131,13 +131,12 @@ resource VmName_JsonADDomainExtension 'Microsoft.Compute/virtualMachines/extensi
   }
 }
 
-resource StorageAccountName_resource 'Microsoft.Storage/storageAccounts@2021-02-01' = {
+resource storageAccount 'Microsoft.Storage/storageAccounts@2021-02-01' = {
   name: StorageAccountName
   location: Location
   tags: Tags
   sku: {
     name: StorageAccountSku
-    tier: split(StorageAccountSku, '_')[0]
   }
   kind: ((split(StorageAccountSku, '_')[0] == 'Standard') ? 'StorageV2' : 'FileStorage')
   properties: {
@@ -164,63 +163,58 @@ resource StorageAccountName_resource 'Microsoft.Storage/storageAccounts@2021-02-
   }
 }
 
-resource RoleAssignmentName 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = if (DomainServices == 'ActiveDirectory') {
-  scope: StorageAccountName_resource
-  name: RoleAssignmentName_var
+resource roleAssignment 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = if (DomainServices == 'ActiveDirectory') {
+  scope: storageAccount
+  name: RoleAssignmentName
   properties: {
     roleDefinitionId: resourceId('Microsoft.Authorization/roleDefinitions', 'b24988ac-6180-42a0-ab88-20f7382dd24c')
-    principalId: reference(VmName_resource.id, '2020-12-01', 'Full').identity.principalId
+    principalId: reference(vm.id, '2020-12-01', 'Full').identity.principalId
     principalType: 'ServicePrincipal'
   }
-  dependsOn: [
-    StorageAccountName_resource
-  ]
 }
 
-resource RoleAssignmentName_Users 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = {
-  scope: StorageAccountName_resource
-  name: RoleAssignmentName_Users_var
+resource roleAssignment_Users 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = {
+  scope: storageAccount
+  name: RoleAssignmentName_Users
   properties: {
     roleDefinitionId: resourceId('Microsoft.Authorization/roleDefinitions', '0c867c2a-1d8c-454a-a3db-ab2ea1bdc8bb')
     principalId: SecurityPrincipalId
   }
   dependsOn: [
-    StorageAccountName_resource
-    RoleAssignmentName
+    roleAssignment
   ]
 }
 
-resource StorageAccountName_default 'Microsoft.Storage/storageAccounts/fileServices@2021-02-01' = {
-  parent: StorageAccountName_resource
+resource storageAccount_FileServices 'Microsoft.Storage/storageAccounts/fileServices@2021-02-01' = {
+  parent: storageAccount
   name: 'default'
-  tags: Tags
   properties: {
     shareDeleteRetentionPolicy: {
       enabled: false
     }
   }
   dependsOn: [
-    RoleAssignmentName
+    roleAssignment
   ]
 }
 
-resource StorageAccountName_default_HostPoolName 'Microsoft.Storage/storageAccounts/fileServices/shares@2021-02-01' = {
-  parent: StorageAccountName_default
+resource storageAccount_FileShare 'Microsoft.Storage/storageAccounts/fileServices/shares@2021-02-01' = {
+  parent: storageAccount_FileServices
   name: toLower(HostPoolName)
   tags: Tags
   properties: {
-    accessTier: ((StorageAccountSku == 'Premium_LRS') ? 'Premium' : 'TransactionOptimized')
+    accessTier: (StorageAccountSku == 'Premium_LRS') ? 'Premium' : 'TransactionOptimized'
     shareQuota: 100
     enabledProtocols: 'SMB'
   }
   dependsOn: [
-    StorageAccountName_resource
-    RoleAssignmentName
+    storageAccount
+    roleAssignment
   ]
 }
 
-resource VmName_CustomScriptExtension 'Microsoft.Compute/virtualMachines/extensions@2020-12-01' = {
-  parent: VmName_resource
+resource customScriptExtension 'Microsoft.Compute/virtualMachines/extensions@2020-12-01' = {
+  parent: vm
   name: 'CustomScriptExtension'
   location: Location
   tags: Tags
@@ -236,14 +230,13 @@ resource VmName_CustomScriptExtension 'Microsoft.Compute/virtualMachines/extensi
       timestamp: Timestamp
     }
     protectedSettings: {
-      commandToExecute: 'powershell -ExecutionPolicy Unrestricted -File New-DomainJoinStorageAccount.ps1 -DomainJoinPassword ${DomainJoinPassword} -DomainJoinUserPrincipalName ${DomainJoinUserPrincipalName} -DomainServices ${DomainServices} -Environment ${environment().name} -HostPoolName ${HostPoolName} -KerberosEncryptionType ${KerberosEncryptionType} -Netbios ${Netbios} -OuPath ${OuPath} -ResourceGroupName ${ResourceGroupName} -SecurityPrincipalName ${SecurityPrincipalName} -StorageAccountName ${StorageAccountName} -StorageKey ${listKeys(StorageAccountName_resource.id, '2019-06-01').keys[0].value} -SubscriptionId ${subscription().subscriptionId} -TenantId ${subscription().tenantId}'
+      commandToExecute: 'powershell -ExecutionPolicy Unrestricted -File New-DomainJoinStorageAccount.ps1 -DomainJoinPassword ${DomainJoinPassword} -DomainJoinUserPrincipalName ${DomainJoinUserPrincipalName} -DomainServices ${DomainServices} -Environment ${environment().name} -HostPoolName ${HostPoolName} -KerberosEncryptionType ${KerberosEncryptionType} -Netbios ${Netbios} -OuPath ${OuPath} -ResourceGroupName ${ResourceGroupName} -SecurityPrincipalName ${SecurityPrincipalName} -StorageAccountName ${StorageAccountName} -StorageKey ${listKeys(storageAccount.id, '2019-06-01').keys[0].value} -SubscriptionId ${subscription().subscriptionId} -TenantId ${subscription().tenantId}'
     }
   }
   dependsOn: [
-    VmName_JsonADDomainExtension
-
-    RoleAssignmentName
-    StorageAccountName_default
-    resourceId('Microsoft.Storage/storageAccounts/fileServices/shares', StorageAccountName, 'default', HostPoolName)
+    jsonADDomainExtension
+    roleAssignment
+    storageAccount_FileServices
+    storageAccount_FileShare
   ]
 }

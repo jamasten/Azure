@@ -1,4 +1,4 @@
-param FSLogix string
+param FSLogix bool
 param KeyVaultName string
 param Location string
 param SessionHostCount int
@@ -52,7 +52,6 @@ resource vault 'Microsoft.KeyVault/vaults@2016-10-01' = {
     enabledForTemplateDeployment: false
     enabledForDiskEncryption: true
   }
-  dependsOn: []
 }
 
 resource deploymentScript 'Microsoft.Resources/deploymentScripts@2019-10-01-preview' = {
@@ -69,19 +68,18 @@ resource deploymentScript 'Microsoft.Resources/deploymentScripts@2019-10-01-prev
   properties: {
     azPowerShellVersion: '5.4'
     cleanupPreference: 'OnSuccess'
-    scriptContent: 'param([string] [Parameter(Mandatory=$true)] $KeyVault\r\n                    )\r\n\r\n                    if(!(Get-AzKeyVaultKey -Name DiskEncryption -VaultName $KeyVault))\r\n                    {\r\n                        Add-AzKeyVaultKey -Name DiskEncryption -VaultName $KeyVault -Destination Software\r\n                    }\r\n\r\n                    $KeyEncryptionKeyURL = (Get-AzKeyVaultKey -VaultName $KeyVault -Name \'DiskEncryption\' -IncludeVersions | Where-Object {$_.Enabled -eq $true}).Id\r\n                \r\n                    Write-Output $KeyEncryptionKeyURL\r\n\r\n                    $DeploymentScriptOutputs = @{}\r\n            \r\n                    $DeploymentScriptOutputs[\'text\'] = $KeyEncryptionKeyURL \r\n                '
-    arguments: ' -KeyVault ${KeyVaultName}'
+    scriptContent: 'param([string][Parameter(Mandatory=$true)]$KeyVault);if(!(Get-AzKeyVaultKey -Name DiskEncryption -VaultName $KeyVault)){Add-AzKeyVaultKey -Name DiskEncryption -VaultName $KeyVault -Destination Software};$KeyEncryptionKeyURL = (Get-AzKeyVaultKey -VaultName $KeyVault -Name DiskEncryption -IncludeVersions | Where-Object {$_.Enabled -eq $true}).Id;Write-Output $KeyEncryptionKeyURL;$DeploymentScriptOutputs = @{};$DeploymentScriptOutputs[\'text\'] = $KeyEncryptionKeyURL'
+    arguments: ' -KeyVault ${vault.name}'
     forceUpdateTag: Timestamp
     retentionInterval: 'P1D'
     timeout: 'PT30M'
   }
   dependsOn: [
-    vault
     roleAssignment
   ]
 }
 
-resource VmName_mgt_AzureDiskEncryption 'Microsoft.Compute/virtualMachines/extensions@2017-03-30' = if (FSLogix) {
+resource mgmtBitlockerExtension 'Microsoft.Compute/virtualMachines/extensions@2017-03-30' = if (FSLogix) {
   name: '${VmName}mgt/AzureDiskEncryption'
   location: Location
   properties: {
@@ -92,10 +90,10 @@ resource VmName_mgt_AzureDiskEncryption 'Microsoft.Compute/virtualMachines/exten
     forceUpdateTag: Timestamp
     settings: {
       EncryptionOperation: 'EnableEncryption'
-      KeyVaultURL: KeyVaultName_resource.properties.vaultUri
-      KeyVaultResourceId: KeyVaultName_resource.id
-      KeyEncryptionKeyURL: ds_bitlocker_kek.properties.outputs.text
-      KekVaultResourceId: KeyVaultName_resource.id
+      KeyVaultURL: vault.properties.vaultUri
+      KeyVaultResourceId: vault.id
+      KeyEncryptionKeyURL: deploymentScript.properties.outputs.text
+      KekVaultResourceId: vault.id
       KeyEncryptionAlgorithm: 'RSA-OAEP'
       VolumeType: 'All'
       ResizeOSDisk: false
@@ -103,13 +101,13 @@ resource VmName_mgt_AzureDiskEncryption 'Microsoft.Compute/virtualMachines/exten
   }
 }
 
-module DeployDiskEncryptionExtension './nested_DeployDiskEncryptionExtension.bicep' = {
+module sessionHostBitlockerExtensionsDeployment './bitlocker_virtualMachines.bicep' = {
   name: 'DeployDiskEncryptionExtension'
   scope: resourceGroup(SessionHostResourceGroupName)
   params: {
-    reference_parameters_KeyVaultName_vaultUri: KeyVaultName_resource.properties
-    reference_ds_bitlocker_kek_outputs_text: ds_bitlocker_kek.properties
-    resourceId_Microsoft_KeyVault_vaults_parameters_KeyVaultName: KeyVaultName_resource.id
+    KeyVaultUri: vault.properties.vaultUri
+    KeyEncryptionKeyUrl: deploymentScript.properties.outputs.text
+    KeyVaultResourceId: vault.id
     VmName: VmName
     SessionHostIndex: SessionHostIndex
     Location: Location

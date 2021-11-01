@@ -256,6 +256,7 @@ var TimeZones = {
     westus3: 'Mountain Standard Time'
 }
 var VmName = 'vm${ResourceNameSuffix}'
+var VmTemplate = '{"domain":"${DomainName}","galleryImageOffer":"${ImageOffer}","galleryImagePublisher":"${ImagePublisher}","galleryImageSKU":"${ImageSku}","imageType":"Gallery","imageUri":null,"customImageId":null,"namePrefix":"${VmName}","osDiskType":"${DiskSku}","useManagedDisks":true,"vmSize":{"id":"${VmSize}","cores":null,"ram":null},"galleryItemId":"${ImagePublisher}.${ImageOffer}${ImageSku}"}'
 var WorkspaceName = 'ws-${ResourceNameSuffix}'
 
 resource rg 'Microsoft.Resources/resourceGroups@2020-10-01' = [for ResourceGroup in ResourceGroups: {
@@ -264,8 +265,7 @@ resource rg 'Microsoft.Resources/resourceGroups@2020-10-01' = [for ResourceGroup
   tags: Tags
 }]
 
-resource customRole 'Microsoft.Authorization/roleDefinitions@2018-01-01-preview' = {
-  condition: StartVmOnConnect
+resource customRole 'Microsoft.Authorization/roleDefinitions@2018-01-01-preview' = if(StartVmOnConnect) {
   name: RoleDefinitionName
   properties: {
     roleName: 'StartVmOnConnect'
@@ -284,8 +284,7 @@ resource customRole 'Microsoft.Authorization/roleDefinitions@2018-01-01-preview'
   }
 }
 
-resource roleAssignment 'Microsoft.Authorization/roleAssignments@2020-10-01-preview' = {
-  condition: StartVmOnConnect
+resource roleAssignment 'Microsoft.Authorization/roleAssignments@2020-10-01-preview' = if(StartVmOnConnect) {
   name: RoleAssignmentName
   properties: {
     roleDefinitionId: customRole.id
@@ -311,6 +310,7 @@ module hostPool 'modules/hostPool.bicep' = {
     StartVmOnConnect: StartVmOnConnect
     Tags: Tags
     ValidationEnvironment: ValidationEnvironment
+    VmTemplate: VmTemplate
     WorkspaceName: WorkspaceName
   } 
 }
@@ -353,8 +353,7 @@ module sessionHosts 'modules/sessionHosts.bicep' = {
   }  
 }
 
-module fslogix 'modules/fslogix.bicep' = {
-  condition: split(HostPoolType, ' ')[0] == 'Pooled' && FSLogix
+module fslogix 'modules/fslogix.bicep' = if(split(HostPoolType, ' ')[0] == 'Pooled' && FSLogix) {
   name: 'fslogix_${TimeStamp}'
   scope: rg[0]
   params: {
@@ -383,8 +382,7 @@ module fslogix 'modules/fslogix.bicep' = {
   }
 }
 
-module backup 'modules/backup.bicep' = {
-  condition: RecoveryServices
+module backup 'modules/backup.bicep' = if(RecoveryServices) {
   name: 'backup_${TimeStamp}'
   scope: rg[0]
   params: {
@@ -402,8 +400,7 @@ module backup 'modules/backup.bicep' = {
   } 
 }
 
-module bitLocker 'modules/bitLocker.bicep' = {
-  condition: DiskEncryption
+module bitLocker 'modules/bitLocker.bicep' = if(DiskEncryption) {
   name: 'bitLocker_${TimeStamp}'
   scope: rg[0]
   params: {
@@ -418,8 +415,7 @@ module bitLocker 'modules/bitLocker.bicep' = {
   } 
 }
 
-module scale 'modules/scale.bicep' = {
-  condition: split(HostPoolType, ' ')[0] == 'Pooled'
+module scale 'modules/scale.bicep' = if(split(HostPoolType, ' ')[0] == 'Pooled') {
   name: 'scale_${TimeStamp}'
   scope: rg[0]
   params: {
@@ -439,8 +435,7 @@ module scale 'modules/scale.bicep' = {
   }
 }
 
-module drainMode 'modules/drainMode.bicep' = {
-  condition: split(HostPoolType, ' ')[0] == 'Pooled' && DrainMode
+module drainMode 'modules/drainMode.bicep' = if(split(HostPoolType, ' ')[0] == 'Pooled' && DrainMode) {
   name: 'drainMode_${TimeStamp}'
   scope: rg[0]
   params: {

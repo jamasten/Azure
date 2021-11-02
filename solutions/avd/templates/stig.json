@@ -60,10 +60,6 @@
                 "uri": "https://www.powershellgallery.com/api/v2/package/nx"
             },
             {
-                "name": "PowerSTIG",
-                "uri": "https://www.powershellgallery.com/api/v2/package/PowerSTIG"
-            },
-            {
                 "name": "PSDscResources",
                 "uri": "https://www.powershellgallery.com/api/v2/package/PSDscResources"
             },
@@ -86,6 +82,10 @@
             {
                 "name": "xWebAdministration",
                 "uri": "https://www.powershellgallery.com/api/v2/package/xWebAdministration"
+            },
+            {
+                "name": "PowerSTIG",
+                "uri": "https://www.powershellgallery.com/api/v2/package/PowerSTIG"
             }
         ]
     },
@@ -115,7 +115,8 @@
             ],
             "copy": {
                 "name": "modulesLoop",
-                "count": "[length(variables('Modules'))]"
+                "count": "[length(variables('Modules'))]",
+                 "mode": "Serial"
             },
             "properties": {
                 "contentLink": {
@@ -130,8 +131,8 @@
             "apiVersion": "2015-10-31",
             "location": "[parameters('Location')]",
             "dependsOn": [
-                "modulesLoop",
-                "[parameters('AutomationAccountName')]"
+                "[parameters('AutomationAccountName')]",
+                "modulesLoop"
             ],
             "properties": {
                 "source": {
@@ -168,6 +169,10 @@
             "name": "DscExtensionDeployment",
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2021-04-01",
+            "location": "[parameters('Location')]",
+            "dependsOn": [
+                "[concat(parameters('AutomationAccountName'), '/', guid(deployment().name))]"
+            ],
             "resourceGroup": "[parameters('VmResourceGroupName')]",
             "properties": {
                 "expressionEvaluationOptions": {

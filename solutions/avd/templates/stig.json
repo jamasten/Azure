@@ -169,7 +169,6 @@
             "name": "DscExtensionDeployment",
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2021-04-01",
-            "location": "[parameters('Location')]",
             "dependsOn": [
                 "[resourceId('Microsoft.Automation/automationAccounts/compilationjobs', parameters('AutomationAccountName'), guid(deployment().name))]"
             ],

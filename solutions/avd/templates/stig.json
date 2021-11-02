@@ -1,0 +1,156 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "AutomationAccountName": {
+            "type": "string"
+        },
+        "Location": {
+            "type": "string"
+        },
+        "Timestamp": {
+            "type": "string"
+        }
+    },
+    "variables": {
+        "ConfigurationName": "Windows",
+        "Modules": [
+            {
+                "name": "AccessControlDSC",
+                "uri": "https://www.powershellgallery.com/api/v2/package/AccessControlDSC"
+            },
+            {
+                "name": "AuditPolicyDsc",
+                "uri": "https://www.powershellgallery.com/api/v2/package/AuditPolicyDsc"
+            },
+            {
+                "name": "AuditSystemDsc",
+                "uri": "https://www.powershellgallery.com/api/v2/package/AuditSystemDsc"
+            },
+            {
+                "name": "CertificateDsc",
+                "uri": "https://www.powershellgallery.com/api/v2/package/CertificateDsc"
+            },
+            {
+                "name": "ComputerManagementDsc",
+                "uri": "https://www.powershellgallery.com/api/v2/package/ComputerManagementDsc"
+            },     
+            {
+                "name": "FileContentDsc",
+                "uri": "https://www.powershellgallery.com/api/v2/package/FileContentDsc"
+            },
+            {
+                "name": "GPRegistryPolicyDsc",
+                "uri": "https://www.powershellgallery.com/api/v2/package/GPRegistryPolicyDsc"
+            },
+            {
+                "name": "nx",
+                "uri": "https://www.powershellgallery.com/api/v2/package/nx"
+            },
+            {
+                "name": "PowerSTIG",
+                "uri": "https://www.powershellgallery.com/api/v2/package/PowerSTIG"
+            },                                                                       
+            {
+                "name": "PSDscResources",
+                "uri": "https://www.powershellgallery.com/api/v2/package/PSDscResources"
+            },
+            {
+                "name": "SecurityPolicyDsc",
+                "uri": "https://www.powershellgallery.com/api/v2/package/SecurityPolicyDsc"
+            },
+            {
+                "name": "SqlServerDsc",
+                "uri": "https://www.powershellgallery.com/api/v2/package/SqlServerDsc"
+            },
+            {
+                "name": "WindowsDefenderDsc",
+                "uri": "https://www.powershellgallery.com/api/v2/package/WindowsDefenderDsc"
+            },                   
+            {
+                "name": "xDnsServer",
+                "uri": "https://www.powershellgallery.com/api/v2/package/xDnsServer"
+            },
+            {
+                "name": "xWebAdministration",
+                "uri": "https://www.powershellgallery.com/api/v2/package/xWebAdministration"
+            }                
+        ]
+    },
+    "resources": [
+        {
+            "comments": "---------- AUTOMATION ACCOUNT ----------",
+            "name": "[parameters('AutomationAccountName')]",
+            "type": "Microsoft.Automation/automationAccounts",
+            "apiVersion": "2015-10-31",
+            "location": "[parameters('Location')]",
+            "tags": {
+            },
+            "properties": {
+                "sku": {
+                    "name": "Free"
+                }
+            }
+        },
+        {
+            "comments": "---------- AUTOMATION ACCOUNT > MODULES ----------",
+            "type": "Microsoft.Automation/automationAccounts/modules",
+            "apiVersion": "2015-10-31",
+            "name": "[concat(parameters('AutomationAccountName'), '/', variables('Modules')[copyIndex()].name)]",
+            "location": "[parameters('Location')]",
+            "dependsOn": [
+                "[parameters('AutomationAccountName')]"
+            ],
+            "copy": {
+                "name": "modulesLoop",
+                "count": "[length(variables('Modules'))]"
+            },
+            "properties": {
+                "contentLink": {
+                    "uri": "[variables('Modules')[copyIndex()].uri]"
+                }
+            }
+        },
+        {
+            "comments": "---------- AUTOMATION ACCOUNT > CONFIGURATION ----------",
+            "type": "Microsoft.Automation/automationAccounts/configurations",
+            "name": "[concat(parameters('AutomationAccountName'), '/', variables('ConfigurationName'))]",
+            "apiVersion": "2015-10-31",
+            "location": "[parameters('Location')]",
+            "dependsOn": [
+                "modulesLoop",
+                "[parameters('AutomationAccountName')]"
+            ],
+            "properties": {
+                "source": {
+                    "type": "uri",
+                    "value": "https://raw.githubusercontent.com/jamasten/Azure/master/solutions/avd/configurations/Windows.ps1",
+                    "version": "[parameters('Timestamp')]"
+                },
+                "parameters": {},
+                "description": "Hardens the VM using the Azure STIG Template"
+            }
+        },
+        {
+            "comments": "---------- AUTOMATION ACCOUNT > COMPILATION JOBS ----------",
+            "type": "Microsoft.Automation/automationAccounts/compilationjobs",
+            "name": "[concat(parameters('AutomationAccountName'), '/', guid(deployment().name))]",
+            "apiVersion": "2018-01-15",
+            "location": "[parameters('Location')]",
+            "dependsOn": [
+                "[parameters('AutomationAccountName')]",
+                "modulesLoop",
+                "[resourceId('Microsoft.Automation/automationAccounts/configurations', parameters('AutomationAccountName'), variables('ConfigurationName'))]"
+            ],
+            "properties": {
+                "configuration": {
+                    "name": "[variables('ConfigurationName')]"
+                },
+                "parameters": {
+                    "configurationData": "[concat('{\"AllNodes\":{\"nodename\":\"localhost\"}}')]"
+                },
+                "incrementNodeConfigurationBuild": true
+            }
+        }
+    ]
+}

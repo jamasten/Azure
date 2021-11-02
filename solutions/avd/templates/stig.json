@@ -19,6 +19,9 @@
         },
         "VmName": {
             "type": "string"
+        },
+        "VmResourceGroupName": {
+            "type": "string"
         }
     },
     "variables": {
@@ -165,6 +168,7 @@
             "name": "DscExtensionDeployment",
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2021-04-01",
+            "resourceGroup": "[parameters('VmResourceGroupName')]",
             "properties": {
                 "expressionEvaluationOptions": {
                     "scope": "Inner"

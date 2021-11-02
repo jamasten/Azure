@@ -171,7 +171,7 @@
             "apiVersion": "2021-04-01",
             "location": "[parameters('Location')]",
             "dependsOn": [
-                "[concat(parameters('AutomationAccountName'), '/', guid(deployment().name))]"
+                "[resourceId('Microsoft.Automation/automationAccounts/compilationjobs', parameters('AutomationAccountName'), guid(deployment().name))]"
             ],
             "resourceGroup": "[parameters('VmResourceGroupName')]",
             "properties": {

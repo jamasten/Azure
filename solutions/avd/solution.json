@@ -386,7 +386,7 @@
         "RoleAssignmentName": "[guid(subscription().id, 'WindowsVirtualDesktop')]",
         "RoleDefinitionName": "[guid(subscription().id, 'StartVmOnConnect')]",
         "StorageAccountName": "[concat('stor', toLower(substring(uniqueString(subscription().id, variables('ResourceGroups')[0]), 0, 11)))]",
-        "StorageAccountLogsName": "[concat('storlogs', toLower(uniqueString(subscription().id, resourceGroup().name)))]",
+        "StorageAccountLogsName": "[concat('storlogs', toLower(uniqueString(subscription().id, variables('ResourceGroups')[0])))]",
         "TimeZones": {
             "australiacentral": "Australian Eastern Standard Time",
             "australiacentral2": "Australian Eastern Standard Time",

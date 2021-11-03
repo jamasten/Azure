@@ -8,6 +8,9 @@
         "CustomRdpProperty": {
             "type": "string"
         },
+        "DodStigCompliance": {
+            "type": "bool"
+        },
         "HostPoolName": {
             "type": "string"
         },
@@ -37,6 +40,9 @@
         },
         "StartVmOnConnect": {
             "type": "bool"
+        },
+        "StorageAccountLogsName": {
+            "type": "string"
         },
         "Tags": {
             "type": "object"
@@ -488,6 +494,38 @@
         ]
     },
     "resources": [
+                {
+            "comments": "---------- STORAGE ACCOUNT > DOD STIG LOGS ----------",
+            "condition": "[parameters('DodStigCompliance')]",
+            "type": "Microsoft.Storage/storageAccounts",
+            "apiVersion": "2021-02-01",
+            "name": "[parameters('StorageAccountLogsName')]",
+            "location": "[parameters('Location')]",
+            "tags": "[parameters('Tags')]",
+            "sku": {
+                "name": "Standard_LRS"
+            },
+            "kind": "StorageV2",
+            "properties": {
+                "minimumTlsVersion": "TLS1_2",
+                "networkAcls": {
+                    "bypass": "AzureServices",
+                    "virtualNetworkRules": [],
+                    "ipRules": [],
+                    "defaultAction": "Allow"
+                },
+                "supportsHttpsTrafficOnly": true,
+                "encryption": {
+                    "services": {
+                        "blob": {
+                            "keyType": "Account",
+                            "enabled": true
+                        }
+                    },
+                    "keySource": "Microsoft.Storage"
+                }
+            }
+        },
         {
             "comments": "---------- LOG ANALYTICS ----------",
             "type": "Microsoft.OperationalInsights/workspaces",

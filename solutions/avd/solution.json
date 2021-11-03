@@ -28,6 +28,13 @@
             ],
             "defaultValue": "Standard_LRS"
         },
+        "DodStigCompliance": {
+            "type": "bool",
+            "metadata": {
+                "description": "Applies the Department of Defense Security Technical Implementation Guidelines on the AVD session hosts and management VM."
+            },
+            "defaultValue": false
+        },
         "DomainJoinPassword": {
             "type": "securestring",
             "metadata": {
@@ -379,6 +386,7 @@
         "RoleAssignmentName": "[guid(subscription().id, 'WindowsVirtualDesktop')]",
         "RoleDefinitionName": "[guid(subscription().id, 'StartVmOnConnect')]",
         "StorageAccountName": "[concat('stor', toLower(substring(uniqueString(subscription().id, variables('ResourceGroups')[0]), 0, 11)))]",
+        "StorageAccountLogsName": "[concat('storlogs', toLower(uniqueString(subscription().id, resourceGroup().name)))]",
         "TimeZones": {
             "australiacentral": "Australian Eastern Standard Time",
             "australiacentral2": "Australian Eastern Standard Time",
@@ -517,6 +525,9 @@
                     "CustomRdpProperty": {
                         "value": "[parameters('CustomRdpProperty')]"
                     },
+                    "DodStigCompliance": {
+                        "value": "[parameters('DodStigCompliance')]"
+                    },
                     "HostPoolName": {
                         "value": "[variables('HostPoolName')]"
                     },
@@ -546,6 +557,9 @@
                     },
                     "StartVmOnConnect": {
                         "value": "[parameters('StartVmOnConnect')]"
+                    },
+                    "StorageAccountLogsName": {
+                        "value": "[variables('StorageAccountLogsName')]"
                     },
                     "Tags": {
                         "value": "[parameters('Tags')]"
@@ -583,6 +597,9 @@
                     "DiskSku": {
                         "value": "[parameters('DiskSku')]"
                     },
+                    "DodStigCompliance": {
+                        "value": "[parameters('DodStigCompliance')]"
+                    },
                     "DomainJoinPassword": {
                         "value": "[parameters('DomainJoinPassword')]"
                     },
@@ -619,14 +636,17 @@
                     "ImageVersion": {
                         "value": "[parameters('ImageVersion')]"
                     },
+                    "InfraResourceGroupName": {
+                        "value": "[variables('ResourceGroups')[0]]"
+                    },
                     "Location": {
                         "value": "[variables('Location')]"
                     },
                     "LogAnalyticsWorkspaceName": {
                         "value": "[variables('LogAnalyticsWorkspaceName')]"
                     },
-                    "LogAnalyticsWorkspaceResourceGroupName": {
-                        "value": "[variables('ResourceGroups')[0]]"
+                    "LogAnalyticsWorkspaceRetention": {
+                        "value": "[parameters('LogAnalyticsWorkspaceRetention')]"
                     },
                     "OuPath": {
                         "value": "[parameters('OuPath')]"
@@ -645,6 +665,9 @@
                     },
                     "StorageAccountName": {
                         "value": "[variables('StorageAccountName')]"
+                    },
+                    "StorageAccountLogsName": {
+                        "value": "[variables('StorageAccountLogsName')]"
                     },
                     "Subnet": {
                         "value": "[parameters('Subnet')]"

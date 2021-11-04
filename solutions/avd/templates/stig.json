@@ -92,11 +92,12 @@
     "resources": [
         {
             "comments": "---------- AUTOMATION ACCOUNT ----------",
-            "name": "[parameters('AutomationAccountName')]",
             "type": "Microsoft.Automation/automationAccounts",
-            "apiVersion": "2015-10-31",
+            "name": "[parameters('AutomationAccountName')]",
+            "apiVersion": "2020-01-13-preview",
             "location": "[parameters('Location')]",
-            "tags": {
+            "identity": {
+                "type": "SystemAssigned"
             },
             "properties": {
                 "sku": {

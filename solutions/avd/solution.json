@@ -873,6 +873,48 @@
             }
         },
         {
+            "comments": "---------- LINKED DEPLOYMENT > DOD STIG COMPLIANCE ----------",
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2019-10-01",
+            "name": "[concat('DodStig_', parameters('Timestamp'))]",
+            "condition": "[parameters('DodStigCompliance')]",
+            "tags": "[parameters('Tags')]",
+            "resourceGroup": "[variables('ResourceGroups')[0]]",
+            "dependsOn": [
+                "[concat('SessionHosts_', parameters('Timestamp'))]"
+            ],
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "https://raw.githubusercontent.com/jamasten/Azure/master/solutions/avd/templates/stig.json",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "AutomationAccountName": {
+                        "value": "[variables('AutomationAccountName')]"
+                    },
+                    "Location": {
+                        "value": "[variables('Location')]"
+                    },
+                    "SessionHostCount": {
+                        "value": "[parameters('SessionHostCount')]"
+                    },
+                    "SessionHostIndex": {
+                        "value": "[parameters('SessionHostIndex')]"
+                    },
+                    "Timestamp": {
+                        "value": "[parameters('Timestamp')]"
+                    },
+                    "VmName": {
+                        "value": "[variables('VmName')]"
+                    },
+                    "VmResourceGroupName": {
+                        "value": "[variables('ResourceGroups')[1]]"
+                    }
+                }
+            }
+        },
+        {
             "comments": "---------- LINKED DEPLOYMENT > SCALING AUTOMATION ----------",
             "condition": "[equals(split(parameters('HostPoolType'), ' ')[0], 'Pooled')]",
             "type": "Microsoft.Resources/deployments",

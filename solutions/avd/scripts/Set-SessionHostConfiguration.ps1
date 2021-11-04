@@ -96,8 +96,6 @@ function Get-WebFile
 #  Output parameter values for validation
 ##############################################################
 Write-Log -Message "AmdVmSize: $AmdVmSize" -Type 'INFO'
-Write-Log -Message "AutoInstallDependencies: $autoInstallDependencies" -Type 'INFO'
-Write-Log -Message "DoD STIG Compliance: $DodStigCompliance" -Type 'INFO'
 Write-Log -Message "Environment: $Environment" -Type 'INFO'
 Write-Log -Message "FSLogix: $FSLogix" -Type 'INFO'
 Write-Log -Message "HostPoolName: $HostPoolName" -Type 'INFO'

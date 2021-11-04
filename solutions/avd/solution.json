@@ -524,9 +524,6 @@
                     "CustomRdpProperty": {
                         "value": "[parameters('CustomRdpProperty')]"
                     },
-                    "DodStigCompliance": {
-                        "value": "[parameters('DodStigCompliance')]"
-                    },
                     "HostPoolName": {
                         "value": "[variables('HostPoolName')]"
                     },

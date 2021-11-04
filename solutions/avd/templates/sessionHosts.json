@@ -2,18 +2,8 @@
     "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
-        "autoInstallDependencies": {
-            "type": "bool",
-            "defaultValue": false,
-            "metadata": {
-                "description": "Boolean value to indicate an online or offline environment."
-            }
-        },
         "DiskSku": {
             "type": "string"
-        },
-        "DodStigCompliance": {
-            "type": "bool"
         },
         "DomainName": {
             "type": "string"
@@ -60,9 +50,6 @@
         "LogAnalyticsWorkspaceName": {
             "type": "string"
         },
-        "LogAnalyticsWorkspaceRetention": {
-            "type": "int"
-        },
         "OuPath": {
             "type": "string"
         },
@@ -79,9 +66,6 @@
             "type": "bool"
         },
         "StorageAccountName": {
-            "type": "string"
-        },
-        "StorageAccountLogsName": {
             "type": "string"
         },
         "Subnet": {
@@ -148,12 +132,7 @@
             "managedDisk": {
                 "storageAccountType": "[parameters('DiskSku')]"
             }
-        },
-        "wadlogs": "<WadCfg> <DiagnosticMonitorConfiguration overallQuotaInMB=\"4096\" xmlns=\"http://schemas.microsoft.com/ServiceHosting/2010/10/DiagnosticsConfiguration\"> <DiagnosticInfrastructureLogs scheduledTransferLogLevelFilter=\"Error\"/> <WindowsEventLog scheduledTransferPeriod=\"PT1M\" > <DataSource name=\"Application!*[System[(Level = 1 or Level = 2)]]\" /> <DataSource name=\"Security!*[System[(band(Keywords,13510798882111488))]]\" /> <DataSource name=\"System!*[System[(Level = 1 or Level = 2)]]\" /></WindowsEventLog>",
-        "wadperfcounters1": "<PerformanceCounters scheduledTransferPeriod=\"PT1M\"><PerformanceCounterConfiguration counterSpecifier=\"\\Processor(_Total)\\% Processor Time\" sampleRate=\"PT15S\" unit=\"Percent\"><annotation displayName=\"CPU utilization\" locale=\"en-us\"/></PerformanceCounterConfiguration><PerformanceCounterConfiguration counterSpecifier=\"\\Processor(_Total)\\% Privileged Time\" sampleRate=\"PT15S\" unit=\"Percent\"><annotation displayName=\"CPU privileged time\" locale=\"en-us\"/></PerformanceCounterConfiguration><PerformanceCounterConfiguration counterSpecifier=\"\\Processor(_Total)\\% User Time\" sampleRate=\"PT15S\" unit=\"Percent\"><annotation displayName=\"CPU user time\" locale=\"en-us\"/></PerformanceCounterConfiguration><PerformanceCounterConfiguration counterSpecifier=\"\\Processor Information(_Total)\\Processor Frequency\" sampleRate=\"PT15S\" unit=\"Count\"><annotation displayName=\"CPU frequency\" locale=\"en-us\"/></PerformanceCounterConfiguration><PerformanceCounterConfiguration counterSpecifier=\"\\System\\Processes\" sampleRate=\"PT15S\" unit=\"Count\"><annotation displayName=\"Processes\" locale=\"en-us\"/></PerformanceCounterConfiguration><PerformanceCounterConfiguration counterSpecifier=\"\\Process(_Total)\\Thread Count\" sampleRate=\"PT15S\" unit=\"Count\"><annotation displayName=\"Threads\" locale=\"en-us\"/></PerformanceCounterConfiguration><PerformanceCounterConfiguration counterSpecifier=\"\\Process(_Total)\\Handle Count\" sampleRate=\"PT15S\" unit=\"Count\"><annotation displayName=\"Handles\" locale=\"en-us\"/></PerformanceCounterConfiguration><PerformanceCounterConfiguration counterSpecifier=\"\\Memory\\% Committed Bytes In Use\" sampleRate=\"PT15S\" unit=\"Percent\"><annotation displayName=\"Memory usage\" locale=\"en-us\"/></PerformanceCounterConfiguration><PerformanceCounterConfiguration counterSpecifier=\"\\Memory\\Available Bytes\" sampleRate=\"PT15S\" unit=\"Bytes\"><annotation displayName=\"Memory available\" locale=\"en-us\"/></PerformanceCounterConfiguration><PerformanceCounterConfiguration counterSpecifier=\"\\Memory\\Committed Bytes\" sampleRate=\"PT15S\" unit=\"Bytes\"><annotation displayName=\"Memory committed\" locale=\"en-us\"/></PerformanceCounterConfiguration><PerformanceCounterConfiguration counterSpecifier=\"\\Memory\\Commit Limit\" sampleRate=\"PT15S\" unit=\"Bytes\"><annotation displayName=\"Memory commit limit\" locale=\"en-us\"/></PerformanceCounterConfiguration><PerformanceCounterConfiguration counterSpecifier=\"\\PhysicalDisk(_Total)\\% Disk Time\" sampleRate=\"PT15S\" unit=\"Percent\"><annotation displayName=\"Disk active time\" locale=\"en-us\"/></PerformanceCounterConfiguration>",
-        "wadperfcounters2": "<PerformanceCounterConfiguration counterSpecifier=\"\\PhysicalDisk(_Total)\\% Disk Read Time\" sampleRate=\"PT15S\" unit=\"Percent\"><annotation displayName=\"Disk active read time\" locale=\"en-us\"/></PerformanceCounterConfiguration><PerformanceCounterConfiguration counterSpecifier=\"\\PhysicalDisk(_Total)\\% Disk Write Time\" sampleRate=\"PT15S\" unit=\"Percent\"><annotation displayName=\"Disk active write time\" locale=\"en-us\"/></PerformanceCounterConfiguration><PerformanceCounterConfiguration counterSpecifier=\"\\PhysicalDisk(_Total)\\Disk Transfers/sec\" sampleRate=\"PT15S\" unit=\"CountPerSecond\"><annotation displayName=\"Disk operations\" locale=\"en-us\"/></PerformanceCounterConfiguration><PerformanceCounterConfiguration counterSpecifier=\"\\PhysicalDisk(_Total)\\Disk Reads/sec\" sampleRate=\"PT15S\" unit=\"CountPerSecond\"><annotation displayName=\"Disk read operations\" locale=\"en-us\"/></PerformanceCounterConfiguration><PerformanceCounterConfiguration counterSpecifier=\"\\PhysicalDisk(_Total)\\Disk Writes/sec\" sampleRate=\"PT15S\" unit=\"CountPerSecond\"><annotation displayName=\"Disk write operations\" locale=\"en-us\"/></PerformanceCounterConfiguration><PerformanceCounterConfiguration counterSpecifier=\"\\PhysicalDisk(_Total)\\Disk Bytes/sec\" sampleRate=\"PT15S\" unit=\"BytesPerSecond\"><annotation displayName=\"Disk speed\" locale=\"en-us\"/></PerformanceCounterConfiguration><PerformanceCounterConfiguration counterSpecifier=\"\\PhysicalDisk(_Total)\\Disk Read Bytes/sec\" sampleRate=\"PT15S\" unit=\"BytesPerSecond\"><annotation displayName=\"Disk read speed\" locale=\"en-us\"/></PerformanceCounterConfiguration><PerformanceCounterConfiguration counterSpecifier=\"\\PhysicalDisk(_Total)\\Disk Write Bytes/sec\" sampleRate=\"PT15S\" unit=\"BytesPerSecond\"><annotation displayName=\"Disk write speed\" locale=\"en-us\"/></PerformanceCounterConfiguration><PerformanceCounterConfiguration counterSpecifier=\"\\LogicalDisk(_Total)\\% Free Space\" sampleRate=\"PT15S\" unit=\"Percent\"><annotation displayName=\"Disk free space (percentage)\" locale=\"en-us\"/></PerformanceCounterConfiguration></PerformanceCounters>",
-        "wadcfgxstart": "[concat(variables('wadlogs'), variables('wadperfcounters1'), variables('wadperfcounters2'), '<Metrics resourceId=\"')]",
-        "wadcfgxend": "\"><MetricAggregation scheduledTransferPeriod=\"PT1H\"/><MetricAggregation scheduledTransferPeriod=\"PT1M\"/></Metrics></DiagnosticMonitorConfiguration></WadCfg>"
+        }
     },
     "resources": [
         {
@@ -199,34 +178,6 @@
                 ],
                 "enableAcceleratedNetworking": false,
                 "enableIPForwarding": false
-            }
-        },
-        {
-            "comments": "---------- NETWORK INTERFACES > DIAGNOSTIC SETTINGS ----------",
-            "condition": "[parameters('DodStigCompliance')]",
-            "type": "Microsoft.Network/networkInterfaces/providers/diagnosticSettings",
-            "apiVersion": "2017-05-01-preview",
-            "name": "[concat('nic-', parameters('resourceNameSuffix'), padLeft(copyIndex(parameters('SessionHostIndex')), 3, '0'), '/Microsoft.Insights/service')]",
-            "location": "[parameters('Location')]",
-            "dependsOn": [
-                "nicLoop"
-            ],
-            "copy": {
-                "name": "nicDiagnosticLoop",
-                "count": "[parameters('SessionHostCount')]"
-            },
-            "properties": {
-                "workspaceId": "[variables('LogAnalyticsWorkspaceResourceId')]",
-                "metrics": [
-                    {
-                        "category": "AllMetrics",
-                        "enabled": true,
-                        "retentionPolicy": {
-                            "enabled": true,
-                            "days": "[parameters('LogAnalyticsWorkspaceRetention')]"
-                        }
-                    }
-                ]
             }
         },
         {
@@ -308,33 +259,6 @@
                     }
                 },
                 {
-                    "comments": "---------- IAAS DIAGNOSTICS EXTENSION ----------",
-                    "condition": "[parameters('DodStigCompliance')]",
-                    "type": "extensions",
-                    "apiVersion": "2020-06-01",
-                    "name": "IaaSDiagnostics",
-                    "location": "[parameters('Location')]",
-                    "dependsOn": [
-                        "[concat(parameters('VmName'), padLeft(copyIndex(parameters('SessionHostIndex')), 3, '0'))]",
-                        "MicrosoftMonitoringAgent"
-                    ],
-                    "properties": {
-                        "publisher": "Microsoft.Azure.Diagnostics",
-                        "type": "IaaSDiagnostics",
-                        "typeHandlerVersion": "1.5",
-                        "autoUpgradeMinorVersion": true,
-                        "settings": {
-                            "xmlCfg": "[base64(concat(variables('wadcfgxstart'), resourceId('Microsoft.Compute/virtualMachines', concat(parameters('VmName'), padLeft(copyIndex(parameters('SessionHostIndex')), 3, '0'))), variables('wadcfgxend')))]",
-                            "storageAccount": "[parameters('StorageAccountLogsName')]"
-                        },
-                        "protectedSettings": {
-                            "storageAccountName": "[parameters('StorageAccountLogsName')]",
-                            "storageAccountKey": "[listkeys(resourceId(parameters('InfraResourceGroupName'), 'Microsoft.Storage/storageAccounts', parameters('StorageAccountLogsName')), '2019-06-01').keys[0].value]",
-                            "storageAccountEndPoint": "[concat('https://', environment().suffixes.storage)]"
-                        }
-                    }
-                },
-                {
                     "comments": "---------- DOMAIN JOIN EXTENSION ----------",
                     "apiVersion": "2021-03-01",
                     "type": "extensions",
@@ -343,7 +267,7 @@
                     "tags": "[parameters('Tags')]",
                     "dependsOn": [
                         "[concat(parameters('VmName'), padLeft(copyIndex(parameters('SessionHostIndex')), 3, '0'))]",
-                        "IaaSDiagnostics"
+                        "MicrosoftMonitoringAgent"
                     ],
                     "properties": {
                         "forceUpdateTag": "[parameters('Timestamp')]",
@@ -381,41 +305,12 @@
                         "autoUpgradeMinorVersion": true,
                         "settings": {
                             "fileUris": [
-                                "https://raw.githubusercontent.com/jamasten/Azure/master/solutions/avd/scripts/Set-SessionHostConfiguration.ps1",
-                                "https://raw.githubusercontent.com/Azure/ato-toolkit/master/stig/windows/RequiredModules.ps1",
-                                "https://raw.githubusercontent.com/Azure/ato-toolkit/master/stig/windows/InstallModules.ps1",
-                                "https://raw.githubusercontent.com/Azure/ato-toolkit/master/stig/windows/GenerateStigChecklist.ps1"
+                                "https://raw.githubusercontent.com/jamasten/Azure/master/solutions/avd/scripts/Set-SessionHostConfiguration.ps1"
                             ],
                             "timestamp": "[parameters('Timestamp')]"
                         },
                         "protectedSettings": {
-                            "commandToExecute": "[concat('powershell -ExecutionPolicy Unrestricted -File Set-SessionHostConfiguration.ps1 -AmdVmSize ', variables('AmdVmSize'), ' -autoInstallDependencies ', parameters('autoInstallDependencies'), ' -DodStigCompliance ', parameters('DodStigCompliance'), ' -Environment ', environment().name, ' -FSLogix ', parameters('FSLogix'), ' -HostPoolName ', parameters('HostPoolName'), ' -HostPoolRegistrationToken ', reference(resourceId(parameters('HostPoolResourceGroupName'), 'Microsoft.DesktopVirtualization/hostpools', parameters('HostPoolName')), '2019-12-10-preview').registrationInfo.token, ' -ImageOffer ', parameters('ImageOffer'), ' -ImagePublisher ', parameters('ImagePublisher'), ' -NvidiaVmSize ', variables('NvidiaVmSize'), ' -PooledHostPool ', variables('PooledHostPool'), ' -ScreenCaptureProtection ', parameters('ScreenCaptureProtection'), ' -StorageAccountName ', parameters('StorageAccountName'))]"
-                        }
-                    }
-                },
-                {
-                    "comments": "---------- DESIRED STATE CONFIGURATION EXTENSION ----------",
-                    "condition": "[parameters('DodStigCompliance')]",
-                    "type": "extensions",
-                    "apiVersion": "2020-12-01",
-                    "name": "DSC",
-                    "location": "[parameters('location')]",
-                    "dependsOn": [
-                        "[concat(parameters('VmName'), padLeft(copyIndex(parameters('SessionHostIndex')), 3, '0'))]",
-                        "CustomScriptExtension"
-                    ],
-                    "properties": {
-                        "publisher": "Microsoft.Powershell",
-                        "type": "DSC",
-                        "typeHandlerVersion": "2.77",
-                        "autoUpgradeMinorVersion": true,
-                        "settings": {
-                            "wmfVersion": "latest",
-                            "configuration": {
-                                "url": "https://github.com/Azure/ato-toolkit/raw/master/stig/windows/Windows.ps1.zip",
-                                "script": "Windows.ps1",
-                                "function": "Windows"
-                            }
+                            "commandToExecute": "[concat('powershell -ExecutionPolicy Unrestricted -File Set-SessionHostConfiguration.ps1 -AmdVmSize ', variables('AmdVmSize'), ' -Environment ', environment().name, ' -FSLogix ', parameters('FSLogix'), ' -HostPoolName ', parameters('HostPoolName'), ' -HostPoolRegistrationToken ', reference(resourceId(parameters('HostPoolResourceGroupName'), 'Microsoft.DesktopVirtualization/hostpools', parameters('HostPoolName')), '2019-12-10-preview').registrationInfo.token, ' -ImageOffer ', parameters('ImageOffer'), ' -ImagePublisher ', parameters('ImagePublisher'), ' -NvidiaVmSize ', variables('NvidiaVmSize'), ' -PooledHostPool ', variables('PooledHostPool'), ' -ScreenCaptureProtection ', parameters('ScreenCaptureProtection'), ' -StorageAccountName ', parameters('StorageAccountName'))]"
                         }
                     }
                 },
@@ -429,7 +324,7 @@
                     "tags": "[parameters('Tags')]",
                     "dependsOn": [
                         "[concat(parameters('VmName'), padLeft(copyIndex(parameters('SessionHostIndex')), 3, '0'))]",
-                        "DSC"
+                        "CustomScriptExtension"
                     ],
                     "properties": {
                         "publisher": "Microsoft.HpcCompute",
@@ -449,7 +344,7 @@
                     "tags": "[parameters('Tags')]",
                     "dependsOn": [
                         "[concat(parameters('VmName'), padLeft(copyIndex(parameters('SessionHostIndex')), 3, '0'))]",
-                        "DSC"
+                        "CustomScriptExtension"
                     ],
                     "properties": {
                         "publisher": "Microsoft.HpcCompute",
@@ -460,34 +355,6 @@
                     }
                 }
             ]
-        },
-        {
-            "comments": "---------- VIRTUAL MACHINES > DIAGNOSTIC SETTINGS ----------",
-            "condition": "[parameters('DodStigCompliance')]",
-            "type": "Microsoft.Compute/virtualMachines/providers/diagnosticSettings",
-            "apiVersion": "2017-05-01-preview",
-            "name": "[concat(parameters('VmName'), padLeft(copyIndex(parameters('SessionHostIndex')), 3, '0'), '/Microsoft.Insights/service')]",
-            "location": "[parameters('location')]",
-            "dependsOn": [
-                "vmLoop"
-            ],
-            "copy": {
-                "name": "vmDiagnosticLoop",
-                "count": "[parameters('SessionHostCount')]"
-            },
-            "properties": {
-                "workspaceId": "[variables('LogAnalyticsWorkspaceResourceId')]",
-                "metrics": [
-                    {
-                        "category": "AllMetrics",
-                        "enabled": true,
-                        "retentionPolicy": {
-                            "enabled": true,
-                            "days": "[parameters('LogAnalyticsWorkspaceRetention')]"
-                        }
-                    }
-                ]
-            }
         }
     ]
 }

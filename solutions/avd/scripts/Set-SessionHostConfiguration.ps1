@@ -6,14 +6,6 @@ Param(
 
     [parameter(Mandatory)]
     [string]
-    $autoInstallDependencies,
-
-    [parameter(Mandatory)]
-    [string]
-    $DodStigCompliance,
-
-    [parameter(Mandatory)]
-    [string]
     $Environment,
 
     [parameter(Mandatory)]
@@ -116,15 +108,6 @@ Write-Log -Message "PooledHostPool: $PooledHostPool" -Type 'INFO'
 Write-Log -Message "ScreenCaptureProtection: $ScreenCaptureProtection" -Type 'INFO'
 Write-Log -Message "AmdVmSize: $AmdVmSize" -Type 'INFO'
 Write-Log -Message "StorageAccountName: $StorageAccountName" -Type 'INFO'
-
-
-##############################################################
-#  DoD Compliance Config
-##############################################################
-if ($DodStigCompliance -eq 'true') 
-{
-    .\InstallModules.ps1 -autoInstallDependencies $autoInstallDependencies
-}
 
 
 ##############################################################

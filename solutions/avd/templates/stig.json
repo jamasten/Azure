@@ -148,7 +148,7 @@
             "comments": "---------- AUTOMATION ACCOUNT > COMPILATION JOBS ----------",
             "type": "Microsoft.Automation/automationAccounts/compilationjobs",
             "name": "[concat(parameters('AutomationAccountName'), '/', guid(deployment().name))]",
-            "apiVersion": "2018-01-15",
+            "apiVersion": "2020-01-13-preview",
             "location": "[parameters('Location')]",
             "dependsOn": [
                 "[parameters('AutomationAccountName')]",
@@ -158,11 +158,7 @@
             "properties": {
                 "configuration": {
                     "name": "[variables('ConfigurationName')]"
-                },
-                "parameters": {
-                    "configurationData": "[concat('{\"AllNodes\":{\"nodename\":\"localhost\"}}')]"
-                },
-                "incrementNodeConfigurationBuild": true
+                }
             }
         },
         {

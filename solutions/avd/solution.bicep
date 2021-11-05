@@ -14,6 +14,8 @@ param DiskEncryption bool = false
 @description('The storage SKU for the AVD session host disks.  Production deployments should use Premium_LRS.')
 param DiskSku string = 'Standard_LRS'
 
+param DodStigCompliance bool = false
+
 @secure()
 @description('The password of the privileged account to domain join the AVD session hosts to your domain')
 param DomainJoinPassword string
@@ -256,7 +258,7 @@ var TimeZones = {
     westus3: 'Mountain Standard Time'
 }
 var VmName = 'vm${ResourceNameSuffix}'
-var VmTemplate = '{"domain":"${DomainName}","galleryImageOffer":"${ImageOffer}","galleryImagePublisher":"${ImagePublisher}","galleryImageSKU":"${ImageSku}","imageType":"Gallery","imageUri":null,"customImageId":null,"namePrefix":"${VmName}","osDiskType":"${DiskSku}","useManagedDisks":true,"vmSize":{"id":"${VmSize}","cores":null,"ram":null},"galleryItemId":"${ImagePublisher}.${ImageOffer}${ImageSku}"}'
+var VmTemplate = '{\'domain\':\'${DomainName}\',\'galleryImageOffer\':\'${ImageOffer}\',\'galleryImagePublisher\':\'${ImagePublisher}\',\'galleryImageSKU\':\'${ImageSku}\',\'imageType\':\'Gallery\',\'imageUri\':null,\'customImageId\':null,\'namePrefix\':\'${VmName}\',\'osDiskType\':\'${DiskSku}\',\'useManagedDisks\':true,\'vmSize\':{\'id\':\'${VmSize}\',\'cores\':null,\'ram\':null},\'galleryItemId\':\'${ImagePublisher}.${ImageOffer}${ImageSku}\'}'
 var WorkspaceName = 'ws-${ResourceNameSuffix}'
 
 resource rg 'Microsoft.Resources/resourceGroups@2020-10-01' = [for ResourceGroup in ResourceGroups: {
@@ -426,7 +428,7 @@ module scale 'modules/scale.bicep' = if(split(HostPoolType, ' ')[0] == 'Pooled')
     HostPoolResourceGroupName: ResourceGroups[0]
     LimitSecondsToForceLogOffUser: ScalingLimitSecondsToForceLogOffUser
     Location: Location
-    LogAnalyticsWorkspaceResourceId: // TO DO: output LAW Resource ID from Host Pool module 
+    LogAnalyticsWorkspaceResourceId: resourceId('Microsoft.OperationalInsights/workspaces', LogAnalyticsWorkspaceName)
     LogicAppName: LogicAppName
     MinimumNumberOfRdsh: ScalingMinimumNumberOfRdsh
     SessionHostsResourceGroupName: ResourceGroups[1]

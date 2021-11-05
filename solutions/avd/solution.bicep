@@ -261,11 +261,17 @@ var VmName = 'vm${ResourceNameSuffix}'
 var VmTemplate = '{\'domain\':\'${DomainName}\',\'galleryImageOffer\':\'${ImageOffer}\',\'galleryImagePublisher\':\'${ImagePublisher}\',\'galleryImageSKU\':\'${ImageSku}\',\'imageType\':\'Gallery\',\'imageUri\':null,\'customImageId\':null,\'namePrefix\':\'${VmName}\',\'osDiskType\':\'${DiskSku}\',\'useManagedDisks\':true,\'vmSize\':{\'id\':\'${VmSize}\',\'cores\':null,\'ram\':null},\'galleryItemId\':\'${ImagePublisher}.${ImageOffer}${ImageSku}\'}'
 var WorkspaceName = 'ws-${ResourceNameSuffix}'
 
-resource rg 'Microsoft.Resources/resourceGroups@2020-10-01' = [for ResourceGroup in ResourceGroups: {
-  name: ResourceGroup
+resource rgInfra 'Microsoft.Resources/resourceGroups@2020-10-01' = {
+  name: ResourceGroups[0]
   location: Location
   tags: Tags
-}]
+}
+
+resource rgHosts 'Microsoft.Resources/resourceGroups@2020-10-01' = {
+  name: ResourceGroups[1]
+  location: Location
+  tags: Tags
+}
 
 resource customRole 'Microsoft.Authorization/roleDefinitions@2018-01-01-preview' = if(StartVmOnConnect) {
   name: RoleDefinitionName
@@ -296,7 +302,7 @@ resource roleAssignment 'Microsoft.Authorization/roleAssignments@2020-10-01-prev
 
 module hostPool 'modules/hostPool.bicep' = {
   name: 'hostPool_${TimeStamp}'
-  scope: rg[0]
+  scope: resourceGroup(rgInfra.name)
   params: {
     AppGroupName: AppGroupName
     CustomRdpProperty: CustomRdpProperty
@@ -319,7 +325,7 @@ module hostPool 'modules/hostPool.bicep' = {
 
 module sessionHosts 'modules/sessionHosts.bicep' = {
   name: 'sessionHosts_${TimeStamp}'
-  scope: rg[1]
+  scope: resourceGroup(ResourceGroups[1])
   params: {
     DiskSku: DiskSku
     DomainJoinPassword: DomainJoinPassword
@@ -328,7 +334,7 @@ module sessionHosts 'modules/sessionHosts.bicep' = {
     EphemeralOsDisk: EphemeralOsDisk
     FSLogix: FSLogix
     HostPoolName: hostPool.outputs.HostPoolName
-    HostPoolResourceGroupName: ResourceGroups[0]
+    HostPoolResourceGroupName: rgInfra.name
     HostPoolType: HostPoolType
     ImageOffer: ImageOffer
     ImagePublisher: ImagePublisher
@@ -356,7 +362,7 @@ module sessionHosts 'modules/sessionHosts.bicep' = {
 
 module fslogix 'modules/fslogix.bicep' = if(split(HostPoolType, ' ')[0] == 'Pooled' && FSLogix) {
   name: 'fslogix_${TimeStamp}'
-  scope: rg[0]
+  scope: resourceGroup(rgInfra.name)
   params: {
     DomainJoinPassword: DomainJoinPassword
     DomainJoinUserPrincipalName: DomainJoinUserPrincipalName
@@ -385,7 +391,7 @@ module fslogix 'modules/fslogix.bicep' = if(split(HostPoolType, ' ')[0] == 'Pool
 
 module backup 'modules/backup.bicep' = if(RecoveryServices) {
   name: 'backup_${TimeStamp}'
-  scope: rg[0]
+  scope: resourceGroup(rgInfra.name)
   params: {
     HostPoolName: hostPool.outputs.HostPoolName
     HostPoolType: HostPoolType
@@ -403,7 +409,7 @@ module backup 'modules/backup.bicep' = if(RecoveryServices) {
 
 module bitLocker 'modules/bitLocker.bicep' = if(DiskEncryption) {
   name: 'bitLocker_${TimeStamp}'
-  scope: rg[0]
+  scope: resourceGroup(rgInfra.name)
   params: {
     FSLogix: FSLogix
     KeyVaultName: KeyVaultName
@@ -418,7 +424,7 @@ module bitLocker 'modules/bitLocker.bicep' = if(DiskEncryption) {
 
 module stig 'modules/stig.bicep' = if(DodStigCompliance) {
   name: 'bitLocker_${TimeStamp}'
-  scope: rg[0]
+  scope: resourceGroup(rgInfra.name)
   params: {
     AutomationAccountName: AutomationAccountName
     Location: Location
@@ -432,13 +438,13 @@ module stig 'modules/stig.bicep' = if(DodStigCompliance) {
 
 module scale 'modules/scale.bicep' = if(split(HostPoolType, ' ')[0] == 'Pooled') {
   name: 'scale_${TimeStamp}'
-  scope: rg[0]
+  scope: resourceGroup(rgInfra.name)
   params: {
     AutomationAccountName: AutomationAccountName
     BeginPeakTime: ScalingBeginPeakTime
     EndPeakTime: ScalingEndPeakTime
     HostPoolName: HostPoolName
-    HostPoolResourceGroupName: ResourceGroups[0]
+    HostPoolResourceGroupName: rgInfra.name
     LimitSecondsToForceLogOffUser: ScalingLimitSecondsToForceLogOffUser
     Location: Location
     LogAnalyticsWorkspaceResourceId: hostPool.outputs.LogAnalyticsWorkspaceResourceId
@@ -457,10 +463,10 @@ module scale 'modules/scale.bicep' = if(split(HostPoolType, ' ')[0] == 'Pooled')
 
 module drainMode 'modules/drainMode.bicep' = if(split(HostPoolType, ' ')[0] == 'Pooled' && DrainMode) {
   name: 'drainMode_${TimeStamp}'
-  scope: rg[0]
+  scope: resourceGroup(rgInfra.name)
   params: {
     HostPoolName: hostPool.outputs.HostPoolName
-    HostPoolResourceGroupName: ResourceGroups[0]
+    HostPoolResourceGroupName: rgInfra.name
     Location: Location
     Timestamp: TimeStamp
   }

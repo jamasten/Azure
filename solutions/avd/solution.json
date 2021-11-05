@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.4.1008.15138",
-      "templateHash": "15911533141774471208"
+      "templateHash": "7553727382949280261"
     }
   },
   "parameters": {
@@ -453,13 +453,16 @@
   },
   "resources": [
     {
-      "copy": {
-        "name": "rg",
-        "count": "[length(variables('ResourceGroups'))]"
-      },
       "type": "Microsoft.Resources/resourceGroups",
       "apiVersion": "2020-10-01",
-      "name": "[variables('ResourceGroups')[copyIndex()]]",
+      "name": "[variables('ResourceGroups')[0]]",
+      "location": "[variables('Location')]",
+      "tags": "[parameters('Tags')]"
+    },
+    {
+      "type": "Microsoft.Resources/resourceGroups",
+      "apiVersion": "2020-10-01",
+      "name": "[variables('ResourceGroups')[1]]",
       "location": "[variables('Location')]",
       "tags": "[parameters('Tags')]"
     },
@@ -1277,7 +1280,7 @@
             "value": "[parameters('FSLogix')]"
           },
           "HostPoolName": {
-            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroups')[copyIndex()]), 'Microsoft.Resources/deployments', format('hostPool_{0}', parameters('TimeStamp'))), '2020-06-01').outputs.HostPoolName.value]"
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroups')[0]), 'Microsoft.Resources/deployments', format('hostPool_{0}', parameters('TimeStamp'))), '2020-06-01').outputs.HostPoolName.value]"
           },
           "HostPoolResourceGroupName": {
             "value": "[variables('ResourceGroups')[0]]"
@@ -1301,7 +1304,7 @@
             "value": "[variables('Location')]"
           },
           "LogAnalyticsWorkspaceResourceId": {
-            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroups')[copyIndex()]), 'Microsoft.Resources/deployments', format('hostPool_{0}', parameters('TimeStamp'))), '2020-06-01').outputs.LogAnalyticsWorkspaceResourceId.value]"
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroups')[0]), 'Microsoft.Resources/deployments', format('hostPool_{0}', parameters('TimeStamp'))), '2020-06-01').outputs.LogAnalyticsWorkspaceResourceId.value]"
           },
           "OuPath": {
             "value": "[parameters('OuPath')]"
@@ -1733,8 +1736,8 @@
         }
       },
       "dependsOn": [
-        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroups')[copyIndex()]), 'Microsoft.Resources/deployments', format('hostPool_{0}', parameters('TimeStamp')))]",
-        "[subscriptionResourceId('Microsoft.Resources/resourceGroups', variables('ResourceGroups')[1])]"
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroups')[0]), 'Microsoft.Resources/deployments', format('hostPool_{0}', parameters('TimeStamp')))]",
+        "[subscriptionResourceId('Microsoft.Resources/resourceGroups', variables('ResourceGroups')[0])]"
       ]
     },
     {
@@ -1762,7 +1765,7 @@
             "value": "[parameters('DomainServices')]"
           },
           "HostPoolName": {
-            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroups')[copyIndex()]), 'Microsoft.Resources/deployments', format('hostPool_{0}', parameters('TimeStamp'))), '2020-06-01').outputs.HostPoolName.value]"
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroups')[0]), 'Microsoft.Resources/deployments', format('hostPool_{0}', parameters('TimeStamp'))), '2020-06-01').outputs.HostPoolName.value]"
           },
           "KerberosEncryptionType": {
             "value": "[parameters('KerberosEncryption')]"
@@ -2144,7 +2147,7 @@
         }
       },
       "dependsOn": [
-        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroups')[copyIndex()]), 'Microsoft.Resources/deployments', format('hostPool_{0}', parameters('TimeStamp')))]",
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroups')[0]), 'Microsoft.Resources/deployments', format('hostPool_{0}', parameters('TimeStamp')))]",
         "[subscriptionResourceId('Microsoft.Resources/resourceGroups', variables('ResourceGroups')[0])]"
       ]
     },
@@ -2161,7 +2164,7 @@
         "mode": "Incremental",
         "parameters": {
           "HostPoolName": {
-            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroups')[copyIndex()]), 'Microsoft.Resources/deployments', format('hostPool_{0}', parameters('TimeStamp'))), '2020-06-01').outputs.HostPoolName.value]"
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroups')[0]), 'Microsoft.Resources/deployments', format('hostPool_{0}', parameters('TimeStamp'))), '2020-06-01').outputs.HostPoolName.value]"
           },
           "HostPoolType": {
             "value": "[parameters('HostPoolType')]"
@@ -2179,7 +2182,7 @@
             "value": "[parameters('SessionHostIndex')]"
           },
           "StorageAccountName": {
-            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroups')[copyIndex()]), 'Microsoft.Resources/deployments', format('fslogix_{0}', parameters('TimeStamp'))), '2020-06-01').outputs.StorageAccountName.value]"
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroups')[0]), 'Microsoft.Resources/deployments', format('fslogix_{0}', parameters('TimeStamp'))), '2020-06-01').outputs.StorageAccountName.value]"
           },
           "Tags": {
             "value": "[parameters('Tags')]"
@@ -2188,7 +2191,7 @@
             "value": "[variables('TimeZones')[variables('Location')]]"
           },
           "VmName": {
-            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroups')[copyIndex()]), 'Microsoft.Resources/deployments', format('sessionHosts_{0}', parameters('TimeStamp'))), '2020-06-01').outputs.VmName.value]"
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroups')[1]), 'Microsoft.Resources/deployments', format('sessionHosts_{0}', parameters('TimeStamp'))), '2020-06-01').outputs.VmName.value]"
           },
           "VmResourceGroupName": {
             "value": "[variables('ResourceGroups')[1]]"
@@ -2371,10 +2374,10 @@
         }
       },
       "dependsOn": [
-        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroups')[copyIndex()]), 'Microsoft.Resources/deployments', format('fslogix_{0}', parameters('TimeStamp')))]",
-        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroups')[copyIndex()]), 'Microsoft.Resources/deployments', format('hostPool_{0}', parameters('TimeStamp')))]",
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroups')[0]), 'Microsoft.Resources/deployments', format('fslogix_{0}', parameters('TimeStamp')))]",
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroups')[0]), 'Microsoft.Resources/deployments', format('hostPool_{0}', parameters('TimeStamp')))]",
         "[subscriptionResourceId('Microsoft.Resources/resourceGroups', variables('ResourceGroups')[0])]",
-        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroups')[copyIndex()]), 'Microsoft.Resources/deployments', format('sessionHosts_{0}', parameters('TimeStamp')))]"
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroups')[1]), 'Microsoft.Resources/deployments', format('sessionHosts_{0}', parameters('TimeStamp')))]"
       ]
     },
     {
@@ -2411,7 +2414,7 @@
             "value": "[parameters('TimeStamp')]"
           },
           "VmName": {
-            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroups')[copyIndex()]), 'Microsoft.Resources/deployments', format('sessionHosts_{0}', parameters('TimeStamp'))), '2020-06-01').outputs.VmName.value]"
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroups')[1]), 'Microsoft.Resources/deployments', format('sessionHosts_{0}', parameters('TimeStamp'))), '2020-06-01').outputs.VmName.value]"
           }
         },
         "template": {
@@ -2679,7 +2682,7 @@
       },
       "dependsOn": [
         "[subscriptionResourceId('Microsoft.Resources/resourceGroups', variables('ResourceGroups')[0])]",
-        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroups')[copyIndex()]), 'Microsoft.Resources/deployments', format('sessionHosts_{0}', parameters('TimeStamp')))]"
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroups')[1]), 'Microsoft.Resources/deployments', format('sessionHosts_{0}', parameters('TimeStamp')))]"
       ]
     },
     {
@@ -2710,7 +2713,7 @@
             "value": "[parameters('TimeStamp')]"
           },
           "VmName": {
-            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroups')[copyIndex()]), 'Microsoft.Resources/deployments', format('sessionHosts_{0}', parameters('TimeStamp'))), '2020-06-01').outputs.VmName.value]"
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroups')[1]), 'Microsoft.Resources/deployments', format('sessionHosts_{0}', parameters('TimeStamp'))), '2020-06-01').outputs.VmName.value]"
           },
           "VmResourceGroupName": {
             "value": "[variables('ResourceGroups')[1]]"
@@ -3036,7 +3039,7 @@
       },
       "dependsOn": [
         "[subscriptionResourceId('Microsoft.Resources/resourceGroups', variables('ResourceGroups')[0])]",
-        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroups')[copyIndex()]), 'Microsoft.Resources/deployments', format('sessionHosts_{0}', parameters('TimeStamp')))]"
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroups')[1]), 'Microsoft.Resources/deployments', format('sessionHosts_{0}', parameters('TimeStamp')))]"
       ]
     },
     {
@@ -3073,7 +3076,7 @@
             "value": "[variables('Location')]"
           },
           "LogAnalyticsWorkspaceResourceId": {
-            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroups')[copyIndex()]), 'Microsoft.Resources/deployments', format('hostPool_{0}', parameters('TimeStamp'))), '2020-06-01').outputs.LogAnalyticsWorkspaceResourceId.value]"
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroups')[0]), 'Microsoft.Resources/deployments', format('hostPool_{0}', parameters('TimeStamp'))), '2020-06-01').outputs.LogAnalyticsWorkspaceResourceId.value]"
           },
           "LogicAppName": {
             "value": "[variables('LogicAppName')]"
@@ -3406,11 +3409,11 @@
         }
       },
       "dependsOn": [
-        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroups')[copyIndex()]), 'Microsoft.Resources/deployments', format('bitLocker_{0}', parameters('TimeStamp')))]",
-        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroups')[copyIndex()]), 'Microsoft.Resources/deployments', format('fslogix_{0}', parameters('TimeStamp')))]",
-        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroups')[copyIndex()]), 'Microsoft.Resources/deployments', format('hostPool_{0}', parameters('TimeStamp')))]",
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroups')[0]), 'Microsoft.Resources/deployments', format('bitLocker_{0}', parameters('TimeStamp')))]",
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroups')[0]), 'Microsoft.Resources/deployments', format('fslogix_{0}', parameters('TimeStamp')))]",
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroups')[0]), 'Microsoft.Resources/deployments', format('hostPool_{0}', parameters('TimeStamp')))]",
         "[subscriptionResourceId('Microsoft.Resources/resourceGroups', variables('ResourceGroups')[0])]",
-        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroups')[copyIndex()]), 'Microsoft.Resources/deployments', format('sessionHosts_{0}', parameters('TimeStamp')))]"
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroups')[1]), 'Microsoft.Resources/deployments', format('sessionHosts_{0}', parameters('TimeStamp')))]"
       ]
     },
     {
@@ -3426,7 +3429,7 @@
         "mode": "Incremental",
         "parameters": {
           "HostPoolName": {
-            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroups')[copyIndex()]), 'Microsoft.Resources/deployments', format('hostPool_{0}', parameters('TimeStamp'))), '2020-06-01').outputs.HostPoolName.value]"
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroups')[0]), 'Microsoft.Resources/deployments', format('hostPool_{0}', parameters('TimeStamp'))), '2020-06-01').outputs.HostPoolName.value]"
           },
           "HostPoolResourceGroupName": {
             "value": "[variables('ResourceGroups')[0]]"
@@ -3518,10 +3521,10 @@
         }
       },
       "dependsOn": [
-        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroups')[copyIndex()]), 'Microsoft.Resources/deployments', format('fslogix_{0}', parameters('TimeStamp')))]",
-        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroups')[copyIndex()]), 'Microsoft.Resources/deployments', format('hostPool_{0}', parameters('TimeStamp')))]",
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroups')[0]), 'Microsoft.Resources/deployments', format('fslogix_{0}', parameters('TimeStamp')))]",
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroups')[0]), 'Microsoft.Resources/deployments', format('hostPool_{0}', parameters('TimeStamp')))]",
         "[subscriptionResourceId('Microsoft.Resources/resourceGroups', variables('ResourceGroups')[0])]",
-        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroups')[copyIndex()]), 'Microsoft.Resources/deployments', format('sessionHosts_{0}', parameters('TimeStamp')))]"
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroups')[1]), 'Microsoft.Resources/deployments', format('sessionHosts_{0}', parameters('TimeStamp')))]"
       ]
     }
   ]

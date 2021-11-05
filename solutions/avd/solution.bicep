@@ -442,7 +442,7 @@ module scale 'modules/scale.bicep' = if(split(HostPoolType, ' ')[0] == 'Pooled')
     HostPoolResourceGroupName: ResourceGroups[0]
     LimitSecondsToForceLogOffUser: ScalingLimitSecondsToForceLogOffUser
     Location: Location
-    LogAnalyticsWorkspaceResourceId: resourceId('Microsoft.OperationalInsights/workspaces', LogAnalyticsWorkspaceName)
+    LogAnalyticsWorkspaceResourceId: hostPool.outputs.LogAnalyticsWorkspaceResourceId
     LogicAppName: LogicAppName
     MinimumNumberOfRdsh: ScalingMinimumNumberOfRdsh
     SessionHostsResourceGroupName: ResourceGroups[1]

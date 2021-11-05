@@ -313,7 +313,7 @@
                         "type": "DSC",
                         "typeHandlerVersion": "2.77",
                         "settings": {
-                            "modulesUrl": "https://github.com/jamasten/Azure/raw/master/solutions/dnsForwarders/dsc/dnsForwarders.zip",
+                            "modulesUrl": "https://github.com/battelle-cube/azure-avd-automation/raw/jamasten/solutions/dnsForwarders/dsc/dnsForwarders.zip",
                             "configurationFunction": "dnsForwarders.ps1\\dnsForwarders",
                             "configurationArguments": {
                                 "ActionAfterReboot": "ContinueConfiguration",

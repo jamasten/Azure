@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.4.1008.15138",
-      "templateHash": "11851268716947706773"
+      "templateHash": "15911533141774471208"
     }
   },
   "parameters": {
@@ -1823,7 +1823,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.4.1008.15138",
-              "templateHash": "9677726331482270428"
+              "templateHash": "15842726179244848313"
             }
           },
           "parameters": {
@@ -2093,7 +2093,6 @@
               "type": "Microsoft.Storage/storageAccounts/fileServices/shares",
               "apiVersion": "2021-02-01",
               "name": "[format('{0}/{1}/{2}', parameters('StorageAccountName'), 'default', toLower(parameters('HostPoolName')))]",
-              "tags": "[parameters('Tags')]",
               "properties": {
                 "accessTier": "[if(equals(parameters('StorageAccountSku'), 'Premium_LRS'), 'Premium', 'TransactionOptimized')]",
                 "shareQuota": 100,

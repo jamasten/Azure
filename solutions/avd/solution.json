@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.4.1008.15138",
-      "templateHash": "2862294831574898017"
+      "templateHash": "7474977747749190142"
     }
   },
   "parameters": {
@@ -3101,7 +3101,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.4.1008.15138",
-              "templateHash": "12580368416505725390"
+              "templateHash": "85311836355903753"
             }
           },
           "parameters": {
@@ -3330,7 +3330,7 @@
                       "type": "Http",
                       "inputs": {
                         "method": "POST",
-                        "uri": "[reference(resourceId('Microsoft.Automation/automationAccounts/variables', parameters('AutomationAccountName'), variables('Variable')), '2015-10-31', 'Full').properties.value]",
+                        "uri": "[replace(reference(resourceId('Microsoft.Automation/automationAccounts/variables', parameters('AutomationAccountName'), variables('Variable')), '2015-10-31', 'Full').properties.value, '\"', '')]",
                         "body": "[variables('ActionSettingsBody')]"
                       }
                     }

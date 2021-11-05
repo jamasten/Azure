@@ -201,7 +201,6 @@ resource storageAccount_FileServices 'Microsoft.Storage/storageAccounts/fileServ
 resource storageAccount_FileShare 'Microsoft.Storage/storageAccounts/fileServices/shares@2021-02-01' = {
   parent: storageAccount_FileServices
   name: toLower(HostPoolName)
-  tags: Tags
   properties: {
     accessTier: (StorageAccountSku == 'Premium_LRS') ? 'Premium' : 'TransactionOptimized'
     shareQuota: 100

@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.4.1008.15138",
-      "templateHash": "7474977747749190142"
+      "templateHash": "17037259877403528655"
     }
   },
   "parameters": {
@@ -472,6 +472,9 @@
       "apiVersion": "2018-01-01-preview",
       "name": "[variables('RoleDefinitionName')]",
       "properties": {
+        "assignableScopes": [
+          "[subscription().id]"
+        ],
         "roleName": "StartVmOnConnect",
         "description": "Allow AVD session hosts to be started when needed.",
         "type": "customRole",

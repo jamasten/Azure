@@ -276,6 +276,9 @@ resource rgHosts 'Microsoft.Resources/resourceGroups@2020-10-01' = {
 resource customRole 'Microsoft.Authorization/roleDefinitions@2018-01-01-preview' = if(StartVmOnConnect) {
   name: RoleDefinitionName
   properties: {
+    assignableScopes: [
+      subscription().id
+    ]
     roleName: 'StartVmOnConnect'
     description: 'Allow AVD session hosts to be started when needed.'
     type: 'customRole'

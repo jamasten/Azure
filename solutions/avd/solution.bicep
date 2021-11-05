@@ -423,7 +423,7 @@ module bitLocker 'modules/bitLocker.bicep' = if(DiskEncryption) {
 }
 
 module stig 'modules/stig.bicep' = if(DodStigCompliance) {
-  name: 'bitLocker_${TimeStamp}'
+  name: 'stig_${TimeStamp}'
   scope: resourceGroup(rgInfra.name)
   params: {
     AutomationAccountName: AutomationAccountName

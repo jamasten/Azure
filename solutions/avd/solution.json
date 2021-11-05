@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.4.1008.15138",
-      "templateHash": "7553727382949280261"
+      "templateHash": "2862294831574898017"
     }
   },
   "parameters": {
@@ -2689,7 +2689,7 @@
       "condition": "[parameters('DodStigCompliance')]",
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2020-06-01",
-      "name": "[format('bitLocker_{0}', parameters('TimeStamp'))]",
+      "name": "[format('stig_{0}', parameters('TimeStamp'))]",
       "resourceGroup": "[variables('ResourceGroups')[0]]",
       "properties": {
         "expressionEvaluationOptions": {

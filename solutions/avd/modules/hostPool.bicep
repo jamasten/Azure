@@ -532,7 +532,7 @@ resource appGroup 'Microsoft.DesktopVirtualization/applicationGroups@2021-07-12'
   }
 }
 
-resource appGroupAssignment 'Microsoft.Authorization/roleAssignments@2015-07-01' = if (newOrExisting == 'new') {
+resource appGroupAssignment 'Microsoft.Authorization/roleAssignments@2018-01-01-preview' = if (newOrExisting == 'new') {
   scope: appGroup
   name: guid(HostPoolName)
   properties: {

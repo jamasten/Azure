@@ -295,7 +295,7 @@ resource customRole 'Microsoft.Authorization/roleDefinitions@2018-01-01-preview'
   }
 }
 
-resource roleAssignment 'Microsoft.Authorization/roleAssignments@2020-10-01-preview' = if(StartVmOnConnect) {
+resource roleAssignment 'Microsoft.Authorization/roleAssignments@2018-01-01-preview' = if(StartVmOnConnect) {
   name: RoleAssignmentName
   properties: {
     roleDefinitionId: customRole.id

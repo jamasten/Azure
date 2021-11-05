@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.4.1008.15138",
-      "templateHash": "5448767566131885706"
+      "templateHash": "4073818646452446679"
     }
   },
   "parameters": {
@@ -493,7 +493,7 @@
     {
       "condition": "[parameters('StartVmOnConnect')]",
       "type": "Microsoft.Authorization/roleAssignments",
-      "apiVersion": "2020-10-01-preview",
+      "apiVersion": "2018-01-01-preview",
       "name": "[variables('RoleAssignmentName')]",
       "properties": {
         "roleDefinitionId": "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', variables('RoleDefinitionName'))]",
@@ -570,7 +570,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.4.1008.15138",
-              "templateHash": "8772379588531137751"
+              "templateHash": "9642127566846837004"
             }
           },
           "parameters": {
@@ -1177,7 +1177,7 @@
             {
               "condition": "[equals(parameters('newOrExisting'), 'new')]",
               "type": "Microsoft.Authorization/roleAssignments",
-              "apiVersion": "2015-07-01",
+              "apiVersion": "2018-01-01-preview",
               "scope": "[format('Microsoft.DesktopVirtualization/applicationGroups/{0}', parameters('AppGroupName'))]",
               "name": "[guid(parameters('HostPoolName'))]",
               "properties": {

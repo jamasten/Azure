@@ -171,7 +171,7 @@ resource logicApp 'Microsoft.Logic/workflows@2016-06-01' = {
           type: 'Http'
           inputs: {
             method: 'POST'
-            uri: replace(reference(variable.id, '2015-10-31', 'Full').properties.value, '"', '')
+            uri: reference(variable.id, '2015-10-31', 'Full').properties.value
             body: ActionSettingsBody
           }
         }

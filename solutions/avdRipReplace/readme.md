@@ -61,7 +61,7 @@ WVD is deployed in an Azure Subscription.
 ````powershell
 New-AzSubscriptionDeployment `
     -Location <Azure location> `
-    -TemplateUri 'https://raw.githubusercontent.com/battelle-cube/azure-avd-automation/main/solutions/ripReplace/solution.json' `
+    -TemplateUri 'https://raw.githubusercontent.com/battelle-cube/azure-avd-automation/jamasten/solutions/ripReplace/solution.json' `
     -Verbose
 ````
 
@@ -70,5 +70,5 @@ New-AzSubscriptionDeployment `
 ````cli
 az deployment group create \
     --location '<Azure location>' \
-    --template-uri 'https://raw.githubusercontent.com/battelle-cube/azure-avd-automation/main/solutions/ripReplace/solution.json'
+    --template-uri 'https://raw.githubusercontent.com/battelle-cube/azure-avd-automation/jamasten/solutions/ripReplace/solution.json'
 ````

@@ -90,7 +90,7 @@ resource runbook 'Microsoft.Automation/automationAccounts/runbooks@2015-10-31' =
     logProgress: false
     logVerbose: false
     publishContentLink: {
-      uri: 'https://raw.githubusercontent.com/battelle-cube/azure-avd-automation/main/solutions/avd/scripts/Set-HostPoolScaling.ps1'
+      uri: 'https://raw.githubusercontent.com/battelle-cube/azure-avd-automation/jamasten/solutions/avd/scripts/Set-HostPoolScaling.ps1'
       version: '1.0.0.0'
     }
   }

@@ -104,7 +104,7 @@ resource AutomationAccountName_ConfigurationName 'Microsoft.Automation/automatio
   properties: {
     source: {
       type: 'uri'
-      value: 'https://raw.githubusercontent.com/battelle-cube/azure-avd-automation/main/solutions/avd/configurations/Windows.ps1'
+      value: 'https://raw.githubusercontent.com/battelle-cube/azure-avd-automation/jamasten/solutions/avd/configurations/Windows.ps1'
       version: Timestamp
     }
     parameters: {}

@@ -578,4 +578,5 @@ resource workspaceDiagnostics 'Microsoft.Insights/diagnosticsettings@2017-05-01-
   }
 }
 
+output HostPoolName string = hostPool.name
 output LogAnalyticsWorkspaceResourceId string = logAnalyticsWorkspace.id

@@ -240,3 +240,5 @@ resource customScriptExtension 'Microsoft.Compute/virtualMachines/extensions@202
     storageAccount_FileShare
   ]
 }
+
+output StorageAccountName string = storageAccount.name

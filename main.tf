@@ -113,7 +113,6 @@ variable "new_or_existing" {
 }
 variable "ou_path" {
   type = string
-  default = "OU=AADDC Computers,DC=battelletest,DC=onmicrosoft,DC=us"
   description = "The distinguished name for the target Organization Unit in Active Directory Domain Services."
 }
 variable "recovery_services" {
@@ -182,7 +181,6 @@ variable "storage_account_sku" {
 }
 variable "subnet" {
   type = string
-  default = "avd-dev"
   description = "The subnet for the AVD session hosts."
 }
 # variable "timestamp" {
@@ -197,12 +195,10 @@ variable "validation_environment" {
 }
 variable "virtual_network" {
   type = string
-  default = "avd-dev"
   description = "Virtual network for the AVD sessions hosts"
 }
 variable "virtual_network_resource_group" {
   type = string
-  default = "avd-dev"
   description = "Virtual network resource group for the AVD sessions hosts"
 }
 

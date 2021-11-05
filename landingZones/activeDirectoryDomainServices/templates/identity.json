@@ -134,7 +134,7 @@
                         },
                         "settings": {
                             "wmfVersion": "latest",
-                            "modulesUrl": "https://github.com/jamasten/Azure/blob/master/subscription/dsc/ActiveDirectoryForest.zip?raw=true",
+                            "modulesUrl": "https://github.com/main/Azure/blob/master/subscription/dsc/ActiveDirectoryForest.zip?raw=true",
                             "configurationFunction": "ActiveDirectoryForest.ps1\\ActiveDirectoryForest",
                             "properties": {
                                 "Domain": "[parameters('Domain')]",

@@ -28,6 +28,13 @@
             ],
             "defaultValue": "Standard_LRS"
         },
+        "DodStigCompliance": {
+            "type": "bool",
+            "metadata": {
+                "description": "Applies the Department of Defense Security Technical Implementation Guidelines on the AVD session hosts and management VM."
+            },
+            "defaultValue": false
+        },
         "DomainJoinPassword": {
             "type": "securestring",
             "metadata": {
@@ -55,14 +62,15 @@
             "allowedValues": [
                 "ActiveDirectory",
                 "AzureActiveDirectory"
-            ]
+            ],
+            "defaultValue": "AzureActiveDirectory"
         },
         "DrainMode": {
             "type": "bool",
             "metadata": {
                 "description": "Enable drain mode on sessions hosts during deployment to prevent users from accessing the session hosts."
             },
-            "defaultValue": true
+            "defaultValue": false
         },
         "EphemeralOsDisk": {
             "type": "bool",
@@ -75,7 +83,8 @@
             "type": "bool",
             "metadata": {
                 "description": "Enable FSLogix to manage user profiles for the AVD session hosts."
-            }
+            },
+            "defaultValue": true
         },
         "HostPoolType": {
             "type": "string",
@@ -134,16 +143,16 @@
             "metadata": {
                 "description": "The retention for the Log Analytics Workspace to setup the AVD Monitoring solution"
             },
-            "defaultValue": 30,
             "maxValue": 730,
-            "minValue": 30
+            "minValue": 30,
+            "defaultValue": 30
+
         },
         "LogAnalyticsWorkspaceSku": {
             "type": "string",
             "metadata": {
                 "description": "The SKU for the Log Analytics Workspace to setup the AVD Monitoring solution"
             },
-            "defaultValue": "PerGB2018",
             "allowedValues": [
                 "Free",
                 "Standard",
@@ -152,7 +161,8 @@
                 "PerGB2018",
                 "Standalone",
                 "CapacityReservation"
-            ]
+            ],
+            "defaultValue": "PerGB2018"
         },
         "MaxSessionLimit": {
             "type": "int",
@@ -177,7 +187,7 @@
             "metadata": {
                 "description": "The distinguished name for the target Organization Unit in Active Directory Domain Services."
             },
-            "defaultValue": "OU=Pooled,OU=AVD,DC=jasonmasten,DC=com"
+            "defaultValue": "OU=AADDC Computers,DC=jasonmasten,DC=com"
         },
         "RecoveryServices": {
             "type": "bool",
@@ -192,7 +202,7 @@
                 "description": "Use letters and numbers only.  This suffix is used in conjunction with the resource type prefixes to name most of the Azure resources in this solution.  The only exception is the Storage Account since the value must globally unique and has stricter character requirements."
             },
             "maxLength": 10,
-            "defaultValue": "avdpocdeus"
+            "defaultValue": "avddeu"
         },
         "ScalingBeginPeakTime": {
             "type": "string",
@@ -262,7 +272,7 @@
             "metadata": {
                 "description": "The number of session hosts to deploy in the host pool"
             },
-            "defaultValue": 2
+            "defaultValue": 1
         },
         "SessionHostIndex": {
             "type": "int",
@@ -294,7 +304,7 @@
             "metadata": {
                 "description": "The subnet for the AVD session hosts."
             },
-            "defaultValue": "snet-clients-d-eastus"
+            "defaultValue": "Clients"
         },
         "Tags": {
             "type": "object",
@@ -323,14 +333,14 @@
             "metadata": {
                 "description": "Virtual network for the AVD sessions hosts"
             },
-            "defaultValue": "vnet-d-eastus"
+            "defaultValue": "vnet-shd-net-d-eu-000"
         },
         "VirtualNetworkResourceGroup": {
             "type": "string",
             "metadata": {
                 "description": "Virtual network resource group for the AVD sessions hosts"
             },
-            "defaultValue": "rg-network-d-eastus"
+            "defaultValue": "rg-shd-net-d-eu-000"
         },
         "VmPassword": {
             "type": "securestring",
@@ -355,7 +365,8 @@
             "type": "string",
             "metadata": {
                 "description": "The Object ID for the 'Windows Virtual Desktop' Enterprise Application in Azure AD.  The Object ID can found by selecting 'Microsoft Applications' using the 'Application type' filter in the Enterprise Applications blade of Azure AD."
-            }
+            },
+            "defaultValue": "cdcfb416-e2fe-41e2-be12-33813c1cd427"
         }
     },
     "variables": {
@@ -433,6 +444,7 @@
             "westus3": "Mountain Standard Time"
         },
         "VmName": "[concat('vm', parameters('ResourceNameSuffix'))]",
+        "VmTemplate": "[concat('{\"domain\":\"', parameters('DomainName'), '\",\"galleryImageOffer\":\"', parameters('ImageOffer'), '\",\"galleryImagePublisher\":\"', parameters('ImagePublisher'), '\",\"galleryImageSKU\":\"', parameters('ImageSku'), '\",\"imageType\":\"Gallery\",\"imageUri\":null,\"customImageId\":null,\"namePrefix\":\"', variables('VmName'), '\",\"osDiskType\":\"', parameters('DiskSku'), '\",\"useManagedDisks\":true,\"vmSize\":{\"id\":\"', parameters('VmSize'), '\",\"cores\":null,\"ram\":null},\"galleryItemId\":\"', parameters('ImagePublisher'), '.', parameters('ImageOffer'), parameters('ImageSku'), '\"}')]",
         "WorkspaceName": "[concat('ws-', parameters('ResourceNameSuffix'))]"
     },
     "resources": [
@@ -548,6 +560,9 @@
                     "ValidationEnvironment": {
                         "value": "[parameters('ValidationEnvironment')]"
                     },
+                    "VmTemplate": {
+                        "value": "[variables('VmTemplate')]"
+                    },
                     "WorkspaceName": {
                         "value": "[variables('WorkspaceName')]"
                     }
@@ -611,14 +626,14 @@
                     "ImageVersion": {
                         "value": "[parameters('ImageVersion')]"
                     },
+                    "InfraResourceGroupName": {
+                        "value": "[variables('ResourceGroups')[0]]"
+                    },
                     "Location": {
                         "value": "[variables('Location')]"
                     },
                     "LogAnalyticsWorkspaceName": {
                         "value": "[variables('LogAnalyticsWorkspaceName')]"
-                    },
-                    "LogAnalyticsWorkspaceResourceGroupName": {
-                        "value": "[variables('ResourceGroups')[0]]"
                     },
                     "OuPath": {
                         "value": "[parameters('OuPath')]"
@@ -830,6 +845,9 @@
                     "contentVersion": "1.0.0.0"
                 },
                 "parameters": {
+                    "FSLogix": {
+                        "value": "[parameters('FSLogix')]"
+                    },
                     "KeyVaultName": {
                         "value": "[variables('KeyVaultName')]"
                     },
@@ -850,6 +868,48 @@
                     },
                     "VmName": {
                         "value": "[variables('VmName')]"
+                    }
+                }
+            }
+        },
+        {
+            "comments": "---------- LINKED DEPLOYMENT > DOD STIG COMPLIANCE ----------",
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2019-10-01",
+            "name": "[concat('DodStig_', parameters('Timestamp'))]",
+            "condition": "[parameters('DodStigCompliance')]",
+            "tags": "[parameters('Tags')]",
+            "resourceGroup": "[variables('ResourceGroups')[0]]",
+            "dependsOn": [
+                "[concat('SessionHosts_', parameters('Timestamp'))]"
+            ],
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "https://raw.githubusercontent.com/battelle-cube/azure-avd-automation/main/solutions/avd/templates/stig.json",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "AutomationAccountName": {
+                        "value": "[variables('AutomationAccountName')]"
+                    },
+                    "Location": {
+                        "value": "[variables('Location')]"
+                    },
+                    "SessionHostCount": {
+                        "value": "[parameters('SessionHostCount')]"
+                    },
+                    "SessionHostIndex": {
+                        "value": "[parameters('SessionHostIndex')]"
+                    },
+                    "Timestamp": {
+                        "value": "[parameters('Timestamp')]"
+                    },
+                    "VmName": {
+                        "value": "[variables('VmName')]"
+                    },
+                    "VmResourceGroupName": {
+                        "value": "[variables('ResourceGroups')[1]]"
                     }
                 }
             }

@@ -243,7 +243,7 @@
                 "settings": {
                     "wmfVersion": "latest",
                     "configuration": {
-                        "url": "https://github.com/jamasten/Azure/blob/master/solutions/sql/namedInstance/dsc/SqlInstall.zip?raw=true",
+                        "url": "https://github.com/battelle-cube/azure-avd-automation/blob/main/solutions/sql/namedInstance/dsc/SqlInstall.zip?raw=true",
                         "script": "SqlInstall.ps1",
                         "function": "SQLInstall"
                     }

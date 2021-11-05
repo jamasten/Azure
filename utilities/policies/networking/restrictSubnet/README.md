@@ -15,8 +15,8 @@ $definition = New-AzPolicyDefinition `
     -Name 'RestrictSubnet_Deny' `
     -DisplayName 'RestrictSubnet_Deny' `
     -Description 'This policy restricts VM network interfaces to a subnet based on the resource group.' `
-    -Policy 'https://raw.githubusercontent.com/jamasten/AzurePolicies/master/policies/networking/restrictSubnet/policy.rules.json' `
-    -Parameter 'https://raw.githubusercontent.com/jamasten/AzurePolicies/master/policies/networking/restrictSubnet/policy.parameters.json' `
+    -Policy 'https://raw.githubusercontent.com/main/AzurePolicies/master/policies/networking/restrictSubnet/policy.rules.json' `
+    -Parameter 'https://raw.githubusercontent.com/main/AzurePolicies/master/policies/networking/restrictSubnet/policy.parameters.json' `
     -Mode 'All' `
     -Metadata '{"category":"Networking"}'
 
@@ -36,7 +36,7 @@ New-AzPolicyAssignment `
 
 ````cli
 
-az policy definition create --name 'RestrictSubnet_Deny' --display-name 'RestrictSubnet_Deny' --description 'This policy restricts VM network interfaces to a subnet based on the resource group.' --rules 'https://raw.githubusercontent.com/jamasten/AzurePolicies/master/policies/networking/restrictSubnet/policy.rules.json' --params 'https://raw.githubusercontent.com/jamasten/AzurePolicies/master/policies/networking/restrictSubnet/policy.parameters.json' --allow 'All'
+az policy definition create --name 'RestrictSubnet_Deny' --display-name 'RestrictSubnet_Deny' --description 'This policy restricts VM network interfaces to a subnet based on the resource group.' --rules 'https://raw.githubusercontent.com/main/AzurePolicies/master/policies/networking/restrictSubnet/policy.rules.json' --params 'https://raw.githubusercontent.com/main/AzurePolicies/master/policies/networking/restrictSubnet/policy.parameters.json' --allow 'All'
 
 az policy assignment create --name <Assignment Name> --scope <scope> --policy "RestrictSubnet_Deny"
 

@@ -15,8 +15,8 @@ $definition = New-AzPolicyDefinition `
     -Name 'NamingStandard_VirtualMachine_Deny' `
     -DisplayName 'NamingStandard_VirtualMachine_Deny' `
     -Description 'This policy governs the naming standard for virtual machines.' `
-    -Policy 'https://raw.githubusercontent.com/jamasten/AzurePolicies/master/policies/governance/namingStandard/virtualMachine/policy.rules.json' `
-    -Parameter 'https://github.com/jamasten/AzurePolicies/blob/master/policies/governance/namingStandard/virtualMachine/policy.parameters.json' `
+    -Policy 'https://raw.githubusercontent.com/main/AzurePolicies/master/policies/governance/namingStandard/virtualMachine/policy.rules.json' `
+    -Parameter 'https://github.com/main/AzurePolicies/blob/master/policies/governance/namingStandard/virtualMachine/policy.parameters.json' `
     -Mode 'All' `
     -Metadata '{"category":"Governance"}'
 
@@ -37,7 +37,7 @@ New-AzPolicyAssignment `
 
 ````cli
 
-az policy definition create --name 'NamingStandard_VirtualMachine_Deny' --display-name 'NamingStandard_VirtualMachine_Deny' --description 'This policy governs the naming standard for virtual machines.' --rules 'https://raw.githubusercontent.com/jamasten/AzurePolicies/master/policies/governance/namingStandard/virtualMachine/policy.rules.json' --params 'https://github.com/jamasten/AzurePolicies/blob/master/policies/governance/namingStandard/virtualMachine/policy.parameters.json' --mode All
+az policy definition create --name 'NamingStandard_VirtualMachine_Deny' --display-name 'NamingStandard_VirtualMachine_Deny' --description 'This policy governs the naming standard for virtual machines.' --rules 'https://raw.githubusercontent.com/main/AzurePolicies/master/policies/governance/namingStandard/virtualMachine/policy.rules.json' --params 'https://github.com/main/AzurePolicies/blob/master/policies/governance/namingStandard/virtualMachine/policy.parameters.json' --mode All
 
 az policy assignment create --name <Assignment Name> --scope <scope> --policy "NamingStandard_VirtualMachine_Deny"
 

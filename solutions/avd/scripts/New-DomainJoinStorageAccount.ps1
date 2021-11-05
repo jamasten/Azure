@@ -67,9 +67,7 @@ function Write-Log
 }
 
 try 
-{   
-    Set-ExecutionPolicy -ExecutionPolicy 'Unrestricted' -Scope 'CurrentUser'
-    
+{    
     # Selects the appropriate suffix for the Azure Storage Account's UNC path
     $Suffix = switch($Environment)
     {

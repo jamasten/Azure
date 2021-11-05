@@ -1,5 +1,31 @@
 # Azure Virtual Desktop solution
 
+## Deployment Options
+
+### Azure Portal
+
+[![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fjamasten%2FAzure%2Fmaster%2Fsolutions%2Favd%2Fsolution.json)
+[![Deploy to Azure Gov](https://raw.githubusercontent.com/Azure/azure-quickstart-templates/master/1-CONTRIBUTION-GUIDE/images/deploytoazuregov.svg?sanitize=true)](https://portal.azure.us/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fjamasten%2FAzure%2Fmaster%2Fsolutions%2Favd%2Fsolution.json)
+
+### PowerShell
+
+````powershell
+New-AzDeployment `
+    -Location '<Azure location>' `
+    -TemplateFile 'https://raw.githubusercontent.com/battelle-cube/azure-avd-automation/main/solutions/avd/solution.json' `
+    -Verbose
+````
+
+### Azure CLI
+
+````cli
+az deployment sub create \
+    --location '<Azure location>' \
+    --template-uri 'https://raw.githubusercontent.com/battelle-cube/azure-avd-automation/main/solutions/avd/solution.json'
+````
+
+## Description
+
 This solution will deploy Azure Virtual Desktop in an Azure subscription.  Depending on the options selected, either a personal or pooled host pool can be deployed with this solution.  The pooled option will deploy an App Group with a role assignment and everything to enable FSLogix.
 
 This solution contains many features that are usually enabled manually after deploying an AVD host pool.  Those features are:
@@ -23,17 +49,21 @@ This solution contains many features that are usually enabled manually after dep
   - Role assignment
   - Enables the feature on the AVD host pool
 - VDI Optimization Script: removes unnecessary apps, services, and processes from your Windows 10 OS, improving performance and resource utilization.
-- AVD Monitoring Solution: deploys the required resources to enable the Insights workbook:
+- Monitoring: deploys the required resources to enable the Insights workbook:
   - Log Analytics Workspace with the required Windows Events and Performance Counters.
   - Microsoft Monitoring Agent on the session hosts.
   - Diagnostic settings on the AVD host pool and workspace.
-- Graphics Drivers: deploys the required extension to install the graphics driver when the appropriate VM sizes are selected.
+- Graphics Drivers & Settings: deploys the extension to install the graphics driver and creates the recommended registry settings when an appropriate VM size (Nv, Nvv3, & Nvv4 series) is selected.
+- BitLocker Encryption: deploys the required resources & configuration to enable BitLocker encryption on the session hosts:
+  - Key Vault with a Key Encryption Key
+  - VM Extension to enable the feature on the virtual machines.
 - Backups (Optional): deploys the required resources to enable backups:
   - Recovery Services Vault
   - Backup Policy
   - Protection Container (File Share Only)
   - Protected Item
 - Screen Capture Protection: deploys the required registry setting on the AVD session hosts to enable the feature.
+- Drain Mode: when enabled, the sessions hosts will be deployed in drain mode to ensure end users cannot access the host pool until operations is ready to allow connections.
 
 ## Assumptions
 

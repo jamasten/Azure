@@ -295,7 +295,7 @@
                     }
                 },
                 "templateLink": {
-                    "uri": "https://raw.githubusercontent.com/battelle-cube/azure-avd-automation/jamasten/solutions/imageBuilder/templates/imageBuilder.json"
+                    "uri": "https://raw.githubusercontent.com/battelle-cube/azure-avd-automation/main/solutions/imageBuilder/templates/imageBuilder.json"
                 }
             }
         }

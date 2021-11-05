@@ -216,7 +216,7 @@ resource customScriptExtension 'Microsoft.Compute/virtualMachines/extensions@202
     autoUpgradeMinorVersion: true
     settings: {
       fileUris: [
-        'https://raw.githubusercontent.com/battelle-cube/azure-avd-automation/jamasten/solutions/avd/scripts/Set-SessionHostConfiguration.ps1'
+        'https://raw.githubusercontent.com/battelle-cube/azure-avd-automation/main/solutions/avd/scripts/Set-SessionHostConfiguration.ps1'
       ]
       timestamp: Timestamp
     }

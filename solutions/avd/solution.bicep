@@ -417,6 +417,20 @@ module bitLocker 'modules/bitLocker.bicep' = if(DiskEncryption) {
   } 
 }
 
+module stig 'modules/stig.bicep' = if(DodStigCompliance) {
+  name: 'bitLocker_${TimeStamp}'
+  scope: rg[0]
+  params: {
+    AutomationAccountName: AutomationAccountName
+    Location: Location
+    SessionHostCount: SessionHostCount
+    SessionHostIndex: SessionHostIndex
+    Timestamp: TimeStamp
+    VmName: VmName
+    VmResourceGroupName: ResourceGroups[1]
+  } 
+}
+
 module scale 'modules/scale.bicep' = if(split(HostPoolType, ' ')[0] == 'Pooled') {
   name: 'scale_${TimeStamp}'
   scope: rg[0]

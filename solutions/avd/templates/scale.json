@@ -90,7 +90,7 @@
         ],
         "Runbook": "WVDAutoScaleRunbookARMBased",
         "Variable": "WebhookURIARMBased",
-        "Webhook": "WVDAutoScaleWebhookARMBased"
+        "Webhook": "[concat('WVDAutoScaleWebhookARMBased_', dateTimeAdd(parameters('Timestamp'), 'PT0H', 'yyyyMMddhhmmss'))]"
     },
     "resources": [
         {

@@ -41,13 +41,13 @@
         "ImageVersion": {
             "type": "string"
         },
+        "InfraResourceGroupName": {
+            "type": "string"
+        },
         "Location": {
             "type": "string"
         },
         "LogAnalyticsWorkspaceName": {
-            "type": "string"
-        },
-        "LogAnalyticsWorkspaceResourceGroupName": {
             "type": "string"
         },
         "OuPath": {
@@ -106,8 +106,7 @@
         "AmdVmSize": "[contains(variables('AmdVmSizes'), parameters('VmSize'))]",
         "AvailabilitySetName": "[concat('as-', parameters('ResourceNameSuffix'))]",
         "AvailabilitySetId": { "id": "[resourceId('Microsoft.Compute/availabilitySets', variables('AvailabilitySetName'))]" },
-        "AvdAgentUrl_AzureCloud": "https://wvdportalstorageblob.blob.core.windows.net/galleryartifacts/Configuration_6-1-2021.zip",
-        "AvdAgentUrl_AzureUsGov": "https://wvdportalstorageblob.blob.core.usgovcloudapi.net/galleryartifacts/Configuration_5-5-2021.zip",
+        "LogAnalyticsWorkspaceResourceId": "[resourceId(parameters('InfraResourceGroupName'), 'Microsoft.OperationalInsights/workspaces', parameters('LogAnalyticsWorkspaceName'))]",
         "NvidiaVmSizes": [
             "Standard_NV6",
             "Standard_NV12",
@@ -252,40 +251,11 @@
                         "typeHandlerVersion": "1.0",
                         "autoUpgradeMinorVersion": true,
                         "settings": {
-                            "workspaceId": "[reference(resourceId(parameters('LogAnalyticsWorkspaceResourceGroupName'), 'Microsoft.OperationalInsights/workspaces/', parameters('LogAnalyticsWorkspaceName')), '2015-03-20').customerId]"
+                            "workspaceId": "[reference(variables('LogAnalyticsWorkspaceResourceId'), '2015-03-20').customerId]"
                         },
                         "protectedSettings": {
-                            "workspaceKey": "[listKeys(resourceId(parameters('LogAnalyticsWorkspaceResourceGroupName'), 'Microsoft.OperationalInsights/workspaces/', parameters('LogAnalyticsWorkspaceName')), '2015-03-20').primarySharedKey]"
+                            "workspaceKey": "[listKeys(variables('LogAnalyticsWorkspaceResourceId'), '2015-03-20').primarySharedKey]"
                         }
-                    }
-                },
-                {
-                    "comments": "---------- DESIRED STATE CONFIGURATION EXTENSION ----------",
-                    "type": "extensions",
-                    "apiVersion": "2021-03-01",
-                    "name": "DSC",
-                    "location": "[parameters('Location')]",
-                    "tags": "[parameters('Tags')]",
-                    "dependsOn": [
-                        "[concat(parameters('VmName'), padLeft(copyIndex(parameters('SessionHostIndex')), 3, '0'))]",
-                        "MicrosoftMonitoringAgent"
-                    ],
-                    "properties": {
-                        "forceUpdateTag": "[parameters('Timestamp')]",
-                        "autoUpgradeMinorVersion": true,
-                        "publisher": "Microsoft.Powershell",
-                        "type": "DSC",
-                        "typeHandlerVersion": "2.73",
-                        "settings": {
-                            "modulesUrl": "[if(equals(environment().name, 'AzureUSGovernment'), variables('AvdAgentUrl_AzureUsGov'), variables('AvdAgentUrl_AzureCloud'))]",
-                            "configurationFunction": "Configuration.ps1\\AddSessionHost",
-                            "properties": {
-                                "hostPoolName": "[parameters('HostPoolName')]",
-                                "registrationInfoToken": "[reference(resourceId(parameters('HostPoolResourceGroupName'), 'Microsoft.DesktopVirtualization/hostpools', parameters('HostPoolName')), '2019-12-10-preview').registrationInfo.token]",
-                                "aadJoin": false
-                            }
-                        },
-                        "protectedSettings": {}
                     }
                 },
                 {
@@ -297,7 +267,7 @@
                     "tags": "[parameters('Tags')]",
                     "dependsOn": [
                         "[concat(parameters('VmName'), padLeft(copyIndex(parameters('SessionHostIndex')), 3, '0'))]",
-                        "Dsc"
+                        "MicrosoftMonitoringAgent"
                     ],
                     "properties": {
                         "forceUpdateTag": "[parameters('Timestamp')]",
@@ -325,7 +295,6 @@
                     "location": "[parameters('location')]",
                     "dependsOn": [
                         "[concat(parameters('VmName'), padLeft(copyIndex(parameters('SessionHostIndex')), 3, '0'))]",
-                        "Dsc",
                         "JsonADDomainExtension"
                     ],
                     "tags": "[parameters('Tags')]",
@@ -341,7 +310,7 @@
                             "timestamp": "[parameters('Timestamp')]"
                         },
                         "protectedSettings": {
-                            "commandToExecute": "[concat('powershell -ExecutionPolicy Unrestricted -File Set-SessionHostConfiguration.ps1 -AmdVmSize ', variables('AmdVmSize'), ' -Environment ', environment().name, ' -FSLogix ', parameters('FSLogix'), ' -HostPoolName ', parameters('HostPoolName'), ' -ImageOffer ', parameters('ImageOffer'), ' -ImagePublisher ', parameters('ImagePublisher'), ' -NvidiaVmSize ', variables('NvidiaVmSize'), ' -PooledHostPool ', variables('PooledHostPool'), ' -ScreenCaptureProtection ', parameters('ScreenCaptureProtection'), ' -StorageAccountName ', parameters('StorageAccountName'))]"
+                            "commandToExecute": "[concat('powershell -ExecutionPolicy Unrestricted -File Set-SessionHostConfiguration.ps1 -AmdVmSize ', variables('AmdVmSize'), ' -Environment ', environment().name, ' -FSLogix ', parameters('FSLogix'), ' -HostPoolName ', parameters('HostPoolName'), ' -HostPoolRegistrationToken ', reference(resourceId(parameters('HostPoolResourceGroupName'), 'Microsoft.DesktopVirtualization/hostpools', parameters('HostPoolName')), '2019-12-10-preview').registrationInfo.token, ' -ImageOffer ', parameters('ImageOffer'), ' -ImagePublisher ', parameters('ImagePublisher'), ' -NvidiaVmSize ', variables('NvidiaVmSize'), ' -PooledHostPool ', variables('PooledHostPool'), ' -ScreenCaptureProtection ', parameters('ScreenCaptureProtection'), ' -StorageAccountName ', parameters('StorageAccountName'))]"
                         }
                     }
                 },
@@ -354,7 +323,8 @@
                     "location": "[parameters('Location')]",
                     "tags": "[parameters('Tags')]",
                     "dependsOn": [
-                        "[concat(parameters('VmName'), padLeft(copyIndex(parameters('SessionHostIndex')), 3, '0'))]"
+                        "[concat(parameters('VmName'), padLeft(copyIndex(parameters('SessionHostIndex')), 3, '0'))]",
+                        "CustomScriptExtension"
                     ],
                     "properties": {
                         "publisher": "Microsoft.HpcCompute",
@@ -373,7 +343,8 @@
                     "location": "[parameters('Location')]",
                     "tags": "[parameters('Tags')]",
                     "dependsOn": [
-                        "[concat(parameters('VmName'), padLeft(copyIndex(parameters('SessionHostIndex')), 3, '0'))]"
+                        "[concat(parameters('VmName'), padLeft(copyIndex(parameters('SessionHostIndex')), 3, '0'))]",
+                        "CustomScriptExtension"
                     ],
                     "properties": {
                         "publisher": "Microsoft.HpcCompute",

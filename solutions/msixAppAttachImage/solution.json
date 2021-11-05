@@ -205,7 +205,7 @@
                         "typeHandlerVersion": "1.10",
                         "autoUpgradeMinorVersion": true,
                         "settings": {
-                            "fileUris": [ "https://raw.githubusercontent.com/battelle-cube/azure-avd-automation/main/solutions/msixAppAttachImage/scripts/New-AzureMsixAppAttachImage.ps1" ],
+                            "fileUris": [ "https://raw.githubusercontent.com/battelle-cube/azure-avd-automation/jamasten/solutions/msixAppAttachImage/scripts/New-AzureMsixAppAttachImage.ps1" ],
                             "timestamp": "[parameters('Timestamp')]"
                         },
                         "protectedSettings": {

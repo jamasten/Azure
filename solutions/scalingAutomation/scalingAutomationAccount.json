@@ -126,7 +126,7 @@
                 "logProgress": false,
                 "logVerbose": false,
                 "publishContentLink": {
-                    "uri": "https://raw.githubusercontent.com/battelle-cube/azure-avd-automation/main/solutions/scalingAutomation/scale.ps1",
+                    "uri": "https://raw.githubusercontent.com/battelle-cube/azure-avd-automation/jamasten/solutions/scalingAutomation/scale.ps1",
                     "version": "1.0.0.0"
                 }
             }

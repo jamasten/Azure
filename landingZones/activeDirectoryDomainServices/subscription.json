@@ -123,7 +123,7 @@
                     }
                 },
                 "templateLink": {
-                    "uri": "https://raw.githubusercontent.com/battelle-cube/azure-avd-automation/main/subscription/templates/network.json"
+                    "uri": "https://raw.githubusercontent.com/battelle-cube/azure-avd-automation/jamasten/subscription/templates/network.json"
                 }
             }
         },
@@ -163,7 +163,7 @@
                     }
                 },
                 "templateLink": {
-                    "uri": "https://raw.githubusercontent.com/battelle-cube/azure-avd-automation/main/subscription/templates/shared.json"
+                    "uri": "https://raw.githubusercontent.com/battelle-cube/azure-avd-automation/jamasten/subscription/templates/shared.json"
                 }
             }
         },
@@ -203,7 +203,7 @@
                     }
                 },
                 "templateLink": {
-                    "uri": "https://raw.githubusercontent.com/battelle-cube/azure-avd-automation/main/subscription/templates/identity.json"
+                    "uri": "https://raw.githubusercontent.com/battelle-cube/azure-avd-automation/jamasten/subscription/templates/identity.json"
                 }
             }
         }

@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.4.1008.15138",
-      "templateHash": "17037259877403528655"
+      "templateHash": "5448767566131885706"
     }
   },
   "parameters": {
@@ -570,7 +570,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.4.1008.15138",
-              "templateHash": "5799478777643715921"
+              "templateHash": "8772379588531137751"
             }
           },
           "parameters": {
@@ -1063,7 +1063,7 @@
           "resources": [
             {
               "type": "Microsoft.OperationalInsights/workspaces",
-              "apiVersion": "2020-03-01-preview",
+              "apiVersion": "2021-06-01",
               "name": "[parameters('LogAnalyticsWorkspaceName')]",
               "location": "[parameters('Location')]",
               "tags": "[parameters('Tags')]",
@@ -1162,7 +1162,7 @@
             {
               "condition": "[equals(parameters('newOrExisting'), 'new')]",
               "type": "Microsoft.DesktopVirtualization/applicationGroups",
-              "apiVersion": "2019-12-10-preview",
+              "apiVersion": "2021-07-12",
               "name": "[parameters('AppGroupName')]",
               "location": "[parameters('Location')]",
               "tags": "[parameters('Tags')]",
@@ -1177,7 +1177,7 @@
             {
               "condition": "[equals(parameters('newOrExisting'), 'new')]",
               "type": "Microsoft.Authorization/roleAssignments",
-              "apiVersion": "2020-10-01-preview",
+              "apiVersion": "2015-07-01",
               "scope": "[format('Microsoft.DesktopVirtualization/applicationGroups/{0}', parameters('AppGroupName'))]",
               "name": "[guid(parameters('HostPoolName'))]",
               "properties": {
@@ -1191,7 +1191,7 @@
             {
               "condition": "[equals(parameters('newOrExisting'), 'new')]",
               "type": "Microsoft.DesktopVirtualization/workspaces",
-              "apiVersion": "2019-12-10-preview",
+              "apiVersion": "2021-07-12",
               "name": "[parameters('WorkspaceName')]",
               "location": "[parameters('Location')]",
               "tags": "[parameters('Tags')]",

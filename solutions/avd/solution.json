@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.4.1008.15138",
-      "templateHash": "4073818646452446679"
+      "templateHash": "13936109482526914329"
     }
   },
   "parameters": {
@@ -3104,7 +3104,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.4.1008.15138",
-              "templateHash": "85311836355903753"
+              "templateHash": "10269198694303539422"
             }
           },
           "parameters": {
@@ -3274,7 +3274,7 @@
               "apiVersion": "2020-01-13-preview",
               "name": "[format('{0}/{1}', parameters('AutomationAccountName'), variables('Variable'))]",
               "properties": {
-                "value": "[reference(resourceId('Microsoft.Automation/automationAccounts/webhooks', parameters('AutomationAccountName'), variables('Webhook'))).uri]",
+                "value": "[format('\"{0}\"', reference(resourceId('Microsoft.Automation/automationAccounts/webhooks', parameters('AutomationAccountName'), variables('Webhook'))).uri)]",
                 "isEncrypted": false
               },
               "dependsOn": [
@@ -3333,7 +3333,7 @@
                       "type": "Http",
                       "inputs": {
                         "method": "POST",
-                        "uri": "[replace(reference(resourceId('Microsoft.Automation/automationAccounts/variables', parameters('AutomationAccountName'), variables('Variable')), '2015-10-31', 'Full').properties.value, '\"', '')]",
+                        "uri": "[replace(reference(resourceId('Microsoft.Automation/automationAccounts/variables', parameters('AutomationAccountName'), variables('Variable'))).value, '\"', '')]",
                         "body": "[variables('ActionSettingsBody')]"
                       }
                     }

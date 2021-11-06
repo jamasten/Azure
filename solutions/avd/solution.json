@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.4.1008.15138",
-      "templateHash": "13936109482526914329"
+      "templateHash": "13973263869164770915"
     }
   },
   "parameters": {
@@ -1829,7 +1829,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.4.1008.15138",
-              "templateHash": "15842726179244848313"
+              "templateHash": "5757521111396081563"
             }
           },
           "parameters": {
@@ -2128,7 +2128,7 @@
                   "timestamp": "[parameters('Timestamp')]"
                 },
                 "protectedSettings": {
-                  "commandToExecute": "[format('powershell -ExecutionPolicy Unrestricted -File New-DomainJoinStorageAccount.ps1 -DomainJoinPassword {0} -DomainJoinUserPrincipalName {1} -DomainServices {2} -Environment {3} -HostPoolName {4} -KerberosEncryptionType {5} -Netbios {6} -OuPath ''{7}'' -ResourceGroupName {8} -SecurityPrincipalName ''{9}'' -StorageAccountName {10} -StorageKey {11} -SubscriptionId {12} -TenantId {13}', parameters('DomainJoinPassword'), parameters('DomainJoinUserPrincipalName'), parameters('DomainServices'), environment().name, parameters('HostPoolName'), parameters('KerberosEncryptionType'), parameters('Netbios'), parameters('OuPath'), variables('ResourceGroupName'), parameters('SecurityPrincipalName'), parameters('StorageAccountName'), listKeys(resourceId('Microsoft.Storage/storageAccounts', parameters('StorageAccountName')), '2019-06-01').keys[0].value, subscription().subscriptionId, subscription().tenantId)]"
+                  "commandToExecute": "[format('powershell -ExecutionPolicy Unrestricted -File New-DomainJoinStorageAccount.ps1 -DomainJoinPassword {0} -DomainJoinUserPrincipalName {1} -DomainServices {2} -Environment {3} -HostPoolName {4} -KerberosEncryptionType {5} -Netbios {6} -OuPath \"{7}\" -ResourceGroupName {8} -SecurityPrincipalName \"{9}\" -StorageAccountName {10} -StorageKey {11} -SubscriptionId {12} -TenantId {13}', parameters('DomainJoinPassword'), parameters('DomainJoinUserPrincipalName'), parameters('DomainServices'), environment().name, parameters('HostPoolName'), parameters('KerberosEncryptionType'), parameters('Netbios'), parameters('OuPath'), variables('ResourceGroupName'), parameters('SecurityPrincipalName'), parameters('StorageAccountName'), listKeys(resourceId('Microsoft.Storage/storageAccounts', parameters('StorageAccountName')), '2019-06-01').keys[0].value, subscription().subscriptionId, subscription().tenantId)]"
                 }
               },
               "dependsOn": [

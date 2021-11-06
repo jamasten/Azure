@@ -229,7 +229,7 @@ resource customScriptExtension 'Microsoft.Compute/virtualMachines/extensions@202
       timestamp: Timestamp
     }
     protectedSettings: {
-      commandToExecute: 'powershell -ExecutionPolicy Unrestricted -File New-DomainJoinStorageAccount.ps1 -DomainJoinPassword ${DomainJoinPassword} -DomainJoinUserPrincipalName ${DomainJoinUserPrincipalName} -DomainServices ${DomainServices} -Environment ${environment().name} -HostPoolName ${HostPoolName} -KerberosEncryptionType ${KerberosEncryptionType} -Netbios ${Netbios} -OuPath \'${OuPath}\' -ResourceGroupName ${ResourceGroupName} -SecurityPrincipalName \'${SecurityPrincipalName}\' -StorageAccountName ${StorageAccountName} -StorageKey ${listKeys(storageAccount.id, '2019-06-01').keys[0].value} -SubscriptionId ${subscription().subscriptionId} -TenantId ${subscription().tenantId}'
+      commandToExecute: 'powershell -ExecutionPolicy Unrestricted -File New-DomainJoinStorageAccount.ps1 -DomainJoinPassword ${DomainJoinPassword} -DomainJoinUserPrincipalName ${DomainJoinUserPrincipalName} -DomainServices ${DomainServices} -Environment ${environment().name} -HostPoolName ${HostPoolName} -KerberosEncryptionType ${KerberosEncryptionType} -Netbios ${Netbios} -OuPath "${OuPath}" -ResourceGroupName ${ResourceGroupName} -SecurityPrincipalName "${SecurityPrincipalName}" -StorageAccountName ${StorageAccountName} -StorageKey ${listKeys(storageAccount.id, '2019-06-01').keys[0].value} -SubscriptionId ${subscription().subscriptionId} -TenantId ${subscription().tenantId}'
     }
   }
   dependsOn: [

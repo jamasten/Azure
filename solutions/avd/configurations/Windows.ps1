@@ -3,48 +3,28 @@ configuration Windows
     Import-DscResource -ModuleName PowerSTIG -ModuleVersion 4.10.1
     Import-DscResource -ModuleName SecurityPolicyDsc -ModuleVersion 2.10.0.0
 
-    [scriptblock]$localConfigurationManager = {
-        LocalConfigurationManager {
-            ActionAfterReboot  = 'ContinueConfiguration'
-            ConfigurationMode  = 'ApplyOnly'
-            RebootNodeIfNeeded = $true
-        }
-    }
-
-    [scriptblock]$microsoftEdgeStig = {
-
+    Node localhost
+    {
         Edge STIG_MicrosoftEdge
         {
 
         }
-    }
-
-    [scriptblock]$ie11Stig = {
 
         InternetExplorer STIG_IE11
         {
             BrowserVersion = '11'
             SkipRule       = 'V-46477'
         }
-    }
-
-    [scriptblock]$dotnetFrameworkStig = {
 
         DotNetFramework STIG_DotnetFramework
         {
             FrameworkVersion = '4'
         }
-    }
-
-    [scriptblock]$windowsFirewallStig = {
 
         WindowsFirewall STIG_WindowsFirewall
         {
             Skiprule = @('V-17443', 'V-17442')
         }
-    }
-
-    [scriptblock]$windowsDefenderStig = {
 
         WindowsDefender STIG_WindowsDefender
         {
@@ -52,49 +32,46 @@ configuration Windows
                 'V-213450' = @{ValueData = '1' }
             }
         }
-    }
-
-    [scriptblock]$windowsStig = {
 
         $osVersion = (Get-WmiObject Win32_OperatingSystem).Caption
-
-        if($osVersion -match "Windows 10")
-        {
-            WindowsClient STIG_WindowsClient
-            {
-                OsVersion   = '10'
-                SkipRule    = @("V-220740","V-220739","V-220741", "V-220908")
-                Exception   = @{
-                    'V-220972' = @{
-                        Identity = 'Guests'
-                    }
-                    'V-220968' = @{
-                        Identity = 'Guests'
-                    }
-                    'V-220969' = @{
-                        Identity = 'Guests'
-                    }
-                    'V-220971' = @{
-                        Identity = 'Guests'
-                    }
-                }
-                OrgSettings =  @{
-                    'V-220912' = @{
-                        OptionValue = 'xGuest'
-                    }
-                }
-            }
-            AccountPolicy BaseLine2
-            {
-                Name                                = "Windows10fix"
-                Account_lockout_threshold           = 3
-                Account_lockout_duration            = 15
-                Reset_account_lockout_counter_after = 15
-            }
-        }
-
+s
         switch -Wildcard ($osVersion) 
         {
+            "*2010*"
+            {
+                WindowsClient STIG_WindowsClient
+                {
+                    OsVersion   = '10'
+                    SkipRule    = @("V-220740","V-220739","V-220741", "V-220908")
+                    Exception   = @{
+                        'V-220972' = @{
+                            Identity = 'Guests'
+                        }
+                        'V-220968' = @{
+                            Identity = 'Guests'
+                        }
+                        'V-220969' = @{
+                            Identity = 'Guests'
+                        }
+                        'V-220971' = @{
+                            Identity = 'Guests'
+                        }
+                    }
+                    OrgSettings =  @{
+                        'V-220912' = @{
+                            OptionValue = 'xGuest'
+                        }
+                    }
+                }
+                AccountPolicy BaseLine2
+                {
+                    Name                                = "Windows10fix"
+                    Account_lockout_threshold           = 3
+                    Account_lockout_duration            = 15
+                    Reset_account_lockout_counter_after = 15
+                }
+                break
+            }
             "*2016*" 
             {
                 $osVersion = '2016'
@@ -152,16 +129,5 @@ configuration Windows
                 break
             }
         }
-    }
-
-    Node localhost
-    {
-        $localConfigurationManager.invoke()
-        $windowsStig.invoke()
-        $ie11Stig.invoke()
-        $dotnetFrameworkStig.invoke()
-        $windowsDefenderStig.invoke()
-        $windowsFirewallStig.invoke()
-        $microsoftEdgeStig.invoke()
     }
 }

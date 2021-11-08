@@ -102,6 +102,10 @@ variable "recovery_services" {
 variable "resource_name_suffix" {
   type = string
   description = "Use letters and numbers only.  This suffix is used in conjunction with the resource type prefixes to name most of the Azure resources in this solution.  The only exception is the Storage Account since the value must globally unique and has stricter character requirements."
+  validation {
+    condition     = length(var.resource_name_suffix) < 11
+    error_message = "The resource_name_suffix value must be no more than 10 characters long."
+  }
 }
 variable "scaling_begin_peak_time" {
   type = string

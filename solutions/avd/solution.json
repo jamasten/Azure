@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.4.1008.15138",
-      "templateHash": "13973263869164770915"
+      "templateHash": "11848445414386489254"
     }
   },
   "parameters": {
@@ -448,7 +448,7 @@
       "westus3": "Mountain Standard Time"
     },
     "VmName": "[format('vm{0}', parameters('ResourceNameSuffix'))]",
-    "VmTemplate": "[format('{{''domain'':''{0}'',''galleryImageOffer'':''{1}'',''galleryImagePublisher'':''{2}'',''galleryImageSKU'':''{3}'',''imageType'':''Gallery'',''imageUri'':null,''customImageId'':null,''namePrefix'':''{4}'',''osDiskType'':''{5}'',''useManagedDisks'':true,''vmSize'':{{''id'':''{6}'',''cores'':null,''ram'':null}},''galleryItemId'':''{7}.{8}{9}''}}', parameters('DomainName'), parameters('ImageOffer'), parameters('ImagePublisher'), parameters('ImageSku'), variables('VmName'), parameters('DiskSku'), parameters('VmSize'), parameters('ImagePublisher'), parameters('ImageOffer'), parameters('ImageSku'))]",
+    "VmTemplate": "[format('{{\"domain\":\"{0}\",\"galleryImageOffer\":\"{1}\",\"galleryImagePublisher\":\"{2}\",\"galleryImageSKU\":\"{3}\",\"imageType\":\"Gallery\",\"imageUri\":null,\"customImageId\":null,\"namePrefix\":\"{4}\",\"osDiskType\":\"{5}\",\"useManagedDisks\":true,\"vmSize\":{{\"id\":\"{6}\",\"cores\":null,\"ram\":null}},\"galleryItemId\":\"{7}.{8}{9}\"}}', parameters('DomainName'), parameters('ImageOffer'), parameters('ImagePublisher'), parameters('ImageSku'), variables('VmName'), parameters('DiskSku'), parameters('VmSize'), parameters('ImagePublisher'), parameters('ImageOffer'), parameters('ImageSku'))]",
     "WorkspaceName": "[format('ws-{0}', parameters('ResourceNameSuffix'))]"
   },
   "resources": [

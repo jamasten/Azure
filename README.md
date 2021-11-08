@@ -10,6 +10,8 @@ During the terraform deployment an Azure AD group is created named according to 
 
 Once an azure workspace is deployed it can be connected to via the [Windows Desktop client](https://docs.microsoft.com/en-us/azure/virtual-desktop/user-documentation/connect-windows-7-10).
 
+Unfortunately, terraform destroy will not delete the resources deployed by the azurerm_subscription_template_deployment.  For now, to delete the resources deployed by this template all the session hosts must be removed from the Host Pool prior to manually deleting the infra and hosts resource groups.
+
 # Azure
 
 The code in this repository is code that I developed and use to:

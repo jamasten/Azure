@@ -209,9 +209,9 @@ locals {
 
 data "azurerm_client_config" "current" {}
 
-data "azuread_user" "current_user" {
-  object_id = data.azurerm_client_config.current.object_id
-}
+# data "azuread_user" "current_user" {
+#   object_id = data.azurerm_client_config.current.object_id
+# }
 
 #setup the avd_users_group
 resource "azuread_group" "avd_users" {
@@ -340,7 +340,7 @@ resource "azurerm_subscription_template_deployment" "avd" {
       },
       "Tags": {
         "value": {
-          "Owner": "${data.azuread_user.current_user.user_principal_name}",
+          # "Owner": "${data.azuread_user.current_user.user_principal_name}",
           "Purpose": "POC",
           "Environment": "Dev"
         }

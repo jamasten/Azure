@@ -258,7 +258,7 @@ var TimeZones = {
     westus3: 'Mountain Standard Time'
 }
 var VmName = 'vm${ResourceNameSuffix}'
-var VmTemplate = '{\'domain\':\'${DomainName}\',\'galleryImageOffer\':\'${ImageOffer}\',\'galleryImagePublisher\':\'${ImagePublisher}\',\'galleryImageSKU\':\'${ImageSku}\',\'imageType\':\'Gallery\',\'imageUri\':null,\'customImageId\':null,\'namePrefix\':\'${VmName}\',\'osDiskType\':\'${DiskSku}\',\'useManagedDisks\':true,\'vmSize\':{\'id\':\'${VmSize}\',\'cores\':null,\'ram\':null},\'galleryItemId\':\'${ImagePublisher}.${ImageOffer}${ImageSku}\'}'
+var VmTemplate = '{"domain":"${DomainName}","galleryImageOffer":"${ImageOffer}","galleryImagePublisher":"${ImagePublisher}","galleryImageSKU":"${ImageSku}","imageType":"Gallery","imageUri":null,"customImageId":null,"namePrefix":"${VmName}","osDiskType":"${DiskSku}","useManagedDisks":true,"vmSize":{"id":"${VmSize}","cores":null,"ram":null},"galleryItemId":"${ImagePublisher}.${ImageOffer}${ImageSku}"}'
 var WorkspaceName = 'ws-${ResourceNameSuffix}'
 
 resource rgInfra 'Microsoft.Resources/resourceGroups@2020-10-01' = {

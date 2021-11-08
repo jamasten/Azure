@@ -6,6 +6,8 @@ To allow for this repository to be moduled in from other terraform modules the m
 
 `terraform apply -var='domain_name=battelledev.onmicrosoft.us' -var='dc_admins_group_object_id=0b2cecb7-2c4e-41a2-b6c9-a10c0568a373' -var='wvd_object_id=2a0d5980-c27d-4353-ad5c-f04728028a13' -var='resource_name_suffix=mvdev2' -var='ou_path=OU=AADDC Computers,DC=battelledev,DC=onmicrosoft,DC=us' -var='subnet=gold-wookie-dev' -var='virtual_network=gold-wookie-dev' -var='virtual_network_resource_group=gold-wookie-dev`
 
+During the terraform deployment an Azure AD group is created named according to the resource_name_suffix terraform variable.  In order to gain access to the deployed AVD workspace uses must be added to this group.
+
 Once an azure workspace is deployed it can be connected to via the [Windows Desktop client](https://docs.microsoft.com/en-us/azure/virtual-desktop/user-documentation/connect-windows-7-10).
 
 # Azure

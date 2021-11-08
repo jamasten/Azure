@@ -1,24 +1,3 @@
-terraform {
-  required_providers {
-    azuread = {
-      source  = "hashicorp/azuread"
-      version = "2.6.0"
-    }
-    azurerm = {
-      source  = "hashicorp/azurerm"
-      version = "~> 2.80.0"
-    }
-  }
-}
-provider "azuread" {
-  environment = "usgovernment"
-}
-
-provider "azurerm" {
-  features {}
-  skip_provider_registration = true
-}
-
 ########################################
 # Inputs
 ########################################

@@ -115,7 +115,7 @@ resource variable 'Microsoft.Automation/automationAccounts/variables@2020-01-13-
   parent: automationAccount
   name: Variable
   properties: {
-    value: webhook.properties.uri
+    value: '"${webhook.properties.uri}"'
     isEncrypted: false
   }
 }
@@ -171,7 +171,7 @@ resource logicApp 'Microsoft.Logic/workflows@2016-06-01' = {
           type: 'Http'
           inputs: {
             method: 'POST'
-            uri: replace(reference(variable.id, '2015-10-31', 'Full').properties.value, '"', '')
+            uri: replace(variable.properties.value, '"', '')
             body: ActionSettingsBody
           }
         }

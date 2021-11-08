@@ -7,7 +7,7 @@ param SessionHostIndex int
 param Timestamp string
 param VmName string
 
-resource VmName_SessionHostIndex_3_0_DSC 'Microsoft.Compute/virtualMachines/extensions@2019-07-01' = [for i in range(0, SessionHostCount): {
+resource dscExtension 'Microsoft.Compute/virtualMachines/extensions@2019-07-01' = [for i in range(0, SessionHostCount): {
   name: '${VmName}${padLeft((i + SessionHostIndex), 3, '0')}/DSC'
   location: Location
   properties: {

@@ -70,7 +70,7 @@ var Modules = [
   }
 ]
 
-resource AutomationAccountName_resource 'Microsoft.Automation/automationAccounts@2020-01-13-preview' = {
+resource automationAccount 'Microsoft.Automation/automationAccounts@2020-01-13-preview' = {
   name: AutomationAccountName
   location: Location
   identity: {
@@ -84,22 +84,19 @@ resource AutomationAccountName_resource 'Microsoft.Automation/automationAccounts
 }
 
 @batchSize(1)
-resource AutomationAccountName_Modules_name 'Microsoft.Automation/automationAccounts/modules@2015-10-31' = [for item in Modules: {
-  name: '${AutomationAccountName}/${item.name}'
+resource modules 'Microsoft.Automation/automationAccounts/modules@2015-10-31' = [for item in Modules: {
+  name: '${automationAccount.name}/${item.name}'
   location: Location
   properties: {
     contentLink: {
       uri: item.uri
     }
   }
-  dependsOn: [
-    AutomationAccountName_resource
-  ]
 }]
 
-resource AutomationAccountName_ConfigurationName 'Microsoft.Automation/automationAccounts/configurations@2015-10-31' = {
-  parent: AutomationAccountName_resource
-  name: '${ConfigurationName}'
+resource configuration 'Microsoft.Automation/automationAccounts/configurations@2015-10-31' = {
+  parent: automationAccount
+  name: ConfigurationName
   location: Location
   properties: {
     source: {
@@ -111,13 +108,13 @@ resource AutomationAccountName_ConfigurationName 'Microsoft.Automation/automatio
     description: 'Hardens the VM using the Azure STIG Template'
   }
   dependsOn: [
-    AutomationAccountName_Modules_name
+    modules
   ]
 }
 
-resource AutomationAccountName_name 'Microsoft.Automation/automationAccounts/compilationjobs@2020-01-13-preview' = {
-  parent: AutomationAccountName_resource
-  name: '${guid(deployment().name)}'
+resource compilationJob 'Microsoft.Automation/automationAccounts/compilationjobs@2020-01-13-preview' = {
+  parent: automationAccount
+  name: guid(deployment().name)
   location: Location
   properties: {
     configuration: {
@@ -125,18 +122,18 @@ resource AutomationAccountName_name 'Microsoft.Automation/automationAccounts/com
     }
   }
   dependsOn: [
-    AutomationAccountName_Modules_name
-    AutomationAccountName_ConfigurationName
+    modules
+    configuration
   ]
 }
 
-module DscExtensionDeployment './nested_DscExtensionDeployment.bicep' = {
+module DscExtensionDeployment './stig_DscExtension.bicep' = {
   name: 'DscExtensionDeployment'
   scope: resourceGroup(VmResourceGroupName)
   params: {
-    AutomationAccountName: AutomationAccountName
+    AutomationAccountName: automationAccount.name
     AutomationAccountResourceGroupName: resourceGroup().name
-    ConfigurationName: ConfigurationName
+    ConfigurationName: configuration.name
     Location: Location
     SessionHostCount: SessionHostCount
     SessionHostIndex: SessionHostIndex
@@ -144,6 +141,6 @@ module DscExtensionDeployment './nested_DscExtensionDeployment.bicep' = {
     VmName: VmName
   }
   dependsOn: [
-    AutomationAccountName_name
+    compilationJob
   ]
 }

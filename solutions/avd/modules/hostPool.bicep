@@ -447,7 +447,7 @@ var WindowsPerformanceCounters = [
   }
 ]
 
-resource logAnalyticsWorkspace 'Microsoft.OperationalInsights/workspaces@2020-03-01-preview' = {
+resource logAnalyticsWorkspace 'Microsoft.OperationalInsights/workspaces@2021-06-01' = {
   name: LogAnalyticsWorkspaceName
   location: Location
   tags: Tags
@@ -522,7 +522,7 @@ resource hostPoolDiagnostics 'Microsoft.Insights/diagnosticsettings@2017-05-01-p
   }
 }
 
-resource appGroup 'Microsoft.DesktopVirtualization/applicationgroups@2019-12-10-preview' = if (newOrExisting == 'new') {
+resource appGroup 'Microsoft.DesktopVirtualization/applicationGroups@2021-07-12' = if (newOrExisting == 'new') {
   name: AppGroupName
   location: Location
   tags: Tags
@@ -532,7 +532,7 @@ resource appGroup 'Microsoft.DesktopVirtualization/applicationgroups@2019-12-10-
   }
 }
 
-resource appGroupAssignment 'Microsoft.Authorization/roleAssignments@2020-10-01-preview' = if (newOrExisting == 'new') {
+resource appGroupAssignment 'Microsoft.Authorization/roleAssignments@2018-01-01-preview' = if (newOrExisting == 'new') {
   scope: appGroup
   name: guid(HostPoolName)
   properties: {
@@ -541,7 +541,7 @@ resource appGroupAssignment 'Microsoft.Authorization/roleAssignments@2020-10-01-
   }
 }
 
-resource workspace 'Microsoft.DesktopVirtualization/workspaces@2019-12-10-preview' = if (newOrExisting == 'new') {
+resource workspace 'Microsoft.DesktopVirtualization/workspaces@2021-07-12' = if (newOrExisting == 'new') {
   name: WorkspaceName
   location: Location
   tags: Tags
@@ -577,3 +577,6 @@ resource workspaceDiagnostics 'Microsoft.Insights/diagnosticsettings@2017-05-01-
     workspaceId: logAnalyticsWorkspace.id
   }
 }
+
+output HostPoolName string = hostPool.name
+output LogAnalyticsWorkspaceResourceId string = logAnalyticsWorkspace.id

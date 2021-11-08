@@ -14,8 +14,7 @@ param ImagePublisher string
 param ImageSku string
 param ImageVersion string
 param Location string
-param LogAnalyticsWorkspaceName string
-param LogAnalyticsWorkspaceResourceGroupName string
+param LogAnalyticsWorkspaceResourceId string
 param OuPath string
 param ResourceNameSuffix string
 param SessionHostCount int
@@ -167,10 +166,10 @@ resource microsoftMonitoringAgent 'Microsoft.Compute/virtualMachines/extensions@
     typeHandlerVersion: '1.0'
     autoUpgradeMinorVersion: true
     settings: {
-      workspaceId: reference(resourceId(LogAnalyticsWorkspaceResourceGroupName, 'Microsoft.OperationalInsights/workspaces/', LogAnalyticsWorkspaceName), '2015-03-20').customerId
+      workspaceId: reference(LogAnalyticsWorkspaceResourceId, '2015-03-20').customerId
     }
     protectedSettings: {
-      workspaceKey: listKeys(resourceId(LogAnalyticsWorkspaceResourceGroupName, 'Microsoft.OperationalInsights/workspaces/', LogAnalyticsWorkspaceName), '2015-03-20').primarySharedKey
+      workspaceKey: listKeys(LogAnalyticsWorkspaceResourceId, '2015-03-20').primarySharedKey
     }
   }
   dependsOn: [
@@ -263,3 +262,5 @@ resource nvidiaGpuDriverWindows 'Microsoft.Compute/virtualMachines/extensions@20
     customScriptExtension
   ]
 }]
+
+output VmName string = VmName

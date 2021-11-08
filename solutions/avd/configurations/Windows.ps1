@@ -33,8 +33,8 @@ configuration Windows
             }
         }
 
-        $osVersion = (Get-WmiObject Win32_OperatingSystem).Caption
-s
+        $osVersion = (Get-WmiObject Win32_OperatingSystem).Captions
+        
         switch -Wildcard ($osVersion) 
         {
             "*2010*"

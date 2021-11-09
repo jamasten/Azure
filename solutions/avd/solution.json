@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.4.1008.15138",
-      "templateHash": "4894282446089172242"
+      "templateHash": "2270546558471531347"
     }
   },
   "parameters": {
@@ -2729,7 +2729,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.4.1008.15138",
-              "templateHash": "11972458038063645050"
+              "templateHash": "3944117633899446099"
             }
           },
           "parameters": {
@@ -2757,7 +2757,7 @@
           },
           "functions": [],
           "variables": {
-            "ConfigurationName": "Windows",
+            "ConfigurationName": "Windows10",
             "Modules": [
               {
                 "name": "AccessControlDSC",
@@ -2864,7 +2864,7 @@
               "properties": {
                 "source": {
                   "type": "uri",
-                  "value": "https://raw.githubusercontent.com/jamasten/Azure/master/solutions/avd/configurations/Windows.ps1",
+                  "value": "https://raw.githubusercontent.com/jamasten/Azure/master/solutions/avd/configurations/Windows10.ps1",
                   "version": "[parameters('Timestamp')]"
                 },
                 "parameters": {},

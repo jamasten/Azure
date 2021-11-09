@@ -6,7 +6,7 @@ param Timestamp string
 param VmName string
 param VmResourceGroupName string
 
-var ConfigurationName = 'Windows'
+var ConfigurationName = 'Windows10'
 var Modules = [
   {
     name: 'AccessControlDSC'
@@ -101,7 +101,7 @@ resource configuration 'Microsoft.Automation/automationAccounts/configurations@2
   properties: {
     source: {
       type: 'uri'
-      value: 'https://raw.githubusercontent.com/jamasten/Azure/master/solutions/avd/configurations/Windows.ps1'
+      value: 'https://raw.githubusercontent.com/jamasten/Azure/master/solutions/avd/configurations/Windows10.ps1'
       version: Timestamp
     }
     parameters: {}

@@ -237,6 +237,11 @@ resource "azuread_group_member" "admin" {
 
 resource "azurerm_subscription_template_deployment" "avd" {
     name = var.resource_name_suffix
+    depends_on = [
+      azuread_group.avd_users,
+      azuread_user.admin,
+      azuread_group_member.admin
+    ]
     location = "usgovvirginia"
     template_content = file(".terraform/modules/avd/solutions/avd/solution.json")
     parameters_content = jsonencode({

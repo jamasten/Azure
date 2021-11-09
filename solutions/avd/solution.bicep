@@ -461,6 +461,7 @@ module scale 'modules/scale.bicep' = if(split(HostPoolType, ' ')[0] == 'Pooled')
     sessionHosts
     fslogix
     bitLocker
+    stig
   ]
 }
 

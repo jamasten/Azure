@@ -98,7 +98,7 @@ param MaxSessionLimit int = 2
 param newOrExisting string = 'new'
 
 @description('The distinguished name for the target Organization Unit in Active Directory Domain Services.')
-param OuPath string = 'OU=AADDC ComputersDC=jasonmastenDC=com'
+param OuPath string = 'OU=AADDC Computers,DC=jasonmasten,DC=com'
 
 @description('Enable backups to an Azure Recovery Services vault.  For a pooled host pool this will enable backups on the Azure file share.  For a personal host pool this will enable backups on the AVD sessions hosts.')
 param RecoveryServices bool = false

@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.4.1008.15138",
-      "templateHash": "2270546558471531347"
+      "templateHash": "14063720847805513862"
     }
   },
   "parameters": {
@@ -3104,7 +3104,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.4.1008.15138",
-              "templateHash": "10269198694303539422"
+              "templateHash": "13374684639457430971"
             }
           },
           "parameters": {
@@ -3173,6 +3173,10 @@
               "LogOffMessageTitle": "Machine is about to shutdown.",
               "LogOffMessageBody": "Your session will be logged off. Please save and close everything."
             },
+            "DesktopVirtualizationModule": {
+              "AzureCloud": "https://www.powershellgallery.com/api/v2/package/Az.DesktopVirtualization",
+              "AzureUSGovernment": "https://www.powershellgallery.com/api/v2/package/Az.DesktopVirtualization/3.0.0"
+            },
             "Modules": [
               {
                 "name": "Az.Accounts",
@@ -3192,7 +3196,7 @@
               },
               {
                 "name": "Az.DesktopVirtualization",
-                "uri": "https://www.powershellgallery.com/api/v2/package/Az.DesktopVirtualization"
+                "uri": "[variables('DesktopVirtualizationModule')[environment().name]]"
               }
             ],
             "Runbook": "WVDAutoScaleRunbookARMBased",

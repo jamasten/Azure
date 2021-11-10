@@ -1124,7 +1124,7 @@
             },
             {
               "type": "Microsoft.DesktopVirtualization/hostPools",
-              "apiVersion": "2021-07-12",
+              "apiVersion": "2021-03-09-preview",
               "name": "[parameters('HostPoolName')]",
               "location": "[parameters('Location')]",
               "tags": "[parameters('Tags')]",

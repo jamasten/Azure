@@ -166,11 +166,6 @@ variable "subnet" {
   type = string
   description = "The subnet for the AVD session hosts."
 }
-# variable "timestamp" {
-#   type = string
-#   default = "[utcNow('yyyyMMddhhmmss')]"
-#   description = ""
-# }
 variable "validation_environment" {
   type = bool
   default = false
@@ -184,7 +179,6 @@ variable "virtual_network_resource_group" {
   type = string
   description = "Virtual network resource group for the AVD sessions hosts"
 }
-
 variable "vm_password" {
   type = string
   default = "aaAA11223344"
@@ -202,7 +196,7 @@ variable "vm_username" {
 }
 variable "wvd_object_id" {
   type = string
-  description = "the object id of the Windows Virtual Desktop enterprise application for the tenant"
+  description = "the object id of the Azure Virtual Desktop enterprise application for the tenant"
 }
 
 locals {
@@ -210,12 +204,6 @@ locals {
   user_principal_password = "Pa55w0Rd!!1"
   avd_users_group_name = "avd_users_${var.resource_name_suffix}"
 }
-
-data "azurerm_client_config" "current" {}
-
-# data "azuread_user" "current_user" {
-#   object_id = data.azurerm_client_config.current.object_id
-# }
 
 #setup the avd_users_group
 resource "azuread_group" "avd_users" {
@@ -245,6 +233,9 @@ resource "azurerm_subscription_template_deployment" "avd" {
     location = "usgovvirginia"
     template_content = file(".terraform/modules/avd/solutions/avd/solution.json")
     parameters_content = jsonencode({
+      "AvdObjectId": {
+        "value": var.wvd_object_id
+      },
       "CustomRdpProperty": {
         "value": var.custom_rdp_property
       },
@@ -287,7 +278,7 @@ resource "azurerm_subscription_template_deployment" "avd" {
       "ImageVersion": {
         "value": var.image_version
       },
-      "KerberosEncryptionType": {
+      "KerberosEncryption": {
         "value": var.kerberos_excryption_type
       },
       "LogAnalyticsWorkspaceRetention": {
@@ -354,9 +345,6 @@ resource "azurerm_subscription_template_deployment" "avd" {
           "Environment": "Dev"
         }
       },
-      # "Timestamp": {
-      #   "value": var.timestamp
-      # },
       "ValidationEnvironment": {
         "value": var.validation_environment
       },
@@ -374,9 +362,6 @@ resource "azurerm_subscription_template_deployment" "avd" {
       },
       "VmUsername": {
         "value": var.vm_username
-      },
-      "WvdObjectId": {
-        "value": var.wvd_object_id
       },
       "RecoveryServices": {
         "value":  var.recovery_services

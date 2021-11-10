@@ -119,7 +119,7 @@
                     }
                 },
                 "templateLink": {
-                    "uri": "https://raw.githubusercontent.com/battelle-cube/azure-avd-automation/main/solutions/imageBuilder/templates/network.json"
+                    "uri": "https://raw.githubusercontent.com/battelle-cube/terraform-cube-avd/main/solutions/imageBuilder/templates/network.json"
                 }
             }
         },
@@ -190,7 +190,7 @@
                         "name": "Install Teams",
                         "runElevated": true,
                         "runAsSystem": true,
-                        "scriptUri": "https://raw.githubusercontent.com/battelle-cube/azure-avd-automation/main/solutions/imageBuilder/scripts/1_installTeams.ps1"
+                        "scriptUri": "https://raw.githubusercontent.com/battelle-cube/terraform-cube-avd/main/solutions/imageBuilder/scripts/1_installTeams.ps1"
                     },
                     {
                         "type": "WindowsRestart",

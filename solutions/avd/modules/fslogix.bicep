@@ -201,7 +201,6 @@ resource storageAccount_FileServices 'Microsoft.Storage/storageAccounts/fileServ
 resource storageAccount_FileShare 'Microsoft.Storage/storageAccounts/fileServices/shares@2021-02-01' = {
   parent: storageAccount_FileServices
   name: toLower(HostPoolName)
-  tags: Tags
   properties: {
     accessTier: (StorageAccountSku == 'Premium_LRS') ? 'Premium' : 'TransactionOptimized'
     shareQuota: 100
@@ -225,7 +224,7 @@ resource customScriptExtension 'Microsoft.Compute/virtualMachines/extensions@202
     autoUpgradeMinorVersion: true
     settings: {
       fileUris: [
-        'https://raw.githubusercontent.com/battelle-cube/azure-avd-automation/main/solutions/avd/scripts/New-DomainJoinStorageAccount.ps1'
+        'https://raw.githubusercontent.com/battelle-cube/terraform-cube-avd/main/solutions/avd/scripts/New-DomainJoinStorageAccount.ps1'
       ]
       timestamp: Timestamp
     }
@@ -240,3 +239,5 @@ resource customScriptExtension 'Microsoft.Compute/virtualMachines/extensions@202
     storageAccount_FileShare
   ]
 }
+
+output StorageAccountName string = storageAccount.name

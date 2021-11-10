@@ -31,6 +31,10 @@ var ActionSettingsBody = {
   LogOffMessageTitle: 'Machine is about to shutdown.'
   LogOffMessageBody: 'Your session will be logged off. Please save and close everything.'
 }
+var DesktopVirtualizationModule = {
+  AzureCloud: 'https://www.powershellgallery.com/api/v2/package/Az.DesktopVirtualization'
+  AzureUSGovernment: 'https://www.powershellgallery.com/api/v2/package/Az.DesktopVirtualization/3.0.0'
+}
 var Modules = [
   {
     name: 'Az.Accounts'
@@ -50,7 +54,7 @@ var Modules = [
   }
   {
     name: 'Az.DesktopVirtualization'
-    uri: 'https://www.powershellgallery.com/api/v2/package/Az.DesktopVirtualization'
+    uri: DesktopVirtualizationModule[environment().name]
   }
 ]
 var Runbook = 'WVDAutoScaleRunbookARMBased'

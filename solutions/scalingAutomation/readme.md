@@ -46,7 +46,7 @@ By configuring the "workspace" parameters for this deployment, the Runbook job l
 ````powershell
 New-AzResourceGroupDeployment `
     -ResourceGroupName '<Resource Group Name>' `
-    -TemplateFile 'https://raw.githubusercontent.com/battelle-cube/azure-avd-automation/main/solutions/scalingAutomation/scalingAutomationAccount.json' `
+    -TemplateFile 'https://raw.githubusercontent.com/battelle-cube/terraform-cube-avd/main/solutions/scalingAutomation/scalingAutomationAccount.json' `
     -AutomationAccountName '<Automation Account Name>' `
     -LogAnalyticsWorkspaceResourceId '<Log Analytics Workspace Resource ID>' `
     -WVDVersion '<ARM or Classic>' `
@@ -58,7 +58,7 @@ New-AzResourceGroupDeployment `
 ````cli
 az deployment group create \
     --resource-group '<Resource Group Name>' \
-    --template-uri 'https://raw.githubusercontent.com/battelle-cube/azure-avd-automation/main/solutions/scalingAutomation/scalingAutomationAccount.json' \
+    --template-uri 'https://raw.githubusercontent.com/battelle-cube/terraform-cube-avd/main/solutions/scalingAutomation/scalingAutomationAccount.json' \
     --parameters \
         AutomationAccountName='<Automation Account Name>' \
         LogAnalyticsWorkspaceResourceId='<Log Analytics Workspace Resource ID>' \
@@ -123,7 +123,7 @@ This ARM template will deploy a Logic App to trigger the scaling runbook in Azur
 ````powershell
 New-AzResourceGroupDeployment `
     -ResourceGroupName '<Resource Group Name>' `
-    -TemplateFile 'https://raw.githubusercontent.com/battelle-cube/azure-avd-automation/main/solutions/scalingAutomation/scalingLogicApp.json' `
+    -TemplateFile 'https://raw.githubusercontent.com/battelle-cube/terraform-cube-avd/main/solutions/scalingAutomation/scalingLogicApp.json' `
     -AutomationConnectionName 'Automation Run As Account Name' ` 
     -AutomationAccountName '<Automation Account Name>' `
     -AutomationAccountResourceGroupName '<Automation Account Resource Group Name>' `
@@ -154,7 +154,7 @@ New-AzResourceGroupDeployment `
 ````cli
 az deployment group create \
     --resource-group '<Resource Group Name>' \
-    --template-uri 'https://raw.githubusercontent.com/battelle-cube/azure-avd-automation/main/solutions/scalingAutomation/scalingLogicApp.json' \
+    --template-uri 'https://raw.githubusercontent.com/battelle-cube/terraform-cube-avd/main/solutions/scalingAutomation/scalingLogicApp.json' \
     --parameters \
         AutomationConnectionName='Automation Run As Account Name' \
         AutomationAccountName='<Automation Account Name>' \

@@ -98,7 +98,7 @@ param MaxSessionLimit int = 2
 param newOrExisting string = 'new'
 
 @description('The distinguished name for the target Organization Unit in Active Directory Domain Services.')
-param OuPath string = 'OU=AADDC ComputersDC=jasonmastenDC=com'
+param OuPath string = 'OU=AADDC Computers,DC=jasonmasten,DC=com'
 
 @description('Enable backups to an Azure Recovery Services vault.  For a pooled host pool this will enable backups on the Azure file share.  For a personal host pool this will enable backups on the AVD sessions hosts.')
 param RecoveryServices bool = false
@@ -258,7 +258,7 @@ var TimeZones = {
     westus3: 'Mountain Standard Time'
 }
 var VmName = 'vm${ResourceNameSuffix}'
-var VmTemplate = '{\'domain\':\'${DomainName}\',\'galleryImageOffer\':\'${ImageOffer}\',\'galleryImagePublisher\':\'${ImagePublisher}\',\'galleryImageSKU\':\'${ImageSku}\',\'imageType\':\'Gallery\',\'imageUri\':null,\'customImageId\':null,\'namePrefix\':\'${VmName}\',\'osDiskType\':\'${DiskSku}\',\'useManagedDisks\':true,\'vmSize\':{\'id\':\'${VmSize}\',\'cores\':null,\'ram\':null},\'galleryItemId\':\'${ImagePublisher}.${ImageOffer}${ImageSku}\'}'
+var VmTemplate = '{"domain":"${DomainName}","galleryImageOffer":"${ImageOffer}","galleryImagePublisher":"${ImagePublisher}","galleryImageSKU":"${ImageSku}","imageType":"Gallery","imageUri":null,"customImageId":null,"namePrefix":"${VmName}","osDiskType":"${DiskSku}","useManagedDisks":true,"vmSize":{"id":"${VmSize}","cores":null,"ram":null},"galleryItemId":"${ImagePublisher}.${ImageOffer}${ImageSku}"}'
 var WorkspaceName = 'ws-${ResourceNameSuffix}'
 
 resource rgInfra 'Microsoft.Resources/resourceGroups@2020-10-01' = {
@@ -461,6 +461,7 @@ module scale 'modules/scale.bicep' = if(split(HostPoolType, ' ')[0] == 'Pooled')
     sessionHosts
     fslogix
     bitLocker
+    stig
   ]
 }
 

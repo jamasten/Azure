@@ -408,4 +408,7 @@ try
 catch 
 {
     Write-Log -Message $_ -Type 'ERROR'
+    $ErrorData = $_ | Select-Object *
+    $ErrorData | Out-File -FilePath 'C:\cse.txt' -Append
+    throw
 }

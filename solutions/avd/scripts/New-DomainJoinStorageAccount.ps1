@@ -56,15 +56,17 @@ function Write-Log
         [parameter(Mandatory)]
         [string]$Type
     )
-    $Path = 'C:\cse.log'
-    if(!(Test-Path -Path C:\cse.log))
+    $Path = 'C:\cse.txt'
+    if(!(Test-Path -Path $Path))
     {
-        New-Item -Path C:\ -Name cse.log | Out-Null
+        New-Item -Path C:\ -Name cse.txt | Out-Null
     }
     $Timestamp = Get-Date -Format 'MM/dd/yyyy HH:mm:ss.ff'
     $Entry = '[' + $Timestamp + '] [' + $Type + '] ' + $Message
     $Entry | Out-File -FilePath $Path -Append
 }
+
+$ErrorActionPreference = 'Stop'
 
 try 
 {    
@@ -79,19 +81,19 @@ try
     if($DomainServices -eq 'ActiveDirectory')
     {
         # Install latest NuGet Provider; recommended for PowerShellGet
-        Install-PackageProvider -Name 'NuGet' -Force -ErrorAction 'Stop'
+        Install-PackageProvider -Name 'NuGet' -Force
         Write-Log -Message "Installed the NuGet Package Provider" -Type 'INFO'
 
         # Install PowerShellGet; prereq for the Az.Storage module
-        Install-Module -Name 'PowerShellGet' -Force -ErrorAction 'Stop'
+        Install-Module -Name 'PowerShellGet' -Force
         Write-Log -Message "Installed the PowerShellGet module" -Type 'INFO'
 
         # Install required Az.Storage module
-        Install-Module -Name 'Az.Storage' -Repository 'PSGallery' -Force -ErrorAction 'Stop'
+        Install-Module -Name 'Az.Storage' -Repository 'PSGallery' -Force
         Write-Log -Message "Installed the Az.Storage module" -Type 'INFO'
 
         # Connects to Azure using a User Assigned Managed Identity
-        Connect-AzAccount -Identity -Tenant $TenantId -Subscription $SubscriptionId -ErrorAction 'Stop'
+        Connect-AzAccount -Identity -Tenant $TenantId -Subscription $SubscriptionId
         Write-Log -Message "Authenticated to Azure" -Type 'INFO'
 
         # Get / create kerberos key for Azure Storage Account
@@ -108,7 +110,7 @@ try
         Write-Log -Message "Acquired Kerberos Key from Storage Account" -Type 'INFO'
 
         # Install Active Directory PowerShell module
-        Install-WindowsFeature -Name 'RSAT-AD-PowerShell' -ErrorAction 'Stop'
+        Install-WindowsFeature -Name 'RSAT-AD-PowerShell'
         Write-Log -Message "Installation of the AD module succeeded" -Type 'INFO'
 
         # Create credential for domain joining the Azure Storage Account
@@ -117,7 +119,7 @@ try
         [pscredential]$Credential = New-Object System.Management.Automation.PSCredential ($Username, $Password)
 
         # Creates a password for the Azure Storage Account in AD using the Kerberos key
-        $ComputerPassword = ConvertTo-SecureString -String $Key.Replace("'","") -AsPlainText -Force -ErrorAction Stop
+        $ComputerPassword = ConvertTo-SecureString -String $Key.Replace("'","") -AsPlainText -Force
         Write-Log -Message "Secure string conversion succeeded" -Type 'INFO'
 
         # Create the SPN value for the Azure Storage Account; attribute for computer object in AD 
@@ -130,17 +132,17 @@ try
         $Computer = Get-ADComputer -Filter {Name -eq $StorageAccountName}
         if($Computer)
         {
-            Remove-ADComputer -Credential $Credential -Identity $StorageAccountName -Confirm:$false -ErrorAction 'Stop'
+            Remove-ADComputer -Credential $Credential -Identity $StorageAccountName -Confirm:$false
         }
-        New-ADComputer -Credential $Credential -Name $StorageAccountName -Path $OuPath -ServicePrincipalNames $SPN -AccountPassword $ComputerPassword -KerberosEncryptionType $KerberosEncryptionType -Description $Description -ErrorAction 'Stop'
+        New-ADComputer -Credential $Credential -Name $StorageAccountName -Path $OuPath -ServicePrincipalNames $SPN -AccountPassword $ComputerPassword -KerberosEncryptionType $KerberosEncryptionType -Description $Description
         Write-Log -Message "Computer object creation succeeded" -Type 'INFO'
 
         # Get domain 'INFO' required for the Azure Storage Account
-        $Domain = Get-ADDomain -Credential $Credential -Current 'LocalComputer' -ErrorAction 'Stop'
+        $Domain = Get-ADDomain -Credential $Credential -Current 'LocalComputer'
         Write-Log -Message "Domain 'INFO' collection succeeded" -Type 'INFO'
 
         # Get the SID for the Azure Storage Account Computer Object in AD
-        $ComputerSid = (Get-ADComputer -Identity $StorageAccountName -ErrorAction 'Stop').SID.Value
+        $ComputerSid = (Get-ADComputer -Identity $StorageAccountName).SID.Value
         Write-Log -Message "Computer object 'INFO' collection succeeded" -Type 'INFO'
 
         # Update the Azure Storage Account with the domain join 'INFO'
@@ -153,8 +155,7 @@ try
             -ActiveDirectoryForestName $Domain.Forest `
             -ActiveDirectoryDomainGuid $Domain.ObjectGUID `
             -ActiveDirectoryDomainsid $Domain.DomainSID `
-            -ActiveDirectoryAzureStorageSid $ComputerSid `
-            -ErrorAction 'Stop'
+            -ActiveDirectoryAzureStorageSid $ComputerSid
         Write-Log -Message "Storage Account update with domain join info succeeded" -Type 'INFO'
     }
 
@@ -166,11 +167,11 @@ try
     [pscredential]$Credential = New-Object System.Management.Automation.PSCredential ($Username, $Password)
 
     # Mount file share
-    New-PSDrive -Name 'Z' -PSProvider 'FileSystem' -Root $FileShare -Credential $Credential -Persist -ErrorAction 'Stop'
+    New-PSDrive -Name 'Z' -PSProvider 'FileSystem' -Root $FileShare -Credential $Credential -Persist
     Write-Log -Message "Mounting the Azure file share succeeded" -Type 'INFO'
 
     # Set recommended NTFS permissions on the file share
-    $ACL = Get-Acl -Path 'Z:' -ErrorAction 'Stop'
+    $ACL = Get-Acl -Path 'Z:'
     $CreatorOwner = New-Object System.Security.Principal.Ntaccount ("Creator Owner")
     $ACL.PurgeAccessRules($CreatorOwner)
     $AuthenticatedUsers = New-Object System.Security.Principal.Ntaccount ("Authenticated Users")
@@ -181,13 +182,16 @@ try
     $ACL.SetAccessRule($DomainUsers)
     $CreatorOwner = New-Object System.Security.AccessControl.FileSystemAccessRule("Creator Owner","Modify","ContainerInherit,ObjectInherit","InheritOnly","Allow")
     $ACL.AddAccessRule($CreatorOwner)
-    $ACL | Set-Acl -Path 'Z:' -ErrorAction 'Stop'
+    $ACL | Set-Acl -Path 'Z:'
     Write-Log -Message "Setting the NTFS permissions on the Azure file share succeeded" -Type 'INFO'
 
     # Unmount file share
-    Remove-PSDrive -Name 'Z' -PSProvider 'FileSystem' -Force -ErrorAction 'Stop'
+    Remove-PSDrive -Name 'Z' -PSProvider 'FileSystem' -Force
     Write-Log -Message "Unmounting the Azure file share succeeded" -Type 'INFO'
 }
 catch {
     Write-Log -Message $_ -Type 'ERROR'
+    $ErrorData = $_ | Select-Object *
+    $ErrorData | Out-File -FilePath 'C:\cse.txt' -Append
+    throw
 }

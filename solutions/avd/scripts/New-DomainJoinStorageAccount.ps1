@@ -170,10 +170,18 @@ try
     Write-Log -Message "Mounting the Azure file share succeeded" -Type 'INFO'
 
     # Set recommended NTFS permissions on the file share
-    Start-Process icacls -ArgumentList "Z: /grant $($Group):(M)" -Wait -NoNewWindow -PassThru -ErrorAction 'Stop'
-    Start-Process icacls -ArgumentList 'Z: /grant "Creator Owner":(OI)(CI)(IO)(M)' -Wait -NoNewWindow -PassThru -ErrorAction 'Stop'
-    Start-Process icacls -ArgumentList 'Z: /remove "Authenticated Users"' -Wait -NoNewWindow -PassThru -ErrorAction 'Stop'
-    Start-Process icacls -ArgumentList 'Z: /remove "Builtin\Users"' -Wait -NoNewWindow -PassThru -ErrorAction 'Stop'
+    $ACL = Get-Acl -Path 'Z:' -ErrorAction 'Stop'
+    $CreatorOwner = New-Object System.Security.Principal.Ntaccount ("Creator Owner")
+    $ACL.PurgeAccessRules($CreatorOwner)
+    $AuthenticatedUsers = New-Object System.Security.Principal.Ntaccount ("Authenticated Users")
+    $ACL.PurgeAccessRules($AuthenticatedUsers)
+    $Users = New-Object System.Security.Principal.Ntaccount ("Users")
+    $ACL.PurgeAccessRules($Users)
+    $DomainUsers = New-Object System.Security.AccessControl.FileSystemAccessRule("$Group","Modify","None","None","Allow")
+    $ACL.SetAccessRule($DomainUsers)
+    $CreatorOwner = New-Object System.Security.AccessControl.FileSystemAccessRule("Creator Owner","Modify","ContainerInherit,ObjectInherit","InheritOnly","Allow")
+    $ACL.AddAccessRule($CreatorOwner)
+    $ACL | Set-Acl -Path 'Z:' -ErrorAction 'Stop'
     Write-Log -Message "Setting the NTFS permissions on the Azure file share succeeded" -Type 'INFO'
 
     # Unmount file share

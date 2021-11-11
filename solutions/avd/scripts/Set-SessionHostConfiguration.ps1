@@ -6,6 +6,10 @@ Param(
 
     [parameter(Mandatory)]
     [string]
+    $DodStigCompliance,
+
+    [parameter(Mandatory)]
+    [string]
     $Environment,
 
     [parameter(Mandatory)]
@@ -107,6 +111,16 @@ Write-Log -Message "ScreenCaptureProtection: $ScreenCaptureProtection" -Type 'IN
 Write-Log -Message "AmdVmSize: $AmdVmSize" -Type 'INFO'
 Write-Log -Message "StorageAccountName: $StorageAccountName" -Type 'INFO'
 
+
+##############################################################
+#  DoD STIG Compliance
+##############################################################
+if($DodStigCompliance -eq 'true')
+{
+    # Set Local Admin account password expires True (V-205658)
+    $localAdmin = Get-LocalUser | Where-Object Description -eq "Built-in account for administering the computer/domain"
+    Set-LocalUser -name $localAdmin.Name -PasswordNeverExpires $false
+}
 
 ##############################################################
 #  Add Recommended AVD Settings

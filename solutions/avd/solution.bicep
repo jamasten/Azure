@@ -331,6 +331,7 @@ module sessionHosts 'modules/sessionHosts.bicep' = {
   scope: resourceGroup(ResourceGroups[1])
   params: {
     DiskSku: DiskSku
+    DodStigCompliance: DodStigCompliance
     DomainJoinPassword: DomainJoinPassword
     DomainJoinUserPrincipalName: DomainJoinUserPrincipalName
     DomainName: DomainName

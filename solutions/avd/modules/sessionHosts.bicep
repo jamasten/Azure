@@ -16,7 +16,9 @@ param ImageSku string
 param ImageVersion string
 param Location string
 param LogAnalyticsWorkspaceResourceId string
+param NetworkSecurityGroupName string
 param OuPath string
+param RdpShortPath bool
 param ResourceNameSuffix string
 param SessionHostCount int
 param SessionHostIndex int
@@ -85,6 +87,28 @@ resource availabilitySet 'Microsoft.Compute/availabilitySets@2019-07-01' = if (P
   }
 }
 
+resource nsg 'Microsoft.Network/networkSecurityGroups@2021-03-01' = if(RdpShortPath) {
+  name: NetworkSecurityGroupName
+  location: Location
+  properties: {
+    securityRules:[
+      {
+        name: 'AllowRdpShortPath'
+        properties: {
+          access: 'Allow'
+          destinationAddressPrefix: '*'
+          destinationPortRange: '3390'
+          direction: 'Inbound'
+          priority: 3390
+          protocol: 'Udp'
+          sourceAddressPrefix: 'VirtualNetwork'
+          sourcePortRange: '*'
+        }
+      }
+    ]
+  }
+}
+
 resource nic 'Microsoft.Network/networkInterfaces@2020-05-01' = [for i in range(0, SessionHostCount): {
   name: 'nic-${ResourceNameSuffix}${padLeft((i + SessionHostIndex), 3, '0')}'
   location: Location
@@ -105,6 +129,7 @@ resource nic 'Microsoft.Network/networkInterfaces@2020-05-01' = [for i in range(
     ]
     enableAcceleratedNetworking: false
     enableIPForwarding: false
+    networkSecurityGroup: RdpShortPath ? json(concat('{"id": "', nsg.id, '"}')) : null 
   }
 }]
 

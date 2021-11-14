@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.4.1008.15138",
-      "templateHash": "17160153333500505609"
+      "templateHash": "13739163784413795034"
     }
   },
   "parameters": {
@@ -570,7 +570,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.4.1008.15138",
-              "templateHash": "9642127566846837004"
+              "templateHash": "3027617742959846746"
             }
           },
           "parameters": {
@@ -1124,7 +1124,7 @@
             },
             {
               "type": "Microsoft.DesktopVirtualization/hostPools",
-              "apiVersion": "2021-07-12",
+              "apiVersion": "2021-03-09-preview",
               "name": "[parameters('HostPoolName')]",
               "location": "[parameters('Location')]",
               "tags": "[parameters('Tags')]",
@@ -1162,7 +1162,7 @@
             {
               "condition": "[equals(parameters('newOrExisting'), 'new')]",
               "type": "Microsoft.DesktopVirtualization/applicationGroups",
-              "apiVersion": "2021-07-12",
+              "apiVersion": "2021-03-09-preview",
               "name": "[parameters('AppGroupName')]",
               "location": "[parameters('Location')]",
               "tags": "[parameters('Tags')]",
@@ -1191,7 +1191,7 @@
             {
               "condition": "[equals(parameters('newOrExisting'), 'new')]",
               "type": "Microsoft.DesktopVirtualization/workspaces",
-              "apiVersion": "2021-07-12",
+              "apiVersion": "2021-03-09-preview",
               "name": "[parameters('WorkspaceName')]",
               "location": "[parameters('Location')]",
               "tags": "[parameters('Tags')]",

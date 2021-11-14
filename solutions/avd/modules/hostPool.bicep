@@ -491,7 +491,7 @@ resource logAnalyticsWorkspace_WindowsPerformanceCounters 'Microsoft.Operational
   ]
 }]
 
-resource hostPool 'Microsoft.DesktopVirtualization/hostPools@2021-07-12' = {
+resource hostPool 'Microsoft.DesktopVirtualization/hostPools@2021-03-09-preview' = {
   name: HostPoolName
   location: Location
   tags: Tags
@@ -522,7 +522,7 @@ resource hostPoolDiagnostics 'Microsoft.Insights/diagnosticsettings@2017-05-01-p
   }
 }
 
-resource appGroup 'Microsoft.DesktopVirtualization/applicationGroups@2021-07-12' = if (newOrExisting == 'new') {
+resource appGroup 'Microsoft.DesktopVirtualization/applicationGroups@2021-03-09-preview' = if (newOrExisting == 'new') {
   name: AppGroupName
   location: Location
   tags: Tags
@@ -541,7 +541,7 @@ resource appGroupAssignment 'Microsoft.Authorization/roleAssignments@2018-01-01-
   }
 }
 
-resource workspace 'Microsoft.DesktopVirtualization/workspaces@2021-07-12' = if (newOrExisting == 'new') {
+resource workspace 'Microsoft.DesktopVirtualization/workspaces@2021-03-09-preview' = if (newOrExisting == 'new') {
   name: WorkspaceName
   location: Location
   tags: Tags

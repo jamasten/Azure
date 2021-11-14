@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.4.1008.15138",
-      "templateHash": "2270546558471531347"
+      "templateHash": "13739163784413795034"
     }
   },
   "parameters": {
@@ -570,7 +570,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.4.1008.15138",
-              "templateHash": "9642127566846837004"
+              "templateHash": "3027617742959846746"
             }
           },
           "parameters": {
@@ -1267,6 +1267,9 @@
           "DiskSku": {
             "value": "[parameters('DiskSku')]"
           },
+          "DodStigCompliance": {
+            "value": "[parameters('DodStigCompliance')]"
+          },
           "DomainJoinPassword": {
             "value": "[parameters('DomainJoinPassword')]"
           },
@@ -1362,12 +1365,15 @@
             "_generator": {
               "name": "bicep",
               "version": "0.4.1008.15138",
-              "templateHash": "6292808881908409360"
+              "templateHash": "15795582941173593322"
             }
           },
           "parameters": {
             "DiskSku": {
               "type": "string"
+            },
+            "DodStigCompliance": {
+              "type": "bool"
             },
             "DomainName": {
               "type": "string"
@@ -1675,7 +1681,7 @@
                   "timestamp": "[parameters('Timestamp')]"
                 },
                 "protectedSettings": {
-                  "commandToExecute": "[format('powershell -ExecutionPolicy Unrestricted -File Set-SessionHostConfiguration.ps1 -AmdVmSize {0} -Environment {1} -FSLogix {2} -HostPoolName {3} -HostPoolRegistrationToken {4} -ImageOffer {5} -ImagePublisher {6} -NvidiaVmSize {7} -PooledHostPool {8} -ScreenCaptureProtection {9} -StorageAccountName {10}', variables('AmdVmSize'), environment().name, parameters('FSLogix'), parameters('HostPoolName'), reference(resourceId(parameters('HostPoolResourceGroupName'), 'Microsoft.DesktopVirtualization/hostpools', parameters('HostPoolName')), '2019-12-10-preview').registrationInfo.token, parameters('ImageOffer'), parameters('ImagePublisher'), variables('NvidiaVmSize'), variables('PooledHostPool'), parameters('ScreenCaptureProtection'), parameters('StorageAccountName'))]"
+                  "commandToExecute": "[format('powershell -ExecutionPolicy Unrestricted -File Set-SessionHostConfiguration.ps1 -AmdVmSize {0} -DodStigCompliance {1} -Environment {2} -FSLogix {3} -HostPoolName {4} -HostPoolRegistrationToken {5} -ImageOffer {6} -ImagePublisher {7} -NvidiaVmSize {8} -PooledHostPool {9} -ScreenCaptureProtection {10} -StorageAccountName {11}', variables('AmdVmSize'), parameters('DodStigCompliance'), environment().name, parameters('FSLogix'), parameters('HostPoolName'), reference(resourceId(parameters('HostPoolResourceGroupName'), 'Microsoft.DesktopVirtualization/hostpools', parameters('HostPoolName')), '2019-12-10-preview').registrationInfo.token, parameters('ImageOffer'), parameters('ImagePublisher'), variables('NvidiaVmSize'), variables('PooledHostPool'), parameters('ScreenCaptureProtection'), parameters('StorageAccountName'))]"
                 }
               },
               "dependsOn": [
@@ -3104,7 +3110,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.4.1008.15138",
-              "templateHash": "10269198694303539422"
+              "templateHash": "13374684639457430971"
             }
           },
           "parameters": {
@@ -3173,6 +3179,10 @@
               "LogOffMessageTitle": "Machine is about to shutdown.",
               "LogOffMessageBody": "Your session will be logged off. Please save and close everything."
             },
+            "DesktopVirtualizationModule": {
+              "AzureCloud": "https://www.powershellgallery.com/api/v2/package/Az.DesktopVirtualization",
+              "AzureUSGovernment": "https://www.powershellgallery.com/api/v2/package/Az.DesktopVirtualization/3.0.0"
+            },
             "Modules": [
               {
                 "name": "Az.Accounts",
@@ -3192,7 +3202,7 @@
               },
               {
                 "name": "Az.DesktopVirtualization",
-                "uri": "https://www.powershellgallery.com/api/v2/package/Az.DesktopVirtualization"
+                "uri": "[variables('DesktopVirtualizationModule')[environment().name]]"
               }
             ],
             "Runbook": "WVDAutoScaleRunbookARMBased",

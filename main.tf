@@ -25,6 +25,11 @@ variable "domain_name" {
   type = string
   description = "The name of the domain that provides ADDS to the AVD session hosts and is synchronized with Azure AD"
 }
+variable "domain_services" {
+  type = string
+  default = "AzureActiveDirectory"
+  description = "The service providing domain services for Azure Virtual Desktop.  This is needed to determine the proper solution to domain join the Azure Storage Account."
+}
 variable "drain_mode" {
   type = bool
   default = false
@@ -249,7 +254,7 @@ resource "azurerm_subscription_template_deployment" "avd" {
         "value": var.domain_name
       },
       "DomainServices": {
-        "value": "ActiveDirectory"
+        "value": var.domain_services
       },
       "DomainJoinUserPrincipalName": {
         "value": local.user_principal_name

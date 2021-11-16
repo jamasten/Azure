@@ -65,7 +65,7 @@
         "ModuleArm": [
             {
                 "name": "Az.DesktopVirtualization",
-                "uri": "https://www.powershellgallery.com/api/v2/package/Az.DesktopVirtualization"
+                "uri": "https://www.powershellgallery.com/api/v2/package/Az.DesktopVirtualization/3.0.0"
             }
         ],
         "ModuleClassic": [

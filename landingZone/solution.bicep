@@ -105,7 +105,7 @@ module dnsFix './modules/dnsFix.bicep' = {
     ManagedIdentityName: ManagedIdentityName
     ResourceGroupNames: ResourceGroupNames
     Timestamp: Timestamp
-    VnetName: '${VnetName}-001'
+    VnetName: VnetName
   }
   dependsOn: [
     resourceGroups

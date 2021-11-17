@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.4.1008.15138",
-      "templateHash": "8553243443509142818"
+      "templateHash": "9416579884961428613"
     }
   },
   "parameters": {
@@ -67,16 +67,14 @@
   "functions": [],
   "variables": {
     "AutomationAccountName": "[format('aa-{0}-{1}-{2}-{3}-{4}', parameters('UnitDept'), parameters('ProjAppSvc')[1], parameters('Environment'), parameters('LocationAbbr'), parameters('Instance'))]",
-    "BastionName": "[format('bastion-{0}-{1}-{2}-{3}-{4}', parameters('UnitDept'), parameters('ProjAppSvc')[1], parameters('Environment'), parameters('LocationAbbr'), parameters('Instance'))]",
     "DomainControllerName": "[format('vm{0}{1}{2}{3}dc{4}', parameters('UnitDept'), parameters('ProjAppSvc')[0], parameters('Environment'), parameters('LocationAbbr'), parameters('Instance'))]",
     "DomainControllerDiskName": "[format('disk-{0}-{1}-{2}-{3}-dc-{4}', parameters('UnitDept'), parameters('ProjAppSvc')[0], parameters('Environment'), parameters('LocationAbbr'), parameters('Instance'))]",
     "DomainControllerNicName": "[format('nic-{0}-{1}-{2}-{3}-dc-{4}', parameters('UnitDept'), parameters('ProjAppSvc')[0], parameters('Environment'), parameters('LocationAbbr'), parameters('Instance'))]",
-    "KeyVaultName": "[format('kv-{0}-{1}-{2}-{3}', parameters('UnitDept'), parameters('ProjAppSvc')[0], parameters('Environment'), parameters('LocationAbbr'))]",
+    "KeyVaultName": "[format('kv-{0}-{1}-{2}-{3}-{4}', parameters('UnitDept'), parameters('ProjAppSvc')[0], parameters('Environment'), parameters('LocationAbbr'), parameters('Instance'))]",
     "LogAnalyticsWorkspaceName": "[format('law-{0}-{1}-{2}-{3}-{4}', parameters('UnitDept'), parameters('ProjAppSvc')[1], parameters('Environment'), parameters('LocationAbbr'), parameters('Instance'))]",
     "ManagedIdentityName": "[format('uami-{0}-{1}-{2}-{3}-{4}', parameters('UnitDept'), parameters('ProjAppSvc')[1], parameters('Environment'), parameters('LocationAbbr'), parameters('Instance'))]",
     "NetworkContributorId": "4d97b98b-1d4f-4787-a291-c67834d212e7",
     "NetworkWatcherName": "[format('nw-{0}-{1}-{2}-{3}-{4}', parameters('UnitDept'), parameters('ProjAppSvc')[1], parameters('Environment'), parameters('LocationAbbr'), parameters('Instance'))]",
-    "PublicIpAddressName": "[format('pip-bastion-{0}-{1}{2}-{3}-{4}', parameters('UnitDept'), parameters('ProjAppSvc')[1], parameters('Environment'), parameters('LocationAbbr'), parameters('Instance'))]",
     "ResourceGroupNames": [
       "[format('rg-{0}-{1}-{2}-{3}-{4}', parameters('UnitDept'), parameters('ProjAppSvc')[0], parameters('Environment'), parameters('LocationAbbr'), parameters('Instance'))]",
       "[format('rg-{0}-{1}-{2}-{3}-{4}', parameters('UnitDept'), parameters('ProjAppSvc')[1], parameters('Environment'), parameters('LocationAbbr'), parameters('Instance'))]",
@@ -186,9 +184,6 @@
         },
         "mode": "Incremental",
         "parameters": {
-          "BastionName": {
-            "value": "[variables('BastionName')]"
-          },
           "Location": {
             "value": "[parameters('Location')]"
           },
@@ -204,9 +199,6 @@
           "PrincipalId": {
             "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroupNames')[0]), 'Microsoft.Resources/deployments', 'ManagedIdentityTemplate'), '2020-06-01').outputs.principalId.value]"
           },
-          "PublicIpAddressName": {
-            "value": "[variables('PublicIpAddressName')]"
-          },
           "VnetName": {
             "value": "[variables('VnetName')]"
           }
@@ -218,13 +210,10 @@
             "_generator": {
               "name": "bicep",
               "version": "0.4.1008.15138",
-              "templateHash": "18139460046525765735"
+              "templateHash": "4207000851825315659"
             }
           },
           "parameters": {
-            "BastionName": {
-              "type": "string"
-            },
             "Location": {
               "type": "string"
             },
@@ -238,9 +227,6 @@
               "type": "string"
             },
             "PrincipalId": {
-              "type": "string"
-            },
-            "PublicIpAddressName": {
               "type": "string"
             },
             "VnetName": {
@@ -423,53 +409,6 @@
               "dependsOn": [
                 "[resourceId('Microsoft.Network/networkSecurityGroups', 'adds-subnet')]",
                 "[resourceId('Microsoft.Network/networkWatchers', parameters('NetworkWatcherName'))]"
-              ]
-            },
-            {
-              "copy": {
-                "name": "pip",
-                "count": "[length(range(0, 3))]"
-              },
-              "type": "Microsoft.Network/publicIPAddresses",
-              "apiVersion": "2020-11-01",
-              "name": "[format('{0}-00{1}', parameters('PublicIpAddressName'), range(0, 3)[copyIndex()])]",
-              "location": "[parameters('Location')]",
-              "sku": {
-                "name": "Standard"
-              },
-              "properties": {
-                "publicIPAddressVersion": "IPv4",
-                "publicIPAllocationMethod": "Static",
-                "idleTimeoutInMinutes": 4
-              }
-            },
-            {
-              "copy": {
-                "name": "bastion",
-                "count": "[length(range(0, 3))]"
-              },
-              "type": "Microsoft.Network/bastionHosts",
-              "apiVersion": "2020-05-01",
-              "name": "[format('{0}-00{1}', parameters('BastionName'), range(0, 3)[copyIndex()])]",
-              "location": "[parameters('Location')]",
-              "properties": {
-                "ipConfigurations": [
-                  {
-                    "name": "IpConf",
-                    "properties": {
-                      "publicIPAddress": {
-                        "id": "[resourceId('Microsoft.Network/publicIPAddresses', format('{0}-00{1}', parameters('PublicIpAddressName'), range(0, 3)[range(0, 3)[copyIndex()]]))]"
-                      },
-                      "subnet": {
-                        "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', format('{0}-00{1}', parameters('VnetName'), range(0, 3)[copyIndex()]), 'AzureBastionSubnet')]"
-                      }
-                    }
-                  }
-                ]
-              },
-              "dependsOn": [
-                "[resourceId('Microsoft.Network/publicIPAddresses', format('{0}-00{1}', parameters('PublicIpAddressName'), range(0, 3)[range(0, 3)[copyIndex()]]))]",
-                "vnet"
               ]
             }
           ]

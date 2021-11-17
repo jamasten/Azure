@@ -1,10 +1,8 @@
-param BastionName string
 param Location string
 param ManagedIdentityName string
 param NetworkContributorId string
 param NetworkWatcherName string
 param PrincipalId string
-param PublicIpAddressName string
 param VnetName string
 
 
@@ -172,41 +170,5 @@ resource vnet 'Microsoft.Network/virtualNetworks@2021-02-01' = [for i in range(0
   }
   dependsOn: [
     networkWatcher
-  ]
-}]
-
-resource pip 'Microsoft.Network/publicIPAddresses@2020-11-01' = [for i in range(0, 3): {
-  name: '${PublicIpAddressName}-00${i}'
-  location: Location
-  sku: {
-    name: 'Standard'
-  }
-  properties: {
-    publicIPAddressVersion: 'IPv4'
-    publicIPAllocationMethod: 'Static'
-    idleTimeoutInMinutes: 4
-  }
-}]
-
-resource bastion 'Microsoft.Network/bastionHosts@2020-05-01' = [for i in range(0, 3): {
-  name: '${BastionName}-00${i}'
-  location: Location
-  properties: {
-    ipConfigurations: [
-      {
-        name: 'IpConf'
-        properties: {
-          publicIPAddress: {
-            id: pip[i].id
-          }
-          subnet: {
-            id: resourceId('Microsoft.Network/virtualNetworks/subnets', '${VnetName}-00${i}', 'AzureBastionSubnet')
-          }
-        }
-      }
-    ]
-  }
-  dependsOn: [
-    vnet
   ]
 }]

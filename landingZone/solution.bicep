@@ -21,16 +21,14 @@ param VmUsername string
 
 
 var AutomationAccountName = 'aa-${UnitDept}-${ProjAppSvc[1]}-${Environment}-${LocationAbbr}-${Instance}'
-var BastionName = 'bastion-${UnitDept}-${ProjAppSvc[1]}-${Environment}-${LocationAbbr}-${Instance}'
 var DomainControllerName = 'vm${UnitDept}${ProjAppSvc[0]}${Environment}${LocationAbbr}dc${Instance}'
 var DomainControllerDiskName = 'disk-${UnitDept}-${ProjAppSvc[0]}-${Environment}-${LocationAbbr}-dc-${Instance}'
 var DomainControllerNicName = 'nic-${UnitDept}-${ProjAppSvc[0]}-${Environment}-${LocationAbbr}-dc-${Instance}'
-var KeyVaultName = 'kv-${UnitDept}-${ProjAppSvc[0]}-${Environment}-${LocationAbbr}'
+var KeyVaultName = 'kv-${UnitDept}-${ProjAppSvc[0]}-${Environment}-${LocationAbbr}-${Instance}'
 var LogAnalyticsWorkspaceName = 'law-${UnitDept}-${ProjAppSvc[1]}-${Environment}-${LocationAbbr}-${Instance}'
 var ManagedIdentityName = 'uami-${UnitDept}-${ProjAppSvc[1]}-${Environment}-${LocationAbbr}-${Instance}'
 var NetworkContributorId = '4d97b98b-1d4f-4787-a291-c67834d212e7'
 var NetworkWatcherName = 'nw-${UnitDept}-${ProjAppSvc[1]}-${Environment}-${LocationAbbr}-${Instance}'
-var PublicIpAddressName = 'pip-bastion-${UnitDept}-${ProjAppSvc[1]}${Environment}-${LocationAbbr}-${Instance}'
 var ResourceGroupNames = [
   'rg-${UnitDept}-${ProjAppSvc[0]}-${Environment}-${LocationAbbr}-${Instance}'
   'rg-${UnitDept}-${ProjAppSvc[1]}-${Environment}-${LocationAbbr}-${Instance}'
@@ -62,13 +60,11 @@ module networks './modules/networks.bicep' = {
   name: 'NetworkingTemplate'
   scope: resourceGroup(ResourceGroupNames[1])
   params: {
-    BastionName: BastionName
     Location: Location
     ManagedIdentityName: ManagedIdentityName
     NetworkContributorId: NetworkContributorId
     NetworkWatcherName: NetworkWatcherName
     PrincipalId: managedIdentity.outputs.principalId
-    PublicIpAddressName: PublicIpAddressName
     VnetName: VnetName
   }
   dependsOn: [

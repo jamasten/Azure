@@ -5,13 +5,13 @@
     "_generator": {
       "name": "bicep",
       "version": "0.4.1008.15138",
-      "templateHash": "16401514586028375960"
+      "templateHash": "9345807338766265739"
     }
   },
   "parameters": {
     "DomainName": {
       "type": "string",
-      "defaultValue": "jasonmasten.com"
+      "defaultValue": "jasonmasten.us"
     },
     "Environment": {
       "type": "string",
@@ -526,7 +526,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.4.1008.15138",
-              "templateHash": "8102968753177750622"
+              "templateHash": "16894057092399966948"
             }
           },
           "parameters": {
@@ -559,14 +559,17 @@
             }
           },
           "functions": [],
+          "variables": {
+            "DomainServicesName": "[format('az{0}', parameters('DomainName'))]"
+          },
           "resources": [
             {
               "type": "Microsoft.AAD/domainServices",
               "apiVersion": "2021-03-01",
-              "name": "[parameters('DomainName')]",
+              "name": "[variables('DomainServicesName')]",
               "location": "[parameters('Location')]",
               "properties": {
-                "domainName": "[format('az{0}', parameters('DomainName'))]",
+                "domainName": "[variables('DomainServicesName')]",
                 "filteredSync": "Disabled",
                 "domainConfigurationType": "FullySynced",
                 "notificationSettings": {

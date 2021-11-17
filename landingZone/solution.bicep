@@ -13,8 +13,6 @@ param Timestamp string = utcNow('yyyyMMddhhmmss')
 param UnitDept string = 'shd'
 @description('The Object ID for the Azure AD User Principal to give admin permissions to the Key Vault')
 param UserObjectId string
-@description('The username portion of the UPN for the principal deploying the script')
-param Username string
 @description('Azure VM password')
 @secure()
 param VmPassword string

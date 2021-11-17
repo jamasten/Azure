@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.4.1008.15138",
-      "templateHash": "2966006057181615084"
+      "templateHash": "16401514586028375960"
     }
   },
   "parameters": {
@@ -49,12 +49,6 @@
       "type": "string",
       "metadata": {
         "description": "The Object ID for the Azure AD User Principal to give admin permissions to the Key Vault"
-      }
-    },
-    "Username": {
-      "type": "string",
-      "metadata": {
-        "description": "The username portion of the UPN for the principal deploying the script"
       }
     },
     "VmPassword": {

@@ -10,11 +10,15 @@ param VmPassword string
 param VmUsername string
 param VnetName string
 
+
+var DomainServicesName = 'az${DomainName}'
+
+
 resource domainServices 'Microsoft.AAD/DomainServices@2021-03-01' = {
-  name: DomainName
+  name: DomainServicesName
   location: Location
   properties: {
-    domainName: 'az${DomainName}'
+    domainName: DomainServicesName
     filteredSync: 'Disabled'
     domainConfigurationType: 'FullySynced'
     notificationSettings: {

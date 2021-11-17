@@ -98,7 +98,6 @@ resource keyVault 'Microsoft.KeyVault/vaults@2016-10-01' = {
 resource secret1 'Microsoft.KeyVault/vaults/secrets@2016-10-01' = {
   parent: keyVault
   name: 'VmPassword'
-  tags: {}
   properties: {
     value: VmPassword
   }
@@ -107,7 +106,6 @@ resource secret1 'Microsoft.KeyVault/vaults/secrets@2016-10-01' = {
 resource secret2 'Microsoft.KeyVault/vaults/secrets@2016-10-01' = {
   parent: keyVault
   name: 'VmUsername'
-  tags: {}
   properties: {
     value: VmUsername
   }
@@ -116,7 +114,6 @@ resource secret2 'Microsoft.KeyVault/vaults/secrets@2016-10-01' = {
 resource automationAccount 'Microsoft.Automation/automationAccounts@2015-10-31' = {
   name: AutomationAccountName
   location: Location
-  tags: {}
   properties: {
     sku: {
       name: 'Free'
@@ -127,7 +124,6 @@ resource automationAccount 'Microsoft.Automation/automationAccounts@2015-10-31' 
 resource law 'Microsoft.OperationalInsights/workspaces@2020-03-01-preview' = {
   name: LogAnalyticsWorkspaceName
   location: Location
-  tags: {}
   properties: {
     sku: {
       name: 'PerGB2018'

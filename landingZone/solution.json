@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.4.1008.15138",
-      "templateHash": "9345807338766265739"
+      "templateHash": "8245743216523473462"
     }
   },
   "parameters": {
@@ -849,7 +849,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.4.1008.15138",
-              "templateHash": "6871220698671251003"
+              "templateHash": "5976587334674477503"
             }
           },
           "parameters": {
@@ -970,7 +970,6 @@
               "type": "Microsoft.KeyVault/vaults/secrets",
               "apiVersion": "2016-10-01",
               "name": "[format('{0}/{1}', parameters('KeyVaultName'), 'VmPassword')]",
-              "tags": {},
               "properties": {
                 "value": "[parameters('VmPassword')]"
               },
@@ -982,7 +981,6 @@
               "type": "Microsoft.KeyVault/vaults/secrets",
               "apiVersion": "2016-10-01",
               "name": "[format('{0}/{1}', parameters('KeyVaultName'), 'VmUsername')]",
-              "tags": {},
               "properties": {
                 "value": "[parameters('VmUsername')]"
               },
@@ -995,7 +993,6 @@
               "apiVersion": "2015-10-31",
               "name": "[parameters('AutomationAccountName')]",
               "location": "[parameters('Location')]",
-              "tags": {},
               "properties": {
                 "sku": {
                   "name": "Free"
@@ -1007,7 +1004,6 @@
               "apiVersion": "2020-03-01-preview",
               "name": "[parameters('LogAnalyticsWorkspaceName')]",
               "location": "[parameters('Location')]",
-              "tags": {},
               "properties": {
                 "sku": {
                   "name": "PerGB2018"

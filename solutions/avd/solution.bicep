@@ -100,6 +100,9 @@ param newOrExisting string = 'new'
 @description('The distinguished name for the target Organization Unit in Active Directory Domain Services.')
 param OuPath string = 'OU=AADDC Computers,DC=jasonmasten,DC=com'
 
+@description('Enables the RDP Short Path feature: https://docs.microsoft.com/en-us/azure/virtual-desktop/shortpath')
+param RdpShortPath bool = false
+
 @description('Enable backups to an Azure Recovery Services vault.  For a pooled host pool this will enable backups on the Azure file share.  For a personal host pool this will enable backups on the AVD sessions hosts.')
 param RecoveryServices bool = false
 
@@ -192,6 +195,7 @@ var Location = deployment().location
 var LogAnalyticsWorkspaceName = 'law-${ResourceNameSuffix}'
 var LogicAppName = 'la-${ResourceNameSuffix}'
 var Netbios = split(DomainName, '.')[0]
+var NetworkSecurityGroupName = 'nsg-${ResourceNameSuffix}'
 var RecoveryServicesVaultName = 'rsv-${ResourceNameSuffix}'
 var ResourceGroups = [
     'rg-${ResourceNameSuffix}-infra'
@@ -346,7 +350,9 @@ module sessionHosts 'modules/sessionHosts.bicep' = {
     ImageVersion: ImageVersion
     Location: Location
     LogAnalyticsWorkspaceResourceId: hostPool.outputs.LogAnalyticsWorkspaceResourceId
+    NetworkSecurityGroupName: NetworkSecurityGroupName
     OuPath: OuPath
+    RdpShortPath: RdpShortPath
     ResourceNameSuffix: ResourceNameSuffix
     ScreenCaptureProtection: ScreenCaptureProtection
     SessionHostCount: SessionHostCount

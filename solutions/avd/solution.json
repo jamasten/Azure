@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.4.1008.15138",
-      "templateHash": "13739163784413795034"
+      "templateHash": "18037153671307432082"
     }
   },
   "parameters": {
@@ -190,6 +190,13 @@
       "defaultValue": "OU=AADDC Computers,DC=jasonmasten,DC=com",
       "metadata": {
         "description": "The distinguished name for the target Organization Unit in Active Directory Domain Services."
+      }
+    },
+    "RdpShortPath": {
+      "type": "bool",
+      "defaultValue": false,
+      "metadata": {
+        "description": "Enables the RDP Short Path feature: https://docs.microsoft.com/en-us/azure/virtual-desktop/shortpath"
       }
     },
     "RecoveryServices": {
@@ -382,6 +389,7 @@
     "LogAnalyticsWorkspaceName": "[format('law-{0}', parameters('ResourceNameSuffix'))]",
     "LogicAppName": "[format('la-{0}', parameters('ResourceNameSuffix'))]",
     "Netbios": "[split(parameters('DomainName'), '.')[0]]",
+    "NetworkSecurityGroupName": "[format('nsg-{0}', parameters('ResourceNameSuffix'))]",
     "RecoveryServicesVaultName": "[format('rsv-{0}', parameters('ResourceNameSuffix'))]",
     "ResourceGroups": [
       "[format('rg-{0}-infra', parameters('ResourceNameSuffix'))]",
@@ -1312,8 +1320,14 @@
           "LogAnalyticsWorkspaceResourceId": {
             "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroups')[0]), 'Microsoft.Resources/deployments', format('hostPool_{0}', parameters('TimeStamp'))), '2020-06-01').outputs.LogAnalyticsWorkspaceResourceId.value]"
           },
+          "NetworkSecurityGroupName": {
+            "value": "[variables('NetworkSecurityGroupName')]"
+          },
           "OuPath": {
             "value": "[parameters('OuPath')]"
+          },
+          "RdpShortPath": {
+            "value": "[parameters('RdpShortPath')]"
           },
           "ResourceNameSuffix": {
             "value": "[parameters('ResourceNameSuffix')]"
@@ -1365,7 +1379,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.4.1008.15138",
-              "templateHash": "15795582941173593322"
+              "templateHash": "12439214072796642818"
             }
           },
           "parameters": {
@@ -1417,8 +1431,14 @@
             "LogAnalyticsWorkspaceResourceId": {
               "type": "string"
             },
+            "NetworkSecurityGroupName": {
+              "type": "string"
+            },
             "OuPath": {
               "type": "string"
+            },
+            "RdpShortPath": {
+              "type": "bool"
             },
             "ResourceNameSuffix": {
               "type": "string"
@@ -1520,6 +1540,30 @@
               }
             },
             {
+              "condition": "[parameters('RdpShortPath')]",
+              "type": "Microsoft.Network/networkSecurityGroups",
+              "apiVersion": "2021-03-01",
+              "name": "[parameters('NetworkSecurityGroupName')]",
+              "location": "[parameters('Location')]",
+              "properties": {
+                "securityRules": [
+                  {
+                    "name": "AllowRdpShortPath",
+                    "properties": {
+                      "access": "Allow",
+                      "destinationAddressPrefix": "*",
+                      "destinationPortRange": "3390",
+                      "direction": "Inbound",
+                      "priority": 3390,
+                      "protocol": "Udp",
+                      "sourceAddressPrefix": "VirtualNetwork",
+                      "sourcePortRange": "*"
+                    }
+                  }
+                ]
+              }
+            },
+            {
               "copy": {
                 "name": "nic",
                 "count": "[length(range(0, parameters('SessionHostCount')))]"
@@ -1544,8 +1588,12 @@
                   }
                 ],
                 "enableAcceleratedNetworking": false,
-                "enableIPForwarding": false
-              }
+                "enableIPForwarding": false,
+                "networkSecurityGroup": "[if(parameters('RdpShortPath'), json(concat('{\"id\": \"', resourceId('Microsoft.Network/networkSecurityGroups', parameters('NetworkSecurityGroupName')), '\"}')), null())]"
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('NetworkSecurityGroupName'))]"
+              ]
             },
             {
               "copy": {

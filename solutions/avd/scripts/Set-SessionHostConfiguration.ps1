@@ -42,6 +42,10 @@ Param(
 
     [parameter(Mandatory)]
     [string]
+    $RdpShortPath,
+
+    [parameter(Mandatory)]
+    [string]
     $ScreenCaptureProtection,
 
     [parameter(Mandatory)]
@@ -269,6 +273,36 @@ if($PooledHostPool -eq 'true' -and $FSLogix -eq 'true')
         }
     )
 }
+
+
+##############################################################
+#  Add RDP Short Path
+##############################################################
+if($RdpShortPath -eq 'true')
+{
+    # Allow inbound network traffic for RDP Shortpath
+    New-NetFirewallRule -DisplayName 'Remote Desktop - Shortpath (UDP-In)'  -Action 'Allow' -Description 'Inbound rule for the Remote Desktop service to allow RDP traffic. [UDP 3390]' -Group '@FirewallAPI.dll,-28752' -Name 'RemoteDesktop-UserMode-In-Shortpath-UDP'  -PolicyStore 'PersistentStore' -Profile 'Domain, Private' -Service 'TermService' -Protocol 'udp' -LocalPort 3390 -Program '%SystemRoot%\system32\svchost.exe' -Enabled:True
+
+    $Settings += @(
+
+        # Enable RDP Shortpath for managed networks: https://docs.microsoft.com/en-us/azure/virtual-desktop/shortpath#configure-rdp-shortpath-for-managed-networks
+        [PSCustomObject]@{
+            Name = 'fUseUdpPortRedirector'
+            Path = 'HKLM:\SYSTEM\CurrentControlSet\Control\Terminal Server\WinStations'
+            PropertyType = 'DWord'
+            Value = 1
+        },
+
+        # Enable the port for RDP Shortpath for managed networks: https://docs.microsoft.com/en-us/azure/virtual-desktop/shortpath#configure-rdp-shortpath-for-managed-networks
+        [PSCustomObject]@{
+            Name = 'UdpPortNumber'
+            Path = 'HKLM:\SYSTEM\CurrentControlSet\Control\Terminal Server\WinStations'
+            PropertyType = 'DWord'
+            Value = 3390
+        }
+    )
+}
+
 
 # Set registry settings
 try 

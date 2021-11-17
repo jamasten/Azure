@@ -1,5 +1,5 @@
 targetScope = 'subscription'
-param DomainName string = 'jasonmasten.com'
+param DomainName string = 'jasonmasten.us'
 param Environment string = 'd'
 param Instance string = '000'
 param Location string = 'usgovvirginia'

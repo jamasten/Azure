@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.4.1008.15138",
-      "templateHash": "12665839857495893543"
+      "templateHash": "4001418647636355266"
     }
   },
   "parameters": {
@@ -526,7 +526,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.4.1008.15138",
-              "templateHash": "17852925506411540288"
+              "templateHash": "8021292459144987851"
             }
           },
           "parameters": {
@@ -673,13 +673,21 @@
                   "wmfVersion": "latest",
                   "modulesUrl": "https://github.com/jamasten/Azure/blob/master/landingZone/dsc/ActiveDirectoryForest.zip?raw=true",
                   "configurationFunction": "ActiveDirectoryForest.ps1\\ActiveDirectoryForest",
-                  "properties": {
-                    "Domain": "[parameters('DomainName')]",
-                    "DomainCreds": {
-                      "UserName": "[parameters('VmUsername')]",
-                      "Password": "PrivateSettingsRef:VmPassword"
+                  "properties": [
+                    {
+                      "Name": "Domain",
+                      "Value": "[parameters('DomainName')]",
+                      "TypeName": "System.String"
+                    },
+                    {
+                      "Name": "DomainCreds",
+                      "Value": {
+                        "UserName": "[parameters('VmUsername')]",
+                        "Password": "PrivateSettingsRef:VmPassword"
+                      },
+                      "TypeName": "System.Management.Automation.PSCredential"
                     }
-                  }
+                  ]
                 }
               },
               "dependsOn": [

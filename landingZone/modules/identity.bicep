@@ -117,13 +117,21 @@ resource dsc 'Microsoft.Compute/virtualMachines/extensions@2019-07-01' = {
       wmfVersion: 'latest'
       modulesUrl: 'https://github.com/jamasten/Azure/blob/master/landingZone/dsc/ActiveDirectoryForest.zip?raw=true'
       configurationFunction: 'ActiveDirectoryForest.ps1\\ActiveDirectoryForest'
-      properties: {
-        Domain: DomainName
-        DomainCreds: {
-          UserName: VmUsername
-          Password: 'PrivateSettingsRef:VmPassword'
+      properties: [
+        {
+          Name: 'Domain'
+          Value: DomainName
+          TypeName: 'System.String'
         }
-      }
+        {
+          Name: 'DomainCreds'
+          Value: {
+            UserName: VmUsername
+            Password: 'PrivateSettingsRef:VmPassword'
+          }
+          TypeName: 'System.Management.Automation.PSCredential'
+        }
+      ]
     }
   }
 }

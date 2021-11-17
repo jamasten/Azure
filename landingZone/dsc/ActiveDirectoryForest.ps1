@@ -3,14 +3,16 @@ configuration ActiveDirectoryForest
    param 
    ( 
         [Parameter(Mandatory)]
-        [String]$Domain
+        [String]$Domain,
+
+        [Parameter(Mandatory)]
+        [PSCredential]$DomainCreds
     ) 
     
     Import-DscResource -ModuleName ActiveDirectoryDsc -ModuleVersion '4.2.0.0'
     Import-DscResource -ModuleName PSDscResources -ModuleVersion '2.12.0.0'
     Import-DscResource -ModuleName xDnsServer -ModuleVersion '1.16.0.0'
 
-    $DomainCreds = Get-AutomationPSCredential 'Administrator'
     $Users = @(
         @{
             "FirstName" = "Cereal";

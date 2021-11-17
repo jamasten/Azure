@@ -83,7 +83,7 @@ configuration ActiveDirectoryForest
         xDnsServerForwarder Azure
         {
             IsSingleInstance = 'Yes'
-            IPAddresses = '208.67.222.222','208.67.220.220'
+            IPAddresses = '168.63.129.16'
             UseRootHint = $true
             DependsOn = "[ADDomain]FirstDomainController"
         }
@@ -107,6 +107,28 @@ configuration ActiveDirectoryForest
                 UserPrincipalName = ($User.FirstName + $User.LastName + '@' + $Domain).ToLower()
                 DependsOn = "[ADDomain]FirstDomainController"
             }
+        }
+
+        ADGroup 'DomainAdmins'
+        {
+            GroupName   = 'Domain Administrators'
+            GroupScope  = 'Global'
+            Category    = 'Security'
+            MembersToInclude = "zerocool@$Domain"
+            Description = 'Administrators group for Azure Active Directory Domain Services'
+            Ensure      = 'Present'
+            DependsOn = '[ADUser]ZeroCool'
+        }
+
+        ADGroup 'AaddsAdminGroup'
+        {
+            GroupName   = 'AAD DC Administrators'
+            GroupScope  = 'Global'
+            Category    = 'Security'
+            MembersToInclude = "zerocool@$Domain"
+            Description = 'Administrators group for Azure Active Directory Domain Services'
+            Ensure      = 'Present'
+            DependsOn = '[ADUser]ZeroCool'
         }
     }
 }

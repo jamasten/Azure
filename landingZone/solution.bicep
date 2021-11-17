@@ -98,7 +98,7 @@ module identity './modules/identity.bicep' = {
 }
 
 module dnsFix './modules/dnsFix.bicep' = {
-  name: 'DnsAndAdminGroupTemplate'
+  name: 'DnsFixTemplate'
   scope: resourceGroup(ResourceGroupNames[0])
   params: {
     Location: Location
@@ -115,8 +115,8 @@ module dnsFix './modules/dnsFix.bicep' = {
 }
 
 module sharedServices './modules/shared.bicep' = {
-  name: 'Shared_${Username}_${Timestamp}'
-  scope: resourceGroup('rg-shared-${Environment}-${Location}')
+  name: 'SharedServicesTemplate'
+  scope: resourceGroup(ResourceGroupNames[2])
   params: {
     AutomationAccountName: AutomationAccountName
     KeyVaultName: KeyVaultName

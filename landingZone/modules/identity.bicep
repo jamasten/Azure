@@ -6,7 +6,6 @@ param Location string
 param ResourceGroupNames array
 @secure()
 param VmPassword string
-@secure()
 param VmUsername string
 param VnetName string
 

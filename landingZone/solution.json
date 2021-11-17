@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.4.1008.15138",
-      "templateHash": "8245743216523473462"
+      "templateHash": "12665839857495893543"
     }
   },
   "parameters": {
@@ -526,7 +526,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.4.1008.15138",
-              "templateHash": "16894057092399966948"
+              "templateHash": "17852925506411540288"
             }
           },
           "parameters": {
@@ -552,7 +552,7 @@
               "type": "secureString"
             },
             "VmUsername": {
-              "type": "secureString"
+              "type": "string"
             },
             "VnetName": {
               "type": "string"

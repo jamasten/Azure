@@ -279,8 +279,8 @@ resource customRole 'Microsoft.Authorization/roleDefinitions@2018-01-01-preview'
     assignableScopes: [
       subscription().id
     ]
-    roleName: 'StartVmOnConnect'
-    description: 'Allow AVD session hosts to be started when needed.'
+    roleName: RoleDefinitionName
+    description: 'StartVmOnConnect role allow AVD session hosts to be started when needed.'
     type: 'customRole'
     permissions: [
       {

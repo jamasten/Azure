@@ -475,8 +475,8 @@
         "assignableScopes": [
           "[subscription().id]"
         ],
-        "roleName": "StartVmOnConnect",
-        "description": "Allow AVD session hosts to be started when needed.",
+        "roleName": "[variables('RoleDefinitionName')]",
+        "description": "StartVmOnConnect role allows AVD session hosts to be started when needed.",
         "type": "customRole",
         "permissions": [
           {

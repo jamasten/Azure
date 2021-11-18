@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.4.1008.15138",
-      "templateHash": "172476254906393499"
+      "templateHash": "4170846079866591968"
     }
   },
   "parameters": {
@@ -1369,7 +1369,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.4.1008.15138",
-              "templateHash": "12044810215747779450"
+              "templateHash": "18421875076465460694"
             }
           },
           "parameters": {
@@ -1720,7 +1720,7 @@
                   "timestamp": "[parameters('Timestamp')]"
                 },
                 "protectedSettings": {
-                  "commandToExecute": "[format('powershell -ExecutionPolicy Unrestricted -File Set-SessionHostConfiguration.ps1 -AmdVmSize {0} -DodStigCompliance {1} -Environment {2} -FSLogix {3} -HostPoolName {4} -HostPoolRegistrationToken {5} -ImageOffer {6} -ImagePublisher {7} -NvidiaVmSize {8} -PooledHostPool {9} -ScreenCaptureProtection {10} -StorageAccountName {11}', variables('AmdVmSize'), parameters('DodStigCompliance'), environment().name, parameters('FSLogix'), parameters('HostPoolName'), reference(resourceId(parameters('HostPoolResourceGroupName'), 'Microsoft.DesktopVirtualization/hostpools', parameters('HostPoolName')), '2019-12-10-preview').registrationInfo.token, parameters('ImageOffer'), parameters('ImagePublisher'), variables('NvidiaVmSize'), variables('PooledHostPool'), parameters('ScreenCaptureProtection'), parameters('StorageAccountName'))]"
+                  "commandToExecute": "[format('powershell -ExecutionPolicy Unrestricted -File Set-SessionHostConfiguration.ps1 -AmdVmSize {0} -DodStigCompliance {1} -Environment {2} -FSLogix {3} -HostPoolName {4} -HostPoolRegistrationToken {5} -ImageOffer {6} -ImagePublisher {7} -NvidiaVmSize {8} -PooledHostPool {9} -RdpShortPath {10} -ScreenCaptureProtection {11} -StorageAccountName {12}', variables('AmdVmSize'), parameters('DodStigCompliance'), environment().name, parameters('FSLogix'), parameters('HostPoolName'), reference(resourceId(parameters('HostPoolResourceGroupName'), 'Microsoft.DesktopVirtualization/hostpools', parameters('HostPoolName')), '2019-12-10-preview').registrationInfo.token, parameters('ImageOffer'), parameters('ImagePublisher'), variables('NvidiaVmSize'), variables('PooledHostPool'), parameters('RdpShortPath'), parameters('ScreenCaptureProtection'), parameters('StorageAccountName'))]"
                 }
               },
               "dependsOn": [

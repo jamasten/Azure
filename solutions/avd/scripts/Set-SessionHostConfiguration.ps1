@@ -111,8 +111,8 @@ Write-Log -Message "ImageOffer: $ImageOffer" -Type 'INFO'
 Write-Log -Message "ImagePublisher: $ImagePublisher" -Type 'INFO'
 Write-Log -Message "NvidiaVmSize: $NvidiaVmSize" -Type 'INFO'
 Write-Log -Message "PooledHostPool: $PooledHostPool" -Type 'INFO'
+Write-Log -Message "RdpShortPath: $RdpShortPath" -Type 'INFO'
 Write-Log -Message "ScreenCaptureProtection: $ScreenCaptureProtection" -Type 'INFO'
-Write-Log -Message "AmdVmSize: $AmdVmSize" -Type 'INFO'
 Write-Log -Message "StorageAccountName: $StorageAccountName" -Type 'INFO'
 
 

@@ -47,7 +47,7 @@ var AvailabilitySetName = 'as-${ResourceNameSuffix}'
 var AvailabilitySetId = {
   id: resourceId('Microsoft.Compute/availabilitySets', AvailabilitySetName)
 }
-var LogAnalyticsWorkspaceResourceId = resourceId(HostPoolResourceGroupName, LogAnalyticsWorkspaceName)
+var LogAnalyticsWorkspaceResourceId = resourceId(HostPoolResourceGroupName, 'Microsoft.OperationalInsights/workspaces', LogAnalyticsWorkspaceName)
 var NvidiaVmSizes = [
   'Standard_NV6'
   'Standard_NV12'

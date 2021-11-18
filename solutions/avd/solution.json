@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.4.1008.15138",
-      "templateHash": "14555833192802864765"
+      "templateHash": "172476254906393499"
     }
   },
   "parameters": {
@@ -1369,7 +1369,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.4.1008.15138",
-              "templateHash": "10386581725635420738"
+              "templateHash": "12044810215747779450"
             }
           },
           "parameters": {
@@ -1486,7 +1486,7 @@
             "AvailabilitySetId": {
               "id": "[resourceId('Microsoft.Compute/availabilitySets', variables('AvailabilitySetName'))]"
             },
-            "LogAnalyticsWorkspaceResourceId": "[resourceId(parameters('HostPoolResourceGroupName'), parameters('LogAnalyticsWorkspaceName'))]",
+            "LogAnalyticsWorkspaceResourceId": "[resourceId(parameters('HostPoolResourceGroupName'), 'Microsoft.OperationalInsights/workspaces', parameters('LogAnalyticsWorkspaceName'))]",
             "NvidiaVmSizes": [
               "Standard_NV6",
               "Standard_NV12",
@@ -3138,7 +3138,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.4.1008.15138",
-              "templateHash": "10405544693860864330"
+              "templateHash": "2507141205684301945"
             }
           },
           "parameters": {
@@ -3211,7 +3211,7 @@
               "AzureCloud": "https://www.powershellgallery.com/api/v2/package/Az.DesktopVirtualization",
               "AzureUSGovernment": "https://www.powershellgallery.com/api/v2/package/Az.DesktopVirtualization/3.0.0"
             },
-            "LogAnalyticsWorkspaceResourceId": "[resourceId(resourceGroup().name, parameters('LogAnalyticsWorkspaceName'))]",
+            "LogAnalyticsWorkspaceResourceId": "[resourceId('Microsoft.OperationalInsights/workspaces', parameters('LogAnalyticsWorkspaceName'))]",
             "Modules": [
               {
                 "name": "Az.Accounts",

@@ -36,7 +36,7 @@ var DesktopVirtualizationModule = {
   AzureUSGovernment: 'https://www.powershellgallery.com/api/v2/package/Az.DesktopVirtualization/3.0.0'
 }
 
-var LogAnalyticsWorkspaceResourceId = resourceId(resourceGroup().name, LogAnalyticsWorkspaceName)
+var LogAnalyticsWorkspaceResourceId = resourceId('Microsoft.OperationalInsights/workspaces', LogAnalyticsWorkspaceName)
 var Modules = [
   {
     name: 'Az.Accounts'

@@ -5,7 +5,7 @@ param HostPoolName string
 param HostPoolResourceGroupName string
 param LimitSecondsToForceLogOffUser string
 param Location string
-param LogAnalyticsWorkspaceResourceId string
+param LogAnalyticsWorkspaceName string
 param LogicAppName string
 param MinimumNumberOfRdsh string
 param SessionHostsResourceGroupName string
@@ -35,6 +35,8 @@ var DesktopVirtualizationModule = {
   AzureCloud: 'https://www.powershellgallery.com/api/v2/package/Az.DesktopVirtualization'
   AzureUSGovernment: 'https://www.powershellgallery.com/api/v2/package/Az.DesktopVirtualization/3.0.0'
 }
+
+var LogAnalyticsWorkspaceResourceId = resourceId(resourceGroup().name, LogAnalyticsWorkspaceName)
 var Modules = [
   {
     name: 'Az.Accounts'

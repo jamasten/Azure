@@ -341,7 +341,7 @@ module sessionHosts 'modules/sessionHosts.bicep' = {
     DomainName: DomainName
     EphemeralOsDisk: EphemeralOsDisk
     FSLogix: FSLogix
-    HostPoolName: hostPool.outputs.HostPoolName
+    HostPoolName: HostPoolName
     HostPoolResourceGroupName: rgInfra.name
     HostPoolType: HostPoolType
     ImageOffer: ImageOffer
@@ -349,7 +349,7 @@ module sessionHosts 'modules/sessionHosts.bicep' = {
     ImageSku: ImageSku
     ImageVersion: ImageVersion
     Location: Location
-    LogAnalyticsWorkspaceResourceId: hostPool.outputs.LogAnalyticsWorkspaceResourceId
+    LogAnalyticsWorkspaceName: LogAnalyticsWorkspaceName
     NetworkSecurityGroupName: NetworkSecurityGroupName
     OuPath: OuPath
     RdpShortPath: RdpShortPath
@@ -367,7 +367,10 @@ module sessionHosts 'modules/sessionHosts.bicep' = {
     VmPassword: VmPassword
     VmSize: VmSize
     VmUsername: VmUsername
-  }  
+  }
+  dependsOn: [
+    hostPool
+  ]
 }
 
 module fslogix 'modules/fslogix.bicep' = if(split(HostPoolType, ' ')[0] == 'Pooled' && FSLogix) {
@@ -378,7 +381,7 @@ module fslogix 'modules/fslogix.bicep' = if(split(HostPoolType, ' ')[0] == 'Pool
     DomainJoinUserPrincipalName: DomainJoinUserPrincipalName
     DomainName: DomainName
     DomainServices: DomainServices
-    HostPoolName: hostPool.outputs.HostPoolName
+    HostPoolName: HostPoolName
     KerberosEncryptionType: KerberosEncryption
     Location: Location
     Netbios: Netbios
@@ -397,24 +400,32 @@ module fslogix 'modules/fslogix.bicep' = if(split(HostPoolType, ' ')[0] == 'Pool
     VmPassword: VmPassword
     VmUsername: VmUsername
   }
+  dependsOn: [
+    hostPool
+  ]
 }
 
 module backup 'modules/backup.bicep' = if(RecoveryServices) {
   name: 'backup_${TimeStamp}'
   scope: resourceGroup(rgInfra.name)
   params: {
-    HostPoolName: hostPool.outputs.HostPoolName
+    HostPoolName: HostPoolName
     HostPoolType: HostPoolType
     Location: Location
     RecoveryServicesVaultName: RecoveryServicesVaultName
     SessionHostCount: SessionHostCount
     SessionHostIndex: SessionHostIndex
-    StorageAccountName: fslogix.outputs.StorageAccountName
+    StorageAccountName: StorageAccountName
     Tags: Tags
     TimeZone: TimeZones[Location]
-    VmName: sessionHosts.outputs.VmName
+    VmName: VmName
     VmResourceGroupName: ResourceGroups[1]
-  } 
+  }
+  dependsOn: [
+    fslogix
+    hostPool
+    sessionHosts
+  ]
 }
 
 module bitLocker 'modules/bitLocker.bicep' = if(DiskEncryption) {
@@ -428,8 +439,11 @@ module bitLocker 'modules/bitLocker.bicep' = if(DiskEncryption) {
     SessionHostIndex: SessionHostIndex
     SessionHostResourceGroupName: ResourceGroups[1]
     Timestamp: TimeStamp
-    VmName: sessionHosts.outputs.VmName
-  } 
+    VmName: VmName
+  }
+  dependsOn: [
+    sessionHosts
+  ]
 }
 
 module stig 'modules/stig.bicep' = if(DodStigCompliance) {
@@ -441,9 +455,13 @@ module stig 'modules/stig.bicep' = if(DodStigCompliance) {
     SessionHostCount: SessionHostCount
     SessionHostIndex: SessionHostIndex
     Timestamp: TimeStamp
-    VmName: sessionHosts.outputs.VmName
+    VmName: VmName
     VmResourceGroupName: ResourceGroups[1]
-  } 
+  }
+  dependsOn: [
+    sessionHosts
+    bitLocker
+  ]
 }
 
 module scale 'modules/scale.bicep' = if(split(HostPoolType, ' ')[0] == 'Pooled') {
@@ -457,7 +475,7 @@ module scale 'modules/scale.bicep' = if(split(HostPoolType, ' ')[0] == 'Pooled')
     HostPoolResourceGroupName: rgInfra.name
     LimitSecondsToForceLogOffUser: ScalingLimitSecondsToForceLogOffUser
     Location: Location
-    LogAnalyticsWorkspaceResourceId: hostPool.outputs.LogAnalyticsWorkspaceResourceId
+    LogAnalyticsWorkspaceName: LogAnalyticsWorkspaceName
     LogicAppName: LogicAppName
     MinimumNumberOfRdsh: ScalingMinimumNumberOfRdsh
     SessionHostsResourceGroupName: ResourceGroups[1]
@@ -465,9 +483,11 @@ module scale 'modules/scale.bicep' = if(split(HostPoolType, ' ')[0] == 'Pooled')
     TimeDifference: ScalingTimeDifference
   }
   dependsOn: [
-    sessionHosts
-    fslogix
+    backup
     bitLocker
+    fslogix
+    hostPool
+    sessionHosts
     stig
   ]
 }
@@ -476,13 +496,14 @@ module drainMode 'modules/drainMode.bicep' = if(split(HostPoolType, ' ')[0] == '
   name: 'drainMode_${TimeStamp}'
   scope: resourceGroup(rgInfra.name)
   params: {
-    HostPoolName: hostPool.outputs.HostPoolName
+    HostPoolName: HostPoolName
     HostPoolResourceGroupName: rgInfra.name
     Location: Location
     Timestamp: TimeStamp
   }
   dependsOn: [
-    sessionHosts
     fslogix
+    hostPool
+    sessionHosts
   ]
 }

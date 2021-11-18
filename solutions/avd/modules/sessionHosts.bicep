@@ -15,7 +15,7 @@ param ImagePublisher string
 param ImageSku string
 param ImageVersion string
 param Location string
-param LogAnalyticsWorkspaceResourceId string
+param LogAnalyticsWorkspaceName string
 param NetworkSecurityGroupName string
 param OuPath string
 param RdpShortPath bool
@@ -47,6 +47,7 @@ var AvailabilitySetName = 'as-${ResourceNameSuffix}'
 var AvailabilitySetId = {
   id: resourceId('Microsoft.Compute/availabilitySets', AvailabilitySetName)
 }
+var LogAnalyticsWorkspaceResourceId = resourceId(HostPoolResourceGroupName, LogAnalyticsWorkspaceName)
 var NvidiaVmSizes = [
   'Standard_NV6'
   'Standard_NV12'
@@ -288,5 +289,3 @@ resource nvidiaGpuDriverWindows 'Microsoft.Compute/virtualMachines/extensions@20
     customScriptExtension
   ]
 }]
-
-output VmName string = VmName

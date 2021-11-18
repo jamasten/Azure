@@ -1,0 +1,168 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "AvdObjectId": {
+            "value": "0c02dd50-8744-475d-988b-83dc8eeb7ab4"
+        },
+        "CustomRdpProperty": {
+            "value": "audiocapturemode:i:1;camerastoredirect:s:*;use multimon:i:0;drivestoredirect:s:;"
+        },
+        "DiskEncryption": {
+            "value": true
+        },
+        "DiskSku": {
+            "value": "Premium_LRS"
+        },
+        "DodStigCompliance": {
+            "value": true
+        },
+        "DomainJoinPassword": {
+            "reference": {
+                "keyVault": {
+                    "id": "/subscriptions/a7576b41-cb1a-4f34-9f18-0e0b0287a1a0/resourceGroups/rg-shd-svc-d-va-000/providers/Microsoft.KeyVault/vaults/kv-shd-id-d-va"
+                },
+                "secretName": "DomainPassword"
+            }
+        },
+        "DomainJoinUserPrincipalName": {
+            "reference": {
+                "keyVault": {
+                    "id": "/subscriptions/a7576b41-cb1a-4f34-9f18-0e0b0287a1a0/resourceGroups/rg-shd-svc-d-va-000/providers/Microsoft.KeyVault/vaults/kv-shd-id-d-va"
+                },
+                "secretName": "DomainUsername"
+            }
+        },
+        "DomainName": {
+            "value": "jasonmasten.us"
+        },
+        "DomainServices": {
+            "value": "ActiveDirectory"
+        },
+        "DrainMode": {
+            "value": false
+        },
+        "EphemeralOsDisk": {
+            "value": false
+        },
+        "FSLogix": {
+            "value": false
+        },
+        "HostPoolType": {
+            "value": "Pooled DepthFirst"
+        },
+        "ImageOffer": {
+            "value": "windows-10"
+        },
+        "ImagePublisher": {
+            "value": "MicrosoftWindowsDesktop"
+        },
+        "ImageSku": {
+            "value": "19h2-ent"
+        },
+        "ImageVersion": {
+            "value": "latest"
+        },
+        "KerberosEncryption": {
+            "value": "RC4"
+        },
+        "LogAnalyticsWorkspaceRetention": {
+            "value": 30
+        },
+        "LogAnalyticsWorkspaceSku": {
+            "value": "PerGB2018"
+        },
+        "MaxSessionLimit": {
+            "value": 1
+        },
+        "newOrExisting": {
+            "value": "new"
+        },
+        "OuPath": {
+            "value": "OU=AVD,DC=jasonmasten,DC=us"
+        },
+        "RdpShortPath": {
+            "value": false
+        },
+        "RecoveryServices": {
+            "value": false
+        },
+        "ResourceNameSuffix": {
+            "value": "avd0dva"
+        },
+        "ScalingBeginPeakTime": {
+            "value": "9:00"
+        },
+        "ScalingEndPeakTime": {
+            "value": "17:00"
+        },
+        "ScalingLimitSecondsToForceLogOffUser": {
+            "value": "0"
+        },
+        "ScalingMinimumNumberOfRdsh": {
+            "value": "0"
+        },
+        "ScalingSessionThresholdPerCPU": {
+            "value": "2"
+        },
+        "ScalingTimeDifference": {
+            "value": "-5:00"
+        },
+        "ScreenCaptureProtection": {
+            "value": true
+        },
+        "SecurityPrincipalId": {
+            "value": "affc0982-77cd-4790-b906-9187770c2b6e"
+        },
+        "SecurityPrincipalName": {
+            "value": "avd_users"
+        },
+        "SessionHostCount": {
+            "value": 1
+        },
+        "SessionHostIndex": {
+            "value": 0
+        },
+        "StartVmOnConnect": {
+            "value": true
+        },
+        "Subnet": {
+            "value": "Clients"
+        },
+        "Tags": {
+            "value": {
+                "Owner": "Jason Masten",
+                "Purpose": "POC",
+                "Environment": "Development"
+            }
+        },
+        "ValidationEnvironment": {
+            "value": false
+        },
+        "VirtualNetwork": {
+            "value": "vnet-shd-net-d-va-000"
+        },
+        "VirtualNetworkResourceGroup": {
+            "value": "rg-shd-net-d-va-000"
+        },
+        "VmPassword": {
+            "reference": {
+                "keyVault": {
+                    "id": "/subscriptions/a7576b41-cb1a-4f34-9f18-0e0b0287a1a0/resourceGroups/rg-shd-svc-d-va-000/providers/Microsoft.KeyVault/vaults/kv-shd-id-d-va"
+                },
+                "secretName": "VmPassword"
+            }
+        },
+        "VmSize": {
+            "value": "Standard_B2s"
+        },
+        "VmUsername": {
+            "reference": {
+                "keyVault": {
+                    "id": "/subscriptions/a7576b41-cb1a-4f34-9f18-0e0b0287a1a0/resourceGroups/rg-shd-svc-d-va-000/providers/Microsoft.KeyVault/vaults/kv-shd-id-d-va"
+                },
+                "secretName": "VmUsername"
+            } 
+        }
+    }
+}

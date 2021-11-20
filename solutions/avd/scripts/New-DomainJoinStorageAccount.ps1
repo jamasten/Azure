@@ -93,7 +93,7 @@ try
         Write-Log -Message "Installed the Az.Storage module" -Type 'INFO'
 
         # Connects to Azure using a User Assigned Managed Identity
-        Connect-AzAccount -Identity -Tenant $TenantId -Subscription $SubscriptionId
+        Connect-AzAccount -Identity -Environment $Environment -Tenant $TenantId -Subscription $SubscriptionId
         Write-Log -Message "Authenticated to Azure" -Type 'INFO'
 
         # Get / create kerberos key for Azure Storage Account

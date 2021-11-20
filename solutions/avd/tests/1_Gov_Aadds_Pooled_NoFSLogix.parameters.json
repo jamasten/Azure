@@ -34,10 +34,10 @@
             }
         },
         "DomainName": {
-            "value": "jasonmasten.us"
+            "value": "azjasonmasten.us"
         },
         "DomainServices": {
-            "value": "ActiveDirectory"
+            "value": "AzureActiveDirectory"
         },
         "DrainMode": {
             "value": false
@@ -75,11 +75,8 @@
         "MaxSessionLimit": {
             "value": 1
         },
-        "newOrExisting": {
-            "value": "new"
-        },
         "OuPath": {
-            "value": "OU=AVD,DC=jasonmasten,DC=us"
+            "value": "OU=AAD DC Administrators,DC=jasonmasten,DC=us"
         },
         "RdpShortPath": {
             "value": false
@@ -88,7 +85,7 @@
             "value": false
         },
         "ResourceNameSuffix": {
-            "value": "avd0dva"
+            "value": "avd1dva"
         },
         "ScalingBeginPeakTime": {
             "value": "9:00"
@@ -103,7 +100,7 @@
             "value": "0"
         },
         "ScalingSessionThresholdPerCPU": {
-            "value": "2"
+            "value": ".5"
         },
         "ScalingTimeDifference": {
             "value": "-5:00"
@@ -140,7 +137,7 @@
             "value": false
         },
         "VirtualNetwork": {
-            "value": "vnet-shd-net-d-va-000"
+            "value": "vnet-shd-net-d-va-001"
         },
         "VirtualNetworkResourceGroup": {
             "value": "rg-shd-net-d-va-000"

@@ -7,7 +7,6 @@ param LogAnalyticsWorkspaceName string
 param LogAnalyticsWorkspaceRetention int
 param LogAnalyticsWorkspaceSku string
 param MaxSessionLimit int
-param newOrExisting string
 param SecurityPrincipalId string
 param StartVmOnConnect bool
 param Tags object
@@ -513,7 +512,7 @@ resource hostPool 'Microsoft.DesktopVirtualization/hostPools@2021-03-09-preview'
   }
 }
 
-resource hostPoolDiagnostics 'Microsoft.Insights/diagnosticsettings@2017-05-01-preview' = if (newOrExisting == 'new') {
+resource hostPoolDiagnostics 'Microsoft.Insights/diagnosticsettings@2017-05-01-preview' = {
   scope: hostPool
   name: 'diag-${hostPool.name}'
   properties: {
@@ -522,7 +521,7 @@ resource hostPoolDiagnostics 'Microsoft.Insights/diagnosticsettings@2017-05-01-p
   }
 }
 
-resource appGroup 'Microsoft.DesktopVirtualization/applicationGroups@2021-03-09-preview' = if (newOrExisting == 'new') {
+resource appGroup 'Microsoft.DesktopVirtualization/applicationGroups@2021-03-09-preview' = {
   name: AppGroupName
   location: Location
   tags: Tags
@@ -532,7 +531,7 @@ resource appGroup 'Microsoft.DesktopVirtualization/applicationGroups@2021-03-09-
   }
 }
 
-resource appGroupAssignment 'Microsoft.Authorization/roleAssignments@2018-01-01-preview' = if (newOrExisting == 'new') {
+resource appGroupAssignment 'Microsoft.Authorization/roleAssignments@2018-01-01-preview' = {
   scope: appGroup
   name: guid(HostPoolName)
   properties: {
@@ -541,7 +540,7 @@ resource appGroupAssignment 'Microsoft.Authorization/roleAssignments@2018-01-01-
   }
 }
 
-resource workspace 'Microsoft.DesktopVirtualization/workspaces@2021-03-09-preview' = if (newOrExisting == 'new') {
+resource workspace 'Microsoft.DesktopVirtualization/workspaces@2021-03-09-preview' = {
   name: WorkspaceName
   location: Location
   tags: Tags
@@ -552,7 +551,7 @@ resource workspace 'Microsoft.DesktopVirtualization/workspaces@2021-03-09-previe
   }
 }
 
-resource workspaceDiagnostics 'Microsoft.Insights/diagnosticsettings@2017-05-01-preview' = if (newOrExisting == 'new') {
+resource workspaceDiagnostics 'Microsoft.Insights/diagnosticsettings@2017-05-01-preview' = {
   scope: workspace
   name: 'diag-${workspace.name}'
   properties: {

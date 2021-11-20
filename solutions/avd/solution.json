@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.4.1008.15138",
-      "templateHash": "4170846079866591968"
+      "templateHash": "10759897876126717986"
     }
   },
   "parameters": {
@@ -173,17 +173,6 @@
       "metadata": {
         "description": "The maximum number of sessions per AVD session host."
       }
-    },
-    "newOrExisting": {
-      "type": "string",
-      "defaultValue": "new",
-      "metadata": {
-        "description": "Sets whether this is the first deployment of this solution or is a follow up deployment to add new or additional AVD session hosts."
-      },
-      "allowedValues": [
-        "new",
-        "existing"
-      ]
     },
     "OuPath": {
       "type": "string",
@@ -549,9 +538,6 @@
           "MaxSessionLimit": {
             "value": "[parameters('MaxSessionLimit')]"
           },
-          "newOrExisting": {
-            "value": "[parameters('newOrExisting')]"
-          },
           "SecurityPrincipalId": {
             "value": "[parameters('SecurityPrincipalId')]"
           },
@@ -578,7 +564,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.4.1008.15138",
-              "templateHash": "16265549340403265083"
+              "templateHash": "13327593806746629128"
             }
           },
           "parameters": {
@@ -608,9 +594,6 @@
             },
             "MaxSessionLimit": {
               "type": "int"
-            },
-            "newOrExisting": {
-              "type": "string"
             },
             "SecurityPrincipalId": {
               "type": "string"
@@ -1153,7 +1136,6 @@
               }
             },
             {
-              "condition": "[equals(parameters('newOrExisting'), 'new')]",
               "type": "Microsoft.Insights/diagnosticSettings",
               "apiVersion": "2017-05-01-preview",
               "scope": "[format('Microsoft.DesktopVirtualization/hostPools/{0}', parameters('HostPoolName'))]",
@@ -1168,7 +1150,6 @@
               ]
             },
             {
-              "condition": "[equals(parameters('newOrExisting'), 'new')]",
               "type": "Microsoft.DesktopVirtualization/applicationGroups",
               "apiVersion": "2021-03-09-preview",
               "name": "[parameters('AppGroupName')]",
@@ -1183,7 +1164,6 @@
               ]
             },
             {
-              "condition": "[equals(parameters('newOrExisting'), 'new')]",
               "type": "Microsoft.Authorization/roleAssignments",
               "apiVersion": "2018-01-01-preview",
               "scope": "[format('Microsoft.DesktopVirtualization/applicationGroups/{0}', parameters('AppGroupName'))]",
@@ -1197,7 +1177,6 @@
               ]
             },
             {
-              "condition": "[equals(parameters('newOrExisting'), 'new')]",
               "type": "Microsoft.DesktopVirtualization/workspaces",
               "apiVersion": "2021-03-09-preview",
               "name": "[parameters('WorkspaceName')]",
@@ -1213,7 +1192,6 @@
               ]
             },
             {
-              "condition": "[equals(parameters('newOrExisting'), 'new')]",
               "type": "Microsoft.Insights/diagnosticSettings",
               "apiVersion": "2017-05-01-preview",
               "scope": "[format('Microsoft.DesktopVirtualization/workspaces/{0}', parameters('WorkspaceName'))]",

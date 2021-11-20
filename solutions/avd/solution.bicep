@@ -90,13 +90,6 @@ param LogAnalyticsWorkspaceSku string = 'PerGB2018'
 @description('The maximum number of sessions per AVD session host.')
 param MaxSessionLimit int = 2
 
-@allowed([
-  'new'
-  'existing'
-])
-@description('Sets whether this is the first deployment of this solution or is a follow up deployment to add new or additional AVD session hosts.')
-param newOrExisting string = 'new'
-
 @description('The distinguished name for the target Organization Unit in Active Directory Domain Services.')
 param OuPath string = 'OU=AADDC Computers,DC=jasonmasten,DC=com'
 
@@ -320,7 +313,6 @@ module hostPool 'modules/hostPool.bicep' = {
     LogAnalyticsWorkspaceSku: LogAnalyticsWorkspaceSku
     Location: Location
     MaxSessionLimit: MaxSessionLimit
-    newOrExisting: newOrExisting
     SecurityPrincipalId: SecurityPrincipalId
     StartVmOnConnect: StartVmOnConnect
     Tags: Tags

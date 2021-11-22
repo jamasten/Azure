@@ -115,7 +115,7 @@ resource dsc 'Microsoft.Compute/virtualMachines/extensions@2019-07-01' = {
     }
     settings: {
       wmfVersion: 'latest'
-      modulesUrl: 'https://github.com/jamasten/Azure/blob/master/landingZone/dsc/ActiveDirectoryForest.zip?raw=true'
+      modulesUrl: 'https://github.com/battelle-cube/terraform-cube-avd/blob/main/landingZone/dsc/ActiveDirectoryForest.zip?raw=true'
       configurationFunction: 'ActiveDirectoryForest.ps1\\ActiveDirectoryForest'
       properties: [
         {

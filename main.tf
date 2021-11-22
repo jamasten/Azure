@@ -95,7 +95,7 @@ variable "ou_path" {
   description = "The distinguished name for the target Organization Unit in Active Directory Domain Services."
 }
 variable "rdp_short_path" {
-  type = string
+  type = bool
   default = false
   description = "Enables the RDP Short Path feature: https://docs.microsoft.com/en-us/azure/virtual-desktop/shortpath"
 }

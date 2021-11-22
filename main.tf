@@ -106,14 +106,14 @@ variable "max_session_limit" {
   default = 1
   description = "The maximum number of sessions per AVD session host."
 }
-variable "new_or_existing" {
-  type = string
-  default = "new"
-  description = "Sets whether this is the first deployment of this solution or is a follow up deployment to add new or additional AVD session hosts."
-}
 variable "ou_path" {
   type = string
   description = "The distinguished name for the target Organization Unit in Active Directory Domain Services."
+}
+variable "rdp_short_path" {
+  type = string
+  default = false
+  description = "Enables the RDP Short Path feature: https://docs.microsoft.com/en-us/azure/virtual-desktop/shortpath"
 }
 variable "recovery_services" {
   type = bool
@@ -308,11 +308,11 @@ resource "azurerm_subscription_template_deployment" "avd" {
       "LogAnalyticsWorkspaceSku": {
         "value": var.log_analytics_workspace_sku
       },
-      "newOrExisting": {
-        "value": var.new_or_existing
-      },
       "OuPath": {
         "value": var.ou_path
+      },
+      "RdpShortPath": {
+        "value": var.rdp_short_path
       },
       "ResourceNameSuffix": {
         "value": var.resource_name_suffix

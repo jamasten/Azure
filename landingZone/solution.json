@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.4.1008.15138",
-      "templateHash": "10601962205374364038"
+      "templateHash": "2660793390916825866"
     }
   },
   "parameters": {
@@ -70,7 +70,6 @@
   },
   "functions": [],
   "variables": {
-    "AutomationAccountName": "[format('aa-{0}-{1}-{2}-{3}', parameters('UnitDept'), parameters('ProjAppSvc')[1], parameters('Environment'), parameters('LocationAbbr'))]",
     "BastionName": "[format('bastion-{0}-{1}-{2}-{3}', parameters('UnitDept'), parameters('ProjAppSvc')[1], parameters('Environment'), parameters('LocationAbbr'))]",
     "DomainControllerName": "[format('vm{0}{1}{2}{3}dc', parameters('UnitDept'), parameters('ProjAppSvc')[0], parameters('Environment'), parameters('LocationAbbr'))]",
     "DomainControllerDiskName": "[format('disk-{0}-{1}-{2}-{3}-dc', parameters('UnitDept'), parameters('ProjAppSvc')[0], parameters('Environment'), parameters('LocationAbbr'))]",
@@ -828,9 +827,6 @@
         },
         "mode": "Incremental",
         "parameters": {
-          "AutomationAccountName": {
-            "value": "[variables('AutomationAccountName')]"
-          },
           "DomainName": {
             "value": "[parameters('DomainName')]"
           },
@@ -863,13 +859,10 @@
             "_generator": {
               "name": "bicep",
               "version": "0.4.1008.15138",
-              "templateHash": "8319832441559009746"
+              "templateHash": "17497261849451238096"
             }
           },
           "parameters": {
-            "AutomationAccountName": {
-              "type": "string"
-            },
             "DomainName": {
               "type": "string"
             },
@@ -1026,17 +1019,6 @@
               "dependsOn": [
                 "[resourceId('Microsoft.KeyVault/vaults', parameters('KeyVaultName'))]"
               ]
-            },
-            {
-              "type": "Microsoft.Automation/automationAccounts",
-              "apiVersion": "2015-10-31",
-              "name": "[parameters('AutomationAccountName')]",
-              "location": "[parameters('Location')]",
-              "properties": {
-                "sku": {
-                  "name": "Free"
-                }
-              }
             },
             {
               "type": "Microsoft.OperationalInsights/workspaces",

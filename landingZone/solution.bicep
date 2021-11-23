@@ -25,7 +25,6 @@ param VmPassword string
 param VmUsername string
 
 
-var AutomationAccountName = 'aa-${UnitDept}-${ProjAppSvc[1]}-${Environment}-${LocationAbbr}'
 var BastionName = 'bastion-${UnitDept}-${ProjAppSvc[1]}-${Environment}-${LocationAbbr}'
 var DomainControllerName = 'vm${UnitDept}${ProjAppSvc[0]}${Environment}${LocationAbbr}dc'
 var DomainControllerDiskName = 'disk-${UnitDept}-${ProjAppSvc[0]}-${Environment}-${LocationAbbr}-dc'
@@ -123,7 +122,6 @@ module sharedServices './modules/shared.bicep' = {
   name: 'SharedServicesTemplate'
   scope: resourceGroup(ResourceGroupNames[2])
   params: {
-    AutomationAccountName: AutomationAccountName
     DomainName: DomainName
     KeyVaultName: KeyVaultName
     Location: Location

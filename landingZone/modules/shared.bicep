@@ -1,4 +1,3 @@
-param AutomationAccountName string
 param DomainName string
 param KeyVaultName string
 param Location string
@@ -125,16 +124,6 @@ resource secret4 'Microsoft.KeyVault/vaults/secrets@2016-10-01' = {
   name: 'DomainJoinUsername'
   properties: {
     value: '${VmUsername}@${DomainName}'
-  }
-}
-
-resource automationAccount 'Microsoft.Automation/automationAccounts@2015-10-31' = {
-  name: AutomationAccountName
-  location: Location
-  properties: {
-    sku: {
-      name: 'Free'
-    }
   }
 }
 

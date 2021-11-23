@@ -1,8 +1,10 @@
+param BastionName string
 param Location string
 param ManagedIdentityName string
 param NetworkContributorId string
 param NetworkWatcherName string
 param PrincipalId string
+param PublicIpAddressName string
 param VnetName string
 
 
@@ -87,8 +89,8 @@ resource adds_subnet 'Microsoft.Network/networkSecurityGroups@2020-11-01' = {
   }
 }
 
-resource vnet 'Microsoft.Network/virtualNetworks@2021-02-01' = [for i in range(0, 3): {
-  name: '${VnetName}-00${i}'
+resource vnet 'Microsoft.Network/virtualNetworks@2021-02-01' = {
+  name: VnetName
   location: Location
   tags: {}
   properties: {
@@ -171,4 +173,40 @@ resource vnet 'Microsoft.Network/virtualNetworks@2021-02-01' = [for i in range(0
   dependsOn: [
     networkWatcher
   ]
-}]
+}
+
+resource pip 'Microsoft.Network/publicIPAddresses@2020-11-01' = {
+  name: PublicIpAddressName
+  location: Location
+  sku: {
+    name: 'Standard'
+  }
+  properties: {
+    publicIPAddressVersion: 'IPv4'
+    publicIPAllocationMethod: 'Static'
+    idleTimeoutInMinutes: 4
+  }
+}
+
+resource bastion 'Microsoft.Network/bastionHosts@2020-05-01' = {
+  name: BastionName
+  location: Location
+  properties: {
+    ipConfigurations: [
+      {
+        name: 'IpConf'
+        properties: {
+          publicIPAddress: {
+            id: pip.id
+          }
+          subnet: {
+            id: resourceId('Microsoft.Network/virtualNetworks/subnets', VnetName, 'AzureBastionSubnet')
+          }
+        }
+      }
+    ]
+  }
+  dependsOn: [
+    vnet
+  ]
+}

@@ -1,4 +1,5 @@
 param AutomationAccountName string
+param DomainName string
 param KeyVaultName string
 param Location string
 param LogAnalyticsWorkspaceName string
@@ -108,6 +109,22 @@ resource secret2 'Microsoft.KeyVault/vaults/secrets@2016-10-01' = {
   name: 'VmUsername'
   properties: {
     value: VmUsername
+  }
+}
+
+resource secret3 'Microsoft.KeyVault/vaults/secrets@2016-10-01' = {
+  parent: keyVault
+  name: 'DomainJoinPassword'
+  properties: {
+    value: VmPassword
+  }
+}
+
+resource secret4 'Microsoft.KeyVault/vaults/secrets@2016-10-01' = {
+  parent: keyVault
+  name: 'DomainJoinUsername'
+  properties: {
+    value: '${VmUsername}@${DomainName}'
   }
 }
 

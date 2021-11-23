@@ -1,7 +1,12 @@
 targetScope = 'subscription'
 param DomainName string = 'jasonmasten.us'
+@allowed([
+ 'ActiveDirectory'
+ 'AzureActiveDirectory'
+ 'None'
+])
+param DomainServices string
 param Environment string = 'd'
-param Instance string = '000'
 param Location string = 'usgovvirginia'
 param LocationAbbr string = 'va'
 param ProjAppSvc array = [
@@ -20,19 +25,21 @@ param VmPassword string
 param VmUsername string
 
 
-var AutomationAccountName = 'aa-${UnitDept}-${ProjAppSvc[1]}-${Environment}-${LocationAbbr}-${Instance}'
-var DomainControllerName = 'vm${UnitDept}${ProjAppSvc[0]}${Environment}${LocationAbbr}dc${Instance}'
-var DomainControllerDiskName = 'disk-${UnitDept}-${ProjAppSvc[0]}-${Environment}-${LocationAbbr}-dc-${Instance}'
-var DomainControllerNicName = 'nic-${UnitDept}-${ProjAppSvc[0]}-${Environment}-${LocationAbbr}-dc-${Instance}'
-var KeyVaultName = 'kv-${UnitDept}-${ProjAppSvc[0]}-${Environment}-${LocationAbbr}-${Instance}'
-var LogAnalyticsWorkspaceName = 'law-${UnitDept}-${ProjAppSvc[1]}-${Environment}-${LocationAbbr}-${Instance}'
-var ManagedIdentityName = 'uami-${UnitDept}-${ProjAppSvc[1]}-${Environment}-${LocationAbbr}-${Instance}'
+var AutomationAccountName = 'aa-${UnitDept}-${ProjAppSvc[1]}-${Environment}-${LocationAbbr}'
+var BastionName = 'bastion-${UnitDept}-${ProjAppSvc[1]}-${Environment}-${LocationAbbr}'
+var DomainControllerName = 'vm${UnitDept}${ProjAppSvc[0]}${Environment}${LocationAbbr}dc'
+var DomainControllerDiskName = 'disk-${UnitDept}-${ProjAppSvc[0]}-${Environment}-${LocationAbbr}-dc'
+var DomainControllerNicName = 'nic-${UnitDept}-${ProjAppSvc[0]}-${Environment}-${LocationAbbr}-dc'
+var KeyVaultName = 'kv-${UnitDept}-${ProjAppSvc[0]}-${Environment}-${LocationAbbr}'
+var LogAnalyticsWorkspaceName = 'law-${UnitDept}-${ProjAppSvc[1]}-${Environment}-${LocationAbbr}'
+var ManagedIdentityName = 'uami-${UnitDept}-${ProjAppSvc[1]}-${Environment}-${LocationAbbr}'
 var NetworkContributorId = '4d97b98b-1d4f-4787-a291-c67834d212e7'
-var NetworkWatcherName = 'nw-${UnitDept}-${ProjAppSvc[1]}-${Environment}-${LocationAbbr}-${Instance}'
+var NetworkWatcherName = 'nw-${UnitDept}-${ProjAppSvc[1]}-${Environment}-${LocationAbbr}'
+var PublicIpAddressName = 'pip-bastion-${UnitDept}-${ProjAppSvc[1]}${Environment}-${LocationAbbr}'
 var ResourceGroupNames = [
-  'rg-${UnitDept}-${ProjAppSvc[0]}-${Environment}-${LocationAbbr}-${Instance}'
-  'rg-${UnitDept}-${ProjAppSvc[1]}-${Environment}-${LocationAbbr}-${Instance}'
-  'rg-${UnitDept}-${ProjAppSvc[2]}-${Environment}-${LocationAbbr}-${Instance}'
+  'rg-${UnitDept}-${ProjAppSvc[0]}-${Environment}-${LocationAbbr}'
+  'rg-${UnitDept}-${ProjAppSvc[1]}-${Environment}-${LocationAbbr}'
+  'rg-${UnitDept}-${ProjAppSvc[2]}-${Environment}-${LocationAbbr}'
 ]
 var VnetName = 'vnet-${UnitDept}-${ProjAppSvc[1]}-${Environment}-${LocationAbbr}'
 
@@ -56,15 +63,17 @@ module managedIdentity './modules/managedIdentity.bicep' = {
   ]
 }
 
-module networks './modules/networks.bicep' = {
+module network './modules/network.bicep' = {
   name: 'NetworkingTemplate'
   scope: resourceGroup(ResourceGroupNames[1])
   params: {
+    BastionName: BastionName
     Location: Location
     ManagedIdentityName: ManagedIdentityName
     NetworkContributorId: NetworkContributorId
     NetworkWatcherName: NetworkWatcherName
     PrincipalId: managedIdentity.outputs.principalId
+    PublicIpAddressName: PublicIpAddressName
     VnetName: VnetName
   }
   dependsOn: [
@@ -80,6 +89,7 @@ module identity './modules/identity.bicep' = {
     DomainControllerDiskName: DomainControllerDiskName
     DomainControllerNicName: DomainControllerNicName
     DomainName: DomainName
+    DomainServices: DomainServices
     Location: Location
     ResourceGroupNames: ResourceGroupNames
     VmPassword: VmPassword
@@ -87,7 +97,7 @@ module identity './modules/identity.bicep' = {
     VnetName: VnetName
   }
   dependsOn: [
-    networks
+    network
   ]
 }
 
@@ -95,6 +105,7 @@ module dnsFix './modules/dnsFix.bicep' = {
   name: 'DnsFixTemplate'
   scope: resourceGroup(ResourceGroupNames[0])
   params: {
+    DomainServices: DomainServices
     Location: Location
     ManagedIdentityName: ManagedIdentityName
     ResourceGroupNames: ResourceGroupNames
@@ -103,7 +114,7 @@ module dnsFix './modules/dnsFix.bicep' = {
   }
   dependsOn: [
     resourceGroups
-    networks
+    network
     identity
   ]
 }
@@ -113,6 +124,7 @@ module sharedServices './modules/shared.bicep' = {
   scope: resourceGroup(ResourceGroupNames[2])
   params: {
     AutomationAccountName: AutomationAccountName
+    DomainName: DomainName
     KeyVaultName: KeyVaultName
     Location: Location
     LogAnalyticsWorkspaceName: LogAnalyticsWorkspaceName

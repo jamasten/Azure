@@ -1,0 +1,40 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "DomainName": {
+            "value": "jasonmasten.com"
+        },
+        "DomainServices": {
+            "value": "AzureActiveDirectory"
+        },
+        "Environment": {
+            "value": "d"
+        },
+        "Location": {
+            "value": "eastus"
+        },
+        "LocationAbbr": {
+            "value": "eu"
+        },
+        "ProjAppSvc": {
+            "value": [
+              "id",
+              "net",
+              "svc"
+            ]
+        },
+        "UnitDept": {
+            "value": "shd"
+        },
+        "UserObjectId": {
+            "value": "b3b8d141-7e06-4505-a140-a6fde63b6934"
+        },
+        "VmPassword": {
+            "value": ""
+        },
+        "VmUsername": {
+            "value": ""
+        }
+    }
+}

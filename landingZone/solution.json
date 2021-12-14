@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.4.1008.15138",
-      "templateHash": "9416579884961428613"
+      "templateHash": "2660793390916825866"
     }
   },
   "parameters": {
@@ -13,13 +13,17 @@
       "type": "string",
       "defaultValue": "jasonmasten.us"
     },
+    "DomainServices": {
+      "type": "string",
+      "allowedValues": [
+        "ActiveDirectory",
+        "AzureActiveDirectory",
+        "None"
+      ]
+    },
     "Environment": {
       "type": "string",
       "defaultValue": "d"
-    },
-    "Instance": {
-      "type": "string",
-      "defaultValue": "000"
     },
     "Location": {
       "type": "string",
@@ -66,19 +70,20 @@
   },
   "functions": [],
   "variables": {
-    "AutomationAccountName": "[format('aa-{0}-{1}-{2}-{3}-{4}', parameters('UnitDept'), parameters('ProjAppSvc')[1], parameters('Environment'), parameters('LocationAbbr'), parameters('Instance'))]",
-    "DomainControllerName": "[format('vm{0}{1}{2}{3}dc{4}', parameters('UnitDept'), parameters('ProjAppSvc')[0], parameters('Environment'), parameters('LocationAbbr'), parameters('Instance'))]",
-    "DomainControllerDiskName": "[format('disk-{0}-{1}-{2}-{3}-dc-{4}', parameters('UnitDept'), parameters('ProjAppSvc')[0], parameters('Environment'), parameters('LocationAbbr'), parameters('Instance'))]",
-    "DomainControllerNicName": "[format('nic-{0}-{1}-{2}-{3}-dc-{4}', parameters('UnitDept'), parameters('ProjAppSvc')[0], parameters('Environment'), parameters('LocationAbbr'), parameters('Instance'))]",
-    "KeyVaultName": "[format('kv-{0}-{1}-{2}-{3}-{4}', parameters('UnitDept'), parameters('ProjAppSvc')[0], parameters('Environment'), parameters('LocationAbbr'), parameters('Instance'))]",
-    "LogAnalyticsWorkspaceName": "[format('law-{0}-{1}-{2}-{3}-{4}', parameters('UnitDept'), parameters('ProjAppSvc')[1], parameters('Environment'), parameters('LocationAbbr'), parameters('Instance'))]",
-    "ManagedIdentityName": "[format('uami-{0}-{1}-{2}-{3}-{4}', parameters('UnitDept'), parameters('ProjAppSvc')[1], parameters('Environment'), parameters('LocationAbbr'), parameters('Instance'))]",
+    "BastionName": "[format('bastion-{0}-{1}-{2}-{3}', parameters('UnitDept'), parameters('ProjAppSvc')[1], parameters('Environment'), parameters('LocationAbbr'))]",
+    "DomainControllerName": "[format('vm{0}{1}{2}{3}dc', parameters('UnitDept'), parameters('ProjAppSvc')[0], parameters('Environment'), parameters('LocationAbbr'))]",
+    "DomainControllerDiskName": "[format('disk-{0}-{1}-{2}-{3}-dc', parameters('UnitDept'), parameters('ProjAppSvc')[0], parameters('Environment'), parameters('LocationAbbr'))]",
+    "DomainControllerNicName": "[format('nic-{0}-{1}-{2}-{3}-dc', parameters('UnitDept'), parameters('ProjAppSvc')[0], parameters('Environment'), parameters('LocationAbbr'))]",
+    "KeyVaultName": "[format('kv-{0}-{1}-{2}-{3}', parameters('UnitDept'), parameters('ProjAppSvc')[0], parameters('Environment'), parameters('LocationAbbr'))]",
+    "LogAnalyticsWorkspaceName": "[format('law-{0}-{1}-{2}-{3}', parameters('UnitDept'), parameters('ProjAppSvc')[1], parameters('Environment'), parameters('LocationAbbr'))]",
+    "ManagedIdentityName": "[format('uami-{0}-{1}-{2}-{3}', parameters('UnitDept'), parameters('ProjAppSvc')[1], parameters('Environment'), parameters('LocationAbbr'))]",
     "NetworkContributorId": "4d97b98b-1d4f-4787-a291-c67834d212e7",
-    "NetworkWatcherName": "[format('nw-{0}-{1}-{2}-{3}-{4}', parameters('UnitDept'), parameters('ProjAppSvc')[1], parameters('Environment'), parameters('LocationAbbr'), parameters('Instance'))]",
+    "NetworkWatcherName": "[format('nw-{0}-{1}-{2}-{3}', parameters('UnitDept'), parameters('ProjAppSvc')[1], parameters('Environment'), parameters('LocationAbbr'))]",
+    "PublicIpAddressName": "[format('pip-bastion-{0}-{1}{2}-{3}', parameters('UnitDept'), parameters('ProjAppSvc')[1], parameters('Environment'), parameters('LocationAbbr'))]",
     "ResourceGroupNames": [
-      "[format('rg-{0}-{1}-{2}-{3}-{4}', parameters('UnitDept'), parameters('ProjAppSvc')[0], parameters('Environment'), parameters('LocationAbbr'), parameters('Instance'))]",
-      "[format('rg-{0}-{1}-{2}-{3}-{4}', parameters('UnitDept'), parameters('ProjAppSvc')[1], parameters('Environment'), parameters('LocationAbbr'), parameters('Instance'))]",
-      "[format('rg-{0}-{1}-{2}-{3}-{4}', parameters('UnitDept'), parameters('ProjAppSvc')[2], parameters('Environment'), parameters('LocationAbbr'), parameters('Instance'))]"
+      "[format('rg-{0}-{1}-{2}-{3}', parameters('UnitDept'), parameters('ProjAppSvc')[0], parameters('Environment'), parameters('LocationAbbr'))]",
+      "[format('rg-{0}-{1}-{2}-{3}', parameters('UnitDept'), parameters('ProjAppSvc')[1], parameters('Environment'), parameters('LocationAbbr'))]",
+      "[format('rg-{0}-{1}-{2}-{3}', parameters('UnitDept'), parameters('ProjAppSvc')[2], parameters('Environment'), parameters('LocationAbbr'))]"
     ],
     "VnetName": "[format('vnet-{0}-{1}-{2}-{3}', parameters('UnitDept'), parameters('ProjAppSvc')[1], parameters('Environment'), parameters('LocationAbbr'))]"
   },
@@ -184,6 +189,9 @@
         },
         "mode": "Incremental",
         "parameters": {
+          "BastionName": {
+            "value": "[variables('BastionName')]"
+          },
           "Location": {
             "value": "[parameters('Location')]"
           },
@@ -199,6 +207,9 @@
           "PrincipalId": {
             "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroupNames')[0]), 'Microsoft.Resources/deployments', 'ManagedIdentityTemplate'), '2020-06-01').outputs.principalId.value]"
           },
+          "PublicIpAddressName": {
+            "value": "[variables('PublicIpAddressName')]"
+          },
           "VnetName": {
             "value": "[variables('VnetName')]"
           }
@@ -210,10 +221,13 @@
             "_generator": {
               "name": "bicep",
               "version": "0.4.1008.15138",
-              "templateHash": "4207000851825315659"
+              "templateHash": "9842787953392771138"
             }
           },
           "parameters": {
+            "BastionName": {
+              "type": "string"
+            },
             "Location": {
               "type": "string"
             },
@@ -227,6 +241,9 @@
               "type": "string"
             },
             "PrincipalId": {
+              "type": "string"
+            },
+            "PublicIpAddressName": {
               "type": "string"
             },
             "VnetName": {
@@ -320,13 +337,9 @@
               }
             },
             {
-              "copy": {
-                "name": "vnet",
-                "count": "[length(range(0, 3))]"
-              },
               "type": "Microsoft.Network/virtualNetworks",
               "apiVersion": "2021-02-01",
-              "name": "[format('{0}-00{1}', parameters('VnetName'), range(0, 3)[copyIndex()])]",
+              "name": "[parameters('VnetName')]",
               "location": "[parameters('Location')]",
               "tags": {},
               "properties": {
@@ -410,6 +423,45 @@
                 "[resourceId('Microsoft.Network/networkSecurityGroups', 'adds-subnet')]",
                 "[resourceId('Microsoft.Network/networkWatchers', parameters('NetworkWatcherName'))]"
               ]
+            },
+            {
+              "type": "Microsoft.Network/publicIPAddresses",
+              "apiVersion": "2020-11-01",
+              "name": "[parameters('PublicIpAddressName')]",
+              "location": "[parameters('Location')]",
+              "sku": {
+                "name": "Standard"
+              },
+              "properties": {
+                "publicIPAddressVersion": "IPv4",
+                "publicIPAllocationMethod": "Static",
+                "idleTimeoutInMinutes": 4
+              }
+            },
+            {
+              "type": "Microsoft.Network/bastionHosts",
+              "apiVersion": "2020-05-01",
+              "name": "[parameters('BastionName')]",
+              "location": "[parameters('Location')]",
+              "properties": {
+                "ipConfigurations": [
+                  {
+                    "name": "IpConf",
+                    "properties": {
+                      "publicIPAddress": {
+                        "id": "[resourceId('Microsoft.Network/publicIPAddresses', parameters('PublicIpAddressName'))]"
+                      },
+                      "subnet": {
+                        "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('VnetName'), 'AzureBastionSubnet')]"
+                      }
+                    }
+                  }
+                ]
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Network/publicIPAddresses', parameters('PublicIpAddressName'))]",
+                "[resourceId('Microsoft.Network/virtualNetworks', parameters('VnetName'))]"
+              ]
             }
           ]
         }
@@ -442,6 +494,9 @@
           "DomainName": {
             "value": "[parameters('DomainName')]"
           },
+          "DomainServices": {
+            "value": "[parameters('DomainServices')]"
+          },
           "Location": {
             "value": "[parameters('Location')]"
           },
@@ -465,7 +520,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.4.1008.15138",
-              "templateHash": "8021292459144987851"
+              "templateHash": "7996143658894267947"
             }
           },
           "parameters": {
@@ -479,6 +534,9 @@
               "type": "string"
             },
             "DomainName": {
+              "type": "string"
+            },
+            "DomainServices": {
               "type": "string"
             },
             "Location": {
@@ -498,17 +556,15 @@
             }
           },
           "functions": [],
-          "variables": {
-            "DomainServicesName": "[format('az{0}', parameters('DomainName'))]"
-          },
           "resources": [
             {
+              "condition": "[equals(parameters('DomainServices'), 'AzureActiveDirectory')]",
               "type": "Microsoft.AAD/domainServices",
               "apiVersion": "2021-03-01",
-              "name": "[variables('DomainServicesName')]",
+              "name": "[parameters('DomainName')]",
               "location": "[parameters('Location')]",
               "properties": {
-                "domainName": "[variables('DomainServicesName')]",
+                "domainName": "[parameters('DomainName')]",
                 "filteredSync": "Disabled",
                 "domainConfigurationType": "FullySynced",
                 "notificationSettings": {
@@ -518,7 +574,7 @@
                 },
                 "replicaSets": [
                   {
-                    "subnetId": "[resourceId(parameters('ResourceGroupNames')[1], 'Microsoft.Network/virtualNetworks/subnets', format('{0}-001', parameters('VnetName')), 'AzureADDSSubnet')]",
+                    "subnetId": "[resourceId(parameters('ResourceGroupNames')[1], 'Microsoft.Network/virtualNetworks/subnets', parameters('VnetName'), 'AzureADDSSubnet')]",
                     "location": "[parameters('Location')]"
                   }
                 ],
@@ -526,6 +582,7 @@
               }
             },
             {
+              "condition": "[equals(parameters('DomainServices'), 'ActiveDirectory')]",
               "type": "Microsoft.Network/networkInterfaces",
               "apiVersion": "2018-08-01",
               "name": "[parameters('DomainControllerNicName')]",
@@ -539,7 +596,7 @@
                       "privateIPAllocationMethod": "Static",
                       "privateIPAddress": "10.0.3.4",
                       "subnet": {
-                        "id": "[resourceId(parameters('ResourceGroupNames')[1], 'Microsoft.Network/virtualNetworks/subnets', format('{0}-000', parameters('VnetName')), 'SharedServices')]"
+                        "id": "[resourceId(parameters('ResourceGroupNames')[1], 'Microsoft.Network/virtualNetworks/subnets', parameters('VnetName'), 'SharedServices')]"
                       }
                     }
                   }
@@ -547,6 +604,7 @@
               }
             },
             {
+              "condition": "[equals(parameters('DomainServices'), 'ActiveDirectory')]",
               "type": "Microsoft.Compute/virtualMachines",
               "apiVersion": "2019-07-01",
               "name": "[parameters('DomainControllerName')]",
@@ -594,6 +652,7 @@
               ]
             },
             {
+              "condition": "[equals(parameters('DomainServices'), 'ActiveDirectory')]",
               "type": "Microsoft.Compute/virtualMachines/extensions",
               "apiVersion": "2019-07-01",
               "name": "[format('{0}/{1}', parameters('DomainControllerName'), 'DSC')]",
@@ -651,6 +710,9 @@
         },
         "mode": "Incremental",
         "parameters": {
+          "DomainServices": {
+            "value": "[parameters('DomainServices')]"
+          },
           "Location": {
             "value": "[parameters('Location')]"
           },
@@ -674,10 +736,13 @@
             "_generator": {
               "name": "bicep",
               "version": "0.4.1008.15138",
-              "templateHash": "3124546291803577775"
+              "templateHash": "17371178281852295328"
             }
           },
           "parameters": {
+            "DomainServices": {
+              "type": "string"
+            },
             "Location": {
               "type": "string"
             },
@@ -695,12 +760,9 @@
             }
           },
           "functions": [],
-          "variables": {
-            "Vnet0Name": "[format('{0}-000', parameters('VnetName'))]",
-            "Vnet1Name": "[format('{0}-001', parameters('VnetName'))]"
-          },
           "resources": [
             {
+              "condition": "[equals(parameters('DomainServices'), 'ActiveDirectory')]",
               "type": "Microsoft.Resources/deploymentScripts",
               "apiVersion": "2020-10-01",
               "name": "DnsFixAdds",
@@ -715,7 +777,7 @@
               "properties": {
                 "forceUpdateTag": "[parameters('Timestamp')]",
                 "azPowerShellVersion": "5.4",
-                "arguments": "[format('-ResourceGroupName {0} -VnetName {1}', parameters('ResourceGroupNames')[1], variables('Vnet0Name'))]",
+                "arguments": "[format('-ResourceGroupName {0} -VnetName {1}', parameters('ResourceGroupNames')[1], parameters('VnetName'))]",
                 "scriptContent": "param([string] [parameter(Mandatory=$true)] $ResourceGroupName, [string] [parameter(Mandatory=$true)] $VnetName);Start-Sleep 300;$vnet = Get-AzVirtualNetwork -Name $VnetName -ResourceGroupName $ResourceGroupName;$subnet = Get-AzVirtualNetworkSubnetConfig -Name 'SharedServices' -VirtualNetwork $vnet;if ($null -ne $subnet.IpConfigurations){$dnsIPs = @();foreach ($ipconfig in $subnet.IpConfigurations) {$RG = $ipconfig.Id.Split('/')[4];$NIC = $ipconfig.Id.Split('/')[8];$IP = (Get-AzNetworkInterface -Name $NIC -ResourceGroupName $RG).IpConfigurations.PrivateIpAddress;$dnsIPs += $IP}};$obj = new-object -type PSObject -Property @{'DnsServers' = $dnsIPs};$vnet.DhcpOptions = $obj;$vnet | Set-AzVirtualNetwork | Out-Null;$DeploymentScriptOutputs = @{};",
                 "timeout": "PT4H",
                 "cleanupPreference": "OnSuccess",
@@ -723,6 +785,7 @@
               }
             },
             {
+              "condition": "[equals(parameters('DomainServices'), 'AzureActiveDirectory')]",
               "type": "Microsoft.Resources/deploymentScripts",
               "apiVersion": "2020-10-01",
               "name": "DnsFixAzureAdds",
@@ -737,7 +800,7 @@
               "properties": {
                 "forceUpdateTag": "[parameters('Timestamp')]",
                 "azPowerShellVersion": "5.4",
-                "arguments": "[format('-ResourceGroupName {0} -VnetName {1}', parameters('ResourceGroupNames')[1], variables('Vnet1Name'))]",
+                "arguments": "[format('-ResourceGroupName {0} -VnetName {1}', parameters('ResourceGroupNames')[1], parameters('VnetName'))]",
                 "scriptContent": "param([string] [parameter(Mandatory=$true)] $ResourceGroupName, [string] [parameter(Mandatory=$true)] $VnetName);Start-Sleep 300;$vnet = Get-AzVirtualNetwork -Name $VnetName -ResourceGroupName $ResourceGroupName;$subnet = Get-AzVirtualNetworkSubnetConfig -Name 'AzureADDSSubnet' -VirtualNetwork $vnet;if ($null -ne $subnet.IpConfigurations){$dnsIPs = @();foreach ($ipconfig in $subnet.IpConfigurations) {$RG = $ipconfig.Id.Split('/')[4];$NIC = $ipconfig.Id.Split('/')[8];$IP = (Get-AzNetworkInterface -Name $NIC -ResourceGroupName $RG).IpConfigurations.PrivateIpAddress;$dnsIPs += $IP}};$obj = new-object -type PSObject -Property @{'DnsServers' = $dnsIPs};$vnet.DhcpOptions = $obj;$vnet | Set-AzVirtualNetwork | Out-Null;$DeploymentScriptOutputs = @{};",
                 "timeout": "PT4H",
                 "cleanupPreference": "OnSuccess",
@@ -764,8 +827,8 @@
         },
         "mode": "Incremental",
         "parameters": {
-          "AutomationAccountName": {
-            "value": "[variables('AutomationAccountName')]"
+          "DomainName": {
+            "value": "[parameters('DomainName')]"
           },
           "KeyVaultName": {
             "value": "[variables('KeyVaultName')]"
@@ -796,11 +859,11 @@
             "_generator": {
               "name": "bicep",
               "version": "0.4.1008.15138",
-              "templateHash": "5976587334674477503"
+              "templateHash": "17497261849451238096"
             }
           },
           "parameters": {
-            "AutomationAccountName": {
+            "DomainName": {
               "type": "string"
             },
             "KeyVaultName": {
@@ -936,15 +999,26 @@
               ]
             },
             {
-              "type": "Microsoft.Automation/automationAccounts",
-              "apiVersion": "2015-10-31",
-              "name": "[parameters('AutomationAccountName')]",
-              "location": "[parameters('Location')]",
+              "type": "Microsoft.KeyVault/vaults/secrets",
+              "apiVersion": "2016-10-01",
+              "name": "[format('{0}/{1}', parameters('KeyVaultName'), 'DomainJoinPassword')]",
               "properties": {
-                "sku": {
-                  "name": "Free"
-                }
-              }
+                "value": "[parameters('VmPassword')]"
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.KeyVault/vaults', parameters('KeyVaultName'))]"
+              ]
+            },
+            {
+              "type": "Microsoft.KeyVault/vaults/secrets",
+              "apiVersion": "2016-10-01",
+              "name": "[format('{0}/{1}', parameters('KeyVaultName'), 'DomainJoinUsername')]",
+              "properties": {
+                "value": "[format('{0}@{1}', parameters('VmUsername'), parameters('DomainName'))]"
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.KeyVault/vaults', parameters('KeyVaultName'))]"
+              ]
             },
             {
               "type": "Microsoft.OperationalInsights/workspaces",

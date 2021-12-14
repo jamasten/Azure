@@ -2,7 +2,12 @@
 
 Param(
 
-    [string] [Paramter(Mandatory=$true)] $TenantId
+    [Paramter(Mandatory=$true)]
+    [ValidateSet('AzureCloud','AzureUSGovernmentCloud')]
+    [string]$Environment,
+
+    [Paramter(Mandatory=$true)]
+    [string]$TenantId
 
 )
 
@@ -13,7 +18,7 @@ if(!(Get-Module -ListAvailable | Where-Object {$_.Name -eq 'MSOnline'}))
 
 if(!(Get-MsolDomain -ErrorAction SilentlyContinue))
 {
-    Connect-MsolService -AzureEnvironment AzureCloud
+    Connect-MsolService -AzureEnvironment $Environment
 }
 
 Set-MsolDirSyncEnabled -TenantId $TenantId -EnableDirSync $false -Force

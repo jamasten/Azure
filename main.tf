@@ -21,6 +21,11 @@ variable "disk_sku" {
   default = "Standard_LRS"
   description = "The storage SKU for the AVD session host disks.  Production deployments should use 'Premium_LRS'."
 }
+variable "dod_stig_compliance" {
+  type = bool
+  default = true
+  description = ""
+}
 variable "domain_name" {
   type = string
   description = "The name of the domain that provides ADDS to the AVD session hosts and is synchronized with Azure AD"
@@ -249,6 +254,9 @@ resource "azurerm_subscription_template_deployment" "avd" {
       },
       "DiskSku": {
         "value": var.disk_sku
+      },
+      "DodStigCompliance": {
+        "value": var.dod_stig_compliance
       }
       "DomainName": {
         "value": var.domain_name

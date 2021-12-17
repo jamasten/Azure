@@ -39,8 +39,17 @@ param DrainMode bool = false
 @description('Choose whether the session host uses an ephemeral disk for the operating system.  Be sure to select a VM SKU that offers a temporary disk that meets your image requirements. Reference: https://docs.microsoft.com/en-us/azure/virtual-machines/ephemeral-os-disks')
 param EphemeralOsDisk bool = false
 
-@description('Enable FSLogix to manage user profiles for the AVD session hosts.')
-param FSLogix bool = true
+@allowed([
+  'None'
+  'AzureStorageAccount Standard'
+  'AzureStorageAccount Standard XL'
+  'AzureStorageAccount Premium'
+  'AzureNetAppFiles Standard'
+  'AzureNetAppFiles Premium'
+  'AzureNetAppFiles Ultra'
+])
+@description('Enable an FSLogix storage option to manage user profiles for the AVD session hosts. The selected service & SKU should provide sufficient IOPS for all of your users. https://docs.microsoft.com/en-us/azure/architecture/example-scenario/wvd/windows-virtual-desktop-fslogix#performance-requirements')
+param FSLogixStorage string = 'AzureStorageAccount Standard'
 
 @allowed([
   'Pooled DepthFirst'
@@ -67,7 +76,7 @@ param ImageVersion string = 'latest'
   'AES256'
   'RC4'
 ])
-@description('The Active Directory computer object Kerberos encryption type for the Azure Storage Account.')
+@description('The Active Directory computer object Kerberos encryption type for the Azure Storage Account or Azure NetApp Files Account.')
 param KerberosEncryption string = 'RC4'
 
 @maxValue(730)
@@ -139,13 +148,6 @@ param SessionHostIndex int = 0
 @description('Determines whether the Start VM On Connect feature is enabled. https://docs.microsoft.com/en-us/azure/virtual-desktop/start-virtual-machine-connect')
 param StartVmOnConnect bool = true
 
-@allowed([
-  'Standard_LRS'
-  'Premium_LRS'
-])
-@description('The SKU for the Azure storage account containing the AVD user profile data.  The selected SKU should provide sufficient IOPS for all of your users. https://docs.microsoft.com/en-us/azure/architecture/example-scenario/wvd/windows-virtual-desktop-fslogix#performance-requirements')
-param StorageAccountSku string = 'Standard_LRS'
-
 @description('The subnet for the AVD session hosts.')
 param Subnet string = 'Clients'
 
@@ -182,13 +184,19 @@ param AvdObjectId string = 'cdcfb416-e2fe-41e2-be12-33813c1cd427'
 
 var AppGroupName = 'dag-${ResourceNameSuffix}'
 var AutomationAccountName = 'aa-${ResourceNameSuffix}'
+var FSLogix = FSLogixStorage == 'None' ? false : true
 var HostPoolName = 'hp-${ResourceNameSuffix}'
 var KeyVaultName = 'kv-${ResourceNameSuffix}'
 var Location = deployment().location
 var LogAnalyticsWorkspaceName = 'law-${ResourceNameSuffix}'
 var LogicAppName = 'la-${ResourceNameSuffix}'
+var ManagedIdentityName = 'uami-${ResourceNameSuffix}'
+var NetAppAccountName = 'naa-${ResourceNameSuffix}'
+var NetAppCapacityPoolName = 'nacp-${ResourceNameSuffix}'
 var Netbios = split(DomainName, '.')[0]
+var NetworkContributorId = '4d97b98b-1d4f-4787-a291-c67834d212e7'
 var NetworkSecurityGroupName = 'nsg-${ResourceNameSuffix}'
+var PooledHostPool = split(HostPoolType, ' ')[0] == 'Pooled' ? true : false
 var RecoveryServicesVaultName = 'rsv-${ResourceNameSuffix}'
 var ResourceGroups = [
     'rg-${ResourceNameSuffix}-infra'
@@ -197,6 +205,8 @@ var ResourceGroups = [
 var RoleAssignmentName = guid(subscription().id, 'WindowsVirtualDesktop')
 var RoleDefinitionName = guid(subscription().id, 'StartVmOnConnect')
 var StorageAccountName = 'stor${toLower(substring(uniqueString(subscription().id, ResourceGroups[0]), 0, 11))}'
+var StorageSolution = split(FSLogixStorage, ' ')[0]
+var StorageSku = split(FSLogixStorage, ' ')[1]
 var TimeZones = {
     australiacentral: 'Australian Eastern Standard Time'
     australiacentral2: 'Australian Eastern Standard Time'
@@ -312,6 +322,7 @@ module hostPool 'modules/hostPool.bicep' = {
     LogAnalyticsWorkspaceRetention: LogAnalyticsWorkspaceRetention
     LogAnalyticsWorkspaceSku: LogAnalyticsWorkspaceSku
     Location: Location
+    ManagedIdentityName: ManagedIdentityName
     MaxSessionLimit: MaxSessionLimit
     SecurityPrincipalId: SecurityPrincipalId
     StartVmOnConnect: StartVmOnConnect
@@ -365,24 +376,25 @@ module sessionHosts 'modules/sessionHosts.bicep' = {
   ]
 }
 
-module fslogix 'modules/fslogix.bicep' = if(split(HostPoolType, ' ')[0] == 'Pooled' && FSLogix) {
+module managedIdentity './modules/managedIdentity.bicep' = if(StorageSolution == 'AzureNetAppFiles') {
+  name: 'ManagedIdentityTemplate'
+  scope: resourceGroup(VirtualNetworkResourceGroup)
+  params: {
+    ManagedIdentityId: hostPool.outputs.managedIdentityId
+    NetworkContributorId: NetworkContributorId
+  }
+}
+
+
+module fslogixMgmtVm 'modules/fslogixMgmtVm.bicep' = if(FSLogix) {
   name: 'fslogix_${TimeStamp}'
   scope: resourceGroup(rgInfra.name)
   params: {
     DomainJoinPassword: DomainJoinPassword
     DomainJoinUserPrincipalName: DomainJoinUserPrincipalName
     DomainName: DomainName
-    DomainServices: DomainServices
-    HostPoolName: HostPoolName
-    KerberosEncryptionType: KerberosEncryption
     Location: Location
-    Netbios: Netbios
-    OuPath: OuPath
     ResourceNameSuffix: ResourceNameSuffix
-    SecurityPrincipalId: SecurityPrincipalId
-    SecurityPrincipalName: SecurityPrincipalName
-    StorageAccountName: StorageAccountName
-    StorageAccountSku: StorageAccountSku
     Subnet: Subnet
     Tags: Tags
     Timestamp: TimeStamp
@@ -394,6 +406,63 @@ module fslogix 'modules/fslogix.bicep' = if(split(HostPoolType, ' ')[0] == 'Pool
   }
   dependsOn: [
     hostPool
+    managedIdentity
+  ]
+}
+
+
+module fslogixNetApp 'modules/fslogixNetApp.bicep' = if(FSLogix && StorageSolution == 'AzureNetAppFiles') {
+  name: 'fslogix_${TimeStamp}'
+  scope: resourceGroup(rgInfra.name)
+  params: {
+    DomainJoinPassword: DomainJoinPassword
+    DomainJoinUserPrincipalName: DomainJoinUserPrincipalName
+    DomainName: DomainName
+    DomainServices: DomainServices
+    HostPoolName: HostPoolName
+    Location: Location
+    ManagedIdentityName: ManagedIdentityName
+    NetAppAccountName: NetAppAccountName
+    NetAppCapacityPoolName: NetAppCapacityPoolName
+    OuPath: OuPath
+    SecurityPrincipalName: SecurityPrincipalName
+    StorageSolution: StorageSolution
+    StorageSku: StorageSku
+    Tags: Tags
+    Timestamp: TimeStamp
+    VirtualNetwork: VirtualNetwork
+    VirtualNetworkResourceGroup: VirtualNetworkResourceGroup
+    VmName: VmName
+  }
+  dependsOn: [
+    hostPool
+    managedIdentity
+  ]
+}
+
+module fslogixStorageAccount 'modules/fslogixStorageAccount.bicep' = if(FSLogix && StorageSolution == 'AzureStorageAccount') {
+  name: 'fslogix_${TimeStamp}'
+  scope: resourceGroup(rgInfra.name)
+  params: {
+    DomainJoinPassword: DomainJoinPassword
+    DomainJoinUserPrincipalName: DomainJoinUserPrincipalName
+    DomainServices: DomainServices
+    HostPoolName: HostPoolName
+    KerberosEncryptionType: KerberosEncryption
+    Location: Location
+    Netbios: Netbios
+    OuPath: OuPath
+    SecurityPrincipalId: SecurityPrincipalId
+    SecurityPrincipalName: SecurityPrincipalName
+    StorageAccountName: StorageAccountName
+    StorageSku: StorageSku
+    Tags: Tags
+    Timestamp: TimeStamp
+    VmName: VmName
+  }
+  dependsOn: [
+    hostPool
+    managedIdentity
   ]
 }
 
@@ -414,7 +483,8 @@ module backup 'modules/backup.bicep' = if(RecoveryServices) {
     VmResourceGroupName: ResourceGroups[1]
   }
   dependsOn: [
-    fslogix
+    fslogixNetApp
+    fslogixStorageAccount
     hostPool
     sessionHosts
   ]
@@ -456,7 +526,7 @@ module stig 'modules/stig.bicep' = if(DodStigCompliance) {
   ]
 }
 
-module scale 'modules/scale.bicep' = if(split(HostPoolType, ' ')[0] == 'Pooled') {
+module scale 'modules/scale.bicep' = if(PooledHostPool) {
   name: 'scale_${TimeStamp}'
   scope: resourceGroup(rgInfra.name)
   params: {
@@ -477,14 +547,15 @@ module scale 'modules/scale.bicep' = if(split(HostPoolType, ' ')[0] == 'Pooled')
   dependsOn: [
     backup
     bitLocker
-    fslogix
+    fslogixNetApp
+    fslogixStorageAccount
     hostPool
     sessionHosts
     stig
   ]
 }
 
-module drainMode 'modules/drainMode.bicep' = if(split(HostPoolType, ' ')[0] == 'Pooled' && DrainMode) {
+module drainMode 'modules/drainMode.bicep' = if(PooledHostPool && DrainMode) {
   name: 'drainMode_${TimeStamp}'
   scope: resourceGroup(rgInfra.name)
   params: {
@@ -494,7 +565,8 @@ module drainMode 'modules/drainMode.bicep' = if(split(HostPoolType, ' ')[0] == '
     Timestamp: TimeStamp
   }
   dependsOn: [
-    fslogix
+    fslogixNetApp
+    fslogixStorageAccount
     hostPool
     sessionHosts
   ]

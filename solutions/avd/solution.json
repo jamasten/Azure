@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.4.1008.15138",
-      "templateHash": "10759897876126717986"
+      "templateHash": "17115912712247695326"
     }
   },
   "parameters": {
@@ -83,12 +83,21 @@
         "description": "Choose whether the session host uses an ephemeral disk for the operating system.  Be sure to select a VM SKU that offers a temporary disk that meets your image requirements. Reference: https://docs.microsoft.com/en-us/azure/virtual-machines/ephemeral-os-disks"
       }
     },
-    "FSLogix": {
-      "type": "bool",
-      "defaultValue": true,
+    "FSLogixStorage": {
+      "type": "string",
+      "defaultValue": "AzureStorageAccount Standard",
       "metadata": {
-        "description": "Enable FSLogix to manage user profiles for the AVD session hosts."
-      }
+        "description": "Enable an FSLogix storage option to manage user profiles for the AVD session hosts. The selected service & SKU should provide sufficient IOPS for all of your users. https://docs.microsoft.com/en-us/azure/architecture/example-scenario/wvd/windows-virtual-desktop-fslogix#performance-requirements"
+      },
+      "allowedValues": [
+        "None",
+        "AzureStorageAccount Standard",
+        "AzureStorageAccount Standard XL",
+        "AzureStorageAccount Premium",
+        "AzureNetAppFiles Standard",
+        "AzureNetAppFiles Premium",
+        "AzureNetAppFiles Ultra"
+      ]
     },
     "HostPoolType": {
       "type": "string",
@@ -135,7 +144,7 @@
       "type": "string",
       "defaultValue": "RC4",
       "metadata": {
-        "description": "The Active Directory computer object Kerberos encryption type for the Azure Storage Account."
+        "description": "The Active Directory computer object Kerberos encryption type for the Azure Storage Account or Azure NetApp Files Account."
       },
       "allowedValues": [
         "AES256",
@@ -287,17 +296,6 @@
         "description": "Determines whether the Start VM On Connect feature is enabled. https://docs.microsoft.com/en-us/azure/virtual-desktop/start-virtual-machine-connect"
       }
     },
-    "StorageAccountSku": {
-      "type": "string",
-      "defaultValue": "Standard_LRS",
-      "metadata": {
-        "description": "The SKU for the Azure storage account containing the AVD user profile data.  The selected SKU should provide sufficient IOPS for all of your users. https://docs.microsoft.com/en-us/azure/architecture/example-scenario/wvd/windows-virtual-desktop-fslogix#performance-requirements"
-      },
-      "allowedValues": [
-        "Standard_LRS",
-        "Premium_LRS"
-      ]
-    },
     "Subnet": {
       "type": "string",
       "defaultValue": "Clients",
@@ -372,13 +370,19 @@
   "variables": {
     "AppGroupName": "[format('dag-{0}', parameters('ResourceNameSuffix'))]",
     "AutomationAccountName": "[format('aa-{0}', parameters('ResourceNameSuffix'))]",
+    "FSLogix": "[if(equals(parameters('FSLogixStorage'), 'None'), false(), true())]",
     "HostPoolName": "[format('hp-{0}', parameters('ResourceNameSuffix'))]",
     "KeyVaultName": "[format('kv-{0}', parameters('ResourceNameSuffix'))]",
     "Location": "[deployment().location]",
     "LogAnalyticsWorkspaceName": "[format('law-{0}', parameters('ResourceNameSuffix'))]",
     "LogicAppName": "[format('la-{0}', parameters('ResourceNameSuffix'))]",
+    "ManagedIdentityName": "[format('uami-{0}', parameters('ResourceNameSuffix'))]",
+    "NetAppAccountName": "[format('naa-{0}', parameters('ResourceNameSuffix'))]",
+    "NetAppCapacityPoolName": "[format('nacp-{0}', parameters('ResourceNameSuffix'))]",
     "Netbios": "[split(parameters('DomainName'), '.')[0]]",
+    "NetworkContributorId": "4d97b98b-1d4f-4787-a291-c67834d212e7",
     "NetworkSecurityGroupName": "[format('nsg-{0}', parameters('ResourceNameSuffix'))]",
+    "PooledHostPool": "[if(equals(split(parameters('HostPoolType'), ' ')[0], 'Pooled'), true(), false())]",
     "RecoveryServicesVaultName": "[format('rsv-{0}', parameters('ResourceNameSuffix'))]",
     "ResourceGroups": [
       "[format('rg-{0}-infra', parameters('ResourceNameSuffix'))]",
@@ -387,6 +391,8 @@
     "RoleAssignmentName": "[guid(subscription().id, 'WindowsVirtualDesktop')]",
     "RoleDefinitionName": "[guid(subscription().id, 'StartVmOnConnect')]",
     "StorageAccountName": "[format('stor{0}', toLower(substring(uniqueString(subscription().id, variables('ResourceGroups')[0]), 0, 11)))]",
+    "StorageSolution": "[split(parameters('FSLogixStorage'), ' ')[0]]",
+    "StorageSku": "[split(parameters('FSLogixStorage'), ' ')[1]]",
     "TimeZones": {
       "australiacentral": "Australian Eastern Standard Time",
       "australiacentral2": "Australian Eastern Standard Time",
@@ -535,6 +541,9 @@
           "Location": {
             "value": "[variables('Location')]"
           },
+          "ManagedIdentityName": {
+            "value": "[variables('ManagedIdentityName')]"
+          },
           "MaxSessionLimit": {
             "value": "[parameters('MaxSessionLimit')]"
           },
@@ -564,7 +573,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.4.1008.15138",
-              "templateHash": "13327593806746629128"
+              "templateHash": "15788011215794545882"
             }
           },
           "parameters": {
@@ -590,6 +599,9 @@
               "type": "int"
             },
             "LogAnalyticsWorkspaceSku": {
+              "type": "string"
+            },
+            "ManagedIdentityName": {
               "type": "string"
             },
             "MaxSessionLimit": {
@@ -1221,8 +1233,20 @@
                 "[resourceId('Microsoft.OperationalInsights/workspaces', parameters('LogAnalyticsWorkspaceName'))]",
                 "[resourceId('Microsoft.DesktopVirtualization/workspaces', parameters('WorkspaceName'))]"
               ]
+            },
+            {
+              "type": "Microsoft.ManagedIdentity/userAssignedIdentities",
+              "apiVersion": "2018-11-30",
+              "name": "[parameters('ManagedIdentityName')]",
+              "location": "[parameters('Location')]"
             }
-          ]
+          ],
+          "outputs": {
+            "managedIdentityId": {
+              "type": "string",
+              "value": "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', parameters('ManagedIdentityName'))]"
+            }
+          }
         }
       },
       "dependsOn": [
@@ -1259,7 +1283,7 @@
             "value": "[parameters('EphemeralOsDisk')]"
           },
           "FSLogix": {
-            "value": "[parameters('FSLogix')]"
+            "value": "[variables('FSLogix')]"
           },
           "HostPoolName": {
             "value": "[variables('HostPoolName')]"
@@ -1761,7 +1785,66 @@
       ]
     },
     {
-      "condition": "[and(equals(split(parameters('HostPoolType'), ' ')[0], 'Pooled'), parameters('FSLogix'))]",
+      "condition": "[equals(variables('StorageSolution'), 'AzureNetAppFiles')]",
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2020-06-01",
+      "name": "ManagedIdentityTemplate",
+      "resourceGroup": "[parameters('VirtualNetworkResourceGroup')]",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "ManagedIdentityId": {
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroups')[0]), 'Microsoft.Resources/deployments', format('hostPool_{0}', parameters('TimeStamp'))), '2020-06-01').outputs.managedIdentityId.value]"
+          },
+          "NetworkContributorId": {
+            "value": "[variables('NetworkContributorId')]"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "0.4.1008.15138",
+              "templateHash": "13444120016121709619"
+            }
+          },
+          "parameters": {
+            "ManagedIdentityId": {
+              "type": "string"
+            },
+            "NetworkContributorId": {
+              "type": "string"
+            }
+          },
+          "functions": [],
+          "variables": {
+            "RoleAssignmentName": "[guid(resourceGroup().name, parameters('ManagedIdentityId'), parameters('NetworkContributorId'))]"
+          },
+          "resources": [
+            {
+              "type": "Microsoft.Authorization/roleAssignments",
+              "apiVersion": "2020-04-01-preview",
+              "name": "[variables('RoleAssignmentName')]",
+              "properties": {
+                "roleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', parameters('NetworkContributorId'))]",
+                "principalId": "[reference(parameters('ManagedIdentityId'), '2018-11-30').principalId]",
+                "principalType": "ServicePrincipal"
+              }
+            }
+          ]
+        }
+      },
+      "dependsOn": [
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroups')[0]), 'Microsoft.Resources/deployments', format('hostPool_{0}', parameters('TimeStamp')))]"
+      ]
+    },
+    {
+      "condition": "[variables('FSLogix')]",
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2020-06-01",
       "name": "[format('fslogix_{0}', parameters('TimeStamp'))]",
@@ -1781,38 +1864,11 @@
           "DomainName": {
             "value": "[parameters('DomainName')]"
           },
-          "DomainServices": {
-            "value": "[parameters('DomainServices')]"
-          },
-          "HostPoolName": {
-            "value": "[variables('HostPoolName')]"
-          },
-          "KerberosEncryptionType": {
-            "value": "[parameters('KerberosEncryption')]"
-          },
           "Location": {
             "value": "[variables('Location')]"
           },
-          "Netbios": {
-            "value": "[variables('Netbios')]"
-          },
-          "OuPath": {
-            "value": "[parameters('OuPath')]"
-          },
           "ResourceNameSuffix": {
             "value": "[parameters('ResourceNameSuffix')]"
-          },
-          "SecurityPrincipalId": {
-            "value": "[parameters('SecurityPrincipalId')]"
-          },
-          "SecurityPrincipalName": {
-            "value": "[parameters('SecurityPrincipalName')]"
-          },
-          "StorageAccountName": {
-            "value": "[variables('StorageAccountName')]"
-          },
-          "StorageAccountSku": {
-            "value": "[parameters('StorageAccountSku')]"
           },
           "Subnet": {
             "value": "[parameters('Subnet')]"
@@ -1846,7 +1902,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.4.1008.15138",
-              "templateHash": "225938802549616342"
+              "templateHash": "6570336735609400162"
             }
           },
           "parameters": {
@@ -1859,37 +1915,10 @@
             "DomainName": {
               "type": "string"
             },
-            "DomainServices": {
-              "type": "string"
-            },
-            "HostPoolName": {
-              "type": "string"
-            },
-            "KerberosEncryptionType": {
-              "type": "string"
-            },
             "Location": {
               "type": "string"
             },
-            "Netbios": {
-              "type": "string"
-            },
-            "OuPath": {
-              "type": "string"
-            },
             "ResourceNameSuffix": {
-              "type": "string"
-            },
-            "SecurityPrincipalId": {
-              "type": "string"
-            },
-            "SecurityPrincipalName": {
-              "type": "string"
-            },
-            "StorageAccountName": {
-              "type": "string"
-            },
-            "StorageAccountSku": {
               "type": "string"
             },
             "Subnet": {
@@ -1920,9 +1949,6 @@
           "functions": [],
           "variables": {
             "NicName": "[format('nic-{0}-mgt', parameters('ResourceNameSuffix'))]",
-            "ResourceGroupName": "[resourceGroup().name]",
-            "RoleAssignmentName": "[guid(parameters('StorageAccountName'), '0')]",
-            "RoleAssignmentName_Users": "[guid(format('{0}/default/{1}', parameters('StorageAccountName'), parameters('HostPoolName')), '0')]",
             "VmNameFull": "[format('{0}mgt', parameters('VmName'))]"
           },
           "resources": [
@@ -1939,7 +1965,7 @@
                     "properties": {
                       "privateIPAllocationMethod": "Dynamic",
                       "subnet": {
-                        "id": "[resourceId(subscription().subscriptionId, parameters('VirtualNetworkResourceGroup'), 'Microsoft.Network/virtualNetworks/subnets', parameters('VirtualNetwork'), parameters('Subnet'))]"
+                        "id": "[resourceId(parameters('VirtualNetworkResourceGroup'), 'Microsoft.Network/virtualNetworks/subnets', parameters('VirtualNetwork'), parameters('Subnet'))]"
                       },
                       "primary": true,
                       "privateIPAddressVersion": "IPv4"
@@ -2034,7 +2060,407 @@
               "dependsOn": [
                 "[resourceId('Microsoft.Compute/virtualMachines', variables('VmNameFull'))]"
               ]
+            }
+          ]
+        }
+      },
+      "dependsOn": [
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroups')[0]), 'Microsoft.Resources/deployments', format('hostPool_{0}', parameters('TimeStamp')))]",
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('VirtualNetworkResourceGroup')), 'Microsoft.Resources/deployments', 'ManagedIdentityTemplate')]",
+        "[subscriptionResourceId('Microsoft.Resources/resourceGroups', variables('ResourceGroups')[0])]"
+      ]
+    },
+    {
+      "condition": "[and(variables('FSLogix'), equals(variables('StorageSolution'), 'AzureNetAppFiles'))]",
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2020-06-01",
+      "name": "[format('fslogix_{0}', parameters('TimeStamp'))]",
+      "resourceGroup": "[variables('ResourceGroups')[0]]",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "DomainJoinPassword": {
+            "value": "[parameters('DomainJoinPassword')]"
+          },
+          "DomainJoinUserPrincipalName": {
+            "value": "[parameters('DomainJoinUserPrincipalName')]"
+          },
+          "DomainServices": {
+            "value": "[parameters('DomainServices')]"
+          },
+          "HostPoolName": {
+            "value": "[variables('HostPoolName')]"
+          },
+          "Location": {
+            "value": "[variables('Location')]"
+          },
+          "ManagedIdentityName": {
+            "value": "[variables('ManagedIdentityName')]"
+          },
+          "NetAppAccountName": {
+            "value": "[variables('NetAppAccountName')]"
+          },
+          "NetAppCapacityPoolName": {
+            "value": "[variables('NetAppCapacityPoolName')]"
+          },
+          "OuPath": {
+            "value": "[parameters('OuPath')]"
+          },
+          "SecurityPrincipalName": {
+            "value": "[parameters('SecurityPrincipalName')]"
+          },
+          "StorageSolution": {
+            "value": "[variables('StorageSolution')]"
+          },
+          "StorageSku": {
+            "value": "[variables('StorageSku')]"
+          },
+          "Tags": {
+            "value": "[parameters('Tags')]"
+          },
+          "Timestamp": {
+            "value": "[parameters('TimeStamp')]"
+          },
+          "VirtualNetwork": {
+            "value": "[parameters('VirtualNetwork')]"
+          },
+          "VirtualNetworkResourceGroup": {
+            "value": "[parameters('VirtualNetworkResourceGroup')]"
+          },
+          "VmName": {
+            "value": "[variables('VmName')]"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "0.4.1008.15138",
+              "templateHash": "16940308095862500954"
+            }
+          },
+          "parameters": {
+            "DomainJoinPassword": {
+              "type": "secureString"
             },
+            "DomainJoinUserPrincipalName": {
+              "type": "string"
+            },
+            "DomainServices": {
+              "type": "string"
+            },
+            "HostPoolName": {
+              "type": "string"
+            },
+            "Location": {
+              "type": "string"
+            },
+            "ManagedIdentityName": {
+              "type": "string"
+            },
+            "NetAppAccountName": {
+              "type": "string"
+            },
+            "NetAppCapacityPoolName": {
+              "type": "string"
+            },
+            "OuPath": {
+              "type": "string"
+            },
+            "SecurityPrincipalName": {
+              "type": "string"
+            },
+            "StorageSolution": {
+              "type": "string"
+            },
+            "StorageSku": {
+              "type": "string"
+            },
+            "Tags": {
+              "type": "object"
+            },
+            "Timestamp": {
+              "type": "string"
+            },
+            "VirtualNetwork": {
+              "type": "string"
+            },
+            "VirtualNetworkResourceGroup": {
+              "type": "string"
+            },
+            "VmName": {
+              "type": "string"
+            }
+          },
+          "functions": [],
+          "variables": {
+            "VmNameFull": "[format('{0}mgt', parameters('VmName'))]"
+          },
+          "resources": [
+            {
+              "condition": "[equals(parameters('StorageSolution'), 'AzureNetAppFiles')]",
+              "type": "Microsoft.Resources/deploymentScripts",
+              "apiVersion": "2020-10-01",
+              "name": "VnetInfo",
+              "location": "[parameters('Location')]",
+              "kind": "AzurePowerShell",
+              "identity": {
+                "type": "UserAssigned",
+                "userAssignedIdentities": {
+                  "[format('{0}', resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', parameters('ManagedIdentityName')))]": {}
+                }
+              },
+              "properties": {
+                "forceUpdateTag": "[parameters('Timestamp')]",
+                "azPowerShellVersion": "5.4",
+                "arguments": "[format('-ResourceGroup {0} -Vnet {1}', parameters('VirtualNetworkResourceGroup'), parameters('VirtualNetwork'))]",
+                "scriptContent": "param([string] [parameter(Mandatory=$true)] $ResourceGroup, [string] [parameter(Mandatory=$true)] $Vnet); $vnet = Get-AzVirtualNetwork -Name $Vnet -ResourceGroupName $ResourceGroup; $dnsServers = '$($vnet.DhcpOptions.DnsServers[0]),$($vnet.DhcpOptions.DnsServers[1])'; $subnetId = ($vnet.Subnets | Where-Object {$_.Delegations[0].ServiceName -eq 'Microsoft.NetApp/volumes'}).Id; $DeploymentScriptOutputs = @{}; $DeploymentScriptOutputs['dnsServers'] = $dnsServers; $DeploymentScriptOutputs['subnetId'] = $subnetId;",
+                "timeout": "PT4H",
+                "cleanupPreference": "OnSuccess",
+                "retentionInterval": "P1D"
+              }
+            },
+            {
+              "condition": "[equals(parameters('StorageSolution'), 'AzureNetAppFiles')]",
+              "type": "Microsoft.NetApp/netAppAccounts",
+              "apiVersion": "2021-06-01",
+              "name": "[parameters('NetAppAccountName')]",
+              "location": "[parameters('Location')]",
+              "tags": "[parameters('Tags')]",
+              "properties": {
+                "activeDirectories": [
+                  {
+                    "aesEncryption": false,
+                    "dns": "[reference('VnetInfo').outputs.dnsServers]",
+                    "organizationalUnit": "[replace(split(parameters('OuPath'), ',')[0], 'OU=', '')]",
+                    "password": "[parameters('DomainJoinPassword')]",
+                    "smbServerName": "[parameters('NetAppAccountName')]",
+                    "username": "[split(parameters('DomainJoinUserPrincipalName'), '@')[0]]"
+                  }
+                ],
+                "encryption": {
+                  "keySource": "Microsoft.NetApp"
+                }
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Resources/deploymentScripts', 'VnetInfo')]"
+              ]
+            },
+            {
+              "condition": "[equals(parameters('StorageSolution'), 'AzureNetAppFiles')]",
+              "type": "Microsoft.NetApp/netAppAccounts/capacityPools",
+              "apiVersion": "2021-06-01",
+              "name": "[format('{0}/{1}', parameters('NetAppAccountName'), parameters('NetAppCapacityPoolName'))]",
+              "location": "[parameters('Location')]",
+              "tags": "[parameters('Tags')]",
+              "properties": {
+                "coolAccess": false,
+                "encryptionType": "Single",
+                "qosType": "Auto",
+                "serviceLevel": "[parameters('StorageSku')]",
+                "size": 4398046511104
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.NetApp/netAppAccounts', parameters('NetAppAccountName'))]"
+              ]
+            },
+            {
+              "condition": "[equals(parameters('StorageSolution'), 'AzureNetAppFiles')]",
+              "type": "Microsoft.NetApp/netAppAccounts/capacityPools/volumes",
+              "apiVersion": "2021-06-01",
+              "name": "[format('{0}/{1}/{2}', parameters('NetAppAccountName'), parameters('NetAppCapacityPoolName'), parameters('HostPoolName'))]",
+              "location": "[parameters('Location')]",
+              "tags": "[parameters('Tags')]",
+              "properties": {
+                "avsDataStore": "Disabled",
+                "coolAccess": false,
+                "creationToken": "[parameters('HostPoolName')]",
+                "defaultGroupQuotaInKiBs": 0,
+                "defaultUserQuotaInKiBs": 0,
+                "encryptionKeySource": "Microsoft.NetApp",
+                "isDefaultQuotaEnabled": false,
+                "kerberosEnabled": false,
+                "ldapEnabled": false,
+                "networkFeatures": "Basic",
+                "protocolTypes": [
+                  "CIFS"
+                ],
+                "securityStyle": "ntfs",
+                "serviceLevel": "Standard",
+                "smbContinuouslyAvailable": true,
+                "smbEncryption": true,
+                "snapshotDirectoryVisible": true,
+                "subnetId": "[reference('VnetInfo').outputs.subnetId]",
+                "usageThreshold": 107374182400
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.NetApp/netAppAccounts', parameters('NetAppAccountName'))]",
+                "[resourceId('Microsoft.NetApp/netAppAccounts/capacityPools', parameters('NetAppAccountName'), parameters('NetAppCapacityPoolName'))]",
+                "[resourceId('Microsoft.Resources/deploymentScripts', 'VnetInfo')]"
+              ]
+            },
+            {
+              "type": "Microsoft.Compute/virtualMachines/extensions",
+              "apiVersion": "2020-12-01",
+              "name": "[format('{0}/CustomScriptExtension', variables('VmNameFull'))]",
+              "location": "[parameters('Location')]",
+              "tags": "[parameters('Tags')]",
+              "properties": {
+                "publisher": "Microsoft.Compute",
+                "type": "CustomScriptExtension",
+                "typeHandlerVersion": "1.10",
+                "autoUpgradeMinorVersion": true,
+                "settings": {
+                  "fileUris": [
+                    "https://raw.githubusercontent.com/jamasten/Azure/master/solutions/avd/scripts/Set-NetAppNtfsPermissions.ps1"
+                  ],
+                  "timestamp": "[parameters('Timestamp')]"
+                },
+                "protectedSettings": {
+                  "commandToExecute": "[format('powershell -ExecutionPolicy Unrestricted -File Set-NetAppNtfsPermissions.ps1 -DomainJoinPassword {0} -DomainJoinUserPrincipalName {1} -DomainServices {2} -Environment {3} -HostPoolName {4} -SecurityPrincipalName \"{5}\" -SubscriptionId {6} -TenantId {7}', parameters('DomainJoinPassword'), parameters('DomainJoinUserPrincipalName'), parameters('DomainServices'), environment().name, parameters('HostPoolName'), parameters('SecurityPrincipalName'), subscription().subscriptionId, subscription().tenantId)]"
+                }
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.NetApp/netAppAccounts/capacityPools/volumes', parameters('NetAppAccountName'), parameters('NetAppCapacityPoolName'), parameters('HostPoolName'))]"
+              ]
+            }
+          ]
+        }
+      },
+      "dependsOn": [
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroups')[0]), 'Microsoft.Resources/deployments', format('hostPool_{0}', parameters('TimeStamp')))]",
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('VirtualNetworkResourceGroup')), 'Microsoft.Resources/deployments', 'ManagedIdentityTemplate')]",
+        "[subscriptionResourceId('Microsoft.Resources/resourceGroups', variables('ResourceGroups')[0])]"
+      ]
+    },
+    {
+      "condition": "[and(variables('FSLogix'), equals(variables('StorageSolution'), 'AzureStorageAccount'))]",
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2020-06-01",
+      "name": "[format('fslogix_{0}', parameters('TimeStamp'))]",
+      "resourceGroup": "[variables('ResourceGroups')[0]]",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "DomainJoinPassword": {
+            "value": "[parameters('DomainJoinPassword')]"
+          },
+          "DomainJoinUserPrincipalName": {
+            "value": "[parameters('DomainJoinUserPrincipalName')]"
+          },
+          "DomainServices": {
+            "value": "[parameters('DomainServices')]"
+          },
+          "HostPoolName": {
+            "value": "[variables('HostPoolName')]"
+          },
+          "KerberosEncryptionType": {
+            "value": "[parameters('KerberosEncryption')]"
+          },
+          "Location": {
+            "value": "[variables('Location')]"
+          },
+          "Netbios": {
+            "value": "[variables('Netbios')]"
+          },
+          "OuPath": {
+            "value": "[parameters('OuPath')]"
+          },
+          "SecurityPrincipalId": {
+            "value": "[parameters('SecurityPrincipalId')]"
+          },
+          "SecurityPrincipalName": {
+            "value": "[parameters('SecurityPrincipalName')]"
+          },
+          "StorageAccountName": {
+            "value": "[variables('StorageAccountName')]"
+          },
+          "StorageSku": {
+            "value": "[variables('StorageSku')]"
+          },
+          "Tags": {
+            "value": "[parameters('Tags')]"
+          },
+          "Timestamp": {
+            "value": "[parameters('TimeStamp')]"
+          },
+          "VmName": {
+            "value": "[variables('VmName')]"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "0.4.1008.15138",
+              "templateHash": "7556085646263979542"
+            }
+          },
+          "parameters": {
+            "DomainJoinPassword": {
+              "type": "secureString"
+            },
+            "DomainJoinUserPrincipalName": {
+              "type": "string"
+            },
+            "DomainServices": {
+              "type": "string"
+            },
+            "HostPoolName": {
+              "type": "string"
+            },
+            "KerberosEncryptionType": {
+              "type": "string"
+            },
+            "Location": {
+              "type": "string"
+            },
+            "Netbios": {
+              "type": "string"
+            },
+            "OuPath": {
+              "type": "string"
+            },
+            "SecurityPrincipalId": {
+              "type": "string"
+            },
+            "SecurityPrincipalName": {
+              "type": "string"
+            },
+            "StorageAccountName": {
+              "type": "string"
+            },
+            "StorageSku": {
+              "type": "string"
+            },
+            "Tags": {
+              "type": "object"
+            },
+            "Timestamp": {
+              "type": "string"
+            },
+            "VmName": {
+              "type": "string"
+            }
+          },
+          "functions": [],
+          "variables": {
+            "ResourceGroupName": "[resourceGroup().name]",
+            "RoleAssignmentName": "[guid(parameters('StorageAccountName'), '0')]",
+            "RoleAssignmentName_Users": "[guid(format('{0}/default/{1}', parameters('StorageAccountName'), parameters('HostPoolName')), '0')]",
+            "VmNameFull": "[format('{0}mgt', parameters('VmName'))]"
+          },
+          "resources": [
             {
               "type": "Microsoft.Storage/storageAccounts",
               "apiVersion": "2021-02-01",
@@ -2042,9 +2468,9 @@
               "location": "[parameters('Location')]",
               "tags": "[parameters('Tags')]",
               "sku": {
-                "name": "[parameters('StorageAccountSku')]"
+                "name": "[parameters('StorageSku')]"
               },
-              "kind": "[if(equals(split(parameters('StorageAccountSku'), '_')[0], 'Standard'), 'StorageV2', 'FileStorage')]",
+              "kind": "[if(equals(parameters('StorageSku'), 'Standard'), 'StorageV2', 'FileStorage')]",
               "properties": {
                 "minimumTlsVersion": "TLS1_2",
                 "networkAcls": {
@@ -2080,8 +2506,7 @@
                 "principalType": "ServicePrincipal"
               },
               "dependsOn": [
-                "[resourceId('Microsoft.Storage/storageAccounts', parameters('StorageAccountName'))]",
-                "[resourceId('Microsoft.Compute/virtualMachines', variables('VmNameFull'))]"
+                "[resourceId('Microsoft.Storage/storageAccounts', parameters('StorageAccountName'))]"
               ]
             },
             {
@@ -2117,7 +2542,7 @@
               "apiVersion": "2021-02-01",
               "name": "[format('{0}/{1}/{2}', parameters('StorageAccountName'), 'default', toLower(parameters('HostPoolName')))]",
               "properties": {
-                "accessTier": "[if(equals(parameters('StorageAccountSku'), 'Premium_LRS'), 'Premium', 'TransactionOptimized')]",
+                "accessTier": "[if(equals(parameters('StorageSku'), 'Premium_LRS'), 'Premium', 'TransactionOptimized')]",
                 "shareQuota": 100,
                 "enabledProtocols": "SMB"
               },
@@ -2130,7 +2555,7 @@
             {
               "type": "Microsoft.Compute/virtualMachines/extensions",
               "apiVersion": "2020-12-01",
-              "name": "[format('{0}/{1}', variables('VmNameFull'), 'CustomScriptExtension')]",
+              "name": "[format('{0}/CustomScriptExtension', variables('VmNameFull'))]",
               "location": "[parameters('Location')]",
               "tags": "[parameters('Tags')]",
               "properties": {
@@ -2149,12 +2574,10 @@
                 }
               },
               "dependsOn": [
-                "[resourceId('Microsoft.Compute/virtualMachines/extensions', variables('VmNameFull'), 'JsonADDomainExtension')]",
                 "[extensionResourceId(resourceId('Microsoft.Storage/storageAccounts', parameters('StorageAccountName')), 'Microsoft.Authorization/roleAssignments', variables('RoleAssignmentName'))]",
                 "[resourceId('Microsoft.Storage/storageAccounts', parameters('StorageAccountName'))]",
                 "[resourceId('Microsoft.Storage/storageAccounts/fileServices', parameters('StorageAccountName'), 'default')]",
-                "[resourceId('Microsoft.Storage/storageAccounts/fileServices/shares', parameters('StorageAccountName'), 'default', toLower(parameters('HostPoolName')))]",
-                "[resourceId('Microsoft.Compute/virtualMachines', variables('VmNameFull'))]"
+                "[resourceId('Microsoft.Storage/storageAccounts/fileServices/shares', parameters('StorageAccountName'), 'default', toLower(parameters('HostPoolName')))]"
               ]
             }
           ]
@@ -2162,6 +2585,7 @@
       },
       "dependsOn": [
         "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroups')[0]), 'Microsoft.Resources/deployments', format('hostPool_{0}', parameters('TimeStamp')))]",
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('VirtualNetworkResourceGroup')), 'Microsoft.Resources/deployments', 'ManagedIdentityTemplate')]",
         "[subscriptionResourceId('Microsoft.Resources/resourceGroups', variables('ResourceGroups')[0])]"
       ]
     },
@@ -2389,6 +2813,7 @@
       },
       "dependsOn": [
         "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroups')[0]), 'Microsoft.Resources/deployments', format('fslogix_{0}', parameters('TimeStamp')))]",
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroups')[0]), 'Microsoft.Resources/deployments', format('fslogix_{0}', parameters('TimeStamp')))]",
         "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroups')[0]), 'Microsoft.Resources/deployments', format('hostPool_{0}', parameters('TimeStamp')))]",
         "[subscriptionResourceId('Microsoft.Resources/resourceGroups', variables('ResourceGroups')[0])]",
         "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroups')[1]), 'Microsoft.Resources/deployments', format('sessionHosts_{0}', parameters('TimeStamp')))]"
@@ -2407,7 +2832,7 @@
         "mode": "Incremental",
         "parameters": {
           "FSLogix": {
-            "value": "[parameters('FSLogix')]"
+            "value": "[variables('FSLogix')]"
           },
           "KeyVaultName": {
             "value": "[variables('KeyVaultName')]"
@@ -3058,7 +3483,7 @@
       ]
     },
     {
-      "condition": "[equals(split(parameters('HostPoolType'), ' ')[0], 'Pooled')]",
+      "condition": "[variables('PooledHostPool')]",
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2020-06-01",
       "name": "[format('scale_{0}', parameters('TimeStamp'))]",
@@ -3432,6 +3857,7 @@
         "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroups')[0]), 'Microsoft.Resources/deployments', format('backup_{0}', parameters('TimeStamp')))]",
         "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroups')[0]), 'Microsoft.Resources/deployments', format('bitLocker_{0}', parameters('TimeStamp')))]",
         "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroups')[0]), 'Microsoft.Resources/deployments', format('fslogix_{0}', parameters('TimeStamp')))]",
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroups')[0]), 'Microsoft.Resources/deployments', format('fslogix_{0}', parameters('TimeStamp')))]",
         "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroups')[0]), 'Microsoft.Resources/deployments', format('hostPool_{0}', parameters('TimeStamp')))]",
         "[subscriptionResourceId('Microsoft.Resources/resourceGroups', variables('ResourceGroups')[0])]",
         "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroups')[1]), 'Microsoft.Resources/deployments', format('sessionHosts_{0}', parameters('TimeStamp')))]",
@@ -3439,7 +3865,7 @@
       ]
     },
     {
-      "condition": "[and(equals(split(parameters('HostPoolType'), ' ')[0], 'Pooled'), parameters('DrainMode'))]",
+      "condition": "[and(variables('PooledHostPool'), parameters('DrainMode'))]",
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2020-06-01",
       "name": "[format('drainMode_{0}', parameters('TimeStamp'))]",
@@ -3543,6 +3969,7 @@
         }
       },
       "dependsOn": [
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroups')[0]), 'Microsoft.Resources/deployments', format('fslogix_{0}', parameters('TimeStamp')))]",
         "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroups')[0]), 'Microsoft.Resources/deployments', format('fslogix_{0}', parameters('TimeStamp')))]",
         "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroups')[0]), 'Microsoft.Resources/deployments', format('hostPool_{0}', parameters('TimeStamp')))]",
         "[subscriptionResourceId('Microsoft.Resources/resourceGroups', variables('ResourceGroups')[0])]",

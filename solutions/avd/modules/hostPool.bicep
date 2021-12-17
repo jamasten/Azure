@@ -6,13 +6,14 @@ param Location string
 param LogAnalyticsWorkspaceName string
 param LogAnalyticsWorkspaceRetention int
 param LogAnalyticsWorkspaceSku string
+param ManagedIdentityName string
 param MaxSessionLimit int
 param SecurityPrincipalId string
 param StartVmOnConnect bool
-param Tags object
+param Tags object = {}
 param Timestamp string = utcNow('u')
 param ValidationEnvironment bool
-param VmTemplate string
+param VmTemplate string = '{}'
 param WorkspaceName string
 
 var HostPoolLogs_AzureCloud = [
@@ -576,3 +577,10 @@ resource workspaceDiagnostics 'Microsoft.Insights/diagnosticsettings@2017-05-01-
     workspaceId: logAnalyticsWorkspace.id
   }
 }
+
+resource managedIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2018-11-30' = {
+  name: ManagedIdentityName
+  location: Location
+}
+
+output managedIdentityId string = managedIdentity.id

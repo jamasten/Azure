@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.4.1008.15138",
-      "templateHash": "17115912712247695326"
+      "templateHash": "9671005355768499300"
     }
   },
   "parameters": {
@@ -573,7 +573,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.4.1008.15138",
-              "templateHash": "15788011215794545882"
+              "templateHash": "11765317455560158670"
             }
           },
           "parameters": {
@@ -614,7 +614,8 @@
               "type": "bool"
             },
             "Tags": {
-              "type": "object"
+              "type": "object",
+              "defaultValue": {}
             },
             "Timestamp": {
               "type": "string",
@@ -624,7 +625,8 @@
               "type": "bool"
             },
             "VmTemplate": {
-              "type": "string"
+              "type": "string",
+              "defaultValue": "{}"
             },
             "WorkspaceName": {
               "type": "string"
@@ -2088,6 +2090,9 @@
           "DomainJoinUserPrincipalName": {
             "value": "[parameters('DomainJoinUserPrincipalName')]"
           },
+          "DomainName": {
+            "value": "[parameters('DomainName')]"
+          },
           "DomainServices": {
             "value": "[parameters('DomainServices')]"
           },
@@ -2141,7 +2146,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.4.1008.15138",
-              "templateHash": "16940308095862500954"
+              "templateHash": "10924879394525672496"
             }
           },
           "parameters": {
@@ -2149,6 +2154,9 @@
               "type": "secureString"
             },
             "DomainJoinUserPrincipalName": {
+              "type": "string"
+            },
+            "DomainName": {
               "type": "string"
             },
             "DomainServices": {
@@ -2182,7 +2190,8 @@
               "type": "string"
             },
             "Tags": {
-              "type": "object"
+              "type": "object",
+              "defaultValue": {}
             },
             "Timestamp": {
               "type": "string"
@@ -2218,8 +2227,8 @@
               "properties": {
                 "forceUpdateTag": "[parameters('Timestamp')]",
                 "azPowerShellVersion": "5.4",
-                "arguments": "[format('-ResourceGroup {0} -Vnet {1}', parameters('VirtualNetworkResourceGroup'), parameters('VirtualNetwork'))]",
-                "scriptContent": "param([string] [parameter(Mandatory=$true)] $ResourceGroup, [string] [parameter(Mandatory=$true)] $Vnet); $vnet = Get-AzVirtualNetwork -Name $Vnet -ResourceGroupName $ResourceGroup; $dnsServers = '$($vnet.DhcpOptions.DnsServers[0]),$($vnet.DhcpOptions.DnsServers[1])'; $subnetId = ($vnet.Subnets | Where-Object {$_.Delegations[0].ServiceName -eq 'Microsoft.NetApp/volumes'}).Id; $DeploymentScriptOutputs = @{}; $DeploymentScriptOutputs['dnsServers'] = $dnsServers; $DeploymentScriptOutputs['subnetId'] = $subnetId;",
+                "arguments": "[format('-ResourceGroup {0} -VnetName {1}', parameters('VirtualNetworkResourceGroup'), parameters('VirtualNetwork'))]",
+                "scriptContent": "param([string]$ResourceGroup, [string]$VnetName); $vnet = Get-AzVirtualNetwork -Name $VnetName -ResourceGroupName $ResourceGroup; $dnsServers = \"$($vnet.DhcpOptions.DnsServers[0]),$($vnet.DhcpOptions.DnsServers[1])\"; $subnetId = ($vnet.Subnets | Where-Object {$_.Delegations[0].ServiceName -eq \"Microsoft.NetApp/volumes\"}).Id; $DeploymentScriptOutputs = @{}; $DeploymentScriptOutputs[\"dnsServers\"] = $dnsServers; $DeploymentScriptOutputs[\"subnetId\"] = $subnetId;",
                 "timeout": "PT4H",
                 "cleanupPreference": "OnSuccess",
                 "retentionInterval": "P1D"
@@ -2236,8 +2245,9 @@
                 "activeDirectories": [
                   {
                     "aesEncryption": false,
+                    "domain": "[parameters('DomainName')]",
                     "dns": "[reference('VnetInfo').outputs.dnsServers]",
-                    "organizationalUnit": "[replace(split(parameters('OuPath'), ',')[0], 'OU=', '')]",
+                    "organizationalUnit": "[parameters('OuPath')]",
                     "password": "[parameters('DomainJoinPassword')]",
                     "smbServerName": "[parameters('NetAppAccountName')]",
                     "username": "[split(parameters('DomainJoinUserPrincipalName'), '@')[0]]"
@@ -2292,7 +2302,6 @@
                 ],
                 "securityStyle": "ntfs",
                 "serviceLevel": "Standard",
-                "smbContinuouslyAvailable": true,
                 "smbEncryption": true,
                 "snapshotDirectoryVisible": true,
                 "subnetId": "[reference('VnetInfo').outputs.subnetId]",

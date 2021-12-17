@@ -76,7 +76,7 @@
             "value": 1
         },
         "OuPath": {
-            "value": "OU=AAD DC Administrators,DC=jasonmasten,DC=us"
+            "value": "OU=AADDC Computers,DC=jasonmasten,DC=us"
         },
         "RdpShortPath": {
             "value": false

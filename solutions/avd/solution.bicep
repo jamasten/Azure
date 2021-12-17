@@ -387,7 +387,7 @@ module managedIdentity './modules/managedIdentity.bicep' = if(StorageSolution ==
 
 
 module fslogixMgmtVm 'modules/fslogixMgmtVm.bicep' = if(FSLogix) {
-  name: 'fslogix_${TimeStamp}'
+  name: 'fslogixMgmtVm_${TimeStamp}'
   scope: resourceGroup(rgInfra.name)
   params: {
     DomainJoinPassword: DomainJoinPassword
@@ -412,7 +412,7 @@ module fslogixMgmtVm 'modules/fslogixMgmtVm.bicep' = if(FSLogix) {
 
 
 module fslogixNetApp 'modules/fslogixNetApp.bicep' = if(FSLogix && StorageSolution == 'AzureNetAppFiles') {
-  name: 'fslogix_${TimeStamp}'
+  name: 'fslogixNetApp_${TimeStamp}'
   scope: resourceGroup(rgInfra.name)
   params: {
     DomainJoinPassword: DomainJoinPassword
@@ -441,7 +441,7 @@ module fslogixNetApp 'modules/fslogixNetApp.bicep' = if(FSLogix && StorageSoluti
 }
 
 module fslogixStorageAccount 'modules/fslogixStorageAccount.bicep' = if(FSLogix && StorageSolution == 'AzureStorageAccount') {
-  name: 'fslogix_${TimeStamp}'
+  name: 'fslogixStorageAccount_${TimeStamp}'
   scope: resourceGroup(rgInfra.name)
   params: {
     DomainJoinPassword: DomainJoinPassword

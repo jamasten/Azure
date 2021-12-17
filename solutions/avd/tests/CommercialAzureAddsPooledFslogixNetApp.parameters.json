@@ -1,0 +1,133 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "AvdObjectId": {
+            "value": "cdcfb416-e2fe-41e2-be12-33813c1cd427"
+        },
+        "CustomRdpProperty": {
+            "value": "audiocapturemode:i:1;camerastoredirect:s:*;use multimon:i:0;drivestoredirect:s:;"
+        },
+        "DiskEncryption": {
+            "value": false
+        },
+        "DiskSku": {
+            "value": "Premium_LRS"
+        },
+        "DodStigCompliance": {
+            "value": false
+        },
+        "DomainName": {
+            "value": "jasonmasten.com"
+        },
+        "DomainServices": {
+            "value": "AzureActiveDirectory"
+        },
+        "DrainMode": {
+            "value": false
+        },
+        "EphemeralOsDisk": {
+            "value": false
+        },
+        "FSLogixStorage": {
+            "value": "AzureNetAppFiles Standard"
+        },
+        "HostPoolType": {
+            "value": "Pooled DepthFirst"
+        },
+        "ImageOffer": {
+            "value": "windows-10"
+        },
+        "ImagePublisher": {
+            "value": "MicrosoftWindowsDesktop"
+        },
+        "ImageSku": {
+            "value": "21h1-ent"
+        },
+        "ImageVersion": {
+            "value": "latest"
+        },
+        "KerberosEncryption": {
+            "value": "RC4"
+        },
+        "LogAnalyticsWorkspaceRetention": {
+            "value": 30
+        },
+        "LogAnalyticsWorkspaceSku": {
+            "value": "PerGB2018"
+        },
+        "MaxSessionLimit": {
+            "value": 1
+        },
+        "OuPath": {
+            "value": "OU=AADDC Computers,DC=jasonmasten,DC=com"
+        },
+        "RdpShortPath": {
+            "value": false
+        },
+        "RecoveryServices": {
+            "value": false
+        },
+        "ResourceNameSuffix": {
+            "value": "avd1deu"
+        },
+        "ScalingBeginPeakTime": {
+            "value": "9:00"
+        },
+        "ScalingEndPeakTime": {
+            "value": "17:00"
+        },
+        "ScalingLimitSecondsToForceLogOffUser": {
+            "value": "0"
+        },
+        "ScalingMinimumNumberOfRdsh": {
+            "value": "0"
+        },
+        "ScalingSessionThresholdPerCPU": {
+            "value": ".5"
+        },
+        "ScalingTimeDifference": {
+            "value": "-5:00"
+        },
+        "ScreenCaptureProtection": {
+            "value": false
+        },
+        "SecurityPrincipalId": {
+            "value": "f05646a6-dc96-4b13-99e9-678f10d30c10"
+        },
+        "SecurityPrincipalName": {
+            "value": "AVD"
+        },
+        "SessionHostCount": {
+            "value": 1
+        },
+        "SessionHostIndex": {
+            "value": 0
+        },
+        "StartVmOnConnect": {
+            "value": true
+        },
+        "Subnet": {
+            "value": "Clients"
+        },
+        "Tags": {
+            "value": {
+                "Owner": "Jason Masten",
+                "Purpose": "POC",
+                "Environment": "Development"
+            }
+        },
+        "ValidationEnvironment": {
+            "value": false
+        },
+        "VirtualNetwork": {
+            "value": "vnet-shd-net-d-eu"
+        },
+        "VirtualNetworkResourceGroup": {
+            "value": "rg-shd-net-d-eu"
+        },
+        "VmSize": {
+            "value": "Standard_B2s"
+        }
+    }
+}

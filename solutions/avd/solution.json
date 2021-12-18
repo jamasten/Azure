@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.4.1008.15138",
-      "templateHash": "15194225652180226012"
+      "templateHash": "13833029196608328175"
     }
   },
   "parameters": {
@@ -249,7 +249,7 @@
     },
     "ScalingTimeDifference": {
       "type": "string",
-      "defaultValue": "-4:00",
+      "defaultValue": "-5:00",
       "metadata": {
         "description": "Time zone off set for host pool location; Format 24 hours e.g. -4:00 for Eastern Daylight Time"
       }
@@ -263,14 +263,14 @@
     },
     "SecurityPrincipalId": {
       "type": "string",
-      "defaultValue": "5c55bf93-86ee-4e1d-a81a-3a78402e6077",
+      "defaultValue": "f05646a6-dc96-4b13-99e9-678f10d30c10",
       "metadata": {
         "description": "The Object ID for the Security Principal to assign to the AVD Application Group.  This Security Principal will be assigned the Desktop Virtualization User role on the Application Group."
       }
     },
     "SecurityPrincipalName": {
       "type": "string",
-      "defaultValue": "avd_users",
+      "defaultValue": "AVD",
       "metadata": {
         "description": "The name for the Security Principal to assign NTFS permissions on the Azure File Share to support FSLogix.  Any value can be input in this field if performing a deployment update or choosing a personal host pool."
       }
@@ -327,14 +327,14 @@
     },
     "VirtualNetwork": {
       "type": "string",
-      "defaultValue": "vnet-shd-net-d-eu-000",
+      "defaultValue": "vnet-shd-net-d-eu",
       "metadata": {
         "description": "Virtual network for the AVD sessions hosts"
       }
     },
     "VirtualNetworkResourceGroup": {
       "type": "string",
-      "defaultValue": "rg-shd-net-d-eu-000",
+      "defaultValue": "rg-shd-net-d-eu",
       "metadata": {
         "description": "Virtual network resource group for the AVD sessions hosts"
       }

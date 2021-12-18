@@ -128,16 +128,16 @@ param ScalingMinimumNumberOfRdsh string = '0'
 param ScalingSessionThresholdPerCPU string = '1'
 
 @description('Time zone off set for host pool location; Format 24 hours e.g. -4:00 for Eastern Daylight Time')
-param ScalingTimeDifference string = '-4:00'
+param ScalingTimeDifference string = '-5:00'
 
 @description('Determines whether the Screen Capture Protection feature is enabled.  As of 9/17/21 this is only supported in Azure Cloud. https://docs.microsoft.com/en-us/azure/virtual-desktop/screen-capture-protection')
 param ScreenCaptureProtection bool = false
 
 @description('The Object ID for the Security Principal to assign to the AVD Application Group.  This Security Principal will be assigned the Desktop Virtualization User role on the Application Group.')
-param SecurityPrincipalId string = '5c55bf93-86ee-4e1d-a81a-3a78402e6077'
+param SecurityPrincipalId string = 'f05646a6-dc96-4b13-99e9-678f10d30c10'
 
 @description('The name for the Security Principal to assign NTFS permissions on the Azure File Share to support FSLogix.  Any value can be input in this field if performing a deployment update or choosing a personal host pool.')
-param SecurityPrincipalName string = 'avd_users'
+param SecurityPrincipalName string = 'AVD'
 
 @description('The number of session hosts to deploy in the host pool')
 param SessionHostCount int = 1
@@ -164,10 +164,10 @@ param TimeStamp string = utcNow('yyyyMMddhhmmss')
 param ValidationEnvironment bool = false
 
 @description('Virtual network for the AVD sessions hosts')
-param VirtualNetwork string = 'vnet-shd-net-d-eu-000'
+param VirtualNetwork string = 'vnet-shd-net-d-eu'
 
 @description('Virtual network resource group for the AVD sessions hosts')
-param VirtualNetworkResourceGroup string = 'rg-shd-net-d-eu-000'
+param VirtualNetworkResourceGroup string = 'rg-shd-net-d-eu'
 
 @secure()
 @description('Local administrator password for the AVD session hosts')

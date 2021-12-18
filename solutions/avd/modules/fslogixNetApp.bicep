@@ -165,7 +165,7 @@ resource customScriptExtension 'Microsoft.Compute/virtualMachines/extensions@202
       timestamp: Timestamp
     }
     protectedSettings: {
-      commandToExecute: 'powershell -ExecutionPolicy Unrestricted -File Set-NetAppNtfsPermissions.ps1 -DomainJoinPassword ${DomainJoinPassword} -DomainJoinUserPrincipalName ${DomainJoinUserPrincipalName} -HostPoolName ${HostPoolName} -ResourceNameSuffix ${ResourceNameSuffix} -SecurityPrincipalName "${SecurityPrincipalName}"'
+      commandToExecute: 'powershell -ExecutionPolicy Unrestricted -File Set-NetAppNtfsPermissions.ps1 -DomainJoinPassword "${DomainJoinPassword}" -DomainJoinUserPrincipalName ${DomainJoinUserPrincipalName} -HostPoolName ${HostPoolName} -ResourceNameSuffix ${ResourceNameSuffix} -SecurityPrincipalName "${SecurityPrincipalName}"'
     }
   }
   dependsOn: [

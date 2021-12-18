@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.4.1008.15138",
-      "templateHash": "13833029196608328175"
+      "templateHash": "9747389195087138296"
     }
   },
   "parameters": {
@@ -2146,7 +2146,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.4.1008.15138",
-              "templateHash": "15244910973527517562"
+              "templateHash": "8421699269262773474"
             }
           },
           "parameters": {
@@ -2330,7 +2330,7 @@
                   "timestamp": "[parameters('Timestamp')]"
                 },
                 "protectedSettings": {
-                  "commandToExecute": "[format('powershell -ExecutionPolicy Unrestricted -File Set-NetAppNtfsPermissions.ps1 -DomainJoinPassword {0} -DomainJoinUserPrincipalName {1} -HostPoolName {2} -ResourceNameSuffix {3} -SecurityPrincipalName \"{4}\"', parameters('DomainJoinPassword'), parameters('DomainJoinUserPrincipalName'), parameters('HostPoolName'), parameters('ResourceNameSuffix'), parameters('SecurityPrincipalName'))]"
+                  "commandToExecute": "[format('powershell -ExecutionPolicy Unrestricted -File Set-NetAppNtfsPermissions.ps1 -DomainJoinPassword \"{0}\" -DomainJoinUserPrincipalName {1} -HostPoolName {2} -ResourceNameSuffix {3} -SecurityPrincipalName \"{4}\"', parameters('DomainJoinPassword'), parameters('DomainJoinUserPrincipalName'), parameters('HostPoolName'), parameters('ResourceNameSuffix'), parameters('SecurityPrincipalName'))]"
                 }
               },
               "dependsOn": [

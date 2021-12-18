@@ -438,6 +438,7 @@ module fslogixNetApp 'modules/fslogixNetApp.bicep' = if(FSLogix && StorageSoluti
   dependsOn: [
     hostPool
     managedIdentity
+    fslogixMgmtVm
   ]
 }
 
@@ -464,6 +465,7 @@ module fslogixStorageAccount 'modules/fslogixStorageAccount.bicep' = if(FSLogix 
   dependsOn: [
     hostPool
     managedIdentity
+    fslogixMgmtVm
   ]
 }
 

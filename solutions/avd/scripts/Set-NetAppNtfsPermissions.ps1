@@ -7,22 +7,13 @@ param
     [String]$DomainJoinUserPrincipalName,
 
     [Parameter(Mandatory)]
-    [String]$DomainServices,
-
-    [Parameter(Mandatory)]
-    [String]$Environment,
-
-    [Parameter(Mandatory)]
     [String]$HostPoolName,
 
     [Parameter(Mandatory)]
-    [String]$SecurityPrincipalName,
+    [String]$ResourceNameSuffix,
 
     [Parameter(Mandatory)]
-    [String]$SubscriptionId,
-
-    [Parameter(Mandatory)]
-    [String]$TenantId
+    [String]$SecurityPrincipalName
 )
 
 function Write-Log
@@ -47,15 +38,22 @@ function Write-Log
 $ErrorActionPreference = 'Stop'
 
 try 
-{    
+{
+    # Install Active Directory PowerShell module
+    Install-WindowsFeature -Name 'RSAT-AD-PowerShell'
+    Write-Log -Message "Installation of the AD module succeeded" -Type 'INFO'
 
+    # Create credential for getting Active Directory information
+    $Username = $DomainJoinUserPrincipalName
+    $Password = ConvertTo-SecureString -String $DomainJoinPassword -AsPlainText -Force
+    [pscredential]$Credential = New-Object System.Management.Automation.PSCredential ($Username, $Password)
+
+    $SmbServerName = (Get-ADComputer -Filter "Name -like '$ResourceNameSuffix*'" -Credential $Credential).Name
+    $Domain = (DomainJoinUserPrincipalName -split '@')[1]
 
     # Set the variables required to mount the Azure file share
-    $FileShare = '\\' + $StorageAccountName + $Suffix + '\' + $HostPoolName
+    $FileShare = '\\' + $SmbServerName + '.' + $Domain + '\' + $HostPoolName
     $Group = $Netbios + '\' + $SecurityPrincipalName
-    $Username = 'Azure\' + $StorageAccountName
-    $Password = ConvertTo-SecureString -String $StorageKey -AsPlainText -Force
-    [pscredential]$Credential = New-Object System.Management.Automation.PSCredential ($Username, $Password)
 
     # Mount file share
     New-PSDrive -Name 'Z' -PSProvider 'FileSystem' -Root $FileShare -Credential $Credential -Persist

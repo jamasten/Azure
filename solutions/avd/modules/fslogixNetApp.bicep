@@ -2,7 +2,6 @@
 param DomainJoinPassword string
 param DomainJoinUserPrincipalName string
 param DomainName string
-param DomainServices string
 param HostPoolName string
 param Location string
 param ManagedIdentityName string
@@ -13,7 +12,7 @@ param ResourceNameSuffix string
 param SecurityPrincipalName string
 param StorageSolution string
 param StorageSku string
-param Tags object = {}
+param Tags object
 param Timestamp string
 param VirtualNetwork string
 param VirtualNetworkResourceGroup string
@@ -166,7 +165,7 @@ resource customScriptExtension 'Microsoft.Compute/virtualMachines/extensions@202
       timestamp: Timestamp
     }
     protectedSettings: {
-      commandToExecute: 'powershell -ExecutionPolicy Unrestricted -File Set-NetAppNtfsPermissions.ps1 -DomainJoinPassword ${DomainJoinPassword} -DomainJoinUserPrincipalName ${DomainJoinUserPrincipalName} -DomainServices ${DomainServices} -Environment ${environment().name} -HostPoolName ${HostPoolName} -SecurityPrincipalName "${SecurityPrincipalName}" -SubscriptionId ${subscription().subscriptionId} -TenantId ${subscription().tenantId}'
+      commandToExecute: 'powershell -ExecutionPolicy Unrestricted -File Set-NetAppNtfsPermissions.ps1 -DomainJoinPassword ${DomainJoinPassword} -DomainJoinUserPrincipalName ${DomainJoinUserPrincipalName} -HostPoolName ${HostPoolName} -ResourceNameSuffix ${ResourceNameSuffix} -SecurityPrincipalName "${SecurityPrincipalName}"'
     }
   }
   dependsOn: [

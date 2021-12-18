@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.4.1008.15138",
-      "templateHash": "16158203558723065013"
+      "templateHash": "15194225652180226012"
     }
   },
   "parameters": {
@@ -2093,9 +2093,6 @@
           "DomainName": {
             "value": "[parameters('DomainName')]"
           },
-          "DomainServices": {
-            "value": "[parameters('DomainServices')]"
-          },
           "HostPoolName": {
             "value": "[variables('HostPoolName')]"
           },
@@ -2149,7 +2146,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.4.1008.15138",
-              "templateHash": "8209038200220011091"
+              "templateHash": "15244910973527517562"
             }
           },
           "parameters": {
@@ -2160,9 +2157,6 @@
               "type": "string"
             },
             "DomainName": {
-              "type": "string"
-            },
-            "DomainServices": {
               "type": "string"
             },
             "HostPoolName": {
@@ -2196,8 +2190,7 @@
               "type": "string"
             },
             "Tags": {
-              "type": "object",
-              "defaultValue": {}
+              "type": "object"
             },
             "Timestamp": {
               "type": "string"
@@ -2337,7 +2330,7 @@
                   "timestamp": "[parameters('Timestamp')]"
                 },
                 "protectedSettings": {
-                  "commandToExecute": "[format('powershell -ExecutionPolicy Unrestricted -File Set-NetAppNtfsPermissions.ps1 -DomainJoinPassword {0} -DomainJoinUserPrincipalName {1} -DomainServices {2} -Environment {3} -HostPoolName {4} -SecurityPrincipalName \"{5}\" -SubscriptionId {6} -TenantId {7}', parameters('DomainJoinPassword'), parameters('DomainJoinUserPrincipalName'), parameters('DomainServices'), environment().name, parameters('HostPoolName'), parameters('SecurityPrincipalName'), subscription().subscriptionId, subscription().tenantId)]"
+                  "commandToExecute": "[format('powershell -ExecutionPolicy Unrestricted -File Set-NetAppNtfsPermissions.ps1 -DomainJoinPassword {0} -DomainJoinUserPrincipalName {1} -HostPoolName {2} -ResourceNameSuffix {3} -SecurityPrincipalName \"{4}\"', parameters('DomainJoinPassword'), parameters('DomainJoinUserPrincipalName'), parameters('HostPoolName'), parameters('ResourceNameSuffix'), parameters('SecurityPrincipalName'))]"
                 }
               },
               "dependsOn": [

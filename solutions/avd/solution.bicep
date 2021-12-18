@@ -418,7 +418,6 @@ module fslogixNetApp 'modules/fslogixNetApp.bicep' = if(FSLogix && StorageSoluti
     DomainJoinPassword: DomainJoinPassword
     DomainJoinUserPrincipalName: DomainJoinUserPrincipalName
     DomainName: DomainName
-    DomainServices: DomainServices
     HostPoolName: HostPoolName
     Location: Location
     ManagedIdentityName: ManagedIdentityName

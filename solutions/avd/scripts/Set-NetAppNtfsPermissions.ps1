@@ -49,7 +49,7 @@ try
     [pscredential]$Credential = New-Object System.Management.Automation.PSCredential ($Username, $Password)
 
     $SmbServerName = (Get-ADComputer -Filter "Name -like '$ResourceNameSuffix*'" -Credential $Credential).Name
-    $Domain = (DomainJoinUserPrincipalName -split '@')[1]
+    $Domain = ($DomainJoinUserPrincipalName -split '@')[1]
 
     # Set the variables required to mount the Azure file share
     $FileShare = '\\' + $SmbServerName + '.' + $Domain + '\' + $HostPoolName
@@ -61,6 +61,8 @@ try
 
     # Set recommended NTFS permissions on the file share
     $ACL = Get-Acl -Path 'Z:'
+    $Everyone = New-Object System.Security.Principal.Ntaccount ("Everyone")
+    $ACL.PurgeAccessRules($Everyone)
     $CreatorOwner = New-Object System.Security.Principal.Ntaccount ("Creator Owner")
     $ACL.PurgeAccessRules($CreatorOwner)
     $AuthenticatedUsers = New-Object System.Security.Principal.Ntaccount ("Authenticated Users")

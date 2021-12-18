@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.4.1008.15138",
-      "templateHash": "16688335409525862357"
+      "templateHash": "10331093203081728075"
     }
   },
   "parameters": {
@@ -2114,6 +2114,9 @@
           "OuPath": {
             "value": "[parameters('OuPath')]"
           },
+          "ResourceNameSuffix": {
+            "value": "[parameters('ResourceNameSuffix')]"
+          },
           "SecurityPrincipalName": {
             "value": "[parameters('SecurityPrincipalName')]"
           },
@@ -2146,7 +2149,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.4.1008.15138",
-              "templateHash": "10924879394525672496"
+              "templateHash": "8209038200220011091"
             }
           },
           "parameters": {
@@ -2178,6 +2181,9 @@
               "type": "string"
             },
             "OuPath": {
+              "type": "string"
+            },
+            "ResourceNameSuffix": {
               "type": "string"
             },
             "SecurityPrincipalName": {
@@ -2249,7 +2255,7 @@
                     "dns": "[reference('VnetInfo').outputs.dnsServers]",
                     "organizationalUnit": "[parameters('OuPath')]",
                     "password": "[parameters('DomainJoinPassword')]",
-                    "smbServerName": "[parameters('NetAppAccountName')]",
+                    "smbServerName": "[parameters('ResourceNameSuffix')]",
                     "username": "[split(parameters('DomainJoinUserPrincipalName'), '@')[0]]"
                   }
                 ],

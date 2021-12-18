@@ -9,6 +9,7 @@ param ManagedIdentityName string
 param NetAppAccountName string
 param NetAppCapacityPoolName string
 param OuPath string
+param ResourceNameSuffix string
 param SecurityPrincipalName string
 param StorageSolution string
 param StorageSku string
@@ -53,7 +54,7 @@ resource netApp_Account 'Microsoft.NetApp/netAppAccounts@2021-06-01' = if(Storag
         dns: reference(vnetInfo.name).outputs.dnsServers
         organizationalUnit: OuPath
         password: DomainJoinPassword
-        smbServerName: NetAppAccountName
+        smbServerName: ResourceNameSuffix
         username: split(DomainJoinUserPrincipalName, '@')[0]
       }
     ]

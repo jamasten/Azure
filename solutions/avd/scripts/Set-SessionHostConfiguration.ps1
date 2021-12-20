@@ -58,7 +58,11 @@ Param(
 
     [parameter(Mandatory)]
     [string]
-    $StorageAccountName
+    $StorageAccountName,
+
+    [parameter(Mandatory)]
+    [string]
+    $StorageSolution    
 )
 
 
@@ -117,11 +121,13 @@ Write-Log -Message "FSLogix: $FSLogix" -Type 'INFO'
 Write-Log -Message "HostPoolName: $HostPoolName" -Type 'INFO'
 Write-Log -Message "ImageOffer: $ImageOffer" -Type 'INFO'
 Write-Log -Message "ImagePublisher: $ImagePublisher" -Type 'INFO'
+Write-Log -Message "NetAppFileShare: $NetAppFileShare" -Type 'INFO'
 Write-Log -Message "NvidiaVmSize: $NvidiaVmSize" -Type 'INFO'
 Write-Log -Message "PooledHostPool: $PooledHostPool" -Type 'INFO'
 Write-Log -Message "RdpShortPath: $RdpShortPath" -Type 'INFO'
 Write-Log -Message "ScreenCaptureProtection: $ScreenCaptureProtection" -Type 'INFO'
 Write-Log -Message "StorageAccountName: $StorageAccountName" -Type 'INFO'
+Write-Log -Message "StorageSolution: $StorageSolution" -Type 'INFO'
 
 
 ##############################################################
@@ -228,13 +234,10 @@ if($PooledHostPool -eq 'true' -and $FSLogix -ne 'None')
         AzureUSGovernment {'.file.core.usgovcloudapi.net'}
     }
 
-    if($FSLogix -like "AzureStorageAccount*")
+    switch($StorageSolution)
     {
-        $FileShare = '\\' + $StorageAccountName + $Suffix + '\' + $HostPoolName
-    }
-    elseif($FSLogix -like "AzureNetAppFiles*")
-    {
-        $FileShare = '\\' +$NetAppFileShare + '\' + $HostPoolName
+        'AzureStorageAccount' {$FileShare = '\\' + $StorageAccountName + $Suffix + '\' + $HostPoolName}
+        'AzureNetAppFiles' {$FileShare = '\\' + $NetAppFileShare + '\' + $HostPoolName}
     }
     Write-Log -Message "File Share: $FileShare" -Type 'INFO'
 

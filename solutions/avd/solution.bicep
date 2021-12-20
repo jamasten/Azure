@@ -455,6 +455,7 @@ module sessionHosts 'modules/sessionHosts.bicep' = {
     SessionHostCount: SessionHostCount
     SessionHostIndex: SessionHostIndex
     StorageAccountName: StorageAccountName
+    StorageSolution: StorageSolution
     Subnet: Subnet
     Tags: Tags
     Timestamp: TimeStamp

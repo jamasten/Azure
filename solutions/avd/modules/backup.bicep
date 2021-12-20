@@ -81,7 +81,6 @@ resource protectionContainers 'Microsoft.RecoveryServices/vaults/backupFabrics/p
     sourceResourceId: resourceId('Microsoft.Storage/storageAccounts', StorageAccountName)
   }
   dependsOn: [
-    vault
     backupPolicy_Storage
   ]
 }

@@ -57,6 +57,10 @@ var NvidiaVmSizes = [
   'Standard_NV12s_v3'
   'Standard_NV24s_v3'
   'Standard_NV48s_v3'
+  'Standard_NC4as_T4_v3'
+  'Standard_NC8as_T4_v3'
+  'Standard_NC16as_T4_v3'
+  'Standard_NC64as_T4_v3'
 ]
 var NvidiaVmSize = contains(NvidiaVmSizes, VmSize)
 var PooledHostPool = (split(HostPoolType, ' ')[0] == 'Pooled')

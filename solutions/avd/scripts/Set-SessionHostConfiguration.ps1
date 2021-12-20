@@ -10,6 +10,10 @@ Param(
 
     [parameter(Mandatory)]
     [string]
+    $DomainName,    
+
+    [parameter(Mandatory)]
+    [string]
     $Environment,
 
     [parameter(Mandatory)]
@@ -31,6 +35,10 @@ Param(
     [parameter(Mandatory)]
     [string]
     $ImagePublisher,
+
+    [parameter(Mandatory)]
+    [string]
+    $NetAppFileShare,
 
     [parameter(Mandatory)]
     [string]
@@ -212,14 +220,22 @@ if($ScreenCaptureProtection -eq 'true')
 ##############################################################
 #  Add FSLogix Configurations
 ##############################################################
-if($PooledHostPool -eq 'true' -and $FSLogix -eq 'true')
+if($PooledHostPool -eq 'true' -and $FSLogix -ne 'None')
 {
     $Suffix = switch($Environment)
     {
         AzureCloud {'.file.core.windows.net'}
         AzureUSGovernment {'.file.core.usgovcloudapi.net'}
     }
-    $FileShare = '\\' + $StorageAccountName + $Suffix + '\' + $HostPoolName
+
+    if($FSLogix -like "AzureStorageAccount*")
+    {
+        $FileShare = '\\' + $StorageAccountName + $Suffix + '\' + $HostPoolName
+    }
+    elseif($FSLogix -like "AzureNetAppFiles*")
+    {
+        $FileShare = $NetAppFileShare
+    }
     Write-Log -Message "File Share: $FileShare" -Type 'INFO'
 
     $Settings += @(

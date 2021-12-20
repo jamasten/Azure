@@ -333,49 +333,6 @@ module hostPool 'modules/hostPool.bicep' = {
   } 
 }
 
-module sessionHosts 'modules/sessionHosts.bicep' = {
-  name: 'sessionHosts_${TimeStamp}'
-  scope: resourceGroup(ResourceGroups[1])
-  params: {
-    DiskSku: DiskSku
-    DodStigCompliance: DodStigCompliance
-    DomainJoinPassword: DomainJoinPassword
-    DomainJoinUserPrincipalName: DomainJoinUserPrincipalName
-    DomainName: DomainName
-    EphemeralOsDisk: EphemeralOsDisk
-    FSLogix: FSLogix
-    HostPoolName: HostPoolName
-    HostPoolResourceGroupName: rgInfra.name
-    HostPoolType: HostPoolType
-    ImageOffer: ImageOffer
-    ImagePublisher: ImagePublisher
-    ImageSku: ImageSku
-    ImageVersion: ImageVersion
-    Location: Location
-    LogAnalyticsWorkspaceName: LogAnalyticsWorkspaceName
-    NetworkSecurityGroupName: NetworkSecurityGroupName
-    OuPath: OuPath
-    RdpShortPath: RdpShortPath
-    ResourceNameSuffix: ResourceNameSuffix
-    ScreenCaptureProtection: ScreenCaptureProtection
-    SessionHostCount: SessionHostCount
-    SessionHostIndex: SessionHostIndex
-    StorageAccountName: StorageAccountName
-    Subnet: Subnet
-    Tags: Tags
-    Timestamp: TimeStamp
-    VirtualNetwork: VirtualNetwork
-    VirtualNetworkResourceGroup: VirtualNetworkResourceGroup
-    VmName: VmName
-    VmPassword: VmPassword
-    VmSize: VmSize
-    VmUsername: VmUsername
-  }
-  dependsOn: [
-    hostPool
-  ]
-}
-
 module managedIdentity './modules/managedIdentity.bicep' = if(StorageSolution == 'AzureNetAppFiles') {
   name: 'ManagedIdentityTemplate'
   scope: resourceGroup(VirtualNetworkResourceGroup)
@@ -465,6 +422,50 @@ module fslogixStorageAccount 'modules/fslogixStorageAccount.bicep' = if(FSLogix 
     hostPool
     managedIdentity
     fslogixMgmtVm
+  ]
+}
+
+module sessionHosts 'modules/sessionHosts.bicep' = {
+  name: 'sessionHosts_${TimeStamp}'
+  scope: resourceGroup(ResourceGroups[1])
+  params: {
+    DiskSku: DiskSku
+    DodStigCompliance: DodStigCompliance
+    DomainJoinPassword: DomainJoinPassword
+    DomainJoinUserPrincipalName: DomainJoinUserPrincipalName
+    DomainName: DomainName
+    EphemeralOsDisk: EphemeralOsDisk
+    FSLogix: FSLogix
+    HostPoolName: HostPoolName
+    HostPoolResourceGroupName: rgInfra.name
+    HostPoolType: HostPoolType
+    ImageOffer: ImageOffer
+    ImagePublisher: ImagePublisher
+    ImageSku: ImageSku
+    ImageVersion: ImageVersion
+    Location: Location
+    LogAnalyticsWorkspaceName: LogAnalyticsWorkspaceName
+    NetworkSecurityGroupName: NetworkSecurityGroupName
+    NetAppFileShare: StorageSolution == 'AzureNetAppFiles' ? fslogixNetApp.outputs.fileshare : 'None'
+    OuPath: OuPath
+    RdpShortPath: RdpShortPath
+    ResourceNameSuffix: ResourceNameSuffix
+    ScreenCaptureProtection: ScreenCaptureProtection
+    SessionHostCount: SessionHostCount
+    SessionHostIndex: SessionHostIndex
+    StorageAccountName: StorageAccountName
+    Subnet: Subnet
+    Tags: Tags
+    Timestamp: TimeStamp
+    VirtualNetwork: VirtualNetwork
+    VirtualNetworkResourceGroup: VirtualNetworkResourceGroup
+    VmName: VmName
+    VmPassword: VmPassword
+    VmSize: VmSize
+    VmUsername: VmUsername
+  }
+  dependsOn: [
+    hostPool
   ]
 }
 

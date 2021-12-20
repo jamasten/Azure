@@ -1,5 +1,8 @@
 targetScope = 'subscription'
 
+@description('Enable accelerated networking if the selected VM SKU supports it.')
+param AcceleratedNetworking bool = false
+
 @description('The Object ID for the Windows Virtual Desktop Enterprise Application in Azure AD.  The Object ID can found by selecting Microsoft Applications using the Application type filter in the Enterprise Applications blade of Azure AD.')
 param AvdObjectId string = 'cdcfb416-e2fe-41e2-be12-33813c1cd427'
 
@@ -430,6 +433,7 @@ module sessionHosts 'modules/sessionHosts.bicep' = {
   name: 'sessionHosts_${TimeStamp}'
   scope: resourceGroup(ResourceGroups[1])
   params: {
+    AcceleratedNetworking: AcceleratedNetworking
     DiskSku: DiskSku
     DodStigCompliance: DodStigCompliance
     DomainJoinPassword: DomainJoinPassword

@@ -1,3 +1,4 @@
+param AcceleratedNetworking bool
 param DiskSku string
 param DodStigCompliance bool
 param DomainName string
@@ -134,7 +135,7 @@ resource nic 'Microsoft.Network/networkInterfaces@2020-05-01' = [for i in range(
         }
       }
     ]
-    enableAcceleratedNetworking: false
+    enableAcceleratedNetworking: AcceleratedNetworking
     enableIPForwarding: false
     networkSecurityGroup: RdpShortPath ? json(concat('{"id": "', nsg.id, '"}')) : null 
   }

@@ -234,7 +234,7 @@ if($PooledHostPool -eq 'true' -and $FSLogix -ne 'None')
     }
     elseif($FSLogix -like "AzureNetAppFiles*")
     {
-        $FileShare = $NetAppFileShare
+        $FileShare = '\\' +$NetAppFileShare + '\' + $HostPoolName
     }
     Write-Log -Message "File Share: $FileShare" -Type 'INFO'
 

@@ -27,7 +27,7 @@ resource storageAccount 'Microsoft.Storage/storageAccounts@2021-02-01' = {
   location: Location
   tags: Tags
   sku: {
-    name: StorageSku
+    name: '${StorageSku}_LRS'
   }
   kind: StorageSku == 'Standard' ? 'StorageV2' : 'FileStorage'
   properties: {
@@ -51,6 +51,7 @@ resource storageAccount 'Microsoft.Storage/storageAccounts@2021-02-01' = {
     azureFilesIdentityBasedAuthentication: {
       directoryServiceOptions: DomainServices == 'AzureActiveDirectory' ? 'AADDS' : 'None'
     }
+    largeFileSharesState: StorageSku == 'Standard' ? 'Enabled' : 'Disabled'
   }
 }
 

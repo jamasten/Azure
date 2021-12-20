@@ -1,5 +1,8 @@
 targetScope = 'subscription'
 
+@description('The Object ID for the Windows Virtual Desktop Enterprise Application in Azure AD.  The Object ID can found by selecting Microsoft Applications using the Application type filter in the Enterprise Applications blade of Azure AD.')
+param AvdObjectId string = 'cdcfb416-e2fe-41e2-be12-33813c1cd427'
+
 @description('Input RDP properties to add or remove RDP functionality on the AVD host pool. Settings reference: https://docs.microsoft.com/en-us/windows-server/remote/remote-desktop-services/clients/rdp-files?context=/azure/virtual-desktop/context/context')
 param CustomRdpProperty string = 'audiocapturemode:i:1;camerastoredirect:s:*;use multimon:i:0;drivestoredirect:s:;'
 
@@ -179,8 +182,6 @@ param VmSize string = 'Standard_B2s'
 @description('The Local Administrator Username for the Session Hosts')
 param VmUsername string
 
-@description('The Object ID for the Windows Virtual Desktop Enterprise Application in Azure AD.  The Object ID can found by selecting Microsoft Applications using the Application type filter in the Enterprise Applications blade of Azure AD.')
-param AvdObjectId string = 'cdcfb416-e2fe-41e2-be12-33813c1cd427'
 
 var AppGroupName = 'dag-${ResourceNameSuffix}'
 var AutomationAccountName = 'aa-${ResourceNameSuffix}'

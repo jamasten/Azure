@@ -63,8 +63,8 @@ var Runbook = 'WVDAutoScaleRunbookARMBased'
 var Variable = 'WebhookURIARMBased'
 var Webhook = 'WVDAutoScaleWebhookARMBased_${dateTimeAdd(Timestamp, 'PT0H', 'yyyyMMddhhmmss')}'
 
-resource automationAccount 'Microsoft.Automation/automationAccounts@2020-01-13-preview' = {
-  name: AutomationAccountName
+resource automationAccount 'Microsoft.Automation/automationAccounts@2021-06-22' = {
+  name: '${AutomationAccountName}-scale'
   location: Location
   identity: {
     type: 'SystemAssigned'
@@ -77,8 +77,9 @@ resource automationAccount 'Microsoft.Automation/automationAccounts@2020-01-13-p
 }
 
 @batchSize(1)
-resource modules 'Microsoft.Automation/automationAccounts/modules@2020-01-13-preview' = [for item in Modules: {
-  name: '${automationAccount.name}/${item.name}'
+resource modules 'Microsoft.Automation/automationAccounts/modules@2019-06-01' = [for item in Modules: {
+  parent: automationAccount
+  name: item.name
   location: Location
   properties: {
     contentLink: {

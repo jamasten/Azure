@@ -70,12 +70,9 @@ var Modules = [
   }
 ]
 
-resource automationAccount 'Microsoft.Automation/automationAccounts@2020-01-13-preview' = {
-  name: AutomationAccountName
+resource automationAccount 'Microsoft.Automation/automationAccounts@2019-06-01' = {
+  name: '${AutomationAccountName}-stig'
   location: Location
-  identity: {
-    type: 'SystemAssigned'
-  }
   properties: {
     sku: {
       name: 'Free'
@@ -84,8 +81,9 @@ resource automationAccount 'Microsoft.Automation/automationAccounts@2020-01-13-p
 }
 
 @batchSize(1)
-resource modules 'Microsoft.Automation/automationAccounts/modules@2015-10-31' = [for item in Modules: {
-  name: '${automationAccount.name}/${item.name}'
+resource modules 'Microsoft.Automation/automationAccounts/modules@2019-06-01' = [for item in Modules: {
+  parent: automationAccount
+  name: item.name
   location: Location
   properties: {
     contentLink: {
@@ -94,7 +92,7 @@ resource modules 'Microsoft.Automation/automationAccounts/modules@2015-10-31' = 
   }
 }]
 
-resource configuration 'Microsoft.Automation/automationAccounts/configurations@2015-10-31' = {
+resource configuration 'Microsoft.Automation/automationAccounts/configurations@2019-06-01' = {
   parent: automationAccount
   name: ConfigurationName
   location: Location
@@ -112,7 +110,7 @@ resource configuration 'Microsoft.Automation/automationAccounts/configurations@2
   ]
 }
 
-resource compilationJob 'Microsoft.Automation/automationAccounts/compilationjobs@2020-01-13-preview' = {
+resource compilationJob 'Microsoft.Automation/automationAccounts/compilationjobs@2019-06-01' = {
   parent: automationAccount
   name: guid(deployment().name)
   location: Location

@@ -98,7 +98,6 @@ resource storageAccount_FileShare 'Microsoft.Storage/storageAccounts/fileService
     enabledProtocols: 'SMB'
   }
   dependsOn: [
-    storageAccount
     roleAssignment
   ]
 }

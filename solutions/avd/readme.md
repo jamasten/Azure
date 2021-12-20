@@ -31,11 +31,10 @@ This solution will deploy Azure Virtual Desktop in an Azure subscription.  Depen
 This solution contains many features that are usually enabled manually after deploying an AVD host pool.  Those features are:
 
 - FSLogix (Pooled host pools only): deploys the required resources to enable the feature:
-  - Azure Storage Account
-  - Azure File Share
+  - Azure Storage Account or Azure NetApp Files with a fully configured file share
   - Management Virtual Machine with Custom Script Extension to:
-    - Domain join the Storage Account
-    - Sets the Share and NTFS permissions
+    - Domain joins the Storage Account or creates the AD connection on the Azure NetApp Account
+    - Sets the required permissions for access to the file share
   - Custom Script Extension on Session Hosts to enable FSLogix using registry settings
 - Scaling Automation (Pooled host pools only): deploys the required resources to enable the feature:
   - Automation Account with a Managed Identity
@@ -53,7 +52,7 @@ This solution contains many features that are usually enabled manually after dep
   - Log Analytics Workspace with the required Windows Events and Performance Counters.
   - Microsoft Monitoring Agent on the session hosts.
   - Diagnostic settings on the AVD host pool and workspace.
-- Graphics Drivers & Settings: deploys the extension to install the graphics driver and creates the recommended registry settings when an appropriate VM size (Nv, Nvv3, & Nvv4 series) is selected.
+- Graphics Drivers & Settings: deploys the extension to install the graphics driver and creates the recommended registry settings when an appropriate VM size (Nv, Nvv3, Nvv4, or NCasT4_v3 series) is selected.
 - BitLocker Encryption: deploys the required resources & configuration to enable BitLocker encryption on the session hosts:
   - Key Vault with a Key Encryption Key
   - VM Extension to enable the feature on the virtual machines.
@@ -64,6 +63,7 @@ This solution contains many features that are usually enabled manually after dep
   - Protected Item
 - Screen Capture Protection: deploys the required registry setting on the AVD session hosts to enable the feature.
 - Drain Mode: when enabled, the sessions hosts will be deployed in drain mode to ensure end users cannot access the host pool until operations is ready to allow connections.
+- RDP ShortPath: deploys the requirements to enable RDP ShortPath for AVD.
 
 ## Assumptions
 

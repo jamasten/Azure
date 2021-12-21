@@ -46,13 +46,12 @@ param DrainMode bool = false
 param EphemeralOsDisk bool = false
 
 @allowed([
-  'None'
-  'AzureStorageAccount Standard'
-  'AzureStorageAccount Standard XL'
-  'AzureStorageAccount Premium'
-  'AzureNetAppFiles Standard'
   'AzureNetAppFiles Premium'
+  'AzureNetAppFiles Standard'
   'AzureNetAppFiles Ultra'
+  'AzureStorageAccount Premium'
+  'AzureStorageAccount Standard'
+  'None'
 ])
 @description('Enable an FSLogix storage option to manage user profiles for the AVD session hosts. The selected service & SKU should provide sufficient IOPS for all of your users. https://docs.microsoft.com/en-us/azure/architecture/example-scenario/wvd/windows-virtual-desktop-fslogix#performance-requirements')
 param FSLogixStorage string = 'AzureStorageAccount Standard'

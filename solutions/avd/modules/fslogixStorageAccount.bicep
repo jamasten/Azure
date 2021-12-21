@@ -94,7 +94,7 @@ resource storageAccount_FileShare 'Microsoft.Storage/storageAccounts/fileService
   parent: storageAccount_FileServices
   name: toLower(HostPoolName)
   properties: {
-    accessTier: StorageSku == 'Premium_LRS' ? 'Premium' : 'TransactionOptimized'
+    accessTier: StorageSku == 'Premium' ? 'Premium' : 'TransactionOptimized'
     shareQuota: 100
     enabledProtocols: 'SMB'
   }

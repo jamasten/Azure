@@ -135,7 +135,7 @@ resource netApp_Volume 'Microsoft.NetApp/netAppAccounts/capacityPools/volumes@20
        'CIFS' 
     ]
     securityStyle: 'ntfs'
-    serviceLevel: 'Standard'
+    serviceLevel: StorageSku
     // Enable when GA 
     //smbContinuouslyAvailable: true // recommended for FSLogix: https://docs.microsoft.com/en-us/azure/azure-netapp-files/enable-continuous-availability-existing-smb
     smbEncryption: true

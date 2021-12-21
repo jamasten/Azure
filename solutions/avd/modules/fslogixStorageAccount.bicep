@@ -27,7 +27,7 @@ resource storageAccount 'Microsoft.Storage/storageAccounts@2021-02-01' = {
   location: Location
   tags: Tags
   sku: {
-    name: '${StorageSku}_LRS'
+    name: StorageSku == 'Standard' ? 'Standard_LRS' : 'Premium_LRS'
   }
   kind: StorageSku == 'Standard' ? 'StorageV2' : 'FileStorage'
   properties: {

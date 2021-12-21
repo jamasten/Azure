@@ -51,7 +51,7 @@ resource storageAccount 'Microsoft.Storage/storageAccounts@2021-02-01' = {
     azureFilesIdentityBasedAuthentication: {
       directoryServiceOptions: DomainServices == 'AzureActiveDirectory' ? 'AADDS' : 'None'
     }
-    largeFileSharesState: StorageSku == 'Standard' ? 'Enabled' : 'Disabled'
+    largeFileSharesState: StorageSku == 'Standard' ? 'Enabled' : null
   }
 }
 

@@ -226,7 +226,7 @@ if($ScreenCaptureProtection -eq 'true')
 ##############################################################
 #  Add FSLogix Configurations
 ##############################################################
-if($PooledHostPool -eq 'true' -and $FSLogix -ne 'None')
+if($PooledHostPool -eq 'true' -and $StorageSolution -ne 'None')
 {
     $Suffix = switch($Environment)
     {

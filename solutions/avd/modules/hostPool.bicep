@@ -583,4 +583,4 @@ resource managedIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2018-
   location: Location
 }
 
-output managedIdentityId string = managedIdentity.id
+output managedIdentityId string = managedIdentity.properties.principalId

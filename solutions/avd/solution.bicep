@@ -200,12 +200,14 @@ var Netbios = split(DomainName, '.')[0]
 var NetworkContributorId = '4d97b98b-1d4f-4787-a291-c67834d212e7'
 var NetworkSecurityGroupName = 'nsg-${ResourceNameSuffix}'
 var PooledHostPool = split(HostPoolType, ' ')[0] == 'Pooled' ? true : false
+var ReaderId = 'acdd72a7-3385-48ef-bd42-f606fba81ae7'
 var RecoveryServicesVaultName = 'rsv-${ResourceNameSuffix}'
 var ResourceGroups = [
     'rg-${ResourceNameSuffix}-infra'
     'rg-${ResourceNameSuffix}-hosts'
 ]
-var RoleAssignmentName = guid(subscription().id, 'WindowsVirtualDesktop')
+var RoleAssignmentName_StartVmOnConnect = guid(subscription().id, 'StartVmOnConnect')
+var RoleAssignmentName_AzureNetAppFiles = guid(subscription().id, 'AzureNetAppFiles')
 var RoleDefinitionName = guid(subscription().id, 'StartVmOnConnect')
 var StorageAccountName = 'stor${toLower(substring(uniqueString(subscription().id, ResourceGroups[0]), 0, 11))}'
 var StorageSolution = split(FSLogixStorage, ' ')[0]
@@ -305,8 +307,8 @@ resource customRole 'Microsoft.Authorization/roleDefinitions@2018-01-01-preview'
   }
 }
 
-resource roleAssignment 'Microsoft.Authorization/roleAssignments@2018-01-01-preview' = if(StartVmOnConnect) {
-  name: RoleAssignmentName
+resource roleAssignment_svoc 'Microsoft.Authorization/roleAssignments@2018-01-01-preview' = if(StartVmOnConnect) {
+  name: RoleAssignmentName_StartVmOnConnect
   properties: {
     roleDefinitionId: customRole.id
     principalId: AvdObjectId
@@ -345,6 +347,14 @@ module managedIdentity './modules/managedIdentity.bicep' = if(StorageSolution ==
   }
 }
 
+resource roleAssignment_anf 'Microsoft.Authorization/roleAssignments@2018-01-01-preview' = if(StorageSolution == '') {
+  name: RoleAssignmentName_AzureNetAppFiles
+  properties: {
+    roleDefinitionId: ReaderId
+    principalId: hostPool.outputs.managedIdentityId
+  }
+}
+
 
 module fslogixMgmtVm 'modules/fslogixMgmtVm.bicep' = if(FSLogix) {
   name: 'fslogixMgmtVm_${TimeStamp}'
@@ -367,6 +377,7 @@ module fslogixMgmtVm 'modules/fslogixMgmtVm.bicep' = if(FSLogix) {
   dependsOn: [
     hostPool
     managedIdentity
+    roleAssignment_anf
   ]
 }
 

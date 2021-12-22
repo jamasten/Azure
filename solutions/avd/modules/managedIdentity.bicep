@@ -9,7 +9,7 @@ resource roleAssignment 'Microsoft.Authorization/roleAssignments@2020-04-01-prev
   name: RoleAssignmentName
   properties: {
     roleDefinitionId: resourceId('Microsoft.Authorization/roleDefinitions', NetworkContributorId)
-    principalId: reference(ManagedIdentityId, '2018-11-30').principalId
+    principalId: ManagedIdentityId
     principalType: 'ServicePrincipal'
   }
 }

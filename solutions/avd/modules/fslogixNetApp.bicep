@@ -20,7 +20,7 @@ param VmName string
 
 var VmNameFull = '${VmName}mgt'
 
-resource vnetInfo 'Microsoft.Resources/deploymentScripts@2020-10-01' = if(StorageSolution == 'AzureNetAppFiles') {
+resource info 'Microsoft.Resources/deploymentScripts@2020-10-01' = if(StorageSolution == 'AzureNetAppFiles') {
   name: 'VnetInfo'
   location: Location
   kind: 'AzurePowerShell'
@@ -34,7 +34,7 @@ resource vnetInfo 'Microsoft.Resources/deploymentScripts@2020-10-01' = if(Storag
     forceUpdateTag: Timestamp
     azPowerShellVersion: '5.4'
     arguments: '-ResourceGroup ${VirtualNetworkResourceGroup} -VnetName ${VirtualNetwork}'
-    scriptContent: 'param([string]$ResourceGroup, [string]$VnetName); $vnet = Get-AzVirtualNetwork -Name $VnetName -ResourceGroupName $ResourceGroup; $dnsServers = "$($vnet.DhcpOptions.DnsServers[0]),$($vnet.DhcpOptions.DnsServers[1])"; $subnetId = ($vnet.Subnets | Where-Object {$_.Delegations[0].ServiceName -eq "Microsoft.NetApp/volumes"}).Id; $DeploymentScriptOutputs = @{}; $DeploymentScriptOutputs["dnsServers"] = $dnsServers; $DeploymentScriptOutputs["subnetId"] = $subnetId;'
+    scriptContent: 'param([string]$ResourceGroup, [string]$VnetName); $vnet = Get-AzVirtualNetwork -Name $VnetName -ResourceGroupName $ResourceGroup; $dnsServers = "$($vnet.DhcpOptions.DnsServers[0]),$($vnet.DhcpOptions.DnsServers[1])"; $subnetId = ($vnet.Subnets | Where-Object {$_.Delegations[0].ServiceName -eq "Microsoft.NetApp/volumes"}).Id; Install-Module "Az.NetAppFiles";$DeployAnfAd = "true"; $Accounts = Get-AzResource -ResourceType "Microsoft.NetApp/netAppAccounts"; foreach($Account in $Accounts){$AD = Get-AzNetAppFilesActiveDirectory -ResourceGroupName $Account.ResourceGroupName -AccountName $Account.Name; if($AD.ActiveDirectoryId){$DeployAnfAd = "false"}}; $DeploymentScriptOutputs = @{}; $DeploymentScriptOutputs["dnsServers"] = $dnsServers; $DeploymentScriptOutputs["subnetId"] = $subnetId; $DeploymentScriptOutputs["anfAd"] = $DeployAnfAd;'
     timeout: 'PT4H'
     cleanupPreference: 'OnSuccess'
     retentionInterval: 'P1D'
@@ -46,11 +46,11 @@ resource netApp_Account 'Microsoft.NetApp/netAppAccounts@2021-06-01' = if(Storag
   location: Location
   tags: Tags
   properties: {
-    activeDirectories: [
+    activeDirectories: reference(info.name).outputs.anfAd == 'false' ? null : [
       {
-        aesEncryption: false // feature is in preview: https://docs.microsoft.com/en-us/azure/azure-netapp-files/create-active-directory-connections#create-an-active-directory-connection
+        aesEncryption: false
         domain: DomainName
-        dns: reference(vnetInfo.name).outputs.dnsServers
+        dns: reference(info.name).outputs.dnsServers
         organizationalUnit: OuPath
         password: DomainJoinPassword
         smbServerName: ResourceNameSuffix

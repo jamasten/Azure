@@ -20,7 +20,7 @@ param VmName string
 var VmNameFull = '${VmName}mgt'
 
 resource info 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
-  name: 'VnetInfo'
+  name: 'Info'
   location: Location
   kind: 'AzurePowerShell'
   identity: {
@@ -33,7 +33,7 @@ resource info 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
     forceUpdateTag: Timestamp
     azPowerShellVersion: '5.4'
     arguments: '-ResourceGroup ${VirtualNetworkResourceGroup} -VnetName ${VirtualNetwork}'
-    scriptContent: 'param([string]$ResourceGroup, [string]$VnetName); $vnet = Get-AzVirtualNetwork -Name $VnetName -ResourceGroupName $ResourceGroup; $dnsServers = "$($vnet.DhcpOptions.DnsServers[0]),$($vnet.DhcpOptions.DnsServers[1])"; $subnetId = ($vnet.Subnets | Where-Object {$_.Delegations[0].ServiceName -eq "Microsoft.NetApp/volumes"}).Id; Install-Module "Az.NetAppFiles";$DeployAnfAd = "true"; $Accounts = Get-AzResource -ResourceType "Microsoft.NetApp/netAppAccounts"; foreach($Account in $Accounts){$AD = Get-AzNetAppFilesActiveDirectory -ResourceGroupName $Account.ResourceGroupName -AccountName $Account.Name; if($AD.ActiveDirectoryId){$DeployAnfAd = "false"}}; $DeploymentScriptOutputs = @{}; $DeploymentScriptOutputs["dnsServers"] = $dnsServers; $DeploymentScriptOutputs["subnetId"] = $subnetId; $DeploymentScriptOutputs["anfAd"] = $DeployAnfAd;'
+    scriptContent: 'param([string]$ResourceGroup, [string]$VnetName); $vnet = Get-AzVirtualNetwork -Name $VnetName -ResourceGroupName $ResourceGroup; $dnsServers = "$($vnet.DhcpOptions.DnsServers[0]),$($vnet.DhcpOptions.DnsServers[1])"; $subnetId = ($vnet.Subnets | Where-Object {$_.Delegations[0].ServiceName -eq "Microsoft.NetApp/volumes"}).Id; Install-Module -Name "Az.NetAppFiles" -Force;$DeployAnfAd = "true"; $Accounts = Get-AzResource -ResourceType "Microsoft.NetApp/netAppAccounts"; foreach($Account in $Accounts){$AD = Get-AzNetAppFilesActiveDirectory -ResourceGroupName $Account.ResourceGroupName -AccountName $Account.Name; if($AD.ActiveDirectoryId){$DeployAnfAd = "false"}}; $DeploymentScriptOutputs = @{}; $DeploymentScriptOutputs["dnsServers"] = $dnsServers; $DeploymentScriptOutputs["subnetId"] = $subnetId; $DeploymentScriptOutputs["anfAd"] = $DeployAnfAd;'
     timeout: 'PT4H'
     cleanupPreference: 'OnSuccess'
     retentionInterval: 'P1D'

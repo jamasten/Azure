@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.4.1008.15138",
-      "templateHash": "14723104609026503239"
+      "templateHash": "8334195214147852883"
     }
   },
   "parameters": {
@@ -396,7 +396,7 @@
       "[format('rg-{0}-hosts', parameters('ResourceNameSuffix'))]"
     ],
     "RoleAssignmentName_StartVmOnConnect": "[guid(subscription().id, 'StartVmOnConnect')]",
-    "RoleAssignmentName_AzureNetAppFiles": "[guid(subscription().id, 'AzureNetAppFiles')]",
+    "RoleAssignmentName_AzureNetAppFiles": "[guid(subscription().id, 'AzureNetAppFiles', parameters('ResourceNameSuffix'))]",
     "RoleDefinitionName": "[guid(subscription().id, 'StartVmOnConnect')]",
     "StorageAccountName": "[format('stor{0}', toLower(substring(uniqueString(subscription().id, variables('ResourceGroups')[0]), 0, 11)))]",
     "StorageSolution": "[split(parameters('FSLogixStorage'), ' ')[0]]",
@@ -517,11 +517,12 @@
     {
       "condition": "[equals(variables('StorageSolution'), 'AzureNetAppFiles')]",
       "type": "Microsoft.Authorization/roleAssignments",
-      "apiVersion": "2018-01-01-preview",
+      "apiVersion": "2020-04-01-preview",
       "name": "[variables('RoleAssignmentName_AzureNetAppFiles')]",
       "properties": {
-        "roleDefinitionId": "[variables('ReaderId')]",
-        "principalId": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroups')[0]), 'Microsoft.Resources/deployments', format('hostPool_{0}', parameters('TimeStamp'))), '2020-06-01').outputs.managedIdentityId.value]"
+        "roleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', variables('ReaderId'))]",
+        "principalId": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroups')[0]), 'Microsoft.Resources/deployments', format('hostPool_{0}', parameters('TimeStamp'))), '2020-06-01').outputs.managedIdentityId.value]",
+        "principalType": "ServicePrincipal"
       },
       "dependsOn": [
         "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroups')[0]), 'Microsoft.Resources/deployments', format('hostPool_{0}', parameters('TimeStamp')))]"

@@ -207,7 +207,7 @@ var ResourceGroups = [
     'rg-${ResourceNameSuffix}-hosts'
 ]
 var RoleAssignmentName_StartVmOnConnect = guid(subscription().id, 'StartVmOnConnect')
-var RoleAssignmentName_AzureNetAppFiles = guid(subscription().id, 'AzureNetAppFiles')
+var RoleAssignmentName_AzureNetAppFiles = guid(subscription().id, 'AzureNetAppFiles', ResourceNameSuffix)
 var RoleDefinitionName = guid(subscription().id, 'StartVmOnConnect')
 var StorageAccountName = 'stor${toLower(substring(uniqueString(subscription().id, ResourceGroups[0]), 0, 11))}'
 var StorageSolution = split(FSLogixStorage, ' ')[0]
@@ -347,11 +347,12 @@ module managedIdentity './modules/managedIdentity.bicep' = if(StorageSolution ==
   }
 }
 
-resource roleAssignment_anf 'Microsoft.Authorization/roleAssignments@2018-01-01-preview' = if(StorageSolution == 'AzureNetAppFiles') {
+resource roleAssignment_anf 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = if(StorageSolution == 'AzureNetAppFiles') {
   name: RoleAssignmentName_AzureNetAppFiles
   properties: {
-    roleDefinitionId: ReaderId
+    roleDefinitionId: resourceId('Microsoft.Authorization/roleDefinitions', ReaderId)
     principalId: hostPool.outputs.managedIdentityId
+    principalType: 'ServicePrincipal'
   }
 }
 

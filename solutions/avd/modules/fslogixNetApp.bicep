@@ -10,7 +10,6 @@ param NetAppCapacityPoolName string
 param OuPath string
 param ResourceNameSuffix string
 param SecurityPrincipalName string
-param StorageSolution string
 param StorageSku string
 param Tags object
 param Timestamp string
@@ -20,7 +19,7 @@ param VmName string
 
 var VmNameFull = '${VmName}mgt'
 
-resource info 'Microsoft.Resources/deploymentScripts@2020-10-01' = if(StorageSolution == 'AzureNetAppFiles') {
+resource info 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
   name: 'VnetInfo'
   location: Location
   kind: 'AzurePowerShell'
@@ -41,7 +40,7 @@ resource info 'Microsoft.Resources/deploymentScripts@2020-10-01' = if(StorageSol
   }
 }
 
-resource netApp_Account 'Microsoft.NetApp/netAppAccounts@2021-06-01' = if(StorageSolution == 'AzureNetAppFiles') {
+resource netApp_Account 'Microsoft.NetApp/netAppAccounts@2021-06-01' = {
   name: NetAppAccountName
   location: Location
   tags: Tags
@@ -63,7 +62,7 @@ resource netApp_Account 'Microsoft.NetApp/netAppAccounts@2021-06-01' = if(Storag
   }
 }
 
-resource netApp_CapacityPool 'Microsoft.NetApp/netAppAccounts/capacityPools@2021-06-01' = if(StorageSolution == 'AzureNetAppFiles') {
+resource netApp_CapacityPool 'Microsoft.NetApp/netAppAccounts/capacityPools@2021-06-01' = {
   parent:netApp_Account
   name: NetAppCapacityPoolName
   location: Location
@@ -77,7 +76,7 @@ resource netApp_CapacityPool 'Microsoft.NetApp/netAppAccounts/capacityPools@2021
   }
 }
 
-resource netApp_Volume 'Microsoft.NetApp/netAppAccounts/capacityPools/volumes@2021-06-01' = if(StorageSolution == 'AzureNetAppFiles') {
+resource netApp_Volume 'Microsoft.NetApp/netAppAccounts/capacityPools/volumes@2021-06-01' = {
   parent: netApp_CapacityPool
   name: HostPoolName
   location: Location
@@ -141,7 +140,7 @@ resource netApp_Volume 'Microsoft.NetApp/netAppAccounts/capacityPools/volumes@20
     smbEncryption: true
     snapshotDirectoryVisible: true
     // snapshotId: 'string'
-    subnetId: reference(vnetInfo.name).outputs.subnetId
+    subnetId: reference(info.name).outputs.subnetId
     // throughputMibps: int
     // unixPermissions: 'string'
     usageThreshold: 107374182400

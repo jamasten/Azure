@@ -386,7 +386,6 @@ module fslogixNetApp 'modules/fslogixNetApp.bicep' = if(FSLogix && StorageSoluti
     OuPath: OuPath
     ResourceNameSuffix: ResourceNameSuffix
     SecurityPrincipalName: SecurityPrincipalName
-    StorageSolution: StorageSolution
     StorageSku: StorageSku
     Tags: Tags
     Timestamp: TimeStamp

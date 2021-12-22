@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.4.1008.15138",
-      "templateHash": "4203912492627205348"
+      "templateHash": "14683609962549621883"
     }
   },
   "parameters": {
@@ -1592,9 +1592,6 @@
           "SecurityPrincipalName": {
             "value": "[parameters('SecurityPrincipalName')]"
           },
-          "StorageSolution": {
-            "value": "[variables('StorageSolution')]"
-          },
           "StorageSku": {
             "value": "[variables('StorageSku')]"
           },
@@ -1621,7 +1618,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.4.1008.15138",
-              "templateHash": "15384096184957897941"
+              "templateHash": "16120463588610393181"
             }
           },
           "parameters": {
@@ -1658,9 +1655,6 @@
             "SecurityPrincipalName": {
               "type": "string"
             },
-            "StorageSolution": {
-              "type": "string"
-            },
             "StorageSku": {
               "type": "string"
             },
@@ -1686,7 +1680,6 @@
           },
           "resources": [
             {
-              "condition": "[equals(parameters('StorageSolution'), 'AzureNetAppFiles')]",
               "type": "Microsoft.Resources/deploymentScripts",
               "apiVersion": "2020-10-01",
               "name": "VnetInfo",
@@ -1702,31 +1695,20 @@
                 "forceUpdateTag": "[parameters('Timestamp')]",
                 "azPowerShellVersion": "5.4",
                 "arguments": "[format('-ResourceGroup {0} -VnetName {1}', parameters('VirtualNetworkResourceGroup'), parameters('VirtualNetwork'))]",
-                "scriptContent": "param([string]$ResourceGroup, [string]$VnetName); $vnet = Get-AzVirtualNetwork -Name $VnetName -ResourceGroupName $ResourceGroup; $dnsServers = \"$($vnet.DhcpOptions.DnsServers[0]),$($vnet.DhcpOptions.DnsServers[1])\"; $subnetId = ($vnet.Subnets | Where-Object {$_.Delegations[0].ServiceName -eq \"Microsoft.NetApp/volumes\"}).Id; $DeploymentScriptOutputs = @{}; $DeploymentScriptOutputs[\"dnsServers\"] = $dnsServers; $DeploymentScriptOutputs[\"subnetId\"] = $subnetId;",
+                "scriptContent": "param([string]$ResourceGroup, [string]$VnetName); $vnet = Get-AzVirtualNetwork -Name $VnetName -ResourceGroupName $ResourceGroup; $dnsServers = \"$($vnet.DhcpOptions.DnsServers[0]),$($vnet.DhcpOptions.DnsServers[1])\"; $subnetId = ($vnet.Subnets | Where-Object {$_.Delegations[0].ServiceName -eq \"Microsoft.NetApp/volumes\"}).Id; Install-Module \"Az.NetAppFiles\";$DeployAnfAd = \"true\"; $Accounts = Get-AzResource -ResourceType \"Microsoft.NetApp/netAppAccounts\"; foreach($Account in $Accounts){$AD = Get-AzNetAppFilesActiveDirectory -ResourceGroupName $Account.ResourceGroupName -AccountName $Account.Name; if($AD.ActiveDirectoryId){$DeployAnfAd = \"false\"}}; $DeploymentScriptOutputs = @{}; $DeploymentScriptOutputs[\"dnsServers\"] = $dnsServers; $DeploymentScriptOutputs[\"subnetId\"] = $subnetId; $DeploymentScriptOutputs[\"anfAd\"] = $DeployAnfAd;",
                 "timeout": "PT4H",
                 "cleanupPreference": "OnSuccess",
                 "retentionInterval": "P1D"
               }
             },
             {
-              "condition": "[equals(parameters('StorageSolution'), 'AzureNetAppFiles')]",
               "type": "Microsoft.NetApp/netAppAccounts",
               "apiVersion": "2021-06-01",
               "name": "[parameters('NetAppAccountName')]",
               "location": "[parameters('Location')]",
               "tags": "[parameters('Tags')]",
               "properties": {
-                "activeDirectories": [
-                  {
-                    "aesEncryption": false,
-                    "domain": "[parameters('DomainName')]",
-                    "dns": "[reference('VnetInfo').outputs.dnsServers]",
-                    "organizationalUnit": "[parameters('OuPath')]",
-                    "password": "[parameters('DomainJoinPassword')]",
-                    "smbServerName": "[parameters('ResourceNameSuffix')]",
-                    "username": "[split(parameters('DomainJoinUserPrincipalName'), '@')[0]]"
-                  }
-                ],
+                "activeDirectories": "[if(equals(reference('VnetInfo').outputs.anfAd, 'false'), null(), createArray(createObject('aesEncryption', false(), 'domain', parameters('DomainName'), 'dns', reference('VnetInfo').outputs.dnsServers, 'organizationalUnit', parameters('OuPath'), 'password', parameters('DomainJoinPassword'), 'smbServerName', parameters('ResourceNameSuffix'), 'username', split(parameters('DomainJoinUserPrincipalName'), '@')[0])))]",
                 "encryption": {
                   "keySource": "Microsoft.NetApp"
                 }
@@ -1736,7 +1718,6 @@
               ]
             },
             {
-              "condition": "[equals(parameters('StorageSolution'), 'AzureNetAppFiles')]",
               "type": "Microsoft.NetApp/netAppAccounts/capacityPools",
               "apiVersion": "2021-06-01",
               "name": "[format('{0}/{1}', parameters('NetAppAccountName'), parameters('NetAppCapacityPoolName'))]",
@@ -1754,7 +1735,6 @@
               ]
             },
             {
-              "condition": "[equals(parameters('StorageSolution'), 'AzureNetAppFiles')]",
               "type": "Microsoft.NetApp/netAppAccounts/capacityPools/volumes",
               "apiVersion": "2021-06-01",
               "name": "[format('{0}/{1}/{2}', parameters('NetAppAccountName'), parameters('NetAppCapacityPoolName'), parameters('HostPoolName'))]",
@@ -1782,9 +1762,9 @@
                 "usageThreshold": 107374182400
               },
               "dependsOn": [
+                "[resourceId('Microsoft.Resources/deploymentScripts', 'VnetInfo')]",
                 "[resourceId('Microsoft.NetApp/netAppAccounts', parameters('NetAppAccountName'))]",
-                "[resourceId('Microsoft.NetApp/netAppAccounts/capacityPools', parameters('NetAppAccountName'), parameters('NetAppCapacityPoolName'))]",
-                "[resourceId('Microsoft.Resources/deploymentScripts', 'VnetInfo')]"
+                "[resourceId('Microsoft.NetApp/netAppAccounts/capacityPools', parameters('NetAppAccountName'), parameters('NetAppCapacityPoolName'))]"
               ]
             },
             {

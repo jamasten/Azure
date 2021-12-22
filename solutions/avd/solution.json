@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.4.1008.15138",
-      "templateHash": "16828343761049225194"
+      "templateHash": "13262461925641623020"
     }
   },
   "parameters": {
@@ -389,12 +389,14 @@
     "NetworkContributorId": "4d97b98b-1d4f-4787-a291-c67834d212e7",
     "NetworkSecurityGroupName": "[format('nsg-{0}', parameters('ResourceNameSuffix'))]",
     "PooledHostPool": "[if(equals(split(parameters('HostPoolType'), ' ')[0], 'Pooled'), true(), false())]",
+    "ReaderId": "acdd72a7-3385-48ef-bd42-f606fba81ae7",
     "RecoveryServicesVaultName": "[format('rsv-{0}', parameters('ResourceNameSuffix'))]",
     "ResourceGroups": [
       "[format('rg-{0}-infra', parameters('ResourceNameSuffix'))]",
       "[format('rg-{0}-hosts', parameters('ResourceNameSuffix'))]"
     ],
-    "RoleAssignmentName": "[guid(subscription().id, 'WindowsVirtualDesktop')]",
+    "RoleAssignmentName_StartVmOnConnect": "[guid(subscription().id, 'StartVmOnConnect')]",
+    "RoleAssignmentName_AzureNetAppFiles": "[guid(subscription().id, 'AzureNetAppFiles')]",
     "RoleDefinitionName": "[guid(subscription().id, 'StartVmOnConnect')]",
     "StorageAccountName": "[format('stor{0}', toLower(substring(uniqueString(subscription().id, variables('ResourceGroups')[0]), 0, 11)))]",
     "StorageSolution": "[split(parameters('FSLogixStorage'), ' ')[0]]",
@@ -503,13 +505,26 @@
       "condition": "[parameters('StartVmOnConnect')]",
       "type": "Microsoft.Authorization/roleAssignments",
       "apiVersion": "2018-01-01-preview",
-      "name": "[variables('RoleAssignmentName')]",
+      "name": "[variables('RoleAssignmentName_StartVmOnConnect')]",
       "properties": {
         "roleDefinitionId": "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', variables('RoleDefinitionName'))]",
         "principalId": "[parameters('AvdObjectId')]"
       },
       "dependsOn": [
         "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', variables('RoleDefinitionName'))]"
+      ]
+    },
+    {
+      "condition": "[equals(variables('StorageSolution'), '')]",
+      "type": "Microsoft.Authorization/roleAssignments",
+      "apiVersion": "2018-01-01-preview",
+      "name": "[variables('RoleAssignmentName_AzureNetAppFiles')]",
+      "properties": {
+        "roleDefinitionId": "[variables('ReaderId')]",
+        "principalId": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroups')[0]), 'Microsoft.Resources/deployments', format('hostPool_{0}', parameters('TimeStamp'))), '2020-06-01').outputs.managedIdentityId.value]"
+      },
+      "dependsOn": [
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroups')[0]), 'Microsoft.Resources/deployments', format('hostPool_{0}', parameters('TimeStamp')))]"
       ]
     },
     {
@@ -579,7 +594,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.4.1008.15138",
-              "templateHash": "11765317455560158670"
+              "templateHash": "3617054827939473572"
             }
           },
           "parameters": {
@@ -1252,7 +1267,7 @@
           "outputs": {
             "managedIdentityId": {
               "type": "string",
-              "value": "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', parameters('ManagedIdentityName'))]"
+              "value": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', parameters('ManagedIdentityName'))).principalId]"
             }
           }
         }
@@ -1287,7 +1302,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.4.1008.15138",
-              "templateHash": "13444120016121709619"
+              "templateHash": "4734147261261087668"
             }
           },
           "parameters": {
@@ -1309,7 +1324,7 @@
               "name": "[variables('RoleAssignmentName')]",
               "properties": {
                 "roleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', parameters('NetworkContributorId'))]",
-                "principalId": "[reference(parameters('ManagedIdentityId'), '2018-11-30').principalId]",
+                "principalId": "[parameters('ManagedIdentityId')]",
                 "principalType": "ServicePrincipal"
               }
             }
@@ -1544,7 +1559,8 @@
       "dependsOn": [
         "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroups')[0]), 'Microsoft.Resources/deployments', format('hostPool_{0}', parameters('TimeStamp')))]",
         "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('VirtualNetworkResourceGroup')), 'Microsoft.Resources/deployments', 'ManagedIdentityTemplate')]",
-        "[subscriptionResourceId('Microsoft.Resources/resourceGroups', variables('ResourceGroups')[0])]"
+        "[subscriptionResourceId('Microsoft.Resources/resourceGroups', variables('ResourceGroups')[0])]",
+        "[subscriptionResourceId('Microsoft.Authorization/roleAssignments', variables('RoleAssignmentName_AzureNetAppFiles'))]"
       ]
     },
     {
@@ -1618,7 +1634,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.4.1008.15138",
-              "templateHash": "12763250048445441557"
+              "templateHash": "14180237131204482386"
             }
           },
           "parameters": {
@@ -1694,8 +1710,8 @@
               "properties": {
                 "forceUpdateTag": "[parameters('Timestamp')]",
                 "azPowerShellVersion": "5.4",
-                "arguments": "[format('-ResourceGroup {0} -VnetName {1}', parameters('VirtualNetworkResourceGroup'), parameters('VirtualNetwork'))]",
-                "scriptContent": "param([string]$ResourceGroup, [string]$VnetName); $vnet = Get-AzVirtualNetwork -Name $VnetName -ResourceGroupName $ResourceGroup; $dnsServers = \"$($vnet.DhcpOptions.DnsServers[0]),$($vnet.DhcpOptions.DnsServers[1])\"; $subnetId = ($vnet.Subnets | Where-Object {$_.Delegations[0].ServiceName -eq \"Microsoft.NetApp/volumes\"}).Id; Install-Module -Name \"Az.NetAppFiles\" -Force;$DeployAnfAd = \"true\"; $Accounts = Get-AzResource -ResourceType \"Microsoft.NetApp/netAppAccounts\"; foreach($Account in $Accounts){$AD = Get-AzNetAppFilesActiveDirectory -ResourceGroupName $Account.ResourceGroupName -AccountName $Account.Name; if($AD.ActiveDirectoryId){$DeployAnfAd = \"false\"}}; $DeploymentScriptOutputs = @{}; $DeploymentScriptOutputs[\"dnsServers\"] = $dnsServers; $DeploymentScriptOutputs[\"subnetId\"] = $subnetId; $DeploymentScriptOutputs[\"anfAd\"] = $DeployAnfAd;",
+                "arguments": "[format('-Location {0} -ResourceGroup {1} -VnetName {2}', parameters('Location'), parameters('VirtualNetworkResourceGroup'), parameters('VirtualNetwork'))]",
+                "scriptContent": "param([string]$ResourceGroup, [string]$VnetName); $vnet = Get-AzVirtualNetwork -Name $VnetName -ResourceGroupName $ResourceGroup; $dnsServers = \"$($vnet.DhcpOptions.DnsServers[0]),$($vnet.DhcpOptions.DnsServers[1])\"; $subnetId = ($vnet.Subnets | Where-Object {$_.Delegations[0].ServiceName -eq \"Microsoft.NetApp/volumes\"}).Id; Install-Module -Name \"Az.NetAppFiles\" -Force; $DeployAnfAd = \"true\"; $Accounts = Get-AzResource -ResourceType \"Microsoft.NetApp/netAppAccounts\" | Where-Object {$_.Location -eq $Location}; foreach($Account in $Accounts){$AD = Get-AzNetAppFilesActiveDirectory -ResourceGroupName $Account.ResourceGroupName -AccountName $Account.Name; if($AD.ActiveDirectoryId){$DeployAnfAd = \"false\"}}; $DeploymentScriptOutputs = @{}; $DeploymentScriptOutputs[\"dnsServers\"] = $dnsServers; $DeploymentScriptOutputs[\"subnetId\"] = $subnetId; $DeploymentScriptOutputs[\"anfAd\"] = $DeployAnfAd;",
                 "timeout": "PT4H",
                 "cleanupPreference": "OnSuccess",
                 "retentionInterval": "P1D"

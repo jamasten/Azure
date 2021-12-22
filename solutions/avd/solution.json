@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.4.1008.15138",
-      "templateHash": "8334195214147852883"
+      "templateHash": "7149446192010803493"
     }
   },
   "parameters": {
@@ -1635,7 +1635,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.4.1008.15138",
-              "templateHash": "14180237131204482386"
+              "templateHash": "7234483038005953501"
             }
           },
           "parameters": {
@@ -1712,7 +1712,7 @@
                 "forceUpdateTag": "[parameters('Timestamp')]",
                 "azPowerShellVersion": "5.4",
                 "arguments": "[format('-Location {0} -ResourceGroup {1} -VnetName {2}', parameters('Location'), parameters('VirtualNetworkResourceGroup'), parameters('VirtualNetwork'))]",
-                "scriptContent": "param([string]$ResourceGroup, [string]$VnetName); $vnet = Get-AzVirtualNetwork -Name $VnetName -ResourceGroupName $ResourceGroup; $dnsServers = \"$($vnet.DhcpOptions.DnsServers[0]),$($vnet.DhcpOptions.DnsServers[1])\"; $subnetId = ($vnet.Subnets | Where-Object {$_.Delegations[0].ServiceName -eq \"Microsoft.NetApp/volumes\"}).Id; Install-Module -Name \"Az.NetAppFiles\" -Force; $DeployAnfAd = \"true\"; $Accounts = Get-AzResource -ResourceType \"Microsoft.NetApp/netAppAccounts\" | Where-Object {$_.Location -eq $Location}; foreach($Account in $Accounts){$AD = Get-AzNetAppFilesActiveDirectory -ResourceGroupName $Account.ResourceGroupName -AccountName $Account.Name; if($AD.ActiveDirectoryId){$DeployAnfAd = \"false\"}}; $DeploymentScriptOutputs = @{}; $DeploymentScriptOutputs[\"dnsServers\"] = $dnsServers; $DeploymentScriptOutputs[\"subnetId\"] = $subnetId; $DeploymentScriptOutputs[\"anfAd\"] = $DeployAnfAd;",
+                "scriptContent": "param([string]$Location, [string]$ResourceGroup, [string]$VnetName); $vnet = Get-AzVirtualNetwork -Name $VnetName -ResourceGroupName $ResourceGroup; $dnsServers = \"$($vnet.DhcpOptions.DnsServers[0]),$($vnet.DhcpOptions.DnsServers[1])\"; $subnetId = ($vnet.Subnets | Where-Object {$_.Delegations[0].ServiceName -eq \"Microsoft.NetApp/volumes\"}).Id; Install-Module -Name \"Az.NetAppFiles\" -Force; $DeployAnfAd = \"true\"; $Accounts = Get-AzResource -ResourceType \"Microsoft.NetApp/netAppAccounts\" | Where-Object {$_.Location -eq $Location}; foreach($Account in $Accounts){$AD = Get-AzNetAppFilesActiveDirectory -ResourceGroupName $Account.ResourceGroupName -AccountName $Account.Name; if($AD.ActiveDirectoryId){$DeployAnfAd = \"false\"}}; $DeploymentScriptOutputs = @{}; $DeploymentScriptOutputs[\"dnsServers\"] = $dnsServers; $DeploymentScriptOutputs[\"subnetId\"] = $subnetId; $DeploymentScriptOutputs[\"anfAd\"] = $DeployAnfAd;",
                 "timeout": "PT4H",
                 "cleanupPreference": "OnSuccess",
                 "retentionInterval": "P1D"

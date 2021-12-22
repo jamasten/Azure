@@ -209,7 +209,7 @@ var RoleAssignmentName = guid(subscription().id, 'WindowsVirtualDesktop')
 var RoleDefinitionName = guid(subscription().id, 'StartVmOnConnect')
 var StorageAccountName = 'stor${toLower(substring(uniqueString(subscription().id, ResourceGroups[0]), 0, 11))}'
 var StorageSolution = split(FSLogixStorage, ' ')[0]
-var StorageSku = split(FSLogixStorage, ' ')[1]
+var StorageSku = FSLogixStorage == 'None' ? 'None' : split(FSLogixStorage, ' ')[1]
 var TimeZones = {
     australiacentral: 'Australian Eastern Standard Time'
     australiacentral2: 'Australian Eastern Standard Time'

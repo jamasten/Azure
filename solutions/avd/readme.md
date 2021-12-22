@@ -81,6 +81,10 @@ To successfully deploy this solution, you will need to ensure your scenario matc
 To successfully deploy this solution, you will need to first ensure the following prerequisites have been completed:
 
 - Create a Security Group in ADDS for your AVD users.  Once the object has synchronized to Azure AD, make note of the name and object ID in Azure AD.  This will be needed to deploy the solution.
+- If you plan to use Azure NetApp Files for FSLogix, complete the following:
+  - [Register the resource provider](https://docs.microsoft.com/en-us/azure/azure-netapp-files/azure-netapp-files-register)
+  - [Delegate a subnet to Azure NetApp Files](https://docs.microsoft.com/en-us/azure/azure-netapp-files/azure-netapp-files-delegate-subnet)
+  - [Enable the shared AD feature](https://docs.microsoft.com/en-us/azure/azure-netapp-files/create-active-directory-connections#shared_ad) if you plan to deploy more than one NetApp account in the same Azure subscription and region
 
 ## Considerations
 

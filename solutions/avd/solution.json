@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.4.1008.15138",
-      "templateHash": "13262461925641623020"
+      "templateHash": "14723104609026503239"
     }
   },
   "parameters": {
@@ -515,7 +515,7 @@
       ]
     },
     {
-      "condition": "[equals(variables('StorageSolution'), '')]",
+      "condition": "[equals(variables('StorageSolution'), 'AzureNetAppFiles')]",
       "type": "Microsoft.Authorization/roleAssignments",
       "apiVersion": "2018-01-01-preview",
       "name": "[variables('RoleAssignmentName_AzureNetAppFiles')]",

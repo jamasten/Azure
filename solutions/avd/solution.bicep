@@ -347,7 +347,7 @@ module managedIdentity './modules/managedIdentity.bicep' = if(StorageSolution ==
   }
 }
 
-resource roleAssignment_anf 'Microsoft.Authorization/roleAssignments@2018-01-01-preview' = if(StorageSolution == '') {
+resource roleAssignment_anf 'Microsoft.Authorization/roleAssignments@2018-01-01-preview' = if(StorageSolution == 'AzureNetAppFiles') {
   name: RoleAssignmentName_AzureNetAppFiles
   properties: {
     roleDefinitionId: ReaderId

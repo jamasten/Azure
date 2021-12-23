@@ -13,7 +13,10 @@ param
     [String]$ResourceNameSuffix,
 
     [Parameter(Mandatory)]
-    [String]$SecurityPrincipalName
+    [String]$SecurityPrincipalName,
+
+    [Parameter(Mandatory)]
+    [String]$SmbServerLocation
 )
 
 function Write-Log
@@ -48,7 +51,7 @@ try
     $Password = ConvertTo-SecureString -String $DomainJoinPassword -AsPlainText -Force
     [pscredential]$Credential = New-Object System.Management.Automation.PSCredential ($Username, $Password)
 
-    $SmbServerName = (Get-ADComputer -Filter "Name -like '$ResourceNameSuffix*'" -Credential $Credential).Name
+    $SmbServerName = (Get-ADComputer -Filter "Name -like 'anf-$SmbServerLocation*'" -Credential $Credential).Name
     $Domain = ($DomainJoinUserPrincipalName -split '@')[1]
 
     # Set the variables required to mount the Azure file share

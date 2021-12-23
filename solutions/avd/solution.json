@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.4.1008.15138",
-      "templateHash": "7149446192010803493"
+      "templateHash": "1169172349609602681"
     }
   },
   "parameters": {
@@ -380,6 +380,59 @@
     "HostPoolName": "[format('hp-{0}', parameters('ResourceNameSuffix'))]",
     "KeyVaultName": "[format('kv-{0}', parameters('ResourceNameSuffix'))]",
     "Location": "[deployment().location]",
+    "LocationShort": {
+      "australiacentral": "ac",
+      "australiacentral2": "ac2",
+      "australiaeast": "ae",
+      "australiasoutheast": "as",
+      "brazilsouth": "bs2",
+      "brazilsoutheast": "bs",
+      "canadacentral": "cc",
+      "canadaeast": "ce",
+      "centralindia": "ci",
+      "centralus": "cu",
+      "eastasia": "ea",
+      "eastus": "eu",
+      "eastus2": "eu2",
+      "francecentral": "fc",
+      "francesouth": "fs",
+      "germanynorth": "gn",
+      "germanywestcentral": "gwc",
+      "japaneast": "je",
+      "japanwest": "jw",
+      "jioindiacentral": "jic",
+      "jioindiawest": "jiw",
+      "koreacentral": "kc",
+      "koreasouth": "ks",
+      "northcentralus": "ncu",
+      "northeurope": "ne",
+      "norwayeast": "ne2",
+      "norwaywest": "nw",
+      "southafricanorth": "san",
+      "southafricawest": "saw",
+      "southcentralus": "scu",
+      "southeastasia": "sa",
+      "southindia": "si",
+      "swedencentral": "sc",
+      "switzerlandnorth": "sn",
+      "switzerlandwest": "sw",
+      "uaecentral": "uc",
+      "uaenorth": "un",
+      "uksouth": "us",
+      "ukwest": "uw",
+      "usdodcentral": "uc",
+      "usdodeast": "ue",
+      "usgovarizona": "ua",
+      "usgoviowa": "ui",
+      "usgovtexas": "ut",
+      "usgovvirginia": "uv",
+      "westcentralus": "wcu",
+      "westeurope": "we",
+      "westindia": "wi",
+      "westus": "wu",
+      "westus2": "wu2",
+      "westus3": "wu3"
+    },
     "LogAnalyticsWorkspaceName": "[format('law-{0}', parameters('ResourceNameSuffix'))]",
     "LogicAppName": "[format('la-{0}', parameters('ResourceNameSuffix'))]",
     "ManagedIdentityName": "[format('uami-{0}', parameters('ResourceNameSuffix'))]",
@@ -1609,6 +1662,9 @@
           "SecurityPrincipalName": {
             "value": "[parameters('SecurityPrincipalName')]"
           },
+          "SmbServerLocation": {
+            "value": "[variables('LocationShort')[variables('Location')]]"
+          },
           "StorageSku": {
             "value": "[variables('StorageSku')]"
           },
@@ -1635,7 +1691,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.4.1008.15138",
-              "templateHash": "7234483038005953501"
+              "templateHash": "7813305985012549136"
             }
           },
           "parameters": {
@@ -1670,6 +1726,9 @@
               "type": "string"
             },
             "SecurityPrincipalName": {
+              "type": "string"
+            },
+            "SmbServerLocation": {
               "type": "string"
             },
             "StorageSku": {
@@ -1725,7 +1784,7 @@
               "location": "[parameters('Location')]",
               "tags": "[parameters('Tags')]",
               "properties": {
-                "activeDirectories": "[if(equals(reference('Info').outputs.anfAd, 'false'), null(), createArray(createObject('aesEncryption', false(), 'domain', parameters('DomainName'), 'dns', reference('Info').outputs.dnsServers, 'organizationalUnit', parameters('OuPath'), 'password', parameters('DomainJoinPassword'), 'smbServerName', parameters('ResourceNameSuffix'), 'username', split(parameters('DomainJoinUserPrincipalName'), '@')[0])))]",
+                "activeDirectories": "[if(equals(reference('Info').outputs.anfAd, 'false'), null(), createArray(createObject('aesEncryption', false(), 'domain', parameters('DomainName'), 'dns', reference('Info').outputs.dnsServers, 'organizationalUnit', parameters('OuPath'), 'password', parameters('DomainJoinPassword'), 'smbServerName', format('anf-{0}', parameters('SmbServerLocation')), 'username', split(parameters('DomainJoinUserPrincipalName'), '@')[0])))]",
                 "encryption": {
                   "keySource": "Microsoft.NetApp"
                 }
@@ -1802,7 +1861,7 @@
                   "timestamp": "[parameters('Timestamp')]"
                 },
                 "protectedSettings": {
-                  "commandToExecute": "[format('powershell -ExecutionPolicy Unrestricted -File Set-NetAppNtfsPermissions.ps1 -DomainJoinPassword \"{0}\" -DomainJoinUserPrincipalName {1} -HostPoolName {2} -ResourceNameSuffix {3} -SecurityPrincipalName \"{4}\"', parameters('DomainJoinPassword'), parameters('DomainJoinUserPrincipalName'), parameters('HostPoolName'), parameters('ResourceNameSuffix'), parameters('SecurityPrincipalName'))]"
+                  "commandToExecute": "[format('powershell -ExecutionPolicy Unrestricted -File Set-NetAppNtfsPermissions.ps1 -DomainJoinPassword \"{0}\" -DomainJoinUserPrincipalName {1} -HostPoolName {2} -ResourceNameSuffix {3} -SecurityPrincipalName \"{4}\" -SmbServerLocation {5}', parameters('DomainJoinPassword'), parameters('DomainJoinUserPrincipalName'), parameters('HostPoolName'), parameters('ResourceNameSuffix'), parameters('SecurityPrincipalName'), parameters('SmbServerLocation'))]"
                 }
               },
               "dependsOn": [

@@ -10,6 +10,7 @@ param NetAppCapacityPoolName string
 param OuPath string
 param ResourceNameSuffix string
 param SecurityPrincipalName string
+param SmbServerLocation string
 param StorageSku string
 param Tags object
 param Timestamp string
@@ -52,7 +53,7 @@ resource netApp_Account 'Microsoft.NetApp/netAppAccounts@2021-06-01' = {
         dns: reference(info.name).outputs.dnsServers
         organizationalUnit: OuPath
         password: DomainJoinPassword
-        smbServerName: ResourceNameSuffix
+        smbServerName: 'anf-${SmbServerLocation}'
         username: split(DomainJoinUserPrincipalName, '@')[0]
       }
     ]
@@ -164,7 +165,7 @@ resource customScriptExtension 'Microsoft.Compute/virtualMachines/extensions@202
       timestamp: Timestamp
     }
     protectedSettings: {
-      commandToExecute: 'powershell -ExecutionPolicy Unrestricted -File Set-NetAppNtfsPermissions.ps1 -DomainJoinPassword "${DomainJoinPassword}" -DomainJoinUserPrincipalName ${DomainJoinUserPrincipalName} -HostPoolName ${HostPoolName} -ResourceNameSuffix ${ResourceNameSuffix} -SecurityPrincipalName "${SecurityPrincipalName}"'
+      commandToExecute: 'powershell -ExecutionPolicy Unrestricted -File Set-NetAppNtfsPermissions.ps1 -DomainJoinPassword "${DomainJoinPassword}" -DomainJoinUserPrincipalName ${DomainJoinUserPrincipalName} -HostPoolName ${HostPoolName} -ResourceNameSuffix ${ResourceNameSuffix} -SecurityPrincipalName "${SecurityPrincipalName}" -SmbServerLocation ${SmbServerLocation}'
     }
   }
   dependsOn: [

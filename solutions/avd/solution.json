@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.4.1008.15138",
-      "templateHash": "1169172349609602681"
+      "templateHash": "11858348474158017927"
     }
   },
   "parameters": {
@@ -3640,7 +3640,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.4.1008.15138",
-              "templateHash": "8121158782698508987"
+              "templateHash": "11067933572034308469"
             }
           },
           "parameters": {
@@ -3709,33 +3709,7 @@
               "LogOffMessageTitle": "Machine is about to shutdown.",
               "LogOffMessageBody": "Your session will be logged off. Please save and close everything."
             },
-            "DesktopVirtualizationModule": {
-              "AzureCloud": "https://www.powershellgallery.com/api/v2/package/Az.DesktopVirtualization",
-              "AzureUSGovernment": "https://www.powershellgallery.com/api/v2/package/Az.DesktopVirtualization/3.0.0"
-            },
             "LogAnalyticsWorkspaceResourceId": "[resourceId('Microsoft.OperationalInsights/workspaces', parameters('LogAnalyticsWorkspaceName'))]",
-            "Modules": [
-              {
-                "name": "Az.Accounts",
-                "uri": "https://www.powershellgallery.com/api/v2/package/Az.Accounts"
-              },
-              {
-                "name": "Az.Automation",
-                "uri": "https://www.powershellgallery.com/api/v2/package/Az.Automation"
-              },
-              {
-                "name": "Az.Compute",
-                "uri": "https://www.powershellgallery.com/api/v2/package/Az.Compute"
-              },
-              {
-                "name": "Az.Resources",
-                "uri": "https://www.powershellgallery.com/api/v2/package/Az.Resources"
-              },
-              {
-                "name": "Az.DesktopVirtualization",
-                "uri": "[variables('DesktopVirtualizationModule')[environment().name]]"
-              }
-            ],
             "Runbook": "WVDAutoScaleRunbookARMBased",
             "Variable": "WebhookURIARMBased",
             "Webhook": "[format('WVDAutoScaleWebhookARMBased_{0}', dateTimeAdd(parameters('Timestamp'), 'PT0H', 'yyyyMMddhhmmss'))]"
@@ -3756,19 +3730,14 @@
               }
             },
             {
-              "copy": {
-                "name": "modules",
-                "count": "[length(variables('Modules'))]",
-                "mode": "serial",
-                "batchSize": 1
-              },
+              "condition": "[equals(environment().name, 'AzureUSGovernment')]",
               "type": "Microsoft.Automation/automationAccounts/modules",
               "apiVersion": "2019-06-01",
-              "name": "[format('{0}/{1}', format('{0}-scale', parameters('AutomationAccountName')), variables('Modules')[copyIndex()].name)]",
+              "name": "[format('{0}/{1}', format('{0}-scale', parameters('AutomationAccountName')), 'Az.DesktopVirtualization')]",
               "location": "[parameters('Location')]",
               "properties": {
                 "contentLink": {
-                  "uri": "[variables('Modules')[copyIndex()].uri]"
+                  "uri": "https://www.powershellgallery.com/api/v2/package/Az.DesktopVirtualization/3.0.0"
                 }
               },
               "dependsOn": [
@@ -3791,7 +3760,7 @@
               },
               "dependsOn": [
                 "[resourceId('Microsoft.Automation/automationAccounts', format('{0}-scale', parameters('AutomationAccountName')))]",
-                "modules"
+                "[resourceId('Microsoft.Automation/automationAccounts/modules', format('{0}-scale', parameters('AutomationAccountName')), 'Az.DesktopVirtualization')]"
               ]
             },
             {
@@ -3844,7 +3813,7 @@
               },
               "dependsOn": [
                 "[resourceId('Microsoft.Automation/automationAccounts', format('{0}-scale', parameters('AutomationAccountName')))]",
-                "modules"
+                "[resourceId('Microsoft.Automation/automationAccounts/modules', format('{0}-scale', parameters('AutomationAccountName')), 'Az.DesktopVirtualization')]"
               ]
             },
             {
@@ -3853,7 +3822,7 @@
               "name": "[guid(resourceGroup().id, 'ScalingContributor')]",
               "properties": {
                 "roleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', 'b24988ac-6180-42a0-ab88-20f7382dd24c')]",
-                "principalId": "[reference(resourceId('Microsoft.Automation/automationAccounts', format('{0}-scale', parameters('AutomationAccountName'))), '2020-01-13-preview', 'Full').identity.principalId]",
+                "principalId": "[reference(resourceId('Microsoft.Automation/automationAccounts', format('{0}-scale', parameters('AutomationAccountName'))), '2021-06-22', 'full').identity.principalId]",
                 "principalType": "ServicePrincipal"
               },
               "dependsOn": [
@@ -3905,11 +3874,8 @@
                 },
                 "mode": "Incremental",
                 "parameters": {
-                  "AutomationAccountName": {
-                    "value": "[format('{0}-scale', parameters('AutomationAccountName'))]"
-                  },
-                  "AutomationAccountResourceGroupName": {
-                    "value": "[resourceGroup().name]"
+                  "AutomationAccountId": {
+                    "value": "[reference(resourceId('Microsoft.Automation/automationAccounts', format('{0}-scale', parameters('AutomationAccountName'))), '2021-06-22', 'full').identity.principalId]"
                   }
                 },
                 "template": {
@@ -3919,14 +3885,11 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.4.1008.15138",
-                      "templateHash": "8166369131076809109"
+                      "templateHash": "3252198159153001757"
                     }
                   },
                   "parameters": {
-                    "AutomationAccountName": {
-                      "type": "string"
-                    },
-                    "AutomationAccountResourceGroupName": {
+                    "AutomationAccountId": {
                       "type": "string"
                     }
                   },
@@ -3938,7 +3901,7 @@
                       "name": "[guid(resourceGroup().id, 'ScalingContributor')]",
                       "properties": {
                         "roleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', 'b24988ac-6180-42a0-ab88-20f7382dd24c')]",
-                        "principalId": "[reference(resourceId(parameters('AutomationAccountResourceGroupName'), 'Microsoft.Automation/automationAccounts', parameters('AutomationAccountName')), '2020-01-13-preview', 'Full').identity.principalId]",
+                        "principalId": "[parameters('AutomationAccountId')]",
                         "principalType": "ServicePrincipal"
                       }
                     }

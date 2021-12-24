@@ -51,17 +51,6 @@ resource automationAccount 'Microsoft.Automation/automationAccounts@2021-06-22' 
   }
 }
 
-resource modules 'Microsoft.Automation/automationAccounts/modules@2019-06-01' = if(environment().name == 'AzureUSGovernment') {
-  parent: automationAccount
-  name: 'Az.DesktopVirtualization'
-  location: Location
-  properties: {
-    contentLink: {
-      uri: 'https://www.powershellgallery.com/api/v2/package/Az.DesktopVirtualization/3.0.0'
-    }
-  }
-}
-
 resource runbook 'Microsoft.Automation/automationAccounts/runbooks@2015-10-31' = {
   parent: automationAccount
   name: Runbook
@@ -75,9 +64,6 @@ resource runbook 'Microsoft.Automation/automationAccounts/runbooks@2015-10-31' =
       version: '1.0.0.0'
     }
   }
-  dependsOn: [
-    modules
-  ]
 }
 
 resource webhook 'Microsoft.Automation/automationAccounts/webhooks@2015-10-31' = {
@@ -117,9 +103,6 @@ resource diagnostics 'Microsoft.Insights/diagnosticsettings@2017-05-01-preview' 
     ]
     workspaceId: LogAnalyticsWorkspaceResourceId
   }
-  dependsOn: [
-    modules
-  ]
 }
 
 resource roleAssignment 'Microsoft.Authorization/roleAssignments@2018-09-01-preview' = {

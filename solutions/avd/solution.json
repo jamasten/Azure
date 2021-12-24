@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.4.1008.15138",
-      "templateHash": "11858348474158017927"
+      "templateHash": "5132786374867014320"
     }
   },
   "parameters": {
@@ -3640,7 +3640,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.4.1008.15138",
-              "templateHash": "11067933572034308469"
+              "templateHash": "5733025970757813353"
             }
           },
           "parameters": {
@@ -3730,21 +3730,6 @@
               }
             },
             {
-              "condition": "[equals(environment().name, 'AzureUSGovernment')]",
-              "type": "Microsoft.Automation/automationAccounts/modules",
-              "apiVersion": "2019-06-01",
-              "name": "[format('{0}/{1}', format('{0}-scale', parameters('AutomationAccountName')), 'Az.DesktopVirtualization')]",
-              "location": "[parameters('Location')]",
-              "properties": {
-                "contentLink": {
-                  "uri": "https://www.powershellgallery.com/api/v2/package/Az.DesktopVirtualization/3.0.0"
-                }
-              },
-              "dependsOn": [
-                "[resourceId('Microsoft.Automation/automationAccounts', format('{0}-scale', parameters('AutomationAccountName')))]"
-              ]
-            },
-            {
               "type": "Microsoft.Automation/automationAccounts/runbooks",
               "apiVersion": "2015-10-31",
               "name": "[format('{0}/{1}', format('{0}-scale', parameters('AutomationAccountName')), variables('Runbook'))]",
@@ -3759,8 +3744,7 @@
                 }
               },
               "dependsOn": [
-                "[resourceId('Microsoft.Automation/automationAccounts', format('{0}-scale', parameters('AutomationAccountName')))]",
-                "[resourceId('Microsoft.Automation/automationAccounts/modules', format('{0}-scale', parameters('AutomationAccountName')), 'Az.DesktopVirtualization')]"
+                "[resourceId('Microsoft.Automation/automationAccounts', format('{0}-scale', parameters('AutomationAccountName')))]"
               ]
             },
             {
@@ -3812,8 +3796,7 @@
                 "workspaceId": "[variables('LogAnalyticsWorkspaceResourceId')]"
               },
               "dependsOn": [
-                "[resourceId('Microsoft.Automation/automationAccounts', format('{0}-scale', parameters('AutomationAccountName')))]",
-                "[resourceId('Microsoft.Automation/automationAccounts/modules', format('{0}-scale', parameters('AutomationAccountName')), 'Az.DesktopVirtualization')]"
+                "[resourceId('Microsoft.Automation/automationAccounts', format('{0}-scale', parameters('AutomationAccountName')))]"
               ]
             },
             {

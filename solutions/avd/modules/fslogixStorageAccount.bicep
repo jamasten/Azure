@@ -81,6 +81,13 @@ resource storageAccount_FileServices 'Microsoft.Storage/storageAccounts/fileServ
   parent: storageAccount
   name: 'default'
   properties: {
+    protocolSettings: StorageSku == 'Standard' ? null : {
+      smb: {
+        multichannel: {
+          enabled: true
+        }
+      }
+    }
     shareDeleteRetentionPolicy: {
       enabled: false
     }

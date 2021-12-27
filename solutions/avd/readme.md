@@ -64,6 +64,7 @@ This solution contains many features that are usually enabled manually after dep
 - Screen Capture Protection: deploys the required registry setting on the AVD session hosts to enable the feature.
 - Drain Mode: when enabled, the sessions hosts will be deployed in drain mode to ensure end users cannot access the host pool until operations is ready to allow connections.
 - RDP ShortPath: deploys the requirements to enable RDP ShortPath for AVD.
+- SMB Multichannel: Enables multiple connections to an SMB share.  This feature is only supported with a premium Azure Storage Account.
 
 ## Assumptions
 

@@ -26,17 +26,17 @@ az deployment sub create \
 
 ## Description
 
-This solution will deploy Azure Virtual Desktop in an Azure subscription.  Depending on the options selected, either a personal or pooled host pool can be deployed with this solution.  The pooled option will deploy an App Group with a role assignment and everything to enable FSLogix.
+This solution will deploy Azure Virtual Desktop in an Azure subscription.  Depending on the options selected, either a personal or pooled host pool can be deployed with this solution.  The pooled option will deploy an App Group with a role assignment and the required resources to enable FSLogix.
 
-This solution contains many features that are usually enabled manually after deploying an AVD host pool.  Those features are:
+This solution automates many of the features that are usually enabled manually after deploying an AVD host pool.  Those features are:
 
-- FSLogix (Pooled host pools only): deploys the required resources to enable the feature:
+- FSLogix: deploys the required resources to enable the feature:
   - Azure Storage Account or Azure NetApp Files with a fully configured file share
   - Management Virtual Machine with Custom Script Extension to:
     - Domain joins the Storage Account or creates the AD connection on the Azure NetApp Account
     - Sets the required permissions for access to the file share
   - Custom Script Extension on Session Hosts to enable FSLogix using registry settings
-- Scaling Automation (Pooled host pools only): deploys the required resources to enable the feature:
+- Scaling Automation (pooled host pools only): deploys the required resources to enable the feature:
   - Automation Account with a Managed Identity
     - Runbook
     - Variable
@@ -53,7 +53,7 @@ This solution contains many features that are usually enabled manually after dep
   - Microsoft Monitoring Agent on the session hosts.
   - Diagnostic settings on the AVD host pool and workspace.
 - Graphics Drivers & Settings: deploys the extension to install the graphics driver and creates the recommended registry settings when an appropriate VM size (Nv, Nvv3, Nvv4, or NCasT4_v3 series) is selected.
-- BitLocker Encryption: deploys the required resources & configuration to enable BitLocker encryption on the session hosts:
+- BitLocker Encryption (Optional): deploys the required resources & configuration to enable BitLocker encryption on the session hosts:
   - Key Vault with a Key Encryption Key
   - VM Extension to enable the feature on the virtual machines.
 - Backups (Optional): deploys the required resources to enable backups:
@@ -61,9 +61,9 @@ This solution contains many features that are usually enabled manually after dep
   - Backup Policy
   - Protection Container (File Share Only)
   - Protected Item
-- Screen Capture Protection: deploys the required registry setting on the AVD session hosts to enable the feature.
-- Drain Mode: when enabled, the sessions hosts will be deployed in drain mode to ensure end users cannot access the host pool until operations is ready to allow connections.
-- RDP ShortPath: deploys the requirements to enable RDP ShortPath for AVD.
+- Screen Capture Protection (Optional): deploys the required registry setting on the AVD session hosts to enable the feature.
+- Drain Mode (Optional): when enabled, the sessions hosts will be deployed in drain mode to ensure end users cannot access the host pool until operations is ready to allow connections.
+- RDP ShortPath (Optional): deploys the requirements to enable RDP ShortPath for AVD.
 - SMB Multichannel: Enables multiple connections to an SMB share.  This feature is only supported with a premium Azure Storage Account.
 
 ## Assumptions

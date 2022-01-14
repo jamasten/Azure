@@ -89,8 +89,6 @@ To successfully deploy this solution, you will need to first ensure the followin
 
 ## Considerations
 
-If you are deploying this solution to multiple subscriptions in the same tenant and want to use the Start VM On Connect feature, set the StartVmOnConnect parameter to false.  The custom role should be created at the Management Group scope.  The role assignment for the WVD service using the custom role should be set at the Management Group scope as well.  The Start VM On Connect feature would need to be manually enabled on the host pool per deployment.
-
 If you need to redeploy your solution b/c of an error or other reason, be sure the virtual machines are turned on.  If your host pool is "pooled", I would recommended disabling your logic app to ensure the scaling solution doesn't turn off any of your VM's during the deployment.  If the VM's are off, the deployment will fail since the extensions cannot be validated / updated.
 
 Azure NetApp Files can only have one Active Directory Connection per subscription per region.  Due to this design, when deploying ANF be sure to deploy the first ANF account by itself to establish the AD Connection.  Once that is established and the connection sharing feature is enabled, any number of ANF accounts may also be deployed to the same subscription and region.

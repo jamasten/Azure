@@ -95,4 +95,4 @@ Azure NetApp Files can only have one Active Directory Connection per subscriptio
 
 ## Post Deployment Requirements
 
-When deploying a "pooled" host pool, a management VM is deployed to facilitate the domain join of the Azure Storage Account and to set the NTFS permissions on the Azure File Share.  After the deployment succeeds, this VM and its associated resources may be removed.
+When deploying FSLogix, a management VM is deployed to facilitate the domain join of the Azure Storage Account, if applicable, and sets the NTFS permissions on the chosen storage solution.  After the deployment succeeds, this VM and its associated resources may be removed.

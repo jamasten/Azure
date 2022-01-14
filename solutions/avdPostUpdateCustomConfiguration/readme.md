@@ -2,7 +2,7 @@
 
 ## Description
 
-This solution will deploy the Virtual Desktop Optimization Tool to an AVD session host in the Azure Portal using the Post Update Custom Configuration options.  The json and ps1 file must be saved to publicly accessible location.  If desired, blob storage with a private container may be used with a SAS token for private storage.
+This solution will deploy the Virtual Desktop Optimization Tool to an AVD session host using the Azure Portal with the Post Update Custom Configuration options.  The json and ps1 files must be saved to publicly accessible storage location.  If desired, blob storage with a private container may be used as long as SAS token is provided in the URL's.
 
 ## Implementation
 

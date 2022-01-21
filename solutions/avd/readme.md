@@ -74,7 +74,7 @@ To successfully deploy this solution, you will need to ensure your scenario matc
 - Acquired the appropriate licensing for the operating system.
 - Landing zone deployed in Azure:
   - Virtual network and subnet(s)
-  - ADDS synchronized with Azure AD
+  - Deployed and configured domain services if domain joining the session hosts
 - Correct RBAC assignment: this solution contains many role assignments so you will need to be a Subscription Owner for a successful deployment of all the features.
 
 ## Prerequisites

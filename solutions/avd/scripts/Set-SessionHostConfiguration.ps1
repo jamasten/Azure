@@ -116,9 +116,12 @@ function Get-WebFile
 #  Output parameter values for validation
 ##############################################################
 Write-Log -Message "AmdVmSize: $AmdVmSize" -Type 'INFO'
+Write-Log -Message "DodStigCompliance: $DodStigCompliance" -Type 'INFO'
+Write-Log -Message "DomainName: $DomainName" -Type 'INFO'
 Write-Log -Message "Environment: $Environment" -Type 'INFO'
 Write-Log -Message "FSLogix: $FSLogix" -Type 'INFO'
 Write-Log -Message "HostPoolName: $HostPoolName" -Type 'INFO'
+Write-Log -Message "HostPoolRegistrationToken: $HostPoolRegistrationToken" -Type 'INFO'
 Write-Log -Message "ImageOffer: $ImageOffer" -Type 'INFO'
 Write-Log -Message "ImagePublisher: $ImagePublisher" -Type 'INFO'
 Write-Log -Message "NetAppFileShare: $NetAppFileShare" -Type 'INFO'
@@ -413,7 +416,8 @@ catch
 ##############################################################
 #  Install the AVD Agent
 ##############################################################
-try 
+# Disabling this method for installing the AVD agent until AAD Join can completed successfully
+<# try 
 {   
     $BootInstaller = 'AVD-Bootloader.msi'
     Get-WebFile -FileName $BootInstaller -URL 'https://query.prod.cms.rt.microsoft.com/cms/api/am/binary/RWrxrH'
@@ -430,7 +434,7 @@ try
 catch 
 {
     Write-Log -Message $_ -Type 'ERROR'    
-}
+} #>
    
 
 ##############################################################

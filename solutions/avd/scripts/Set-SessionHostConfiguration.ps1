@@ -417,7 +417,7 @@ catch
 #  Install the AVD Agent
 ##############################################################
 # Disabling this method for installing the AVD agent until AAD Join can completed successfully
-<# try 
+try 
 {   
     $BootInstaller = 'AVD-Bootloader.msi'
     Get-WebFile -FileName $BootInstaller -URL 'https://query.prod.cms.rt.microsoft.com/cms/api/am/binary/RWrxrH'
@@ -434,7 +434,7 @@ catch
 catch 
 {
     Write-Log -Message $_ -Type 'ERROR'    
-} #>
+}
    
 
 ##############################################################

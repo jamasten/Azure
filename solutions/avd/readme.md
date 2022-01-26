@@ -30,7 +30,7 @@ This solution will deploy Azure Virtual Desktop in an Azure subscription.  Depen
 
 This solution automates many of the features that are usually enabled manually after deploying an AVD host pool.  Those features are:
 
-- FSLogix: deploys the required resources to enable the feature:
+- FSLogix: deploys the required resources to enable the feature when using Azure AD DS or AD DS:
   - Azure Storage Account or Azure NetApp Files with a fully configured file share
   - Management Virtual Machine with Custom Script Extension to:
     - Domain joins the Storage Account or creates the AD connection on the Azure NetApp Account
@@ -65,6 +65,7 @@ This solution automates many of the features that are usually enabled manually a
 - Drain Mode (Optional): when enabled, the sessions hosts will be deployed in drain mode to ensure end users cannot access the host pool until operations is ready to allow connections.
 - RDP ShortPath (Optional): deploys the requirements to enable RDP ShortPath for AVD.
 - SMB Multichannel: Enables multiple connections to an SMB share.  This feature is only supported with a premium Azure Storage Account.
+- Availability: this parameter allows you to pick an availability option to provide a higher SLA for your solution.  This is only applicable to pooled host pools.  SLA: 99.99% for Availability Zones, 99.95% for Availability Sets.
 
 ## Assumptions
 

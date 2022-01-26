@@ -1,12 +1,12 @@
-param AcceleratedNetworking bool
+param Availability string
 param DiskSku string
 param DodStigCompliance bool
-param DomainName string
-
 @secure()
 param DomainJoinPassword string
 param DomainJoinUserPrincipalName string
-param EphemeralOsDisk bool
+param DomainName string
+param DomainServices string
+param EphemeralOsDisk string
 param FSLogix bool
 param HostPoolName string
 param HostPoolResourceGroupName string
@@ -17,11 +17,13 @@ param ImageSku string
 param ImageVersion string
 param Location string
 param LogAnalyticsWorkspaceName string
+param ManagedIdentityResourceId string
 param NetworkSecurityGroupName string
 param NetAppFileShare string
 param OuPath string
 param RdpShortPath bool
 param ResourceNameSuffix string
+param SecurityPrincipalId string
 param SessionHostCount int
 param SessionHostIndex int
 param ScreenCaptureProtection bool
@@ -30,10 +32,10 @@ param StorageSolution string
 param Subnet string
 param Tags object
 param Timestamp string
+param UserAssignedIdentity string = ''
 param VirtualNetwork string
 param VirtualNetworkResourceGroup string
 param VmName string
-
 @secure()
 param VmPassword string
 param VmSize string
@@ -50,6 +52,7 @@ var AvailabilitySetName = 'as-${ResourceNameSuffix}'
 var AvailabilitySetId = {
   id: resourceId('Microsoft.Compute/availabilitySets', AvailabilitySetName)
 }
+var Intune = DomainServices == 'NoneWithIntune' ? true : false
 var LogAnalyticsWorkspaceResourceId = resourceId(HostPoolResourceGroupName, 'Microsoft.OperationalInsights/workspaces', LogAnalyticsWorkspaceName)
 var NvidiaVmSizes = [
   'Standard_NV6'
@@ -71,6 +74,7 @@ var EphemeralOsDisk_var = {
   caching: 'ReadOnly'
   diffDiskSettings: {
     option: 'Local'
+    placement: EphemeralOsDisk
   }
 }
 var StatefulOsDisk = {
@@ -81,8 +85,80 @@ var StatefulOsDisk = {
     storageAccountType: DiskSku
   }
 }
+var VmIdentityType = (contains(DomainServices, 'None') ? ((!empty(UserAssignedIdentity)) ? 'SystemAssigned, UserAssigned' : 'SystemAssigned') : ((!empty(UserAssignedIdentity)) ? 'UserAssigned' : 'None'))
+var VmIdentityTypeProperty = {
+  type: VmIdentityType
+}
+var VmUserAssignedIdentityProperty = {
+  userAssignedIdentities: {
+    '${resourceId('Microsoft.ManagedIdentity/userAssignedIdentities/', UserAssignedIdentity)}': {}
+  }
+}
+var VmIdentity = ((!empty(UserAssignedIdentity)) ? union(VmIdentityTypeProperty, VmUserAssignedIdentityProperty) : VmIdentityTypeProperty)
 
-resource availabilitySet 'Microsoft.Compute/availabilitySets@2019-07-01' = if (PooledHostPool) {
+
+resource deploymentScript 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
+  name: 'vmSizeValidation'
+  location: Location
+  kind: 'AzurePowerShell'
+  identity: {
+    type: 'UserAssigned'
+    userAssignedIdentities: {
+      '${ManagedIdentityResourceId}': {}
+    }
+  }
+  properties: {
+    forceUpdateTag: Timestamp
+    azPowerShellVersion: '5.4'
+    arguments: '-Availability ${Availability} -DiskSku ${DiskSku} -ImageSku ${ImageSku} -Location ${Location} -VmSize ${VmSize}'
+    scriptContent: '''
+      param(
+        [string]$Availability,
+        [string]$DiskSku,
+        [string]$ImageSku,
+        [string]$Location,
+        [string]$VmSize
+      )
+      $Sku = Get-AzComputeResourceSku -Location $Location | Where-Object {$_.ResourceType -eq 'virtualMachines' -and $_.Name -eq $VmSize}
+      # Availability Zones validation
+      if($Availability -eq 'AvailabilityZones' -and $Sku.locationInfo.zones.count -lt 3){
+        Write-Error -Exception 'Invalid Availability' -Message 'The selected VM Size does not support availability zones in this Azure location. https://docs.microsoft.com/en-us/azure/virtual-machines/windows/create-powershell-availability-zone' -ErrorAction Stop
+      } elseif($Availability -eq 'AvailabilityZones' -and $Sku.locationInfo.zones.count -eq 3){
+        $Zones = $true
+      } else {
+        $Zones = $false
+      }
+      # vCPU Validation: range = 4 min, 24 max
+      $vCPUs = [int]($Sku.capabilities | Where-Object {$_.name -eq 'vCPUs'}).value
+      if($vCPUs -lt 4 -or $vCPUs -gt 24){
+        Write-Error -Exception 'Invalid vCPU Count' -Message 'The selected VM Size does not contain the appropriate amount of vCPUs for Azure Virtual Desktop. https://docs.microsoft.com/en-us/windows-server/remote/remote-desktop-services/virtual-machine-recs' -ErrorAction Stop
+      }
+      # Disk SKU validation
+      if($DiskSku -like "Premium*" -and ($Sku.capabilities | Where-Object {$_.name -eq 'PremiumIO'}).value -eq $false){
+        Write-Error -Exception 'Invalid Disk SKU' -Message 'The selected VM Size does not support the Premium SKU for managed disks.' -ErrorAction Stop
+      }
+      # Hyper-V Generation validation
+      if($ImageSku -like "*-g2" -and ($Sku.capabilities | Where-Object {$_.name -eq 'HyperVGenerations'}).value -notlike "*2"){
+        Write-Error -Exception 'Invalid Hyper-V Generation' -Message 'The VM size does not support the selected Image Sku.' -ErrorAction Stop
+      }
+      $DeploymentScriptOutputs = @{};
+      $DeploymentScriptOutputs["acceleratedNetworking"] = ($Sku.capabilities | Where-Object {$_.name -eq 'AcceleratedNetworkingEnabled'}).value;
+    '''
+    timeout: 'PT2H'
+    cleanupPreference: 'OnSuccess'
+    retentionInterval: 'P1D'
+  }
+}
+
+resource roleAssignment_VmUserLogin 'Microsoft.Authorization/roleAssignments@2018-09-01-preview' = if (contains(DomainServices, 'None')) {
+  name: guid(resourceGroup().id, 'VirtualMachineUserLogin')
+  properties: {
+    roleDefinitionId: resourceId('Microsoft.Authorization/roleDefinitions', 'fb879df8-f326-4884-b1cf-06f3ad86be52')
+    principalId: SecurityPrincipalId
+  }
+}
+
+resource availabilitySet 'Microsoft.Compute/availabilitySets@2019-07-01' = if (PooledHostPool && Availability == 'AvailabilitySet') {
   name: AvailabilitySetName
   location: Location
   tags: Tags
@@ -95,11 +171,11 @@ resource availabilitySet 'Microsoft.Compute/availabilitySets@2019-07-01' = if (P
   }
 }
 
-resource nsg 'Microsoft.Network/networkSecurityGroups@2021-03-01' = if(RdpShortPath) {
+resource nsg 'Microsoft.Network/networkSecurityGroups@2021-03-01' = if (RdpShortPath) {
   name: NetworkSecurityGroupName
   location: Location
   properties: {
-    securityRules:[
+    securityRules: [
       {
         name: 'AllowRdpShortPath'
         properties: {
@@ -135,18 +211,24 @@ resource nic 'Microsoft.Network/networkInterfaces@2020-05-01' = [for i in range(
         }
       }
     ]
-    enableAcceleratedNetworking: AcceleratedNetworking
+    enableAcceleratedNetworking: deploymentScript.properties.outputs.acceleratedNetworking == 'True' ? true : false
     enableIPForwarding: false
-    networkSecurityGroup: RdpShortPath ? json(concat('{"id": "', nsg.id, '"}')) : null 
+    networkSecurityGroup: RdpShortPath ? {
+      id: nsg.id
+    } : null
   }
 }]
 
-resource sessionHosts 'Microsoft.Compute/virtualMachines@2021-03-01' = [for i in range(0, SessionHostCount): {
+resource vm 'Microsoft.Compute/virtualMachines@2021-03-01' = [for i in range(0, SessionHostCount): {
   name: '${VmName}${padLeft((i + SessionHostIndex), 3, '0')}'
   location: Location
   tags: Tags
+  zones: Availability == 'AvailabilityZones' ? [
+    string((i % 3) + 1)
+  ] : null
+  identity: VmIdentity
   properties: {
-    availabilitySet: PooledHostPool ? AvailabilitySetId : null
+    availabilitySet: Availability == 'AvailabilitySet' ? AvailabilitySetId : null
     hardwareProfile: {
       vmSize: VmSize
     }
@@ -157,7 +239,7 @@ resource sessionHosts 'Microsoft.Compute/virtualMachines@2021-03-01' = [for i in
         sku: ImageSku
         version: ImageVersion
       }
-      osDisk: (EphemeralOsDisk ? EphemeralOsDisk_var : StatefulOsDisk)
+      osDisk: EphemeralOsDisk == 'None' ? StatefulOsDisk : EphemeralOsDisk_var
       dataDisks: []
     }
     osProfile: {
@@ -207,11 +289,11 @@ resource microsoftMonitoringAgent 'Microsoft.Compute/virtualMachines/extensions@
     }
   }
   dependsOn: [
-    sessionHosts
+    vm
   ]
 }]
 
-resource jsonADDomainExtension 'Microsoft.Compute/virtualMachines/extensions@2021-03-01' = [for i in range(0, SessionHostCount): {
+resource jsonADDomainExtension 'Microsoft.Compute/virtualMachines/extensions@2021-03-01' = [for i in range(0, SessionHostCount): if (contains(DomainServices, 'ActiveDirectory')) {
   name: '${VmName}${padLeft((i + SessionHostIndex), 3, '0')}/JsonADDomainExtension'
   location: Location
   tags: Tags
@@ -233,8 +315,29 @@ resource jsonADDomainExtension 'Microsoft.Compute/virtualMachines/extensions@202
     }
   }
   dependsOn: [
-    sessionHosts
+    vm
     microsoftMonitoringAgent
+    //dsc
+  ]
+}]
+
+resource aadLoginForWindows 'Microsoft.Compute/virtualMachines/extensions@2021-03-01' = [for i in range(0, SessionHostCount): if (contains(DomainServices, 'None')) {
+  name: '${VmName}${padLeft((i + SessionHostIndex), 3, '0')}/AADLoginForWindows'
+  location: Location
+  tags: Tags
+  properties: {
+    publisher: 'Microsoft.Azure.ActiveDirectory'
+    type: 'AADLoginForWindows'
+    typeHandlerVersion: '1.0'
+    autoUpgradeMinorVersion: true
+    settings: Intune ? {
+      mdmId: '0000000a-0000-0000-c000-000000000000'
+    } : json('null')
+  }
+  dependsOn: [
+    vm
+    microsoftMonitoringAgent
+    //dsc
   ]
 }]
 
@@ -258,8 +361,9 @@ resource customScriptExtension 'Microsoft.Compute/virtualMachines/extensions@202
     }
   }
   dependsOn: [
-    sessionHosts
+    vm
     jsonADDomainExtension
+    aadLoginForWindows
   ]
 }]
 
@@ -275,7 +379,7 @@ resource amdGpuDriverWindows 'Microsoft.Compute/virtualMachines/extensions@2021-
     settings: {}
   }
   dependsOn: [
-    sessionHosts
+    vm
     customScriptExtension
   ]
 }]
@@ -292,7 +396,7 @@ resource nvidiaGpuDriverWindows 'Microsoft.Compute/virtualMachines/extensions@20
     settings: {}
   }
   dependsOn: [
-    sessionHosts
+    vm
     customScriptExtension
   ]
 }]

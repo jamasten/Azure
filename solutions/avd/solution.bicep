@@ -1,7 +1,12 @@
 targetScope = 'subscription'
 
-@description('Enable accelerated networking if the selected VM SKU supports it.')
-param AcceleratedNetworking bool = false
+@allowed([
+  'AvailabilitySet'
+  'AvailabilityZones'
+  'None'
+])
+@description('Set the desired availability / SLA with a pooled host pool.  Choose "None" if deploying a personal host pool.')
+param Availability string = 'None'
 
 @description('The Object ID for the Windows Virtual Desktop Enterprise Application in Azure AD.  The Object ID can found by selecting Microsoft Applications using the Application type filter in the Enterprise Applications blade of Azure AD.')
 param AvdObjectId string = 'cdcfb416-e2fe-41e2-be12-33813c1cd427'
@@ -33,8 +38,10 @@ param DomainJoinUserPrincipalName string
 param DomainName string = 'jasonmasten.com'
 
 @allowed([
-  'ActiveDirectory'
-  'AzureActiveDirectory'
+  'ActiveDirectory' // Active Directory Domain Services
+  'AzureActiveDirectory' // Azure Active Directory Domain Services
+  'None' // Azure AD Join
+  'NoneWithIntune' // Azure AD Join with Intune enrollment
 ])
 @description('The service providing domain services for Azure Virtual Desktop.  This is needed to determine the proper solution to domain join the Azure Storage Account.')
 param DomainServices string = 'AzureActiveDirectory'
@@ -42,8 +49,13 @@ param DomainServices string = 'AzureActiveDirectory'
 @description('Enable drain mode on sessions hosts during deployment to prevent users from accessing the session hosts.')
 param DrainMode bool = false
 
+@allowed([
+  'CacheDisk'
+  'None'
+  'ResourceDisk'
+])
 @description('Choose whether the session host uses an ephemeral disk for the operating system.  Be sure to select a VM SKU that offers a temporary disk that meets your image requirements. Reference: https://docs.microsoft.com/en-us/azure/virtual-machines/ephemeral-os-disks')
-param EphemeralOsDisk bool = false
+param EphemeralOsDisk string = 'None'
 
 @allowed([
   'AzureNetAppFiles Premium'
@@ -187,7 +199,7 @@ param VmUsername string
 
 var AppGroupName = 'dag-${ResourceNameSuffix}'
 var AutomationAccountName = 'aa-${ResourceNameSuffix}'
-var FSLogix = FSLogixStorage == 'None' ? false : true
+var FSLogix = FSLogixStorage == 'None' || contains(DomainServices, 'None') ? false : true
 var HostPoolName = 'hp-${ResourceNameSuffix}'
 var KeyVaultName = 'kv-${ResourceNameSuffix}'
 var Location = deployment().location
@@ -374,6 +386,7 @@ module hostPool 'modules/hostPool.bicep' = {
   params: {
     AppGroupName: AppGroupName
     CustomRdpProperty: CustomRdpProperty
+    DomainServices: DomainServices
     HostPoolName: HostPoolName
     HostPoolType: HostPoolType
     LogAnalyticsWorkspaceName: LogAnalyticsWorkspaceName
@@ -410,7 +423,7 @@ resource roleAssignment_anf 'Microsoft.Authorization/roleAssignments@2020-04-01-
 }
 
 
-module fslogixMgmtVm 'modules/fslogixMgmtVm.bicep' = if(FSLogix) {
+module fslogixMgmtVm 'modules/fslogixMgmtVm.bicep' = if(FSLogix && !contains(DomainServices, 'None')) {
   name: 'fslogixMgmtVm_${TimeStamp}'
   scope: resourceGroup(rgInfra.name)
   params: {
@@ -436,7 +449,7 @@ module fslogixMgmtVm 'modules/fslogixMgmtVm.bicep' = if(FSLogix) {
 }
 
 
-module fslogixNetApp 'modules/fslogixNetApp.bicep' = if(FSLogix && StorageSolution == 'AzureNetAppFiles') {
+module fslogixNetApp 'modules/fslogixNetApp.bicep' = if(FSLogix && StorageSolution == 'AzureNetAppFiles' && !contains(DomainServices, 'None')) {
   name: 'fslogixNetApp_${TimeStamp}'
   scope: resourceGroup(rgInfra.name)
   params: {
@@ -466,7 +479,7 @@ module fslogixNetApp 'modules/fslogixNetApp.bicep' = if(FSLogix && StorageSoluti
   ]
 }
 
-module fslogixStorageAccount 'modules/fslogixStorageAccount.bicep' = if(FSLogix && StorageSolution == 'AzureStorageAccount') {
+module fslogixStorageAccount 'modules/fslogixStorageAccount.bicep' = if(FSLogix && StorageSolution == 'AzureStorageAccount' && !contains(DomainServices, 'None')) {
   name: 'fslogixStorageAccount_${TimeStamp}'
   scope: resourceGroup(rgInfra.name)
   params: {
@@ -497,12 +510,13 @@ module sessionHosts 'modules/sessionHosts.bicep' = {
   name: 'sessionHosts_${TimeStamp}'
   scope: resourceGroup(ResourceGroups[1])
   params: {
-    AcceleratedNetworking: AcceleratedNetworking
+    Availability: Availability
     DiskSku: DiskSku
     DodStigCompliance: DodStigCompliance
     DomainJoinPassword: DomainJoinPassword
     DomainJoinUserPrincipalName: DomainJoinUserPrincipalName
     DomainName: DomainName
+    DomainServices: DomainServices
     EphemeralOsDisk: EphemeralOsDisk
     FSLogix: FSLogix
     HostPoolName: HostPoolName
@@ -514,12 +528,14 @@ module sessionHosts 'modules/sessionHosts.bicep' = {
     ImageVersion: ImageVersion
     Location: Location
     LogAnalyticsWorkspaceName: LogAnalyticsWorkspaceName
+    ManagedIdentityResourceId: hostPool.outputs.managedIdentityResourceId
     NetworkSecurityGroupName: NetworkSecurityGroupName
     NetAppFileShare: StorageSolution == 'AzureNetAppFiles' ? fslogixNetApp.outputs.fileshare : 'None'
     OuPath: OuPath
     RdpShortPath: RdpShortPath
     ResourceNameSuffix: ResourceNameSuffix
     ScreenCaptureProtection: ScreenCaptureProtection
+    SecurityPrincipalId: SecurityPrincipalId
     SessionHostCount: SessionHostCount
     SessionHostIndex: SessionHostIndex
     StorageAccountName: StorageAccountName
@@ -534,9 +550,6 @@ module sessionHosts 'modules/sessionHosts.bicep' = {
     VmSize: VmSize
     VmUsername: VmUsername
   }
-  dependsOn: [
-    hostPool
-  ]
 }
 
 module backup 'modules/backup.bicep' = if(RecoveryServices) {

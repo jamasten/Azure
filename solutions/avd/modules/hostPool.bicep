@@ -1,5 +1,6 @@
 param AppGroupName string
 param CustomRdpProperty string
+param DomainServices string
 param HostPoolName string
 param HostPoolType string
 param Location string
@@ -10,13 +11,15 @@ param ManagedIdentityName string
 param MaxSessionLimit int
 param SecurityPrincipalId string
 param StartVmOnConnect bool
-param Tags object = {}
+param Tags object
 param Timestamp string = utcNow('u')
 param ValidationEnvironment bool
-param VmTemplate string = '{}'
+param VmTemplate string
 param WorkspaceName string
 
-var HostPoolLogs_AzureCloud = [
+
+var CustomRdpProperty_Complete = contains(DomainServices, 'None') ? '${CustomRdpProperty}targetisaadjoined:i:1' : CustomRdpProperty
+var HostPoolLogs = [
   {
     category: 'Checkpoint'
     enabled: true
@@ -42,28 +45,8 @@ var HostPoolLogs_AzureCloud = [
     enabled: true
   }
 ]
-var HostPoolLogs_AzureUsGov = [
-  {
-    category: 'Checkpoint'
-    enabled: true
-  }
-  {
-    category: 'Error'
-    enabled: true
-  }
-  {
-    category: 'Management'
-    enabled: true
-  }
-  {
-    category: 'Connection'
-    enabled: true
-  }
-  {
-    category: 'HostRegistration'
-    enabled: true
-  }
-]
+var ReaderId = 'acdd72a7-3385-48ef-bd42-f606fba81ae7'
+var RoleAssignmentName = guid(resourceGroup().name, ManagedIdentityName, ReaderId)
 var WindowsEvents = [
   {
     name: 'Microsoft-FSLogix-Apps/Operational'
@@ -505,7 +488,7 @@ resource hostPool 'Microsoft.DesktopVirtualization/hostPools@2021-03-09-preview'
       registrationTokenOperation: 'Update'
     }
     preferredAppGroupType: 'Desktop'
-    customRdpProperty: CustomRdpProperty
+    customRdpProperty: CustomRdpProperty_Complete
     personalDesktopAssignmentType: contains(HostPoolType, 'Personal') ? split(HostPoolType, ' ')[1] : null
     startVMOnConnect: StartVmOnConnect
     vmTemplate: VmTemplate
@@ -517,7 +500,7 @@ resource hostPoolDiagnostics 'Microsoft.Insights/diagnosticsettings@2017-05-01-p
   scope: hostPool
   name: 'diag-${hostPool.name}'
   properties: {
-    logs: ((environment().name == 'AzureCloud') ? HostPoolLogs_AzureCloud : HostPoolLogs_AzureUsGov)
+    logs: HostPoolLogs
     workspaceId: logAnalyticsWorkspace.id
   }
 }
@@ -583,4 +566,14 @@ resource managedIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2018-
   location: Location
 }
 
+resource roleAssignment 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = {
+  name: RoleAssignmentName
+  properties: {
+    roleDefinitionId: resourceId('Microsoft.Authorization/roleDefinitions', ReaderId)
+    principalId: managedIdentity.properties.principalId
+    principalType: 'ServicePrincipal'
+  }
+}
+
+output managedIdentityResourceId string = managedIdentity.id
 output managedIdentityId string = managedIdentity.properties.principalId

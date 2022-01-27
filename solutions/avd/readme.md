@@ -82,6 +82,7 @@ To successfully deploy this solution, you will need to ensure your scenario matc
 
 To successfully deploy this solution, you will need to first ensure the following prerequisites have been completed:
 
+- Create a service principal or user account to domain join the session hosts if applicable.  Azure AD joined session hosts do not apply.
 - Create a security group for your AVD users and if applicable, ensure the principal has synchronized with your domain services.
 - If you plan to use Azure NetApp Files for FSLogix, complete the following:
   - [Register the resource provider](https://docs.microsoft.com/en-us/azure/azure-netapp-files/azure-netapp-files-register)

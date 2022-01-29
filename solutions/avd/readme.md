@@ -83,8 +83,8 @@ To successfully deploy this solution, you will need to ensure your scenario matc
 To successfully deploy this solution, you will need to first ensure the following prerequisites have been completed:
 
 - Create a service principal or user account to domain join the session hosts if applicable.  Azure AD joined session hosts do not apply.
-- Create a security group for your AVD users and if applicable, ensure the principal has synchronized with your domain services.
-- If you plan to use Azure NetApp Files for FSLogix, complete the following:
+- Create a security group for your AVD users and if applicable, ensure the principal has synchronized with your domain services (Azure AD DS) or directory (AD DS).
+- If you plan to use Azure NetApp Files with FSLogix, complete the following:
   - [Register the resource provider](https://docs.microsoft.com/en-us/azure/azure-netapp-files/azure-netapp-files-register)
   - [Delegate a subnet to Azure NetApp Files](https://docs.microsoft.com/en-us/azure/azure-netapp-files/azure-netapp-files-delegate-subnet)
   - [Enable the shared AD feature](https://docs.microsoft.com/en-us/azure/azure-netapp-files/create-active-directory-connections#shared_ad) if you plan to deploy more than one NetApp account in the same Azure subscription and region
@@ -93,8 +93,6 @@ To successfully deploy this solution, you will need to first ensure the followin
 
 If you need to redeploy this solution b/c of an error or other reason, be sure the virtual machines are turned on.  If your host pool is "pooled", I would recommended disabling your logic app to ensure the scaling solution doesn't turn off any of your VM's during the deployment.  If the VM's are off, the deployment will fail since the extensions cannot be validated / updated.
 
-Azure NetApp Files can only have one Active Directory Connection per subscription per region.  Due to this design, when deploying ANF be sure to deploy the first ANF account by itself to establish the AD Connection.  Once that is established and the connection sharing feature is enabled, any number of ANF accounts may also be deployed to the same subscription and region.
-
-## Post Deployment Requirements
+## Post Deployment Suggestion
 
 When deploying FSLogix, a management VM is deployed to facilitate the domain join of the Azure Storage Account, if applicable, and sets the NTFS permissions on the chosen storage solution.  After the deployment succeeds, this VM and its associated resources may be removed.

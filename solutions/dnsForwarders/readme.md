@@ -1,37 +1,4 @@
-# DNS Forwarders solution
-
-## Assumptions
-
-## Prerequisites
-
-## ARM Template Parameters
-
-<details>
-<summary>Click to expand</summary>
-
-- **AvSetName**: The name of the availability set.
-- **DiskNamePrefix**: The name prefix for the disks on the virtual machines. A number will be added as a suffix based on the copy loop number.
-- **DiskSku**: Storage SKU for the disks on the virtual machines.
-- **DnsForwarderIPAddress**: Forwarder IP Address for the DNS servers.
-- **DomainName**: The domain name used to join virtual machines to the domain.
-- **DomainPassword**: Password for the privileged account to domain join virtual machines.
-- **DomainUsername**: Username for the privileged account to domain join virtual machines.
-- **HybridUseBenefit**: Conditionally deploys the VM with the Hybrid Use Benefit for Windows Server.
-- **ImageOffer**: The offer of the OS image to use for the virtual machine resource.
-- **ImagePublisher**: The publisher of the OS image to use for the virtual machine resource.
-- **ImageSku**: The sku of the OS image to use for the virtual machine resource.
-- **ImageVersion**: The version of the OS image to use for the virtual machine resource.
-- **IPAddresses**: IP addresses for the DNS servers.
-- **Location**: Location to deploy the Azure resources.
-- **NicNamePrefix**: Name prefix for the NIC's on the virtual machines. A number will be added as a suffix based on the copy loop number.
-- **SubnetId**: The resource ID for the subnet of the DNS servers.
-- **Timestamp**: The timestamp is used to rerun VM extensions when the template needs to be redeployed due to an error or update.
-- **VmNamePrefix**: Name prefix for the virtual machines.  A number will be added as a suffix based on the copy loop number.
-- **VmPassword**: The local administrator password for virtual machines.
-- **VmSize**: The size of the virtual machine.
-- **VmUsername**: The local administrator username for virtual machines.
-
-</details>
+# DNS Forwarders for Private Link solution
 
 ## Deployment Options
 
@@ -45,7 +12,7 @@
 ````powershell
 New-AzResourceGroupDeployment `
     -ResourceGroupName '<Resource Group Name>' `
-    -TemplateUri '<Template URI>'
+    -TemplateUri 'https://raw.githubusercontent.com/jamasten/Azure/master/solutions/dnsForwarders/template.json'
 ````
 
 ### Try with CLI
@@ -53,7 +20,15 @@ New-AzResourceGroupDeployment `
 ````cli
 az deployment group create \
     --resource-group '<Resource Group Name>' \
-    --template-uri '<Template URI>>' \
+    --template-uri 'https://raw.githubusercontent.com/jamasten/Azure/master/solutions/dnsForwarders/template.json' \
     --parameters \
         AvSetName '<Availability Set Name>'
 ````
+
+## Assumptions
+
+Your DNS servers are on premise and you need DNS servers in Azure to support Private Link.
+
+## Description
+
+This solution will deploy two Windows DNS servers in an Availability Set, configure a DNS Conditional Forwarder for Azure Storage, and configure a DNS Forwarder to your on premise DNS servers.

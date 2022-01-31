@@ -47,7 +47,7 @@ This solution automates many of the features that are usually enabled manually a
   - Role with appropriate permissions
   - Role assignment
   - Enables the feature on the AVD host pool
-- VDI Optimization Script: removes unnecessary apps, services, and processes from your Windows 10 OS, improving performance and resource utilization.
+- [Virtual Desktop Optimization Tool](https://github.com/The-Virtual-Desktop-Team/Virtual-Desktop-Optimization-Tool): removes unnecessary apps, services, and processes from Windows 10 or 11, improving performance and resource utilization.
 - Monitoring: deploys the required resources to enable the Insights workbook:
   - Log Analytics Workspace with the required Windows Events and Performance Counters.
   - Microsoft Monitoring Agent on the session hosts.

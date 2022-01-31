@@ -30,42 +30,42 @@ This solution will deploy Azure Virtual Desktop in an Azure subscription.  Depen
 
 This solution automates many of the features that are usually enabled manually after deploying an AVD host pool.  Those features are:
 
-- FSLogix - deploys the required resources to enable the feature when using Azure AD DS or AD DS:
+- **FSLogix** - deploys the required resources to enable the feature when using Azure AD DS or AD DS:
   - Azure Storage Account or Azure NetApp Files with a fully configured file share
   - Management Virtual Machine with Custom Script Extension to:
     - Domain joins the Storage Account or creates the AD connection on the Azure NetApp Account
     - Sets the required permissions for access to the file share
   - Custom Script Extension on Session Hosts to enable FSLogix using registry settings
-- Scaling Automation (pooled host pools only) - deploys the required resources to enable the tool:
+- **Scaling Automation** (pooled host pools only) - deploys the required resources to enable the tool:
   - Automation Account with a Managed Identity
     - Runbook
     - Variable
     - PowerShell Modules
   - Logic App
   - Contributor role assignment on the AVD resource groups, limiting the privileges the Automation Account has in your subscription
-- Start VM On Connect (Optional) - deploys the required resources to enable the feature:
+- **Start VM On Connect** (Optional) - deploys the required resources to enable the feature:
   - Role with appropriate permissions
   - Role assignment
   - Enables the feature on the AVD host pool
-- [Virtual Desktop Optimization Tool](https://github.com/The-Virtual-Desktop-Team/Virtual-Desktop-Optimization-Tool) - removes unnecessary apps, services, and processes from Windows 10 or 11, improving performance and resource utilization.
-- Monitoring - deploys the required resources to enable the Insights workbook:
+- **[Virtual Desktop Optimization Tool](https://github.com/The-Virtual-Desktop-Team/Virtual-Desktop-Optimization-Tool)** - removes unnecessary apps, services, and processes from Windows 10 or 11, improving performance and resource utilization.
+- **Monitoring** - deploys the required resources to enable the Insights workbook:
   - Log Analytics Workspace with the required Windows Events and Performance Counters.
   - Microsoft Monitoring Agent on the session hosts.
   - Diagnostic settings on the AVD host pool and workspace.
-- Graphics Drivers & Settings - deploys the extension to install the graphics driver and creates the recommended registry settings when an appropriate VM size (Nv, Nvv3, Nvv4, or NCasT4_v3 series) is selected.
-- BitLocker Encryption (Optional) - deploys the required resources & configuration to enable BitLocker encryption on the session hosts:
+- **GPU Drivers & Settings** - deploys the extension to install the graphics driver and creates the recommended registry settings when an appropriate VM size (Nv, Nvv3, Nvv4, or NCasT4_v3 series) is selected.
+- **BitLocker Encryption** (Optional) - deploys the required resources & configuration to enable BitLocker encryption on the session hosts:
   - Key Vault with a Key Encryption Key
   - Azure Disk Encryption extension on the virtual machines
-- Backups (Optional) - deploys the required resources to enable backups:
+- **Backups** (Optional) - deploys the required resources to enable backups:
   - Recovery Services Vault
   - Backup Policy
   - Protection Container (File Share Only)
   - Protected Item
-- Screen Capture Protection (Optional) - deploys the required registry setting on the AVD session hosts to enable the feature.
-- Drain Mode (Optional) - when enabled, the sessions hosts will be deployed in drain mode to ensure end users cannot access the host pool until operations is ready to allow connections.
-- RDP ShortPath (Optional) - deploys the requirements to enable RDP ShortPath for AVD.
-- SMB Multichannel - Enables multiple connections to an SMB share.  This feature is only supported with a premium Azure Storage Account.
-- High Availability (Optional) - allows the virtual machines to be deployed in either Availability Zones or Availability Sets, to provide a higher SLA for your solution.  This is only applicable to pooled host pools.  SLA: 99.99% for Availability Zones, 99.95% for Availability Sets.
+- **Screen Capture Protection** (Optional) - deploys the required registry setting on the AVD session hosts to enable the feature.
+- **Drain Mode** (Optional) - when enabled, the sessions hosts will be deployed in drain mode to ensure end users cannot access the host pool until operations is ready to allow connections.
+- **RDP ShortPath** (Optional) - deploys the requirements to enable RDP ShortPath for AVD.
+- **SMB Multichannel** - Enables multiple connections to an SMB share.  This feature is only supported with a premium Azure Storage Account.
+- **High Availability** (Optional) - allows the virtual machines to be deployed in either Availability Zones or Availability Sets, to provide a higher SLA for your solution.  This is only applicable to pooled host pools.  SLA: 99.99% for Availability Zones, 99.95% for Availability Sets.
 
 ## Assumptions
 

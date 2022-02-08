@@ -26,9 +26,11 @@ az deployment sub create \
 
 ## Description
 
-This solution will deploy Azure Virtual Desktop in an Azure subscription.  Depending on the options selected, either a personal or pooled host pool can be deployed with this solution.  The pooled option will deploy an App Group with a role assignment and the required resources to enable FSLogix.
+This Azure Virtual Desktop (AVD) solution will deploy a fully operational [stamp](https://docs.microsoft.com/en-us/azure/architecture/patterns/deployment-stamp) in an Azure subscription.  Due to Azure deployment limitations, this solution will allow you to deploy shards to increase capacity while using the same AVD host pool, app group, log analytics workspace, etc. for the whole solution.  See the diagram below for more details:
 
-This solution automates many of the features that are usually enabled manually after deploying an AVD host pool.  Those features are:
+![Solution](images/solution.png)
+
+Depending on the options selected, either a personal or pooled host pool can be deployed with this solution.  The pooled option will deploy an App Group with a role assignment and the required resources to enable FSLogix.  This solution also automates many of the features that are usually enabled manually after deploying an AVD host pool.  Those features are:
 
 - **FSLogix** - deploys the required resources to enable the feature when using Azure AD DS or AD DS:
   - Azure Storage Account or Azure NetApp Files with a fully configured file share
@@ -74,7 +76,7 @@ To successfully deploy this solution, you will need to ensure your scenario matc
 - [Supported operating system and licensing](https://docs.microsoft.com/en-us/azure/virtual-desktop/overview#requirements)
 - Landing zone deployed in Azure:
   - Virtual network and subnet(s)
-  - Deployed and configured domain services if domain joining the session hosts
+  - Deployed and configured domain services if domain or hybrid joining the session hosts
 - Azure Subscription Owner: this solution contains many role assignments so the principal deploying this solution will need to be a Subscription Owner for a successful deployment.
 
 ## Prerequisites

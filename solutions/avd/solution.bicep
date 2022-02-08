@@ -165,6 +165,9 @@ param SessionHostIndex int = 0
 @description('Determines whether the Start VM On Connect feature is enabled. https://docs.microsoft.com/en-us/azure/virtual-desktop/start-virtual-machine-connect')
 param StartVmOnConnect bool = true
 
+@description('The Storage Shard Index allows an AVD stamp to be scaled within an Azure subscription to support more users.  All of the existing AVD infrastruture will be included in the deployment when the shard value is greater than 0.  However, this will allow the solution to scale to a new Azure Storage Account to increase capacity.')
+param StorageShardIndex int = 0
+
 @description('The subnet for the AVD session hosts.')
 param Subnet string = 'Clients'
 
@@ -274,7 +277,7 @@ var ResourceGroups = [
 var RoleAssignmentName_StartVmOnConnect = guid(subscription().id, 'StartVmOnConnect')
 var RoleAssignmentName_AzureNetAppFiles = guid(subscription().id, 'AzureNetAppFiles', ResourceNameSuffix)
 var RoleDefinitionName = guid(subscription().id, 'StartVmOnConnect')
-var StorageAccountName = 'stor${toLower(substring(uniqueString(subscription().id, ResourceGroups[0]), 0, 11))}'
+var StorageAccountName = 'stor${toLower(substring(uniqueString(subscription().id, ResourceGroups[0]), 0, 9))}${padLeft(StorageShardIndex, 2, '0')}'
 var StorageSolution = split(FSLogixStorage, ' ')[0]
 var StorageSku = FSLogixStorage == 'None' ? 'None' : split(FSLogixStorage, ' ')[1]
 var TimeZones = {

@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.4.613.9944",
-      "templateHash": "10715658228132778951"
+      "templateHash": "3730807351534404946"
     }
   },
   "parameters": {
@@ -321,6 +321,13 @@
         "description": "Determines whether the Start VM On Connect feature is enabled. https://docs.microsoft.com/en-us/azure/virtual-desktop/start-virtual-machine-connect"
       }
     },
+    "StorageShardIndex": {
+      "type": "int",
+      "defaultValue": 0,
+      "metadata": {
+        "description": "The Storage Shard Index allows an AVD stamp to be scaled within an Azure subscription to support more users.  All of the existing AVD infrastruture will be included in the deployment when the shard value is greater than 0.  However, this will allow the solution to scale to a new Azure Storage Account to increase capacity."
+      }
+    },
     "Subnet": {
       "type": "string",
       "defaultValue": "Clients",
@@ -463,7 +470,7 @@
     "RoleAssignmentName_StartVmOnConnect": "[guid(subscription().id, 'StartVmOnConnect')]",
     "RoleAssignmentName_AzureNetAppFiles": "[guid(subscription().id, 'AzureNetAppFiles', parameters('ResourceNameSuffix'))]",
     "RoleDefinitionName": "[guid(subscription().id, 'StartVmOnConnect')]",
-    "StorageAccountName": "[format('stor{0}', toLower(substring(uniqueString(subscription().id, variables('ResourceGroups')[0]), 0, 11)))]",
+    "StorageAccountName": "[format('stor{0}{1}', toLower(substring(uniqueString(subscription().id, variables('ResourceGroups')[0]), 0, 9)), padLeft(parameters('StorageShardIndex'), 2, '0'))]",
     "StorageSolution": "[split(parameters('FSLogixStorage'), ' ')[0]]",
     "StorageSku": "[if(equals(parameters('FSLogixStorage'), 'None'), 'None', split(parameters('FSLogixStorage'), ' ')[1])]",
     "TimeZones": {

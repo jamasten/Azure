@@ -45,6 +45,12 @@ var HostPoolLogs = [
     enabled: true
   }
 ]
+var NetworkData = [
+  {
+    category: 'NetworkData'
+    enabled: true
+  }
+]
 var ReaderId = 'acdd72a7-3385-48ef-bd42-f606fba81ae7'
 var RoleAssignmentName = guid(resourceGroup().name, ManagedIdentityName, ReaderId)
 var WindowsEvents = [
@@ -500,7 +506,7 @@ resource hostPoolDiagnostics 'Microsoft.Insights/diagnosticsettings@2017-05-01-p
   scope: hostPool
   name: 'diag-${hostPool.name}'
   properties: {
-    logs: HostPoolLogs
+    logs: environment().name == 'AzureCloud' ? union(HostPoolLogs,NetworkData) : HostPoolLogs //adding NetworkData for AzureCloud, not available in AzureUSGovernment, 2/10/2022
     workspaceId: logAnalyticsWorkspace.id
   }
 }

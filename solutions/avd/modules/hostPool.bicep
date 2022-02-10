@@ -55,6 +55,31 @@ var ReaderId = 'acdd72a7-3385-48ef-bd42-f606fba81ae7'
 var RoleAssignmentName = guid(resourceGroup().name, ManagedIdentityName, ReaderId)
 var WindowsEvents = [
   {
+    name: 'Application'
+    types: [
+      {
+        eventType: 'Error'
+      }
+      {
+        eventType: 'Warning'
+      }
+    ]
+  }
+  {
+    name: 'Microsoft-FSLogix-Apps/Admin'
+    types: [
+      {
+        eventType: 'Error'
+      }
+      {
+        eventType: 'Warning'
+      }
+      {
+        eventType: 'Information'
+      }
+    ]
+  }
+  {
     name: 'Microsoft-FSLogix-Apps/Operational'
     types: [
       {
@@ -83,17 +108,6 @@ var WindowsEvents = [
     ]
   }
   {
-    name: 'System'
-    types: [
-      {
-        eventType: 'Error'
-      }
-      {
-        eventType: 'Warning'
-      }
-    ]
-  }
-  {
     name: 'Microsoft-Windows-TerminalServices-RemoteConnectionManager/Admin'
     types: [
       {
@@ -108,21 +122,7 @@ var WindowsEvents = [
     ]
   }
   {
-    name: 'Microsoft-FSLogix-Apps/Admin'
-    types: [
-      {
-        eventType: 'Error'
-      }
-      {
-        eventType: 'Warning'
-      }
-      {
-        eventType: 'Information'
-      }
-    ]
-  }
-  {
-    name: 'Application'
+    name: 'System'
     types: [
       {
         eventType: 'Error'

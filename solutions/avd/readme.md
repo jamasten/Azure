@@ -30,7 +30,7 @@ This Azure Virtual Desktop (AVD) solution will deploy a fully operational [stamp
 
 ![Solution](images/solution.png)
 
-Depending on the options selected, either a personal or pooled host pool can be deployed with this solution.  The pooled option will deploy an App Group with a role assignment and the required resources to enable FSLogix.  This solution also automates many of the features that are usually enabled manually after deploying an AVD host pool.  Those features are:
+Both a personal or pooled host pool can be deployed with this solution.  Either option will deploy a desktop application group with a role assignment. Selecting a pooled host pool will deploy the required resources and configurations to fully enable FSLogix.  This solution also automates many of the features that are usually enabled manually after deploying an AVD host pool.  Those features are:
 
 - **FSLogix** - deploys the required resources to enable the feature when using Azure AD DS or AD DS:
   - Azure Storage Account or Azure NetApp Files with a fully configured file share
@@ -97,3 +97,23 @@ If you need to redeploy this solution b/c of an error or other reason, be sure t
 ## Post Deployment Suggestion
 
 When deploying FSLogix, a management VM is deployed to facilitate the domain join of the Azure Storage Account, if applicable, and sets the NTFS permissions on the chosen storage solution.  After the deployment succeeds, this VM and its associated resources may be removed.
+
+## Sharding to Increase Capacity
+
+This solution has been updated to allow sharding.  A shard provides additional capacity to an AVD stamp.  See the options below for increasing network or storage capacity.  
+
+### Network Shard
+
+To add networking capacity to an AVD stamp, a new virtual network should be staged prior to deploying this code.  When running a new deployment specify the new values for the "VirtualNetwork", "VirtualNetworkResourceGroup", and "Subnet" parameters.  The sessions hosts will be deployed to the new virtual network.  The "SessionHostIndex" and "SessionHostCount" parameters will also play into the network shards.  For example:
+
+| Shard | VNET           | Subnet  | Session Host Index | Session Host Count |
+|-------|----------------|---------|--------------------|--------------------|
+| 0     | vnet-p-eus-000 | Clients | 0                  | 250                |
+| 1     | vnet-p-eus-001 | Clients | 250                | 250                |
+| 2     | vnet-p-eus-002 | Clients | 500                | 250                |
+
+In this example, each shard will contain 250 session hosts and each set of sessions hosts will be in different VNET.
+
+### Storage Shard
+
+To add storage capacity to an AVD stamp, the "StorageShardIndex" parameter should be incremented by 1 for every deployment.  The last two digits in the name for the chosen storage solution will be incremented between each deployment.  The "VHDLocations" setting will include all the file shares.  The "SecurityPrincipalId" and "SecurityPrincipalName" should differ between each deployment for the RBAC assignment and NTFS permissions on the storage solution.  Each user in the stamp should only have access to one file share. When the user accesses a session host, their profile will load from the one file share.  

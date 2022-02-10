@@ -317,7 +317,6 @@ resource jsonADDomainExtension 'Microsoft.Compute/virtualMachines/extensions@202
   dependsOn: [
     vm
     microsoftMonitoringAgent
-    //dsc
   ]
 }]
 
@@ -337,7 +336,6 @@ resource aadLoginForWindows 'Microsoft.Compute/virtualMachines/extensions@2021-0
   dependsOn: [
     vm
     microsoftMonitoringAgent
-    //dsc
   ]
 }]
 

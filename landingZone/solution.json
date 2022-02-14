@@ -4,8 +4,8 @@
   "metadata": {
     "_generator": {
       "name": "bicep",
-      "version": "0.4.1008.15138",
-      "templateHash": "2660793390916825866"
+      "version": "0.4.613.9944",
+      "templateHash": "7518083809249940585"
     }
   },
   "parameters": {
@@ -101,7 +101,7 @@
     },
     {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2020-06-01",
+      "apiVersion": "2019-10-01",
       "name": "ManagedIdentityTemplate",
       "resourceGroup": "[variables('ResourceGroupNames')[0]]",
       "properties": {
@@ -126,8 +126,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.4.1008.15138",
-              "templateHash": "16537821399602921828"
+              "version": "0.4.613.9944",
+              "templateHash": "1454396572193676687"
             }
           },
           "parameters": {
@@ -180,7 +180,7 @@
     },
     {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2020-06-01",
+      "apiVersion": "2019-10-01",
       "name": "NetworkingTemplate",
       "resourceGroup": "[variables('ResourceGroupNames')[1]]",
       "properties": {
@@ -205,7 +205,7 @@
             "value": "[variables('NetworkWatcherName')]"
           },
           "PrincipalId": {
-            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroupNames')[0]), 'Microsoft.Resources/deployments', 'ManagedIdentityTemplate'), '2020-06-01').outputs.principalId.value]"
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroupNames')[0]), 'Microsoft.Resources/deployments', 'ManagedIdentityTemplate'), '2019-10-01').outputs.principalId.value]"
           },
           "PublicIpAddressName": {
             "value": "[variables('PublicIpAddressName')]"
@@ -220,8 +220,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.4.1008.15138",
-              "templateHash": "9842787953392771138"
+              "version": "0.4.613.9944",
+              "templateHash": "14567778532167046391"
             }
           },
           "parameters": {
@@ -473,7 +473,7 @@
     },
     {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2020-06-01",
+      "apiVersion": "2019-10-01",
       "name": "DomainServicesTemplate",
       "resourceGroup": "[variables('ResourceGroupNames')[0]]",
       "properties": {
@@ -519,8 +519,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.4.1008.15138",
-              "templateHash": "7996143658894267947"
+              "version": "0.4.613.9944",
+              "templateHash": "12676179936297345304"
             }
           },
           "parameters": {
@@ -701,7 +701,7 @@
     },
     {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2020-06-01",
+      "apiVersion": "2019-10-01",
       "name": "DnsFixTemplate",
       "resourceGroup": "[variables('ResourceGroupNames')[0]]",
       "properties": {
@@ -735,8 +735,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.4.1008.15138",
-              "templateHash": "17371178281852295328"
+              "version": "0.4.613.9944",
+              "templateHash": "10689713883033427770"
             }
           },
           "parameters": {
@@ -771,7 +771,7 @@
               "identity": {
                 "type": "UserAssigned",
                 "userAssignedIdentities": {
-                  "[format('{0}', resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', parameters('ManagedIdentityName')))]": {}
+                  "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', parameters('ManagedIdentityName'))]": {}
                 }
               },
               "properties": {
@@ -794,7 +794,7 @@
               "identity": {
                 "type": "UserAssigned",
                 "userAssignedIdentities": {
-                  "[format('{0}', resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', parameters('ManagedIdentityName')))]": {}
+                  "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', parameters('ManagedIdentityName'))]": {}
                 }
               },
               "properties": {
@@ -818,7 +818,7 @@
     },
     {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2020-06-01",
+      "apiVersion": "2019-10-01",
       "name": "SharedServicesTemplate",
       "resourceGroup": "[variables('ResourceGroupNames')[2]]",
       "properties": {
@@ -840,7 +840,7 @@
             "value": "[variables('LogAnalyticsWorkspaceName')]"
           },
           "ManagedIdentityPrincipalId": {
-            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroupNames')[0]), 'Microsoft.Resources/deployments', 'ManagedIdentityTemplate'), '2020-06-01').outputs.principalId.value]"
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroupNames')[0]), 'Microsoft.Resources/deployments', 'ManagedIdentityTemplate'), '2019-10-01').outputs.principalId.value]"
           },
           "UserObjectId": {
             "value": "[parameters('UserObjectId')]"
@@ -858,8 +858,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.4.1008.15138",
-              "templateHash": "17497261849451238096"
+              "version": "0.4.613.9944",
+              "templateHash": "657418999688382498"
             }
           },
           "parameters": {

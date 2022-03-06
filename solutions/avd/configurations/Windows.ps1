@@ -33,6 +33,16 @@ configuration Windows
             }
         }
 
+        $office = Get-WmiObject win32_product | Where-Object {$_.Name -like "Office 16*"}
+
+        if($office){
+            Office STIG_Office365
+            {
+                OfficeApp = '365ProPlus'
+            }
+        }
+        
+
         $osVersion = (Get-WmiObject Win32_OperatingSystem).Captions
         
         switch -Wildcard ($osVersion) 
@@ -42,7 +52,8 @@ configuration Windows
                 WindowsClient STIG_WindowsClient
                 {
                     OsVersion   = '10'
-                    SkipRule    = @("V-220740","V-220739","V-220741", "V-220908")
+                    # V-220805 breaks connectivity to the AVD Session Host
+                    SkipRule    = @("V-220740","V-220739","V-220741", "V-220908", "V-220805")
                     Exception   = @{
                         'V-220972' = @{
                             Identity = 'Guests'

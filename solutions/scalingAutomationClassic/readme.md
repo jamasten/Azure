@@ -1,29 +1,20 @@
-# WVD Scaling Automation Solution
+# Azure Virtual Desktop - Scaling Automation Solution (Classic)
+
+This code will deploy the same solution described in the [AVD documentation](https://docs.microsoft.com/en-us/azure/virtual-desktop/set-up-scaling-script).  However, this greatly simplifies the deployment, ensuring consumers aren't required to download PowerShell modules and click through a clunky interface.  Use this solution to add Scaling Automation to AVD Classic.  If using AVD ARM, use my newer, ARM optimized [solution](https://github.com/jamasten/Azure/tree/master/solutions/scalingAutomation).
 
 ## STEP 1: Deploy the Automation Account
-
-### Description
-
-<details>
-<summary>Click to expand</summary>
 
 This ARM template will deploy the following resources:
 
 * Automation Account
-* Automation Account Modules
-* Automation Account Runbook
-* Automation Account Webhook
-* Automation Account Variable
-* Diagnostic Settings for the Automation Account (Optional)
+  * Runbook
+  * Webhook
+  * Variable
+  * Diagnostic Settings (Optional)
 
-By configuring the "workspace" parameters for this deployment, the Runbook job logs will be sent to a Log Analytics Workspace.  Review this Docs page, "[View Automation logs in Azure Monitor logs](https://docs.microsoft.com/en-us/azure/automation/automation-manage-send-joblogs-log-analytics#view-automation-logs-in-azure-monitor-logs)", for the KQL queries to view the log data and create alerts.
-
-</details>
+By specifying a value for "LogAnalyticsWorkspaceResourceId" parameter, the Runbook job logs and stream will be sent to a Log Analytics Workspace.  Review this Docs page, "[View Automation logs in Azure Monitor logs](https://docs.microsoft.com/en-us/azure/automation/automation-manage-send-joblogs-log-analytics#view-automation-logs-in-azure-monitor-logs)", for the KQL queries to view the log data and create alerts.
 
 ### Template Parameters
-
-<details>
-<summary>Click to expand</summary>
 
 #### REQUIRED
 
@@ -34,14 +25,14 @@ By configuring the "workspace" parameters for this deployment, the Runbook job l
 
 * **LogAnalyticsWorkspaceResourceId**: Resource ID of the Log Analytics Workspace to use for logging the Runbook jobs and job stream in Azure Automation
 
-</details>
+### Deploy to Azure
 
-### Try with Azure Portal
+#### Azure Portal
 
 [![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fjamasten%2FAzure%2Fmaster%2Fsolutions%2FscalingAutomation%2FscalingAutomationAccount.json)
 [![Deploy to Azure Gov](https://aka.ms/deploytoazuregovbutton)](https://portal.azure.us/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fjamasten%2FAzure%2Fmaster%2Fsolutions%2FscalingAutomation%2FscalingAutomationAccount.json)
 
-### Try with PowerShell
+#### PowerShell
 
 ````powershell
 New-AzResourceGroupDeployment `
@@ -53,7 +44,7 @@ New-AzResourceGroupDeployment `
     -Verbose
 ````
 
-### Try with CLI
+#### Azure CLI
 
 ````cli
 az deployment group create \
@@ -71,19 +62,9 @@ https://docs.microsoft.com/en-us/azure/virtual-desktop/set-up-scaling-script#cre
 
 ## STEP 3: Deploy the Logic App
 
-### Description
-
-<details>
-<summary>Click to expand</summary>
-
 This ARM template will deploy a Logic App to trigger the scaling runbook in Azure Automation.
 
-</details>
-
 ### Template Parameters
-
-<details>
-<summary>Click to expand</summary>
 
 #### REQUIRED
 
@@ -111,14 +92,14 @@ This ARM template will deploy a Logic App to trigger the scaling runbook in Azur
 * **LogOffTitle**: The title of the message sent to the user before they are forced to sign out
 * **LogOffMessage**: The body of the message sent to the user before they are forced to sign out
 
-</details>
+### Deploy to Azure
 
-### Try with Azure Portal
+#### Azure Portal
 
 [![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fjamasten%2FAzure%2Fmaster%2Fsolutions%2FscalingAutomation%2FscalingLogicApp.json)
 [![Deploy to Azure Gov](https://aka.ms/deploytoazuregovbutton)](https://portal.azure.us/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fjamasten%2FAzure%2Fmaster%2Fsolutions%2FscalingAutomation%2FscalingLogicApp.json)
 
-### Try with PowerShell
+#### PowerShell
 
 ````powershell
 New-AzResourceGroupDeployment `
@@ -149,7 +130,7 @@ New-AzResourceGroupDeployment `
     -Verbose
 ````
 
-### Try with CLI
+#### Azure CLI
 
 ````cli
 az deployment group create \

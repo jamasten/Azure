@@ -31,7 +31,9 @@ var ActionSettingsBody = {
   LogOffMessageBody: 'Your session will be logged off. Please save and close everything.'
 }
 var Location = resourceGroup().location
-var RoleAssignmentResourceGroups = [
+var RoleAssignmentResourceGroups = HostPoolResourceGroupName == HostsResourceGroupName ? [
+  HostPoolResourceGroupName
+] : [
   HostPoolResourceGroupName
   HostsResourceGroupName
 ]

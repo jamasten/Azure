@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.4.1318.3566",
-      "templateHash": "13483462281465519858"
+      "templateHash": "6072798914657210671"
     }
   },
   "parameters": {
@@ -78,10 +78,7 @@
       "LogOffMessageBody": "Your session will be logged off. Please save and close everything."
     },
     "Location": "[resourceGroup().location]",
-    "RoleAssignmentResourceGroups": [
-      "[parameters('HostPoolResourceGroupName')]",
-      "[parameters('HostsResourceGroupName')]"
-    ],
+    "RoleAssignmentResourceGroups": "[if(equals(parameters('HostPoolResourceGroupName'), parameters('HostsResourceGroupName')), createArray(parameters('HostPoolResourceGroupName')), createArray(parameters('HostPoolResourceGroupName'), parameters('HostsResourceGroupName')))]",
     "Runbook": "AvdAutoScale",
     "Variable": "WebhookURI",
     "Webhook": "[format('AvdAutoScale_{0}', dateTimeAdd(parameters('Timestamp'), 'PT0H', 'yyyyMMddhhmmss'))]"

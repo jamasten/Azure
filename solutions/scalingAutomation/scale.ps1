@@ -1,9 +1,4 @@
-﻿
-<#
-.SYNOPSIS
-	v0.1.38
-#>
-[CmdletBinding(SupportsShouldProcess)]
+﻿[CmdletBinding(SupportsShouldProcess)]
 param (
 	[Parameter(mandatory = $false)]
 	$WebHookData,
@@ -12,14 +7,15 @@ param (
 	[System.Nullable[int]]$OverrideNUserSessions
 )
 
-try {
-	
+try
+{	
 	[version]$Version = '0.1.38'
 	$ErrorActionPreference = 'Stop'
 	# Note: this is to force cast in case it's not of the desired type. Specifying this type inside before the param inside param () doesn't work because it still accepts other types and doesn't cast it to this type
 	$WebHookData = [PSCustomObject]$WebHookData
 
-	function Get-PSObjectPropVal {
+	function Get-PSObjectPropVal
+    {
 		param (
 			$Obj,
 			[string]$Key,
@@ -33,40 +29,29 @@ try {
 	}
 
 	# If runbook was called from Webhook, WebhookData and its RequestBody will not be null
-	if (!$WebHookData -or [string]::IsNullOrWhiteSpace((Get-PSObjectPropVal -Obj $WebHookData -Key 'RequestBody'))) {
+	if (!$WebHookData -or [string]::IsNullOrWhiteSpace((Get-PSObjectPropVal -Obj $WebHookData -Key 'RequestBody')))
+    {
 		throw 'Runbook was not started from Webhook (WebHookData or its RequestBody is empty)'
 	}
 
 	# Collect Input converted from JSON request body of Webhook
 	$RqtParams = ConvertFrom-Json -InputObject $WebHookData.RequestBody
 
-	if (!$RqtParams) {
+	if (!$RqtParams)
+    {
 		throw 'RequestBody of WebHookData is empty'
 	}
 
-	[string]$ARM = Get-PSObjectPropVal -Obj $RqtParams -Key 'UseARMAPI'
-	if($ARM -eq 'true')
-	{
-		[string[]]$RequiredStrParams = @(
-			'ResourceGroupName'
-			'HostPoolName'
-			'TimeDifference'
-			'BeginPeakTime'
-			'EndPeakTime'
-		)
-	}
-	else
-	{
-		[string[]]$RequiredStrParams = @(
-			'TenantName'
-			'HostPoolName'
-			'TimeDifference'
-			'BeginPeakTime'
-			'EndPeakTime'
-		)
-	}
+    [string[]]$RequiredStrParams = @(
+        'ResourceGroupName'
+        'HostPoolName'
+        'TimeDifference'
+        'BeginPeakTime'
+        'EndPeakTime'
+    )
 
-	if (Get-PSObjectPropVal -Obj $RqtParams -Key 'LimitSecondsToForceLogOffUser') {
+	if (Get-PSObjectPropVal -Obj $RqtParams -Key 'LimitSecondsToForceLogOffUser')
+    {
 		$RequiredStrParams += @('LogOffMessageTitle', 'LogOffMessageBody')
 	}
 	
@@ -74,17 +59,12 @@ try {
 	[string[]]$InvalidParams = @($RequiredStrParams | Where-Object { [string]::IsNullOrWhiteSpace((Get-PSObjectPropVal -Obj $RqtParams -Key $_)) })
 	[string[]]$InvalidParams += @($RequiredParams | Where-Object { $null -eq (Get-PSObjectPropVal -Obj $RqtParams -Key $_) })
 
-	if ($InvalidParams) {
+	if ($InvalidParams)
+    {
 		throw "Invalid values for the following $($InvalidParams.Count) params: $($InvalidParams -join ', ')"
 	}
 	
-	#[string]$LogAnalyticsWorkspaceId = Get-PSObjectPropVal -Obj $RqtParams -Key 'LogAnalyticsWorkspaceId'
-	#[string]$LogAnalyticsPrimaryKey = Get-PSObjectPropVal -Obj $RqtParams -Key 'LogAnalyticsPrimaryKey'
-	[string]$ConnectionAssetName = Get-PSObjectPropVal -Obj $RqtParams -Key 'ConnectionAssetName'
 	[string]$EnvironmentName = Get-PSObjectPropVal -Obj $RqtParams -Key 'EnvironmentName'
-	[string]$RDBrokerURL = Get-PSObjectPropVal -Obj $RqtParams -Key 'RDBrokerURL'
-	[string]$TenantGroupName = Get-PSObjectPropVal -Obj $RqtParams -Key 'TenantGroupName'
-	[string]$TenantName = $RqtParams.TenantName
 	[string]$ResourceGroupName = $RqtParams.ResourceGroupName
 	[string]$HostPoolName = $RqtParams.HostPoolName
 	[string]$MaintenanceTagName = Get-PSObjectPropVal -Obj $RqtParams -Key 'MaintenanceTagName'
@@ -96,45 +76,21 @@ try {
 	[int]$LimitSecondsToForceLogOffUser = $RqtParams.LimitSecondsToForceLogOffUser
 	[string]$LogOffMessageTitle = Get-PSObjectPropVal -Obj $RqtParams -Key 'LogOffMessageTitle'
 	[string]$LogOffMessageBody = Get-PSObjectPropVal -Obj $RqtParams -Key 'LogOffMessageBody'
-
-	# Note: if this is enabled, the script will assume that all the authentication is already done in current or parent scope before calling this script
-	[bool]$SkipAuth = !!(Get-PSObjectPropVal -Obj $RqtParams -Key 'SkipAuth')
-	[bool]$SkipUpdateLoadBalancerType = !!(Get-PSObjectPropVal -Obj $RqtParams -Key 'SkipUpdateLoadBalancerType')
-
-	if ([string]::IsNullOrWhiteSpace($ConnectionAssetName)) {
-		$ConnectionAssetName = 'AzureRunAsConnection'
-	}
-	if ([string]::IsNullOrWhiteSpace($EnvironmentName)) {
-		$EnvironmentName = 'AzureCloud'
-	}
-
-	if($ARM -eq 'false')
-	{
-		if ([string]::IsNullOrWhiteSpace($RDBrokerURL)) {
-			$RDBrokerURL = 'https://rdbroker.wvd.microsoft.com'
-		}
-		if ([string]::IsNullOrWhiteSpace($TenantGroupName)) {
-			$TenantGroupName = 'Default Tenant Group'
-		}
-	}
-
 	[int]$StatusCheckTimeOut = Get-PSObjectPropVal -Obj $RqtParams -Key 'StatusCheckTimeOut' -Default (60 * 60) # 1 hr
-	# [int]$SessionHostStatusCheckSleepSecs = 30
 	[string[]]$DesiredRunningStates = @('Available', 'NeedsAssistance')
 	# Note: time diff can be '#' or '#:#', so it is appended with ':0' in case its just '#' and so the result will have at least 2 items (hrs and min)
 	[string[]]$TimeDiffHrsMin = "$($TimeDifference):0".Split(':')
-
 	#endregion
 
-
 	#region helper/common functions, set exec policies, set TLS 1.2 security protocol, log rqt params
-
 	# Function to return local time converted from UTC
-	function Get-LocalDateTime {
+	function Get-LocalDateTime
+    {
 		return (Get-Date).ToUniversalTime().AddHours($TimeDiffHrsMin[0]).AddMinutes($TimeDiffHrsMin[1])
 	}
 
-	function Write-Log {
+	function Write-Log 
+    {
 		# Note: this is required to support param such as ErrorAction
 		[CmdletBinding()]
 		param (
@@ -153,41 +109,24 @@ try {
 		$Message = "[$($MyInvocation.ScriptLineNumber)] [$($HostPoolName)] $Message"
 		[string]$WriteMessage = "[$($MessageTimeStamp)] $Message"
 
-		if ($Err) {
+		if ($Err)
+        {
 			Write-Error $WriteMessage
 			$Message = "ERROR: $Message"
 		}
-		elseif ($Warn) {
+		elseif ($Warn)
+        {
 			Write-Warning $WriteMessage
 			$Message = "WARN: $Message"
 		}
-		else {
+		else 
+        {
 			Write-Output $WriteMessage
 		}
-		<#	
-		if (!$LogAnalyticsWorkspaceId -or !$LogAnalyticsPrimaryKey) {
-			return
-		}
-
-		try {
-			$body_obj = @{
-				'hostpoolName' = $HostPoolName
-				'logmessage'   = $Message
-				'TimeStamp'    = $MessageTimeStamp
-			}
-			$json_body = ConvertTo-Json -Compress $body_obj
-			
-			$PostResult = Send-OMSAPIIngestionFile -customerId $LogAnalyticsWorkspaceId -sharedKey $LogAnalyticsPrimaryKey -Body $json_body -logType 'WVDTenantScale_CL' -TimeStampField 'TimeStamp' -EnvironmentName $EnvironmentName
-			if ($PostResult -ine 'Accepted') {
-				throw "Error posting to OMS: $PostResult"
-			}
-		}
-		catch {
-			Write-Warning "$MessageTimeStamp Some error occurred while logging to log analytics workspace: $($PSItem | Format-List -Force | Out-String)"
-		}#>
 	}
 
-	function Set-nVMsToStartOrStop {
+	function Set-nVMsToStartOrStop 
+    {
 		param (
 			[Parameter(Mandatory = $true)]
 			[int]$nRunningVMs,
@@ -210,21 +149,25 @@ try {
 		# check if need to adjust min num of running session hosts required if the number of user sessions is close to the max allowed by the min num of running session hosts required
 		[double]$MaxUserSessionsThreshold = 0.9
 		[int]$MaxUserSessionsThresholdCapacity = [math]::Floor($MinRunningVMs * $MaxUserSessionsPerVM * $MaxUserSessionsThreshold)
-		if ($nUserSessions -gt $MaxUserSessionsThresholdCapacity) {
+		if ($nUserSessions -gt $MaxUserSessionsThresholdCapacity)
+        {
 			$MinRunningVMs = [math]::Ceiling($nUserSessions / ($MaxUserSessionsPerVM * $MaxUserSessionsThreshold))
 			Write-Log -HostPoolName $HostPoolName -Message "Number of user sessions is more than $($MaxUserSessionsThreshold * 100) % of the max number of sessions allowed with minimum number of running session hosts required ($MaxUserSessionsThresholdCapacity). Adjusted minimum number of running session hosts required to $MinRunningVMs"
 		}
 
 		# Check if minimum number of session hosts are running
-		if ($nRunningVMs -lt $MinRunningVMs) {
+		if ($nRunningVMs -lt $MinRunningVMs)
+        {
 			$res.nVMsToStart = $MinRunningVMs - $nRunningVMs
 			Write-Log -HostPoolName $HostPoolName -Message "Number of running session host is less than minimum required. Need to start $($res.nVMsToStart) VMs"
 		}
 		
-		if ($InPeakHours) {
+		if ($InPeakHours)
+        {
 			[double]$nUserSessionsPerCore = $nUserSessions / $nRunningCores
 			# In peak hours: check if current capacity is meeting the user demands
-			if ($nUserSessionsPerCore -gt $UserSessionThresholdPerCore) {
+			if ($nUserSessionsPerCore -gt $UserSessionThresholdPerCore)
+            {
 				$res.nCoresToStart = [math]::Ceiling(($nUserSessions / $UserSessionThresholdPerCore) - $nRunningCores)
 				Write-Log -HostPoolName $HostPoolName -Message "[In peak hours] Number of user sessions per Core is more than the threshold. Need to start $($res.nCoresToStart) cores"
 			}
@@ -232,7 +175,8 @@ try {
 			return
 		}
 
-		if ($nRunningVMs -gt $MinRunningVMs) {
+		if ($nRunningVMs -gt $MinRunningVMs)
+        {
 			# Calculate the number of session hosts to stop
 			$res.nVMsToStop = $nRunningVMs - $MinRunningVMs
 			Write-Log -HostPoolName $HostPoolName -Message "[Off peak hours] Number of running session host is greater than minimum required. Need to stop $($res.nVMsToStop) VMs"
@@ -240,46 +184,47 @@ try {
 	}
 
 	# Function to wait for background jobs
-	function Wait-ForJobs {
+	function Wait-ForJobs 
+    {
 		param ([array]$Jobs = @())
 
 		Write-Log -HostPoolName $HostPoolName -Message "Wait for $($Jobs.Count) jobs"
 		$StartTime = Get-Date
 		[string]$StatusInfo = ''
-		while ($true) {
-			if ((Get-Date).Subtract($StartTime).TotalSeconds -ge $StatusCheckTimeOut) {
+		while ($true) 
+        {
+			if ((Get-Date).Subtract($StartTime).TotalSeconds -ge $StatusCheckTimeOut)
+            {
 				throw "Jobs status check timed out. Taking more than $StatusCheckTimeOut seconds. $StatusInfo"
 			}
 			$StatusInfo = "[Check jobs status] Total: $($Jobs.Count), $(($Jobs | Group-Object State | ForEach-Object { "$($_.Name): $($_.Count)" }) -join ', ')"
 			Write-Log -HostPoolName $HostPoolName -Message $StatusInfo 
-			if (!($Jobs | Where-Object { $_.State -ieq 'Running' })) {
+			if (!($Jobs | Where-Object { $_.State -ieq 'Running' }))
+            {
 				break
 			}
 			Start-Sleep -Seconds 30
 		}
 
 		[array]$IncompleteJobs = @($Jobs | Where-Object { $_.State -ine 'Completed' })
-		if ($IncompleteJobs) {
+		if ($IncompleteJobs)
+        {
 			throw "$($IncompleteJobs.Count)/$($Jobs.Count) jobs did not complete successfully: $($IncompleteJobs | Format-List -Force | Out-String)"
 		}
 	}
 
-	function Get-SessionHostName {
+	function Get-SessionHostName
+    {
 		param (
 			[Parameter(Mandatory = $true, ValueFromPipeline = $true)]
 			$SessionHost
 		)
-		if($ARM -eq 'true')
-		{
-			return $SessionHost.Name.Split('/')[-1]
-		}
-		else
-		{
-			return $SessionHost.SessionHostName
-		}
+
+		return $SessionHost.Name.Split('/')[-1]
 	}
 
-	function TryUpdateSessionHostDrainMode {
+	function TryUpdateSessionHostDrainMode
+    {
 		[CmdletBinding(SupportsShouldProcess)]
 		param (
 			[Parameter(Mandatory = $true, ValueFromPipeline = $true)]
@@ -288,25 +233,21 @@ try {
 			[switch]$AllowNewSession
 		)
 		Begin { }
-		Process {
+		Process 
+        {
 			$SessionHost = $VM.SessionHost
-			if ($SessionHost.AllowNewSession -eq $AllowNewSession) {
+			if ($SessionHost.AllowNewSession -eq $AllowNewSession)
+            {
 				return
 			}
 			
 			[string]$SessionHostName = $VM.SessionHostName
 			Write-Log -HostPoolName $HostPoolName -Message "Update session host '$SessionHostName' to set allow new sessions to $AllowNewSession"
-			if ($PSCmdlet.ShouldProcess($SessionHostName, "Update session host to set allow new sessions to $AllowNewSession")) {
+			if ($PSCmdlet.ShouldProcess($SessionHostName, "Update session host to set allow new sessions to $AllowNewSession"))
+            {
 				try 
 				{
-					if($ARM -eq 'true')
-					{
-						$SessionHost = $VM.SessionHost = Update-AzWvdSessionHost -ResourceGroupName $ResourceGroupName -Name $SessionHostName -AllowNewSession:$AllowNewSession
-					}
-					else
-					{
-						$SessionHost = $VM.SessionHost = Set-RdsSessionHost -TenantName $TenantName -HostPoolName $HostPoolName -Name $SessionHostName -AllowNewSession:$AllowNewSession
-					}
+					$SessionHost = $VM.SessionHost = Update-AzWvdSessionHost -ResourceGroupName $ResourceGroupName -Name $SessionHostName -AllowNewSession:$AllowNewSession
 
 					if ($SessionHost.AllowNewSession -ne $AllowNewSession) 
 					{
@@ -322,41 +263,28 @@ try {
 		End { }
 	}
 
-	function TryForceLogOffUser {
+	function TryForceLogOffUser
+    {
 		[CmdletBinding(SupportsShouldProcess)]
 		param (
 			[Parameter(Mandatory = $true, ValueFromPipeline = $true)]
 			$Session
 		)
 		Begin { }
-		Process {
-			if($ARM -eq 'true')
-			{
-				[string[]]$Toks = $Session.Name.Split('/')
-				[string]$SessionHostName = $Toks[1]
-				[string]$SessionID = $Toks[-1]
-				[string]$User = $Session.ActiveDirectoryUserName
-			}
-			else
-			{
-				[string]$SessionID = $Session.SessionId
-				[string]$User =$Session.AdUserName
-			}
+		Process
+        {
+            [string[]]$Toks = $Session.Name.Split('/')
+            [string]$SessionHostName = $Toks[1]
+            [string]$SessionID = $Toks[-1]
+            [string]$User = $Session.ActiveDirectoryUserName
 
 			try 
 			{
 				Write-Log -HostPoolName $HostPoolName -Message "Force log off user: '$User', session ID: $SessionID"
 				if ($PSCmdlet.ShouldProcess($SessionID, 'Force log off user with session ID'))
 				{
-					if($ARM -eq 'true')
-					{
-						# Note: -SessionHostName param is case sensitive, so the command will fail if it's case is modified
-						Remove-AzWvdUserSession -ResourceGroupName $ResourceGroupName -SessionHostName $SessionHostName -Id $SessionID -Force
-					}
-					else
-					{
-						Invoke-RdsUserSessionLogoff -TenantName $TenantName -HostPoolName $HostPoolName -SessionHostName $Session.SessionHostName -SessionId $Session.SessionId -NoUserPrompt -Force
-					}
+					# Note: -SessionHostName param is case sensitive, so the command will fail if it's case is modified
+					Remove-AzWvdUserSession -ResourceGroupName $ResourceGroupName -SessionHostName $SessionHostName -Id $SessionID -Force
 				}
 			}
 			catch 
@@ -367,19 +295,22 @@ try {
 		End { }
 	}
 
-	function TryResetSessionHostDrainModeAndUserSessions {
+	function TryResetSessionHostDrainModeAndUserSessions
+    {
 		[CmdletBinding(SupportsShouldProcess)]
 		param (
 			[Parameter(Mandatory = $true, ValueFromPipeline = $true)]
 			[hashtable]$VM
 		)
 		Begin { }
-		Process {
+		Process 
+        {
 			TryUpdateSessionHostDrainMode -VM $VM -AllowNewSession:$true
 			
 			$SessionHost = $VM.SessionHost
 			[string]$SessionHostName = $VM.SessionHostName
-			if (!$SessionHost.Session) {
+			if (!$SessionHost.Session)
+            {
 				return
 			}
 
@@ -389,14 +320,7 @@ try {
 			Write-Log -HostPoolName $HostPoolName -Message "Get all user sessions from session host '$SessionHostName'"
 			try 
 			{
-				if($ARM -eq 'true')
-				{
-					$UserSessions = @(Get-AzWvdUserSession -ResourceGroupName $ResourceGroupName -SessionHostName $SessionHostName)
-				}
-				else
-				{
-					$UserSessions = @(Get-RdsUserSession -TenantName $TenantName -HostPoolName $HostPoolName | Where-Object { $_.SessionHostName -ieq $SessionHostName })
-				}
+				$UserSessions = @(Get-AzWvdUserSession -ResourceGroupName $ResourceGroupName -SessionHostName $SessionHostName)
 			}
 			catch 
 			{
@@ -411,7 +335,8 @@ try {
 	}
 
 	Set-ExecutionPolicy -ExecutionPolicy Undefined -Scope Process -Force -Confirm:$false
-	if (!$SkipAuth) {
+	if (!$SkipAuth)
+    {
 		# Note: this requires admin priviledges
 		Set-ExecutionPolicy -ExecutionPolicy Unrestricted -Scope LocalMachine -Force -Confirm:$false
 	}
@@ -420,120 +345,36 @@ try {
 	[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
 
 	Write-Log -HostPoolName $HostPoolName -Message "Request params: $($RqtParams | Format-List -Force | Out-String)"
-
-	<#
-	if ($LogAnalyticsWorkspaceId -and $LogAnalyticsPrimaryKey) {
-		Write-Log -HostPoolName $HostPoolName -Message "Log ananlytics is enabled"
-	}
-	#>
 	#endregion
 
 
 	#region azure auth, ctx
-
-	$WVDContext = $null
-	if (!$SkipAuth) 
-	{
-		# Collect the credentials from Azure Automation Account Assets
-		Write-Log -HostPoolName $HostPoolName -Message "Get auto connection from asset: '$ConnectionAssetName'"
-		$ConnectionAsset = Get-AutomationConnection -Name $ConnectionAssetName
-		
-		# Azure auth
-		$AzContext = $null
-		try {
-			$AzAuth = Connect-AzAccount -ApplicationId $ConnectionAsset.ApplicationId -CertificateThumbprint $ConnectionAsset.CertificateThumbprint -TenantId $ConnectionAsset.TenantId -SubscriptionId $ConnectionAsset.SubscriptionId -EnvironmentName $EnvironmentName -ServicePrincipal
-			if (!$AzAuth -or !$AzAuth.Context) {
-				throw $AzAuth
-			}
-			$AzContext = $AzAuth.Context
-		}
-		catch {
-			throw [System.Exception]::new('Failed to authenticate Azure with application ID, tenant ID, subscription ID', $PSItem.Exception)
-		}
-		Write-Log -HostPoolName $HostPoolName -Message "Successfully authenticated with Azure using service principal: $($AzContext | Format-List -Force | Out-String)"
-
-		# Set Azure context with subscription, tenant
-		if ($AzContext.Tenant.Id -ine $ConnectionAsset.TenantId -or $AzContext.Subscription.Id -ine $ConnectionAsset.SubscriptionId) {
-			if ($PSCmdlet.ShouldProcess((@($ConnectionAsset.TenantId, $ConnectionAsset.SubscriptionId) -join ', '), 'Set Azure context with tenant ID, subscription ID')) {
-				try {
-					$AzContext = Set-AzContext -TenantId $ConnectionAsset.TenantId -SubscriptionId $ConnectionAsset.SubscriptionId
-					if (!$AzContext -or $AzContext.Tenant.Id -ine $ConnectionAsset.TenantId -or $AzContext.Subscription.Id -ine $ConnectionAsset.SubscriptionId) {
-						throw $AzContext
-					}
-				}
-				catch {
-					throw [System.Exception]::new('Failed to set Azure context with tenant ID, subscription ID', $PSItem.Exception)
-				}
-				Write-Log -HostPoolName $HostPoolName -Message "Successfully set the Azure context with the tenant ID, subscription ID: $($AzContext | Format-List -Force | Out-String)"
-			}
-		}
-
-		if($ARM -eq 'false')
-		{
-			# WVD auth
-			try 
-			{
-				$WVDContext = Add-RdsAccount -DeploymentUrl $RDBrokerURL -ApplicationId $ConnectionAsset.ApplicationId -CertificateThumbprint $ConnectionAsset.CertificateThumbprint -AADTenantId $ConnectionAsset.TenantId
-				if (!$WVDContext) {
-					throw $WVDContext
-				}
-			}
-			catch 
-			{
-				throw [System.Exception]::new("Failed to authenticate WVD with application ID, AAD tenant ID, deloyment URL: '$RDBrokerURL'", $PSItem.Exception)
-			}
-			Write-Log "Successfully authenticated with WVD using service principal: $($WVDContext | Format-List -Force | Out-String)"
-		}
-	}
-	else 
-	{
-		if ($ARM -eq 'false')
-		{
-			$WVDContext = Get-RdsContext
-		}
-	}
-
-	# Set WVD context to the appropriate tenant group
-	if ($ARM -eq 'false')
+    # Azure auth
+    $AzContext = $null
+    try
     {
-		if ($WVDContext.TenantGroupName -ine $TenantGroupName) 
-		{
-			try 
-			{
-				# Note: as of Microsoft.RDInfra.RDPowerShell version 1.0.1534.2001 this throws a System.NullReferenceException when the $TenantGroupName doesn't exist.
-				$WVDContext = Set-RdsContext -TenantGroupName $TenantGroupName
-				if (!$WVDContext -or $WVDContext.TenantGroupName -ine $TenantGroupName) 
-				{
-					throw $WVDContext
-				}
-			}
-			catch 
-			{
-				throw [System.Exception]::new("Failed to set WVD context to tenant group: '$TenantGroupName'. This may be caused by the tenant group not existing or the user not having access to the tenant group", $PSItem.Exception)
-			}
-			Write-Log "Successfully set the WVD context with the tenant group: $($WVDContext | Format-List -Force | Out-String)"
-		}
-	}
-
+        $AzAuth = Connect-AzAccount -Environment $EnvironmentName -Identity
+        if (!$AzAuth -or !$AzAuth.Context) {
+            throw $AzAuth
+        }
+        $AzContext = $AzAuth.Context
+    }
+    catch
+    {
+        throw [System.Exception]::new('Failed to authenticate Azure with application ID, tenant ID, subscription ID', $PSItem.Exception)
+    }
+    Write-Log -HostPoolName $HostPoolName -Message "Successfully authenticated with Azure using service principal: $($AzContext | Format-List -Force | Out-String)"
 	#endregion
 
 
 	#region validate host pool, validate / update HostPool load balancer type, ensure there is at least 1 session host, get num of user sessions
-
 	# Validate and get HostPool info
 	$HostPool = $null
 	try 
 	{
-		if($ARM -eq 'true')
-		{
-			Write-Log -HostPoolName $HostPoolName -Message "Get Hostpool info of '$HostPoolName' in resource group '$ResourceGroupName'"
-			$HostPool = Get-AzWvdHostPool -ResourceGroupName $ResourceGroupName -Name $HostPoolName
-		}
-		else
-		{
-			Write-Log -HostPoolName $HostPoolName -Message "Get Hostpool info of '$HostPoolName' in tenant '$TenantName'"
-			$HostPool = Get-RdsHostPool -TenantName $TenantName -Name $HostPoolName
-		}
+		Write-Log -HostPoolName $HostPoolName -Message "Get Hostpool info of '$HostPoolName' in resource group '$ResourceGroupName'"
+		$HostPool = Get-AzWvdHostPool -ResourceGroupName $ResourceGroupName -Name $HostPoolName
+
 		if (!$HostPool) 
 		{
 			throw $HostPool
@@ -541,82 +382,61 @@ try {
 	}
 	catch 
 	{
-		if($ARM -eq 'true')
-		{
-			throw [System.Exception]::new("Failed to get Hostpool info of '$HostPoolName' in resource group '$ResourceGroupName'. Ensure that you have entered the correct values", $PSItem.Exception)
-		}
-		else
-		{
-			throw [System.Exception]::new("Failed to get Hostpool info of '$HostPoolName' in tenant '$TenantName'. Ensure that you have entered the correct values", $PSItem.Exception)
-		}
+		throw [System.Exception]::new("Failed to get Hostpool info of '$HostPoolName' in resource group '$ResourceGroupName'. Ensure that you have entered the correct values", $PSItem.Exception)
 	}
 
 	# Ensure HostPool load balancer type is not persistent
-	if ($HostPool.LoadBalancerType -ieq 'Persistent') {
+	if ($HostPool.LoadBalancerType -ieq 'Persistent')
+    {
 		throw "HostPool '$HostPoolName' is configured with 'Persistent' load balancer type. Scaling tool only supports these load balancer types: BreadthFirst, DepthFirst"
 	}
 
 	Write-Log -HostPoolName $HostPoolName -Message 'Get all session hosts'
-	if($ARM -eq 'true')
-	{
-		$SessionHosts = @(Get-AzWvdSessionHost -ResourceGroupName $ResourceGroupName -HostPoolName $HostPoolName)
-	}
-	else
-	{
-		$SessionHosts = @(Get-RdsSessionHost -TenantName $TenantName -HostPoolName $HostPoolName)
-	}
 
-	if (!$SessionHosts) {
+	$SessionHosts = @(Get-AzWvdSessionHost -ResourceGroupName $ResourceGroupName -HostPoolName $HostPoolName)
+
+	if (!$SessionHosts)
+    {
 		Write-Log -HostPoolName $HostPoolName -Message "There are no session hosts in the Hostpool '$HostPoolName'. Ensure that hostpool has session hosts"
 		Write-Log -HostPoolName $HostPoolName -Message 'End'
 		return
 	}
 
 	Write-Log -HostPoolName $HostPoolName -Message 'Get number of user sessions in Hostpool'
-	if($ARM -eq 'true')
-	{
-		[int]$nUserSessions = @(Get-AzWvdUserSession -ResourceGroupName $ResourceGroupName -HostPoolName $HostPoolName).Count
-	}
-	else
-	{
-		[int]$nUserSessions = @(Get-RdsUserSession -TenantName $TenantName -HostPoolName $HostPoolName).Count
-	}
+
+	[int]$nUserSessions = @(Get-AzWvdUserSession -ResourceGroupName $ResourceGroupName -HostPoolName $HostPoolName).Count
 
 	# Set up breadth 1st load balacing type
 	# Note: breadth 1st is enforced on AND off peak hours to simplify the things with scaling in the start/end of peak hours
-	if (!$SkipUpdateLoadBalancerType -and $HostPool.LoadBalancerType -ine 'BreadthFirst') {
+	if (!$SkipUpdateLoadBalancerType -and $HostPool.LoadBalancerType -ine 'BreadthFirst')
+    {
 		Write-Log -HostPoolName $HostPoolName -Message "Update HostPool with 'BreadthFirst' load balancer type (current: '$($HostPool.LoadBalancerType)')"
-		if ($PSCmdlet.ShouldProcess($HostPoolName, "Update HostPool with BreadthFirstLoadBalancer type (current: '$($HostPool.LoadBalancerType)')")) {
-			if($ARM -eq 'true')
-			{
-				$HostPool = Update-AzWvdHostPool -ResourceGroupName $ResourceGroupName -Name $HostPoolName -LoadBalancerType 'BreadthFirst'
-			}
-			else
-			{
-				$HostPool = Set-RdsHostPool -TenantName $TenantName -Name $HostPoolName -BreadthFirstLoadBalancer
-			}
+		if ($PSCmdlet.ShouldProcess($HostPoolName, "Update HostPool with BreadthFirstLoadBalancer type (current: '$($HostPool.LoadBalancerType)')"))
+        {
+			$HostPool = Update-AzWvdHostPool -ResourceGroupName $ResourceGroupName -Name $HostPoolName -LoadBalancerType 'BreadthFirst'
 		}
 	}
 
 	Write-Log -HostPoolName $HostPoolName -Message "HostPool info: $($HostPool | Format-List -Force | Out-String)"
 	Write-Log -HostPoolName $HostPoolName -Message "Number of session hosts in the HostPool: $($SessionHosts.Count)"
-
 	#endregion
 	
 
 	#region determine if on/off peak hours
-
 	# Convert local time, begin peak time & end peak time from UTC to local time
 	$CurrentDateTime = Get-LocalDateTime
 	$BeginPeakDateTime = [datetime]::Parse($CurrentDateTime.ToShortDateString() + ' ' + $BeginPeakTime)
 	$EndPeakDateTime = [datetime]::Parse($CurrentDateTime.ToShortDateString() + ' ' + $EndPeakTime)
 
 	# Adjust peak times to make sure begin peak time is always before end peak time
-	if ($EndPeakDateTime -lt $BeginPeakDateTime) {
-		if ($CurrentDateTime -lt $EndPeakDateTime) {
+	if ($EndPeakDateTime -lt $BeginPeakDateTime)
+    {
+		if ($CurrentDateTime -lt $EndPeakDateTime)
+        {
 			$BeginPeakDateTime = $BeginPeakDateTime.AddDays(-1)
 		}
-		else {
+		else
+        {
 			$EndPeakDateTime = $EndPeakDateTime.AddDays(1)
 		}
 	}
@@ -624,18 +444,18 @@ try {
 	Write-Log -HostPoolName $HostPoolName -Message "Using current time: $($CurrentDateTime.ToString('yyyy-MM-dd HH:mm:ss')), begin peak time: $($BeginPeakDateTime.ToString('yyyy-MM-dd HH:mm:ss')), end peak time: $($EndPeakDateTime.ToString('yyyy-MM-dd HH:mm:ss'))"
 
 	[bool]$InPeakHours = ($BeginPeakDateTime -le $CurrentDateTime -and $CurrentDateTime -le $EndPeakDateTime)
-	if ($InPeakHours) {
+	if ($InPeakHours)
+    {
 		Write-Log -HostPoolName $HostPoolName -Message 'In peak hours'
 	}
-	else {
+	else
+    {
 		Write-Log -HostPoolName $HostPoolName -Message 'Off peak hours'
 	}
-
 	#endregion
 
 
 	#region get all session hosts, VMs & user sessions info and compute workload
-
 	# Note: session host is considered "running" if its running AND is in desired states AND allowing new sessions
 	# Number of session hosts that are running, are in desired states and allowing new sessions
 	[int]$nRunningVMs = 0
@@ -649,19 +469,23 @@ try {
 	[int]$nUserSessionsFromAllRunningVMs = 0
 
 	# Populate all session hosts objects
-	foreach ($SessionHost in $SessionHosts) {
+	foreach ($SessionHost in $SessionHosts)
+    {
 		[string]$SessionHostName = Get-SessionHostName -SessionHost $SessionHost
 		$VMs.Add($SessionHostName.Split('.')[0].ToLower(), @{ 'SessionHostName' = $SessionHostName; 'SessionHost' = $SessionHost; 'Instance' = $null })
 	}
 	
 	Write-Log -HostPoolName $HostPoolName -Message 'Get all VMs, check session host status and get usage info'
-	foreach ($VMInstance in (Get-AzVM -Status)) {
-		if (!$VMs.ContainsKey($VMInstance.Name.ToLower())) {
+	foreach ($VMInstance in (Get-AzVM -Status))
+    {
+		if (!$VMs.ContainsKey($VMInstance.Name.ToLower()))
+        {
 			# This VM is not a WVD session host
 			continue
 		}
 		[string]$VMName = $VMInstance.Name.ToLower()
-		if ($VMInstance.Tags.Keys -contains $MaintenanceTagName) {
+		if ($VMInstance.Tags.Keys -contains $MaintenanceTagName)
+        {
 			Write-Log -HostPoolName $HostPoolName -Message "VM '$VMName' is in maintenance and will be ignored"
 			$VMs.Remove($VMName)
 			continue
@@ -669,22 +493,14 @@ try {
 
 		$VM = $VMs[$VMName]
 		$SessionHost = $VM.SessionHost
-		if($ARM -eq 'true')
-		{
-			if ((Get-PSObjectPropVal -Obj $SessionHost -Key 'VirtualMachineId') -and $VMInstance.VmId -ine $SessionHost.VirtualMachineId) {
-				# This VM is not a WVD session host
-				continue
-			}
-		}
-		else
-		{
-			if ((Get-PSObjectPropVal -Obj $SessionHost -Key 'AzureVmId') -and $VMInstance.VmId -ine $SessionHost.AzureVmId) {
-				# This VM is not a WVD session host
-				continue
-			}
-		}
+        if ((Get-PSObjectPropVal -Obj $SessionHost -Key 'VirtualMachineId') -and $VMInstance.VmId -ine $SessionHost.VirtualMachineId)
+        {
+            # This VM is not a WVD session host
+            continue
+        }
 
-		if ($VM.Instance) {
+		if ($VM.Instance)
+        {
 			throw "More than 1 VM found in Azure with same session host name '$($VM.SessionHostName)' (This is not supported): $($VMInstance | Format-List -Force | Out-String)$($VM.Instance | Format-List -Force | Out-String)"
 		}
 
@@ -692,60 +508,66 @@ try {
 
 		Write-Log -HostPoolName $HostPoolName -Message "Session host: '$($VM.SessionHostName)', power state: '$($VMInstance.PowerState)', status: '$($SessionHost.Status)', update state: '$($SessionHost.UpdateState)', sessions: $($SessionHost.Session), allow new session: $($SessionHost.AllowNewSession)"
 		# Check if we know how many cores are in this VM
-		if (!$VMSizeCores.ContainsKey($VMInstance.HardwareProfile.VmSize)) {
+		if (!$VMSizeCores.ContainsKey($VMInstance.HardwareProfile.VmSize))
+        {
 			Write-Log -HostPoolName $HostPoolName -Message "Get all VM sizes in location: $($VMInstance.Location)"
-			foreach ($VMSize in (Get-AzVMSize -Location $VMInstance.Location)) {
-				if (!$VMSizeCores.ContainsKey($VMSize.Name)) {
+			foreach ($VMSize in (Get-AzVMSize -Location $VMInstance.Location))
+            {
+				if (!$VMSizeCores.ContainsKey($VMSize.Name))
+                {
 					$VMSizeCores.Add($VMSize.Name, $VMSize.NumberOfCores)
 				}
 			}
 		}
 
-		if ($VMInstance.PowerState -ieq 'VM running') {
-			if ($SessionHost.Status -notin $DesiredRunningStates) {
+		if ($VMInstance.PowerState -ieq 'VM running')
+        {
+			if ($SessionHost.Status -notin $DesiredRunningStates)
+            {
 				Write-Log -HostPoolName $HostPoolName -Warn -Message 'VM is in running state but session host is not and so it will be ignored (this could be because the VM was just started and has not connected to broker yet)'
 			}
-			if (!$SessionHost.AllowNewSession) {
+			if (!$SessionHost.AllowNewSession)
+            {
 				Write-Log -HostPoolName $HostPoolName -Warn -Message 'VM is in running state but session host is not allowing new sessions and so it will be ignored'
 			}
 
-			if ($SessionHost.Status -in $DesiredRunningStates -and $SessionHost.AllowNewSession) {
+			if ($SessionHost.Status -in $DesiredRunningStates -and $SessionHost.AllowNewSession)
+            {
 				++$nRunningVMs
 				$nRunningCores += $VMSizeCores[$VMInstance.HardwareProfile.VmSize]
-				if($ARM -eq 'true')
-				{
-					$nUserSessionsFromAllRunningVMs += $SessionHost.Session
-				}
-				else
-				{
-					$nUserSessionsFromAllRunningVMs += $SessionHost.Sessions
-				}
+				$nUserSessionsFromAllRunningVMs += $SessionHost.Session
 			}
 		}
-		else {
-			if ($SessionHost.Status -in $DesiredRunningStates) {
+		else 
+        {
+			if ($SessionHost.Status -in $DesiredRunningStates)
+            {
 				Write-Log -HostPoolName $HostPoolName -Warn -Message "VM is not in running state but session host is (this could be because the VM was just stopped and broker doesn't know that yet)"
 			}
 		}
 	}
 
-	if ($nUserSessionsFromAllRunningVMs -ne $nUserSessions) {
+	if ($nUserSessionsFromAllRunningVMs -ne $nUserSessions)
+    {
 		Write-Log -HostPoolName $HostPoolName -Warn -Message "Sum of user sessions reported by every running session host ($nUserSessionsFromAllRunningVMs) is not equal to the total number of user sessions reported by the host pool ($nUserSessions)"
 	}
 
 	$nUserSessions = $nUserSessionsFromAllRunningVMs
 	# Check if we need to override the number of user sessions for simulation / testing purpose
-	if ($null -ne $OverrideNUserSessions) {
+	if ($null -ne $OverrideNUserSessions)
+    {
 		$nUserSessions = $OverrideNUserSessions
 	}
 
 	# Make sure VM instance was found in Azure for every session host
 	[int]$nVMsWithoutInstance = @($VMs.Values | Where-Object { !$_.Instance }).Count
-	if ($nVMsWithoutInstance) {
+	if ($nVMsWithoutInstance)
+    {
 		throw "There are $nVMsWithoutInstance/$($VMs.Count) session hosts whose VM instance was not found in Azure"
 	}
 
-	if (!$nRunningCores) {
+	if (!$nRunningCores)
+    {
 		$nRunningCores = 1
 	}
 
@@ -755,15 +577,14 @@ try {
 	Write-Log -HostPoolName $HostPoolName -Message "Minimum number of running session hosts required: $MinRunningVMs"
 
 	# Check if minimum num of running session hosts required is higher than max allowed
-	if ($VMs.Count -le $MinRunningVMs) {
+	if ($VMs.Count -le $MinRunningVMs)
+    {
 		Write-Log -HostPoolName $HostPoolName -Warn -Message 'Minimum number of RDSH is set higher than or equal to total number of session hosts'
 	}
-
 	#endregion
 
 
 	#region determine number of session hosts to start/stop if any
-
 	# Now that we have all the info about the session hosts & their usage, figure how many session hosts to start/stop depending on in/off peak hours and the demand [Ops = operations to perform]
 	$Ops = @{
 		nVMsToStart   = 0
@@ -772,16 +593,15 @@ try {
 	}
 
 	Set-nVMsToStartOrStop -nRunningVMs $nRunningVMs -nRunningCores $nRunningCores -nUserSessions $nUserSessions -MaxUserSessionsPerVM $HostPool.MaxSessionLimit -InPeakHours:$InPeakHours -Res $Ops
-
 	#endregion
 
 
 	#region start any session hosts if need to
-
 	# Check if we have any session hosts to start
-	if ($Ops.nVMsToStart -or $Ops.nCoresToStart) {
-
-		if ($nRunningVMs -eq $VMs.Count) {
+	if ($Ops.nVMsToStart -or $Ops.nCoresToStart)
+    {
+		if ($nRunningVMs -eq $VMs.Count)
+        {
 			Write-Log -HostPoolName $HostPoolName -Message 'All session hosts are running'
 			Write-Log -HostPoolName $HostPoolName -Message 'End'
 			return
@@ -793,43 +613,53 @@ try {
 		[array]$StartVMjobs = @()
 
 		Write-Log -HostPoolName $HostPoolName -Message 'Find session hosts that are stopped and allowing new sessions'
-		foreach ($VM in $VMs.Values) {
-			if (!$Ops.nVMsToStart -and !$Ops.nCoresToStart) {
+		foreach ($VM in $VMs.Values)
+        {
+			if (!$Ops.nVMsToStart -and !$Ops.nCoresToStart)
+            {
 				# Done with starting session hosts that needed to be
 				break
 			}
-			if ($VM.Instance.PowerState -ieq 'VM running') {
+			if ($VM.Instance.PowerState -ieq 'VM running')
+            {
 				continue
 			}
-			if ($VM.SessionHost.UpdateState -ine 'Succeeded') {
+			if ($VM.SessionHost.UpdateState -ine 'Succeeded')
+            {
 				Write-Log -HostPoolName $HostPoolName -Warn -Message "Session host '$($VM.SessionHostName)' may not be healthy"
 			}
 
 			[string]$SessionHostName = $VM.SessionHostName
 
-			if (!$VM.SessionHost.AllowNewSession) {
+			if (!$VM.SessionHost.AllowNewSession)
+            {
 				Write-Log -HostPoolName $HostPoolName -Warn -Message "Session host '$SessionHostName' is not allowing new sessions and so it will not be started"
 				continue
 			}
 
 			Write-Log -HostPoolName $HostPoolName -Message "Start session host '$SessionHostName' as a background job"
-			if ($PSCmdlet.ShouldProcess($SessionHostName, 'Start session host as a background job')) {
+			if ($PSCmdlet.ShouldProcess($SessionHostName, 'Start session host as a background job'))
+            {
 				# $StartSessionHostFullNames.Add($VM.SessionHost.Name, $null)
 				$StartVMjobs += ($VM.Instance | Start-AzVM -AsJob)
 			}
 
 			--$Ops.nVMsToStart
-			if ($Ops.nVMsToStart -lt 0) {
+			if ($Ops.nVMsToStart -lt 0)
+            {
 				$Ops.nVMsToStart = 0
 			}
+
 			$Ops.nCoresToStart -= $VMSizeCores[$VM.Instance.HardwareProfile.VmSize]
-			if ($Ops.nCoresToStart -lt 0) {
+			if ($Ops.nCoresToStart -lt 0)
+            {
 				$Ops.nCoresToStart = 0
 			}
 		}
 
 		# Check if there were enough number of session hosts to start
-		if ($Ops.nVMsToStart -or $Ops.nCoresToStart) {
+		if ($Ops.nVMsToStart -or $Ops.nCoresToStart)
+        {
 			Write-Log -HostPoolName $HostPoolName -Warn -Message "Not enough session hosts to start. Still need to start maximum of either $($Ops.nVMsToStart) VMs or $($Ops.nCoresToStart) cores"
 		}
 
@@ -839,49 +669,13 @@ try {
 		Write-Log -HostPoolName $HostPoolName -Message 'All jobs completed'
 		Write-Log -HostPoolName $HostPoolName -Message 'End'
 		return
-
-		<#
-		# //todo if not going to poll for status here, then no need to keep track of the list of session hosts that were started
-		Write-Log -HostPoolName $HostPoolName -Message "Wait for $($StartSessionHostFullNames.Count) session hosts to be available"
-		$StartTime = Get-Date
-		while ($true) {
-			if ((Get-Date).Subtract($StartTime).TotalSeconds -ge $StatusCheckTimeOut) {
-				throw "Status check timed out. Taking more than $StatusCheckTimeOut seconds"
-			}
-			$SessionHostsToCheck = @(Get-AzWvdSessionHost -HostPoolName $HostPoolName -ResourceGroupName $ResourceGroupName | Where-Object { $StartSessionHostFullNames.ContainsKey($_.Name) })
-			Write-Log -HostPoolName $HostPoolName -Message "[Check session hosts status] Total: $($SessionHostsToCheck.Count), $(($SessionHostsToCheck | Group-Object Status | ForEach-Object { "$($_.Name): $($_.Count)" }) -join ', ')"
-			if (!($SessionHostsToCheck | Where-Object { $_.Status -notin $DesiredRunningStates })) {
-				break
-			}
-			Start-Sleep -Seconds $SessionHostStatusCheckSleepSecs
-		}
-		return
-		#>
-		<#
-		# //todo if not going to poll for status here, then no need to keep track of the list of session hosts that were started
-		Write-Log "Wait for $($StartSessionHostNames.Count) session hosts to be available"
-		$StartTime = Get-Date
-		while ($true) {
-			if ((Get-Date).Subtract($StartTime).TotalSeconds -ge $StatusCheckTimeOut) {
-				throw "Status check timed out. Taking more than $StatusCheckTimeOut seconds"
-			}
-			$SessionHostsToCheck = @(Get-RdsSessionHost -TenantName $TenantName -HostPoolName $HostPoolName | Where-Object { $StartSessionHostNames.ContainsKey($_.SessionHostName) })
-			Write-Log "[Check session hosts status] Total: $($SessionHostsToCheck.Count), $(($SessionHostsToCheck | Group-Object Status | ForEach-Object { "$($_.Name): $($_.Count)" }) -join ', ')"
-			if (!($SessionHostsToCheck | Where-Object { $_.Status -notin $DesiredRunningStates })) {
-				break
-			}
-			Start-Sleep -Seconds $SessionHostStatusCheckSleepSecs
-		}
-		return
-		#>
 	}
-
 	#endregion
 
 
 	#region stop any session hosts if need to
-
-	if (!$Ops.nVMsToStop) {
+	if (!$Ops.nVMsToStop)
+    {
 		Write-Log -HostPoolName $HostPoolName -Message 'No need to start/stop any session hosts'
 		Write-Log -HostPoolName $HostPoolName -Message 'End'
 		return
@@ -895,15 +689,18 @@ try {
 	[array]$VMsToStopAfterLogOffTimeOut = @()
 
 	Write-Log -HostPoolName $HostPoolName -Message 'Find session hosts that are running and allowing new sessions, sort them by number of user sessions'
-	foreach ($VM in ($VMs.Values | Where-Object { $_.Instance.PowerState -ieq 'VM running' -and $_.SessionHost.AllowNewSession } | Sort-Object { $_.SessionHost.Session })) {
-		if (!$Ops.nVMsToStop) {
+	foreach ($VM in ($VMs.Values | Where-Object { $_.Instance.PowerState -ieq 'VM running' -and $_.SessionHost.AllowNewSession } | Sort-Object { $_.SessionHost.Session }))
+    {
+		if (!$Ops.nVMsToStop)
+        {
 			# Done with stopping session hosts that needed to be
 			break
 		}
 		$SessionHost = $VM.SessionHost
 		[string]$SessionHostName = $VM.SessionHostName
 		
-		if ($SessionHost.Session -and !$LimitSecondsToForceLogOffUser) {
+		if ($SessionHost.Session -and !$LimitSecondsToForceLogOffUser)
+        {
 			Write-Log -HostPoolName $HostPoolName -Warn -Message "Session host '$SessionHostName' has $($SessionHost.Session) sessions but limit seconds to force log off user is set to 0, so will not stop any more session hosts (https://aka.ms/wvdscale#how-the-scaling-tool-works)"
 			# Note: why break ? Because the list this loop iterates through is sorted by number of sessions, if it hits this, the rest of items in the loop will also hit this
 			break
@@ -913,27 +710,22 @@ try {
 		$SessionHost = $VM.SessionHost
 
 		# Note: check if there were new user sessions since session host info was 1st fetched
-		if ($SessionHost.Session -and !$LimitSecondsToForceLogOffUser) {
+		if ($SessionHost.Session -and !$LimitSecondsToForceLogOffUser)
+        {
 			Write-Log -HostPoolName $HostPoolName -Warn -Message "Session host '$SessionHostName' has $($SessionHost.Session) sessions but limit seconds to force log off user is set to 0, so will not stop any more session hosts (https://aka.ms/wvdscale#how-the-scaling-tool-works)"
 			TryUpdateSessionHostDrainMode -VM $VM -AllowNewSession:$true
 			$SessionHost = $VM.SessionHost
 			continue
 		}
 
-		if ($SessionHost.Session) {
+		if ($SessionHost.Session)
+        {
 			[array]$VM.UserSessions = @()
 			Write-Log -HostPoolName $HostPoolName -Message "Get all user sessions from session host '$SessionHostName'"
 			try 
 			{
-				if($ARM -eq 'true')
-				{
-					# Note: Get-AzWvdUserSession roundtrips the input param SessionHostName and its case, so if lower case is specified, command will return lower case as well
-					$VM.UserSessions = @(Get-AzWvdUserSession -ResourceGroupName $ResourceGroupName -HostPoolName $HostPoolName -SessionHostName $SessionHostName)
-				}
-				else
-				{
-					$VM.UserSessions = @(Get-RdsUserSession -TenantName $TenantName -HostPoolName $HostPoolName | Where-Object { $_.SessionHostName -ieq $SessionHostName })
-				}
+				# Note: Get-AzWvdUserSession roundtrips the input param SessionHostName and its case, so if lower case is specified, command will return lower case as well
+				$VM.UserSessions = @(Get-AzWvdUserSession -ResourceGroupName $ResourceGroupName -HostPoolName $HostPoolName -SessionHostName $SessionHostName)
 			}
 			catch 
 			{
@@ -948,30 +740,16 @@ try {
 					continue
 				}
 
-				if($ARM -eq 'true')
-				{
-					[string]$SessionID = $Session.Name.Split('/')[-1]
-					[string]$User = $Session.ActiveDirectoryUserName
-				}
-                else
-				{
-					[string]$SessionID = $Session.SessionId
-					[string]$User =$Session.AdUserName
-				}
+				[string]$SessionID = $Session.Name.Split('/')[-1]
+				[string]$User = $Session.ActiveDirectoryUserName
 				
 				try 
                 {
 					Write-Log -HostPoolName $HostPoolName -Message "Send a log off message to user: '$User', session ID: $SessionID"
-					if ($PSCmdlet.ShouldProcess($SessionID, 'Send a log off message to user with session ID')) {
-						if($ARM -eq 'true')
-						{
-							# Note: -SessionHostName param is case sensitive, so the command will fail if it's case is modified
-							Send-AzWvdUserSessionMessage -ResourceGroupName $ResourceGroupName -HostPoolName $HostPoolName -SessionHostName $SessionHostName -UserSessionId $SessionID -MessageTitle $LogOffMessageTitle -MessageBody "$LogOffMessageBody You will be logged off in $LimitSecondsToForceLogOffUser seconds"
-						}
-						else
-						{
-							Send-RdsUserSessionMessage -TenantName $TenantName -HostPoolName $HostPoolName -SessionHostName $SessionHostName -SessionId $Session.SessionId -MessageTitle $LogOffMessageTitle -MessageBody "$LogOffMessageBody You will be logged off in $LimitSecondsToForceLogOffUser seconds" -NoUserPrompt
-						}
+					if ($PSCmdlet.ShouldProcess($SessionID, 'Send a log off message to user with session ID'))
+                    {
+						# Note: -SessionHostName param is case sensitive, so the command will fail if it's case is modified
+						Send-AzWvdUserSessionMessage -ResourceGroupName $ResourceGroupName -HostPoolName $HostPoolName -SessionHostName $SessionHostName -UserSessionId $SessionID -MessageTitle $LogOffMessageTitle -MessageBody "$LogOffMessageBody You will be logged off in $LimitSecondsToForceLogOffUser seconds"
 					}
 				}
 				catch 
@@ -981,9 +759,11 @@ try {
 			}
 			$VMsToStopAfterLogOffTimeOut += $VM
 		}
-		else {
+		else
+        {
 			Write-Log -HostPoolName $HostPoolName -Message "Stop session host '$SessionHostName' as a background job"
-			if ($PSCmdlet.ShouldProcess($SessionHostName, 'Stop session host as a background job')) {
+			if ($PSCmdlet.ShouldProcess($SessionHostName, 'Stop session host as a background job'))
+            {
 				# $StopSessionHostFullNames.Add($SessionHost.Name, $null)
 				$StopVMjobs += ($VM.StopJob = $VM.Instance | Stop-AzVM -Force -AsJob)
 				$VMsToStop.Add($SessionHostName, $VM)
@@ -996,21 +776,25 @@ try {
 		}
 	}
 
-	if ($VMsToStopAfterLogOffTimeOut) {
+	if ($VMsToStopAfterLogOffTimeOut)
+    {
 		Write-Log -HostPoolName $HostPoolName -Message "Wait $LimitSecondsToForceLogOffUser seconds for users to log off"
-		if ($PSCmdlet.ShouldProcess("for $LimitSecondsToForceLogOffUser seconds", 'Wait for users to log off')) {
+		if ($PSCmdlet.ShouldProcess("for $LimitSecondsToForceLogOffUser seconds", 'Wait for users to log off'))
+        {
 			Start-Sleep -Seconds $LimitSecondsToForceLogOffUser
 		}
 
 		Write-Log -HostPoolName $HostPoolName -Message "Force log off users and stop remaining $($VMsToStopAfterLogOffTimeOut.Count) session hosts"
-		foreach ($VM in $VMsToStopAfterLogOffTimeOut) {
+		foreach ($VM in $VMsToStopAfterLogOffTimeOut)
+        {
 			[string]$SessionHostName = $VM.SessionHostName
 
 			Write-Log -HostPoolName $HostPoolName -Message "Force log off $($VM.UserSessions.Count) users on session host: '$SessionHostName'"
 			$VM.UserSessions | TryForceLogOffUser
 			
 			Write-Log -HostPoolName $HostPoolName -Message "Stop session host '$SessionHostName' as a background job"
-			if ($PSCmdlet.ShouldProcess($SessionHostName, 'Stop session host as a background job')) {
+			if ($PSCmdlet.ShouldProcess($SessionHostName, 'Stop session host as a background job'))
+            {
 				# $StopSessionHostFullNames.Add($VM.SessionHost.Name, $null)
 				$StopVMjobs += ($VM.StopJob = $VM.Instance | Stop-AzVM -Force -AsJob)
 				$VMsToStop.Add($SessionHostName, $VM)
@@ -1019,29 +803,35 @@ try {
 	}
 
 	# Check if there were enough number of session hosts to stop
-	if ($Ops.nVMsToStop) {
+	if ($Ops.nVMsToStop)
+    {
 		Write-Log -HostPoolName $HostPoolName -Warn -Message "Not enough session hosts to stop. Still need to stop $($Ops.nVMsToStop) VMs"
 	}
 
 	# Wait for those jobs to stop the session hosts
 	Write-Log -HostPoolName $HostPoolName -Message "Wait for $($StopVMjobs.Count) jobs"
 	$StartTime = Get-Date
-	while ($true) {
-		if ((Get-Date).Subtract($StartTime).TotalSeconds -ge $StatusCheckTimeOut) {
+	while ($true)
+    {
+		if ((Get-Date).Subtract($StartTime).TotalSeconds -ge $StatusCheckTimeOut)
+        {
 			break
 		}
-		if (!($StopVMjobs | Where-Object { $_.State -ieq 'Running' })) {
+		if (!($StopVMjobs | Where-Object { $_.State -ieq 'Running' }))
+        {
 			break
 		}
 		
 		Write-Log -HostPoolName $HostPoolName -Message "[Check jobs status] Total: $($StopVMjobs.Count), $(($StopVMjobs | Group-Object State | ForEach-Object { "$($_.Name): $($_.Count)" }) -join ', ')"
 		
 		$VMstoResetDrainModeAndSessions = @($VMsToStop.Values | Where-Object { $_.StopJob.State -ine 'Running' })
-		foreach ($VM in $VMstoResetDrainModeAndSessions) {
+		foreach ($VM in $VMstoResetDrainModeAndSessions)
+        {
 			TryResetSessionHostDrainModeAndUserSessions -VM $VM
 			$VMsToStop.Remove($VM.SessionHostName)
 		}
-		if (!$VMstoResetDrainModeAndSessions) {
+		if (!$VMstoResetDrainModeAndSessions)
+        {
 			Start-Sleep -Seconds 30
 		}
 	}
@@ -1051,77 +841,38 @@ try {
 
 	$VMsToStop.Values | TryResetSessionHostDrainModeAndUserSessions
 
-	if ((Get-Date).Subtract($StartTime).TotalSeconds -ge $StatusCheckTimeOut) {
+	if ((Get-Date).Subtract($StartTime).TotalSeconds -ge $StatusCheckTimeOut)
+    {
 		throw "Jobs status check timed out. Taking more than $StatusCheckTimeOut seconds. $StopVMJobsStatusInfo"
 	}
 
 	[array]$IncompleteJobs = @($StopVMjobs | Where-Object { $_.State -ine 'Completed' })
-	if ($IncompleteJobs) {
+	if ($IncompleteJobs)
+    {
 		throw "$($IncompleteJobs.Count)/$($StopVMjobs.Count) jobs did not complete successfully: $($IncompleteJobs | Format-List -Force | Out-String)"
 	}
 
 	Write-Log -HostPoolName $HostPoolName -Message 'All jobs completed'
 	Write-Log -HostPoolName $HostPoolName -Message 'End'
 	return
-
-	<#
-	# //todo if not going to poll for status here, then no need to keep track of the list of session hosts that were stopped
-	Write-Log -HostPoolName $HostPoolName -Message "Wait for $($StopSessionHostFullNames.Count) session hosts to be unavailable"
-	[array]$SessionHostsToCheck = @()
-	$StartTime = Get-Date
-	while ($true) {
-		if ((Get-Date).Subtract($StartTime).TotalSeconds -ge $StatusCheckTimeOut) {
-			throw "Status check timed out. Taking more than $StatusCheckTimeOut seconds"
-		}
-		$SessionHostsToCheck = @(Get-AzWvdSessionHost -HostPoolName $HostPoolName -ResourceGroupName $ResourceGroupName | Where-Object { $StopSessionHostFullNames.ContainsKey($_.Name) })
-		Write-Log -HostPoolName $HostPoolName -Message "[Check session hosts status] Total: $($SessionHostsToCheck.Count), $(($SessionHostsToCheck | Group-Object Status | ForEach-Object { "$($_.Name): $($_.Count)" }) -join ', ')"
-		if (!($SessionHostsToCheck | Where-Object { $_.Status -in $DesiredRunningStates })) {
-			break
-		}
-		Start-Sleep -Seconds $SessionHostStatusCheckSleepSecs
-	}
-
-	# Make sure session hosts are allowing new user sessions & update them to allow if not
-	$SessionHostsToCheck | Update-SessionHostToAllowNewSession
-	#>
-	<#
-	# //todo if not going to poll for status here, then no need to keep track of the list of session hosts that were stopped
-	Write-Log "Wait for $($StopSessionHostNames.Count) session hosts to be unavailable"
-	[array]$SessionHostsToCheck = @()
-	$StartTime = Get-Date
-	while ($true) {
-		if ((Get-Date).Subtract($StartTime).TotalSeconds -ge $StatusCheckTimeOut) {
-			throw "Status check timed out. Taking more than $StatusCheckTimeOut seconds"
-		}
-		$SessionHostsToCheck = @(Get-RdsSessionHost -TenantName $TenantName -HostPoolName $HostPoolName | Where-Object { $StopSessionHostNames.ContainsKey($_.SessionHostName) })
-		Write-Log "[Check session hosts status] Total: $($SessionHostsToCheck.Count), $(($SessionHostsToCheck | Group-Object Status | ForEach-Object { "$($_.Name): $($_.Count)" }) -join ', ')"
-		if (!($SessionHostsToCheck | Where-Object { $_.Status -in $DesiredRunningStates })) {
-			break
-		}
-		Start-Sleep -Seconds $SessionHostStatusCheckSleepSecs
-	}
-
-	# Make sure session hosts are allowing new user sessions & update them to allow if not
-	$SessionHostsToCheck | Update-SessionHostToAllowNewSession
-	#>
-
 	#endregion
 }
-catch {
+catch 
+{
 	$ErrContainer = $PSItem
 	# $ErrContainer = $_
 
 	[string]$ErrMsg = $ErrContainer | Format-List -Force | Out-String
 	$ErrMsg += "Version: $Version`n"
 
-	if (Get-Command 'Write-Log' -ErrorAction:SilentlyContinue) {
+	if (Get-Command 'Write-Log' -ErrorAction:SilentlyContinue)
+    {
 		Write-Log -HostPoolName $HostPoolName -Err -Message $ErrMsg -ErrorAction:Continue
 	}
-	else {
+	else
+    {
 		Write-Error $ErrMsg -ErrorAction:Continue
 	}
-
-	# $ErrMsg += ($WebHookData | Format-List -Force | Out-String)
 
 	throw [System.Exception]::new($ErrMsg, $ErrContainer.Exception)
 }

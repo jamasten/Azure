@@ -1,0 +1,261 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "0.4.1318.3566",
+      "templateHash": "13483462281465519858"
+    }
+  },
+  "parameters": {
+    "AutomationAccountName": {
+      "type": "string"
+    },
+    "BeginPeakTime": {
+      "type": "string",
+      "defaultValue": "9:00"
+    },
+    "EndPeakTime": {
+      "type": "string",
+      "defaultValue": "17:00"
+    },
+    "HostPoolName": {
+      "type": "string"
+    },
+    "HostPoolResourceGroupName": {
+      "type": "string"
+    },
+    "HostsResourceGroupName": {
+      "type": "string"
+    },
+    "LimitSecondsToForceLogOffUser": {
+      "type": "string",
+      "defaultValue": "0"
+    },
+    "LogAnalyticsWorkspaceResourceId": {
+      "type": "string",
+      "defaultValue": ""
+    },
+    "LogicAppName": {
+      "type": "string"
+    },
+    "MinimumNumberOfRdsh": {
+      "type": "string",
+      "defaultValue": "0"
+    },
+    "SessionThresholdPerCPU": {
+      "type": "string",
+      "defaultValue": "1"
+    },
+    "TimeDifference": {
+      "type": "string",
+      "defaultValue": "-5:00"
+    },
+    "Timestamp": {
+      "type": "string",
+      "defaultValue": "[utcNow('u')]",
+      "metadata": {
+        "description": "ISO 8601 timestamp used to help determine the webhook expiration date.  The webhook is hardcoded to expire 5 years after the timestamp."
+      }
+    }
+  },
+  "variables": {
+    "ActionSettingsBody": {
+      "AADTenantId": "[subscription().tenantId]",
+      "SubscriptionId": "[subscription().subscriptionId]",
+      "EnvironmentName": "[environment().name]",
+      "ResourceGroupName": "[parameters('HostPoolResourceGroupName')]",
+      "HostPoolName": "[parameters('HostPoolName')]",
+      "MaintenanceTagName": "Maintenance",
+      "TimeDifference": "[parameters('TimeDifference')]",
+      "BeginPeakTime": "[parameters('BeginPeakTime')]",
+      "EndPeakTime": "[parameters('EndPeakTime')]",
+      "SessionThresholdPerCPU": "[parameters('SessionThresholdPerCPU')]",
+      "MinimumNumberOfRDSH": "[parameters('MinimumNumberOfRdsh')]",
+      "LimitSecondsToForceLogOffUser": "[parameters('LimitSecondsToForceLogOffUser')]",
+      "LogOffMessageTitle": "Machine is about to shutdown.",
+      "LogOffMessageBody": "Your session will be logged off. Please save and close everything."
+    },
+    "Location": "[resourceGroup().location]",
+    "RoleAssignmentResourceGroups": [
+      "[parameters('HostPoolResourceGroupName')]",
+      "[parameters('HostsResourceGroupName')]"
+    ],
+    "Runbook": "AvdAutoScale",
+    "Variable": "WebhookURI",
+    "Webhook": "[format('AvdAutoScale_{0}', dateTimeAdd(parameters('Timestamp'), 'PT0H', 'yyyyMMddhhmmss'))]"
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Automation/automationAccounts",
+      "apiVersion": "2021-06-22",
+      "name": "[parameters('AutomationAccountName')]",
+      "location": "[variables('Location')]",
+      "identity": {
+        "type": "SystemAssigned"
+      },
+      "properties": {
+        "sku": {
+          "name": "Free"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/runbooks",
+      "apiVersion": "2019-06-01",
+      "name": "[format('{0}/{1}', parameters('AutomationAccountName'), variables('Runbook'))]",
+      "location": "[variables('Location')]",
+      "properties": {
+        "runbookType": "PowerShell",
+        "logProgress": false,
+        "logVerbose": false,
+        "publishContentLink": {
+          "uri": "https://raw.githubusercontent.com/jamasten/Azure/master/solutions/scalingAutomation/scale.ps1",
+          "version": "1.0.0.0"
+        }
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('AutomationAccountName'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/webhooks",
+      "apiVersion": "2015-10-31",
+      "name": "[format('{0}/{1}', parameters('AutomationAccountName'), variables('Webhook'))]",
+      "properties": {
+        "isEnabled": true,
+        "expiryTime": "[dateTimeAdd(parameters('Timestamp'), 'P5Y')]",
+        "runbook": {
+          "name": "[variables('Runbook')]"
+        }
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('AutomationAccountName'))]",
+        "[resourceId('Microsoft.Automation/automationAccounts/runbooks', parameters('AutomationAccountName'), variables('Runbook'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/variables",
+      "apiVersion": "2019-06-01",
+      "name": "[format('{0}/{1}', parameters('AutomationAccountName'), variables('Variable'))]",
+      "properties": {
+        "value": "[format('\"{0}\"', reference(resourceId('Microsoft.Automation/automationAccounts/webhooks', parameters('AutomationAccountName'), variables('Webhook'))).uri)]",
+        "isEncrypted": false
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('AutomationAccountName'))]",
+        "[resourceId('Microsoft.Automation/automationAccounts/webhooks', parameters('AutomationAccountName'), variables('Webhook'))]"
+      ]
+    },
+    {
+      "condition": "[not(empty(parameters('LogAnalyticsWorkspaceResourceId')))]",
+      "type": "Microsoft.Insights/diagnosticSettings",
+      "apiVersion": "2017-05-01-preview",
+      "scope": "[format('Microsoft.Automation/automationAccounts/{0}', parameters('AutomationAccountName'))]",
+      "name": "[format('diag-{0}', parameters('AutomationAccountName'))]",
+      "properties": {
+        "logs": [
+          {
+            "category": "JobLogs",
+            "enabled": true
+          },
+          {
+            "category": "JobStreams",
+            "enabled": true
+          }
+        ],
+        "workspaceId": "[parameters('LogAnalyticsWorkspaceResourceId')]"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('AutomationAccountName'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Logic/workflows",
+      "apiVersion": "2016-06-01",
+      "name": "[parameters('LogicAppName')]",
+      "location": "[variables('Location')]",
+      "properties": {
+        "state": "Enabled",
+        "definition": {
+          "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+          "actions": {
+            "HTTP": {
+              "type": "Http",
+              "inputs": {
+                "method": "POST",
+                "uri": "[replace(reference(resourceId('Microsoft.Automation/automationAccounts/variables', parameters('AutomationAccountName'), variables('Variable'))).value, '\"', '')]",
+                "body": "[variables('ActionSettingsBody')]"
+              }
+            }
+          },
+          "triggers": {
+            "Recurrence": {
+              "type": "Recurrence",
+              "recurrence": {
+                "frequency": "Minute",
+                "interval": 15
+              }
+            }
+          }
+        }
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts/variables', parameters('AutomationAccountName'), variables('Variable'))]"
+      ]
+    },
+    {
+      "copy": {
+        "name": "roleAssignments",
+        "count": "[length(range(0, length(variables('RoleAssignmentResourceGroups'))))]"
+      },
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2020-10-01",
+      "name": "[format('RoleAssignment_{0}', variables('RoleAssignmentResourceGroups')[range(0, length(variables('RoleAssignmentResourceGroups')))[copyIndex()]])]",
+      "resourceGroup": "[variables('RoleAssignmentResourceGroups')[range(0, length(variables('RoleAssignmentResourceGroups')))[copyIndex()]]]",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "AutomationAccountId": {
+            "value": "[reference(resourceId('Microsoft.Automation/automationAccounts', parameters('AutomationAccountName')), '2021-06-22', 'full').identity.principalId]"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "0.4.1318.3566",
+              "templateHash": "9916176825074972104"
+            }
+          },
+          "parameters": {
+            "AutomationAccountId": {
+              "type": "string"
+            }
+          },
+          "resources": [
+            {
+              "type": "Microsoft.Authorization/roleAssignments",
+              "apiVersion": "2018-09-01-preview",
+              "name": "[guid(resourceGroup().id, 'ScalingContributor')]",
+              "properties": {
+                "roleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', 'b24988ac-6180-42a0-ab88-20f7382dd24c')]",
+                "principalId": "[parameters('AutomationAccountId')]",
+                "principalType": "ServicePrincipal"
+              }
+            }
+          ]
+        }
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('AutomationAccountName'))]"
+      ]
+    }
+  ]
+}

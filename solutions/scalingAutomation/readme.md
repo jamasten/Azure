@@ -1,6 +1,4 @@
-# Azure Virtual Desktop - Scaling Automation solution
-
-## Description
+# Azure Virtual Desktop - Scaling Automation Solution
 
 This solution is a modernized version of the tool provided in the [AVD documentation](https://docs.microsoft.com/en-us/azure/virtual-desktop/set-up-scaling-script). The whole solution is contained in one deployment.  The Automation Account uses a System Assigned Identity with Contributor rights on the AVD resources groups, reducing the permissions the "RunAs" account used with the old tool. The following resources are deployed with this solution:
 

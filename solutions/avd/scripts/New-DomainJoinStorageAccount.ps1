@@ -134,7 +134,7 @@ try
         {
             Remove-ADComputer -Credential $Credential -Identity $StorageAccountName -Confirm:$false
         }
-        New-ADComputer -Credential $Credential -Name $StorageAccountName -Path $OuPath -ServicePrincipalNames $SPN -AccountPassword $ComputerPassword -KerberosEncryptionType $KerberosEncryptionType -Description $Description
+        New-ADComputer -Credential $Credential -Name $StorageAccountName -Path $OuPath -ServicePrincipalNames $SPN -AccountPassword $ComputerPassword -Description $Description
         Write-Log -Message "Computer object creation succeeded" -Type 'INFO'
 
         # Get domain 'INFO' required for the Azure Storage Account
@@ -157,6 +157,25 @@ try
             -ActiveDirectoryDomainsid $Domain.DomainSID `
             -ActiveDirectoryAzureStorageSid $ComputerSid
         Write-Log -Message "Storage Account update with domain join info succeeded" -Type 'INFO'
+        
+        # Enable AES256 encryption if selected
+        if($KerberosEncryptionType -eq 'AES256')
+        {
+            # Set the Kerberos encryption on the computer object
+            $DistinguishedName = 'CN=' + $StorageAccountName + ',' + $OuPath
+            Set-ADComputer -Identity $DistinguishedName -KerberosEncryptionType 'AES256'
+            Write-Log -Message "Setting Kerberos AES256 Encryption on the computer object succeeded" -Type 'INFO'
+            
+            # Reset the Kerberos key on the Storage Account
+            New-AzStorageAccountKey -ResourceGroupName $ResourceGroupName -Name $StorageAccountName -KeyName kerb1
+            $Key = (Get-AzStorageAccountKey -ResourceGroupName $ResourceGroupName -Name $StorageAccountName -ListKerbKey | Where-Object {$_.Keyname -contains 'kerb1'}).Value
+            Write-Log -Message "Resetting the Kerberos key on the Storage Account succeeded" -Type 'INFO'
+        
+            # Update the password on the computer object with the new Kerberos key on the Storage Account
+            $NewPassword = ConvertTo-SecureString -String $Key -AsPlainText -Force
+            Set-ADAccountPassword -Identity $DistinguishedName -Reset -NewPassword $NewPassword
+            Write-Log -Message "Setting the new Kerberos key on the Computer Object succeeded" -Type 'INFO'
+        }
     }
 
     # Set the variables required to mount the Azure file share

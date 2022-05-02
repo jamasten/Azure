@@ -163,7 +163,7 @@ try
         {
             # Set the Kerberos encryption on the computer object
             $DistinguishedName = 'CN=' + $StorageAccountName + ',' + $OuPath
-            Set-ADComputer -Identity $DistinguishedName -KerberosEncryptionType 'AES256'
+            Set-ADComputer -Credential $Credential -Identity $DistinguishedName -KerberosEncryptionType 'AES256'
             Write-Log -Message "Setting Kerberos AES256 Encryption on the computer object succeeded" -Type 'INFO'
             
             # Reset the Kerberos key on the Storage Account
@@ -173,7 +173,7 @@ try
         
             # Update the password on the computer object with the new Kerberos key on the Storage Account
             $NewPassword = ConvertTo-SecureString -String $Key -AsPlainText -Force
-            Set-ADAccountPassword -Identity $DistinguishedName -Reset -NewPassword $NewPassword
+            Set-ADAccountPassword -Credential $Credential -Identity $DistinguishedName -Reset -NewPassword $NewPassword
             Write-Log -Message "Setting the new Kerberos key on the Computer Object succeeded" -Type 'INFO'
         }
     }

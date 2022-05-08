@@ -7,10 +7,19 @@ param(
     [string]$DiskSku,
 
     [parameter(Mandatory)]
+    [string]$DomainName,
+
+    [parameter(Mandatory)]
+    [string]$DomainServices,
+
+    [parameter(Mandatory)]
     [string]$FSLogixStorage,
 
     [parameter(Mandatory)]
     [string]$ImageSku,
+
+    [parameter(Mandatory)]
+    [string]$KerberosEncryption,
 
     [parameter(Mandatory)]
     [string]$Location,
@@ -110,24 +119,37 @@ if($ImageSku -like "*-g2" -and ($Sku.capabilities | Where-Object {$_.name -eq 'H
 
 
 ############################################################################################
+# Kerberos Encryption Type validation
+############################################################################################
+if($DomainServices -eq 'AzureActiveDirectory')
+{
+    $KerberosRc4Encryption = (Get-AzResource -Name $DomainName -ExpandProperties).Properties.domainSecuritySettings.kerberosRc4Encryption
+    if($KerberosRc4Encryption -eq 'Enabled' -and $KerberosEncryption -eq 'AES256')
+    {
+        Write-Error -Exception 'Invalid Kerberos Encryption' -Message 'The Kerberos Encryption on Azure AD DS does not match your Kerberos Encyrption selection.  Please choose a different Kerberos Encryption Type or fix the security setting on your domain then redploy.' -ErrorAction Stop
+    }
+}
+
+
+############################################################################################
 # Session Host Batching Output
 ############################################################################################
-# sessionHosts.bicep file can only support 99 virtual machines in each nested deployment
+# sessionHosts.bicep file can only support 113 virtual machines in each nested deployment
 # 3 static resources
-# 8 looped resources
-# (8 * 99) + 3 = 795 resources; limit is 800 resources per deployment
+# 7 looped resources
+# (7 * 113) + 3 = 794 resources; limit is 800 resources per deployment
 # BATCH determines how many virtual machines will be deployed in each deployment
 # INDEX determines the number of the first virtual machine in each batch that will be deployed
-if($Count -gt 99)
+if($Count -gt 113)
 {
-    $DivisionValue = [math]::Truncate($Count / 99)
-    $RemainderValue = $Count % 99
+    $DivisionValue = [math]::Truncate($Count / 113)
+    $RemainderValue = $Count % 113
     $Batches = @()
     $Indexes = @()
     for($i = 0; $i -lt $DivisionValue; $i++)
     {
         # Add first batch manually
-        $Batches += 99
+        $Batches += 113
         
         if($i -eq 0)
         {
@@ -139,12 +161,12 @@ if($Count -gt 99)
             if($Index -eq 0)
             {
                 # Create indexes by subtracting 1 if index starts at 0; corrects offset
-                $Indexes += ((99 * $i) + $Index) - 1
+                $Indexes += ((113 * $i) + $Index) - 1
             }
             else
             {
                 # Create indexes when Index is greater than 0; no offset required
-                $Indexes += (99 * $i) + $Index
+                $Indexes += (113 * $i) + $Index
             }
         }
     }
@@ -155,12 +177,12 @@ if($Count -gt 99)
         if($Index -eq 0)
         {   
             # Create remainder index by subtracting 1 if the index starts at 0; corrects offset
-            $Indexes += ((99 * $DivisionValue) + $Index) - 1
+            $Indexes += ((113 * $DivisionValue) + $Index) - 1
         }
         else
         {
             # Create remainder index when Index is greater than 0; no offset required
-            $Indexes += (99 * $DivisionValue) + $Index
+            $Indexes += (113 * $DivisionValue) + $Index
         }
     }
 }

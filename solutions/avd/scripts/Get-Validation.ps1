@@ -49,6 +49,8 @@ param(
     [string]$VnetResourceGroupName
 )
 
+$ErrorActionPreference = 'Stop'
+
 # Object for collecting output
 $DeploymentScriptOutputs = @{}
 
@@ -62,7 +64,7 @@ $Sku = Get-AzComputeResourceSku -Location $Location | Where-Object {$_.ResourceT
 # Validate the array length for the Security Principal ID's, Security Principal Names, and Storage Count align
 if($StorageCount -ne $SecurityPrincipalIds.Count -or $StorageCount -ne $SecurityPrincipalNames.Count)
 {
-    Write-Error -Exception 'Invalid Arrays' -Message 'The Security Prinicapl IDs count, Security Principal Names count, and Storage count must have the same value.' -ErrorAction Stop
+    Write-Error -Exception 'Invalid Arrays' -Message 'The Security Prinicapl IDs count, Security Principal Names count, and Storage count must have the same value.'
 }
 
 
@@ -71,7 +73,7 @@ if($StorageCount -ne $SecurityPrincipalIds.Count -or $StorageCount -ne $Security
 ############################################################################################
 if($Availability -eq 'AvailabilityZones' -and $Sku.locationInfo.zones.count -lt 3)
 {
-    Write-Error -Exception 'Invalid Availability' -Message 'The selected VM Size does not support availability zones in this Azure location. https://docs.microsoft.com/en-us/azure/virtual-machines/windows/create-powershell-availability-zone' -ErrorAction Stop
+    Write-Error -Exception 'Invalid Availability' -Message 'The selected VM Size does not support availability zones in this Azure location. https://docs.microsoft.com/en-us/azure/virtual-machines/windows/create-powershell-availability-zone'
 } 
 
 
@@ -83,7 +85,7 @@ if($Availability -eq 'AvailabilityZones' -and $Sku.locationInfo.zones.count -lt 
 $vCPUs = [int]($Sku.capabilities | Where-Object {$_.name -eq 'vCPUs'}).value
 if($vCPUs -lt 4 -or $vCPUs -gt 24)
 {
-    Write-Error -Exception 'Invalid vCPU Count' -Message 'The selected VM Size does not contain the appropriate amount of vCPUs for Azure Virtual Desktop. https://docs.microsoft.com/en-us/windows-server/remote/remote-desktop-services/virtual-machine-recs' -ErrorAction Stop
+    Write-Error -Exception 'Invalid vCPU Count' -Message 'The selected VM Size does not contain the appropriate amount of vCPUs for Azure Virtual Desktop. https://docs.microsoft.com/en-us/windows-server/remote/remote-desktop-services/virtual-machine-recs'
 }
 
 
@@ -96,7 +98,7 @@ $AvailableCores = $CpuData.Limit - $CpuData.CurrentValue
 $RequestedCores = $vCPUs * $SessionHostCount
 if($RequestedCores -gt $AvailableCores)
 {
-    Write-Error -Exception 'Insufficient Core Quota' -Message 'The selected VM Family does not have adequate core quota in the selected location.  Request more quota and once that has been provided, you may redeploy.' -ErrorAction Stop
+    Write-Error -Exception 'Insufficient Core Quota' -Message 'The selected VM Family does not have adequate core quota in the selected location.  Request more quota and once that has been provided, you may redeploy.'
 }
 
 
@@ -105,7 +107,7 @@ if($RequestedCores -gt $AvailableCores)
 ############################################################################################
 if($DiskSku -like "Premium*" -and ($Sku.capabilities | Where-Object {$_.name -eq 'PremiumIO'}).value -eq $false)
 {
-    Write-Error -Exception 'Invalid Disk SKU' -Message 'The selected VM Size does not support the Premium SKU for managed disks.' -ErrorAction Stop
+    Write-Error -Exception 'Invalid Disk SKU' -Message 'The selected VM Size does not support the Premium SKU for managed disks.'
 }
 
 
@@ -114,7 +116,7 @@ if($DiskSku -like "Premium*" -and ($Sku.capabilities | Where-Object {$_.name -eq
 ############################################################################################
 if($ImageSku -like "*-g2" -and ($Sku.capabilities | Where-Object {$_.name -eq 'HyperVGenerations'}).value -notlike "*2")
 {
-    Write-Error -Exception 'Invalid Hyper-V Generation' -Message 'The VM size does not support the selected Image Sku.' -ErrorAction Stop
+    Write-Error -Exception 'Invalid Hyper-V Generation' -Message 'The VM size does not support the selected Image Sku.'
 }
 
 
@@ -126,7 +128,7 @@ if($DomainServices -eq 'AzureActiveDirectory')
     $KerberosRc4Encryption = (Get-AzResource -Name $DomainName -ExpandProperties).Properties.domainSecuritySettings.kerberosRc4Encryption
     if($KerberosRc4Encryption -eq 'Enabled' -and $KerberosEncryption -eq 'AES256')
     {
-        Write-Error -Exception 'Invalid Kerberos Encryption' -Message 'The Kerberos Encryption on Azure AD DS does not match your Kerberos Encyrption selection.  Please choose a different Kerberos Encryption Type or fix the security setting on your domain then redploy.' -ErrorAction Stop
+        Write-Error -Exception 'Invalid Kerberos Encryption' -Message 'The Kerberos Encryption on Azure AD DS does not match your Kerberos Encyrption selection.  Please choose a different Kerberos Encryption Type or fix the security setting on your domain then redploy.'
     }
 }
 

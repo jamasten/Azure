@@ -44,9 +44,9 @@ $DiskAccess = Grant-AzDiskAccess `
     -Access 'Read' `
     -DurationInSecond 14400
 
-Invoke-WebRequest `
-    -Uri $DiskAccess.AccessSAS `
-    -OutFile "$($HOME)\Downloads\$($Disk.Name).vhd"
+Get-AzStorageBlobContent `
+    -AbsoluteUri $DiskAccess.AccessSAS `
+    -Destination "$($HOME)\Downloads\$($Disk.Name).vhd"
     
 Revoke-AzDiskAccess `
     -ResourceGroupName $Disk.ResourceGroupName `

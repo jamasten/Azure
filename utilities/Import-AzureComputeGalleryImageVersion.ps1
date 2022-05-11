@@ -41,7 +41,8 @@ Add-AzVhd `
     -LocalFilePath $VhdFilePath `
     -ResourceGroupName $ComputeGalleryResourceGroupName `
     -Location $Location `
-    -DiskName $DiskName
+    -DiskName $DiskName `
+    -NumberOfUploaderThreads 32
 
 # Get Disk information
 $Disk = Get-AzDisk `

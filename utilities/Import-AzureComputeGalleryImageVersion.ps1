@@ -24,15 +24,15 @@ SOFTWARE.
 .SYNOPSIS
 Imports an Image Version from an Azure Compute Gallery.
 .DESCRIPTION
-Imports a downloaded VHD as a Managed Disk and is validated using an MD5 hash that is auto generated.  If the specified Compute Gallery and Image Definition do not exist, it creates those resources.  Next, the Managed Disk is imported as an Image Version.  Once the import completes, the Managed Disk is deleted.
+Imports a downloaded VHD as a Managed Disk and is validated using an MD5 hash that is auto-generated.  If the specified Compute Gallery and Image Definition do not exist, it creates those resources.  Next, the Managed Disk is imported as an Image Version.  Once the import completes, the Managed Disk is deleted.
 .PARAMETER ComputeGalleryDefinitionName
-The name of the Image Definition in the Azure Compute Gallery.
+The name of the Image Definition in the Azure Compute Gallery.  It will be created if it does not exist.
 .PARAMETER ComputeGalleryName
-The name of the Azure Compute Gallery.
+The name of the Azure Compute Gallery.  It will be created if it does not exist.
 .PARAMETER ComputeGalleryResourceGroupName
 The name of the Resource Group that contains the Azure Compute Gallery.
 .PARAMETER ComputeGalleryVersion
-The name of the Image Version in the Azure Compute Gallery.
+The name of the Image Version that will be created in the Azure Compute Gallery.
 .PARAMETER ImageOffer
 The offer of the image to create a new Image Defintion if needed.
 .PARAMETER ImagePublisher

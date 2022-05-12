@@ -22,9 +22,9 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
 .SYNOPSIS
-Exports an Image Version from an Azure Compute Gallery.
+Imports an Image Version from an Azure Compute Gallery.
 .DESCRIPTION
-Exports an Image Version from an Azure Compute Gallery.
+Imports a downloaded VHD as a Managed Disk and is validated using an MD5 hash that is auto generated.  If the specified Compute Gallery and Image Definition do not exist, it creates those resources.  Next, the Managed Disk is imported as an Image Version.  Once the import completes, the Managed Disk is deleted.
 .PARAMETER ComputeGalleryDefinitionName
 The name of the Image Definition in the Azure Compute Gallery.
 .PARAMETER ComputeGalleryName

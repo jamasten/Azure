@@ -97,7 +97,6 @@ $DiskAccess = Grant-AzDiskAccess `
 # Downloads the VHD using 10 concurrent network calls and validates the MD5 hash
 Get-AzStorageBlobContent `
     -AbsoluteUri $DiskAccess.AccessSAS `
-    -CheckMd5 `
     -Destination "$($HOME)\Downloads\$($Disk.Name).vhd"
 
 # Revokes the SAS Token to download the VHD

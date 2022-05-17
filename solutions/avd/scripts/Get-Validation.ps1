@@ -35,7 +35,10 @@ param(
 
     [parameter(Mandatory)]
     [int]$SessionHostIndex,
-    
+
+    [parameter(Mandatory)]
+    [string]$StartVmOnConnect,       
+
     [parameter(Mandatory)]
     [int]$StorageCount,    
 
@@ -57,10 +60,42 @@ $DeploymentScriptOutputs = @{}
 # Info required for validation
 $Sku = Get-AzComputeResourceSku -Location $Location | Where-Object {$_.ResourceType -eq 'virtualMachines' -and $_.Name -eq $VmSize}
 
+############################################################################################
+# Validations
+############################################################################################
+# Availability Zone Validation
+if($Availability -eq 'AvailabilityZones' -and $Sku.locationInfo.zones.count -lt 3)
+{
+    Write-Error -Exception 'Invalid Availability' -Message 'The selected VM Size does not support availability zones in this Azure location. https://docs.microsoft.com/en-us/azure/virtual-machines/windows/create-powershell-availability-zone'
+} 
 
-############################################################################################
+
+# Disk SKU validation
+if($DiskSku -like "Premium*" -and ($Sku.capabilities | Where-Object {$_.name -eq 'PremiumIO'}).value -eq $false)
+{
+    Write-Error -Exception 'Invalid Disk SKU' -Message 'The selected VM Size does not support the Premium SKU for managed disks.'
+}
+
+
+# Hyper-V Generation validation
+if($ImageSku -like "*-g2" -and ($Sku.capabilities | Where-Object {$_.name -eq 'HyperVGenerations'}).value -notlike "*2")
+{
+    Write-Error -Exception 'Invalid Hyper-V Generation' -Message 'The VM size does not support the selected Image Sku.'
+}
+
+
+# Kerberos Encryption Type validation
+if($DomainServices -eq 'AzureActiveDirectory')
+{
+    $KerberosRc4Encryption = (Get-AzResource -Name $DomainName -ExpandProperties).Properties.domainSecuritySettings.kerberosRc4Encryption
+    if($KerberosRc4Encryption -eq 'Enabled' -and $KerberosEncryption -eq 'AES256')
+    {
+        Write-Error -Exception 'Invalid Kerberos Encryption' -Message 'The Kerberos Encryption on Azure AD DS does not match your Kerberos Encyrption selection.  Please choose a different Kerberos Encryption Type or fix the security setting on your domain then redploy.'
+    }
+}
+
+
 # Storage Assignment Validation
-############################################################################################
 # Validate the array length for the Security Principal ID's, Security Principal Names, and Storage Count align
 if($StorageCount -ne $SecurityPrincipalIds.Count -or $StorageCount -ne $SecurityPrincipalNames.Count)
 {
@@ -68,18 +103,7 @@ if($StorageCount -ne $SecurityPrincipalIds.Count -or $StorageCount -ne $Security
 }
 
 
-############################################################################################
-# Availability Zone Validation
-############################################################################################
-if($Availability -eq 'AvailabilityZones' -and $Sku.locationInfo.zones.count -lt 3)
-{
-    Write-Error -Exception 'Invalid Availability' -Message 'The selected VM Size does not support availability zones in this Azure location. https://docs.microsoft.com/en-us/azure/virtual-machines/windows/create-powershell-availability-zone'
-} 
-
-
-############################################################################################
 # vCPU Count Validation
-############################################################################################
 # Recommended range is 4 min, 24 max
 # https://docs.microsoft.com/en-us/windows-server/remote/remote-desktop-services/virtual-machine-recs?context=/azure/virtual-desktop/context/context
 $vCPUs = [int]($Sku.capabilities | Where-Object {$_.name -eq 'vCPUs'}).value
@@ -89,9 +113,7 @@ if($vCPUs -lt 4 -or $vCPUs -gt 24)
 }
 
 
-############################################################################################
 # vCPU Quota Validation
-############################################################################################
 $Family = (Get-AzComputeResourceSku -Location $Location | Where-Object {$_.Name -eq $VmSize}).Family
 $CpuData = Get-AzVMUsage -Location $Location | Where-Object {$_.Name.Value -eq $Family}
 $AvailableCores = $CpuData.Limit - $CpuData.CurrentValue
@@ -103,39 +125,42 @@ if($RequestedCores -gt $AvailableCores)
 
 
 ############################################################################################
-# Disk SKU validation
+# Information Output
 ############################################################################################
-if($DiskSku -like "Premium*" -and ($Sku.capabilities | Where-Object {$_.name -eq 'PremiumIO'}).value -eq $false)
+# Accelerated Networking
+$DeploymentScriptOutputs["acceleratedNetworking"] = ($Sku.capabilities | Where-Object {$_.name -eq 'AcceleratedNetworkingEnabled'}).value
+
+
+# AVD Object ID Output
+# https://docs.microsoft.com/en-us/azure/virtual-desktop/start-virtual-machine-connect?tabs=azure-portal#assign-the-custom-role-with-the-azure-portal
+if($StartVmOnConnect -eq 'true')
 {
-    Write-Error -Exception 'Invalid Disk SKU' -Message 'The selected VM Size does not support the Premium SKU for managed disks.'
+    $AvdObjectId = (Get-AzADServicePrincipal -ApplicationId 9cdead84-a844-4324-93f2-b2e6bb768d07).Id
 }
+$DeploymentScriptOutputs["avdObjectId"] = $AvdObjectId
 
 
-############################################################################################
-# Hyper-V Generation validation
-############################################################################################
-if($ImageSku -like "*-g2" -and ($Sku.capabilities | Where-Object {$_.name -eq 'HyperVGenerations'}).value -notlike "*2")
+# Azure NetApp Files Validation & Output
+if($FSLogixStorage -like "AzureNetAppFiles*")
 {
-    Write-Error -Exception 'Invalid Hyper-V Generation' -Message 'The VM size does not support the selected Image Sku.'
-}
-
-
-############################################################################################
-# Kerberos Encryption Type validation
-############################################################################################
-if($DomainServices -eq 'AzureActiveDirectory')
-{
-    $KerberosRc4Encryption = (Get-AzResource -Name $DomainName -ExpandProperties).Properties.domainSecuritySettings.kerberosRc4Encryption
-    if($KerberosRc4Encryption -eq 'Enabled' -and $KerberosEncryption -eq 'AES256')
+    $Vnet = Get-AzVirtualNetwork -Name $VnetName -ResourceGroupName $VnetResourceGroupName
+    $DnsServers = "$($Vnet.DhcpOptions.DnsServers[0]),$($Vnet.DhcpOptions.DnsServers[1])"
+    $SubnetId = ($Vnet.Subnets | Where-Object {$_.Delegations[0].ServiceName -eq "Microsoft.NetApp/volumes"}).Id
+    Install-Module -Name "Az.NetAppFiles" -Force
+    $DeployAnfAd = "true"
+    $Accounts = Get-AzResource -ResourceType "Microsoft.NetApp/netAppAccounts" | Where-Object {$_.Location -eq $Location}
+    foreach($Account in $Accounts)
     {
-        Write-Error -Exception 'Invalid Kerberos Encryption' -Message 'The Kerberos Encryption on Azure AD DS does not match your Kerberos Encyrption selection.  Please choose a different Kerberos Encryption Type or fix the security setting on your domain then redploy.'
+        $AD = Get-AzNetAppFilesActiveDirectory -ResourceGroupName $Account.ResourceGroupName -AccountName $Account.Name
+        if($AD.ActiveDirectoryId){$DeployAnfAd = "false"}
     }
+    $DeploymentScriptOutputs["dnsServers"] = $DnsServers
+    $DeploymentScriptOutputs["subnetId"] = $SubnetId
+    $DeploymentScriptOutputs["anfAd"] = $DeployAnfAd
 }
 
 
-############################################################################################
 # Session Host Batching Output
-############################################################################################
 # sessionHosts.bicep file can only support 113 virtual machines in each nested deployment
 # 3 static resources
 # 7 looped resources
@@ -195,31 +220,3 @@ else
 }
 $DeploymentScriptOutputs["sessionHostBatches"] = $Batches
 $DeploymentScriptOutputs["sessionHostIndexes"] = $Indexes
-
-
-############################################################################################
-# Azure NetApp Files Validation
-############################################################################################
-if($FSLogixStorage -like "AzureNetAppFiles*")
-{
-    $Vnet = Get-AzVirtualNetwork -Name $VnetName -ResourceGroupName $VnetResourceGroupName
-    $DnsServers = "$($Vnet.DhcpOptions.DnsServers[0]),$($Vnet.DhcpOptions.DnsServers[1])"
-    $SubnetId = ($Vnet.Subnets | Where-Object {$_.Delegations[0].ServiceName -eq "Microsoft.NetApp/volumes"}).Id
-    Install-Module -Name "Az.NetAppFiles" -Force
-    $DeployAnfAd = "true"
-    $Accounts = Get-AzResource -ResourceType "Microsoft.NetApp/netAppAccounts" | Where-Object {$_.Location -eq $Location}
-    foreach($Account in $Accounts)
-    {
-        $AD = Get-AzNetAppFilesActiveDirectory -ResourceGroupName $Account.ResourceGroupName -AccountName $Account.Name
-        if($AD.ActiveDirectoryId){$DeployAnfAd = "false"}
-    }
-    $DeploymentScriptOutputs["dnsServers"] = $DnsServers
-    $DeploymentScriptOutputs["subnetId"] = $SubnetId
-    $DeploymentScriptOutputs["anfAd"] = $DeployAnfAd
-}
-
-
-############################################################################################
-# Outputs
-############################################################################################
-$DeploymentScriptOutputs["acceleratedNetworking"] = ($Sku.capabilities | Where-Object {$_.name -eq 'AcceleratedNetworkingEnabled'}).value

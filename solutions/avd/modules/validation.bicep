@@ -45,7 +45,10 @@ resource deploymentScript 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
 }
 
 output acceleratedNetworking string = deploymentScript.properties.outputs.acceleratedNetworking
+output anfActiveDirectory string = deploymentScript.properties.outputs.anfActiveDirectory
 output avdObjectId string = deploymentScript.properties.outputs.avdObjectId
+output dnsServers string = deploymentScript.properties.outputs.dnsServers
 output ephemeralOsDisk string = deploymentScript.properties.outputs.ephemeralOsDisk
 output sessionHostBatches array = deploymentScript.properties.outputs.sessionHostBatches
 output sessionHostIndexes array = deploymentScript.properties.outputs.sessionHostIndexes
+output subnetId string = deploymentScript.properties.outputs.subnetId

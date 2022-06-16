@@ -1,9 +1,12 @@
-﻿configuration DnsForwarders 
+﻿configuration DnsForwarder
 { 
    param
    ( 
         [Parameter(Mandatory)]
-        [Array]$IPAddresses
+        [array]$ForwarderIPAddresses,
+
+        [Parameter(Mandatory)]
+        [string]$StorageSuffix
     ) 
     
     Import-DscResource -ModuleName PSDscResources -ModuleVersion '2.12.0.0'
@@ -21,7 +24,7 @@
         xDnsServerForwarder OnPremDns
         {
             IsSingleInstance = 'Yes'
-            IPAddresses = $IPAddresses
+            IPAddresses = $ForwarderIPAddresses
             UseRootHint = $true
             DependsOn = "[WindowsFeature]DnsServer"
         }
@@ -29,7 +32,7 @@
         xDnsServerConditionalForwarder AzurePrivateDnsZone
         {
             Ensure = "Present"
-            Name = "core.windows.net"
+            Name = $StorageSuffix
             MasterServers = "168.63.129.16"
             DependsOn = "[WindowsFeature]DnsServer"
         }

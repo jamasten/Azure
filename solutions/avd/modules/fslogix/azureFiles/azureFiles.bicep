@@ -10,23 +10,28 @@ param Environment string
 param FileShares array
 param FslogixShareSizeInGB int
 param FslogixStorage string
-param HostPoolName string
 param HybridUseBenefit bool
 param Identifier string
-param Index int
 param KerberosEncryption string
 param Location string
 param LocationShortName string
 param ManagedIdentityResourceId string
 param ManagementVmName string
 param NamingStandard string
+param Netbios string
+param OuPath string
 param PrivateDnsZoneName string
 param PrivateEndpoint bool
+param ResourceGroups array
+param RoleDefinitionIds object
 param SasToken string
 param ScriptsUri string
-param SecurityPrincipalId string
+param SecurityPrincipalIds array
+param SecurityPrincipalNames array
 param StampIndexFull string
 param StorageAccountPrefix string
+param StorageCount int
+param StorageIndex int
 param StorageSku string
 param StorageSuffix string
 param Subnet string
@@ -41,7 +46,6 @@ param VmUsername string
 
 var Endpoint = split(FslogixStorage, ' ')[2]
 var ResourceGroupName = resourceGroup().name
-var RoleAssignmentName_Users = guid('${StorageAccountName}/default/${HostPoolName}', '0')
 var SmbMultiChannel = {
   multichannel: {
     enabled: true
@@ -53,7 +57,6 @@ var SmbSettings = {
   kerberosTicketEncryption: KerberosEncryption == 'RC4' ? 'RC4-HMAC;' : 'AES-256;'
   channelEncryption: 'AES-128-CCM;AES-128-GCM;AES-256-GCM;'
 }
-var StorageAccountName = '${StorageAccountPrefix}${padLeft(Index, 2, '0')}'
 var SubnetId = resourceId(VirtualNetworkResourceGroup, 'Microsoft.Network/virtualNetworks/subnets', VirtualNetwork, Subnet)
 var VirtualNetworkRules = {
   PrivateEndpoint: []
@@ -67,8 +70,8 @@ var VirtualNetworkRules = {
 }
 
 
-resource storageAccount 'Microsoft.Storage/storageAccounts@2021-02-01' = {
-  name: StorageAccountName
+resource storageAccounts 'Microsoft.Storage/storageAccounts@2021-02-01' = [for i in range(StorageIndex, StorageCount): {
+  name: '${StorageAccountPrefix}${padLeft(i, 2, '0')}'
   location: Location
   tags: Tags
   sku: {
@@ -98,32 +101,35 @@ resource storageAccount 'Microsoft.Storage/storageAccounts@2021-02-01' = {
     }
     largeFileSharesState: StorageSku == 'Standard' ? 'Enabled' : null
   }
-}
+}]
 
-resource roleAssignment_Vm 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = {
-  scope: storageAccount
-  name: guid(StorageAccountName, 'Contributor')
+// Assigns the Mgmt VM's managed identity to the storage account
+// This is needed so the custom script extension can domain join the storage account, change the Kerberos encryption if needed, and update the NTFS permissions
+resource roleAssignment_Vm 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = [for i in range(StorageIndex, StorageCount): {
+  scope: storageAccounts[i]
+  name: guid(storageAccounts[i].name, RoleDefinitionIds.contributor, ManagementVmName)
   properties: {
-    roleDefinitionId: resourceId('Microsoft.Authorization/roleDefinitions', 'b24988ac-6180-42a0-ab88-20f7382dd24c') // Contributor
+    roleDefinitionId: resourceId('Microsoft.Authorization/roleDefinitions', RoleDefinitionIds.contributor)
     principalId: reference(resourceId('Microsoft.Compute/virtualMachines', ManagementVmName), '2020-12-01', 'Full').identity.principalId
     principalType: 'ServicePrincipal'
   }
-}
+}]
 
-resource roleAssignment_Users 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = {
-  scope: storageAccount
-  name: RoleAssignmentName_Users
+// Assigns the SMB Contributor role to the Storage Account so users can save their profiles to the file share using FSLogix
+resource roleAssignment_Users 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = [for i in range(StorageIndex, StorageCount): {
+  scope: storageAccounts[i]
+  name: guid(SecurityPrincipalIds[i], RoleDefinitionIds.storageFileDataSMBShareContributor, storageAccounts[i].name)
   properties: {
-    roleDefinitionId: resourceId('Microsoft.Authorization/roleDefinitions', '0c867c2a-1d8c-454a-a3db-ab2ea1bdc8bb')
-    principalId: SecurityPrincipalId
+    roleDefinitionId: resourceId('Microsoft.Authorization/roleDefinitions', RoleDefinitionIds.storageFileDataSMBShareContributor)
+    principalId: SecurityPrincipalIds[i]
   }
   dependsOn: [
     roleAssignment_Vm
   ]
-}
+}]
 
-resource storageAccount_FileServices 'Microsoft.Storage/storageAccounts/fileServices@2021-02-01' = {
-  parent: storageAccount
+resource fileServices 'Microsoft.Storage/storageAccounts/fileServices@2021-02-01' = [for i in range(StorageIndex, StorageCount): {
+  parent: storageAccounts[i]
   name: 'default'
   properties: {
     protocolSettings: {
@@ -136,35 +142,36 @@ resource storageAccount_FileServices 'Microsoft.Storage/storageAccounts/fileServ
   dependsOn: [
     roleAssignment_Vm
   ]
-}
+}]
 
-resource storageAccount_FileShares 'Microsoft.Storage/storageAccounts/fileServices/shares@2021-02-01' = [for i in range(0, length(FileShares)): {
-  parent: storageAccount_FileServices
-  name: FileShares[i]
-  properties: {
-    accessTier: StorageSku == 'Premium' ? 'Premium' : 'TransactionOptimized'
-    shareQuota: FslogixShareSizeInGB
-    enabledProtocols: 'SMB'
+module shares 'shares.bicep' = [for i in range(StorageIndex, StorageCount): {
+  name: 'FileShares_${i}_${Timestamp}'
+  scope: resourceGroup(ResourceGroups[3]) // Storage Resource Group
+  params: {
+    FileShares: FileShares
+    FslogixShareSizeInGB: FslogixShareSizeInGB
+    StorageAccountName: '${StorageAccountPrefix}${padLeft(i, 2, '0')}'
+    StorageSku: StorageSku
   }
   dependsOn: [
     roleAssignment_Users
   ]
 }]
 
-module privateEndpoint 'fslogixStorageAccount_PrivateEndpoint.bicep' = if(PrivateEndpoint) {
-  name: 'fslogixStorageAccountd_PrivateEndpoint_${Timestamp}'
+module privateEndpoint 'privateEndpoint.bicep' = [for i in range(StorageIndex, StorageCount): if(PrivateEndpoint) {
+  name: 'PrivateEndpoints_${i}_${Timestamp}'
   scope: resourceGroup(ResourceGroupName)
   params: {
     Location: Location
     PrivateDnsZoneName: PrivateDnsZoneName
-    StorageAccountId: storageAccount.id
-    StorageAccountName: storageAccount.name
+    StorageAccountId: storageAccounts[i].id
+    StorageAccountName: storageAccounts[i].name
     Subnet: Subnet
     Tags: Tags    
     VirtualNetwork: VirtualNetwork
     VirtualNetworkResourceGroup: VirtualNetworkResourceGroup
   }
-}
+}]
 
 module dnsForwarder 'dnsForwarder.bicep' = if(PrivateEndpoint) {
   name: 'dnsForwarder_${Timestamp}'
@@ -195,4 +202,31 @@ module dnsForwarder 'dnsForwarder.bicep' = if(PrivateEndpoint) {
     VmPassword: VmPassword
     VmUsername: VmUsername
   }
+}
+
+module ntfsPermissions 'ntfsPermissions.bicep' = if(!contains(DomainServices, 'None')) {
+  name: 'fslogixNtfsPermissions_${Timestamp}'
+  scope: resourceGroup(ResourceGroups[0]) // Deployment Resource Group
+  params: {
+    DomainJoinPassword: DomainJoinPassword
+    DomainJoinUserPrincipalName: DomainJoinUserPrincipalName
+    DomainServices: DomainServices
+    KerberosEncryptionType: KerberosEncryption
+    Location: Location
+    ManagementVmName: ManagementVmName
+    Netbios: Netbios
+    OuPath: OuPath
+    SasToken: SasToken
+    ScriptsUri: ScriptsUri
+    SecurityPrincipalNames: SecurityPrincipalNames
+    StorageCount: StorageCount
+    StorageIndex: StorageIndex
+    StorageAccountPrefix: StorageAccountPrefix
+    StorageAccountResourceGroupName: ResourceGroups[3] // Storage Resource Group
+    Tags: Tags
+    Timestamp: Timestamp
+  }
+  dependsOn: [
+    shares
+  ]
 }

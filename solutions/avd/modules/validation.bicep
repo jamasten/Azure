@@ -9,6 +9,7 @@ param ImageSku string
 param KerberosEncryption string
 param Location string
 param ManagedIdentityResourceId string
+param NamingStandard string
 param SasToken string
 param ScriptsUri string
 param SecurityPrincipalIds array
@@ -23,7 +24,7 @@ param VirtualNetworkResourceGroup string
 param VmSize string
 
 resource deploymentScript 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
-  name: 'deploymentValidation'
+  name: 'ds-${NamingStandard}-validation'
   location: Location
   tags: Tags
   kind: 'AzurePowerShell'

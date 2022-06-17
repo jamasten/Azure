@@ -74,7 +74,7 @@ resource nic 'Microsoft.Network/networkInterfaces@2020-05-01' = {
   }
 }
 
-module staticIpAddress 'dnsForwarder_StaticIpAddress.bicep' = {
+module staticIpAddress 'staticIpAddress.bicep' = {
   name: 'staticIpAddress'
   params: {
     IpAddress: nic.properties.ipConfigurations[0].properties.privateIPAddress

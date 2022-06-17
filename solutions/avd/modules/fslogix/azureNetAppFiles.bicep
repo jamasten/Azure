@@ -153,4 +153,4 @@ resource customScriptExtension 'Microsoft.Compute/virtualMachines/extensions@202
   ]
 }
 
-output fileshare string = netApp_Volume.properties.mountTargets[0].smbServerFqdn
+output fileShare string = netApp_Volume.properties.mountTargets[0].smbServerFqdn

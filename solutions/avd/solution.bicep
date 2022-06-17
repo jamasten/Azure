@@ -814,6 +814,9 @@ module availabilitySets 'modules/availabilitySets.bicep' = if (PooledHostPool &&
     Location: Location
     Tags: Tags
   }
+  dependsOn: [
+    resourceGroups
+  ]
 }
 
 // Role Assignment for Virtual Machine Login User

@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.6.18.56646",
-      "templateHash": "6913371908182322963"
+      "templateHash": "4938196598960887376"
     }
   },
   "parameters": {
@@ -4009,7 +4009,10 @@
             }
           ]
         }
-      }
+      },
+      "dependsOn": [
+        "resourceGroups"
+      ]
     },
     {
       "condition": "[contains(parameters('DomainServices'), 'None')]",

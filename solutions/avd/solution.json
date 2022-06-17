@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.6.18.56646",
-      "templateHash": "17698002759423800019"
+      "templateHash": "18326726469376519809"
     }
   },
   "parameters": {
@@ -719,11 +719,11 @@
       "name": "[guid('Azure Virtual Desktop', 'StartVmOnConnect', subscription().id)]",
       "properties": {
         "roleDefinitionId": "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', guid('StartVmOnConnect', subscription().id))]",
-        "principalId": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroups')[0]), 'Microsoft.Resources/deployments', format('validation_{0}', parameters('Timestamp')))).outputs.avdObjectId.value]"
+        "principalId": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroups')[range(0, length(variables('ResourceGroups')))[copyIndex()]]), 'Microsoft.Resources/deployments', format('validation_{0}', parameters('Timestamp')))).outputs.avdObjectId.value]"
       },
       "dependsOn": [
         "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', guid('StartVmOnConnect', subscription().id))]",
-        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroups')[0]), 'Microsoft.Resources/deployments', format('validation_{0}', parameters('Timestamp')))]"
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroups')[range(0, length(variables('ResourceGroups')))[copyIndex()]]), 'Microsoft.Resources/deployments', format('validation_{0}', parameters('Timestamp')))]"
       ]
     },
     {
@@ -732,18 +732,18 @@
       "name": "[guid(variables('ManagedIdentityName'), variables('RoleDefinitionIds').reader, subscription().id)]",
       "properties": {
         "roleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', variables('RoleDefinitionIds').reader)]",
-        "principalId": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroups')[0]), 'Microsoft.Resources/deployments', format('managedIdentity_{0}', parameters('Timestamp')))).outputs.principalId.value]",
+        "principalId": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroups')[range(0, length(variables('ResourceGroups')))[copyIndex()]]), 'Microsoft.Resources/deployments', format('managedIdentity_{0}', parameters('Timestamp')))).outputs.principalId.value]",
         "principalType": "ServicePrincipal"
       },
       "dependsOn": [
-        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroups')[0]), 'Microsoft.Resources/deployments', format('managedIdentity_{0}', parameters('Timestamp')))]"
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroups')[range(0, length(variables('ResourceGroups')))[copyIndex()]]), 'Microsoft.Resources/deployments', format('managedIdentity_{0}', parameters('Timestamp')))]"
       ]
     },
     {
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2020-10-01",
       "name": "[format('managedIdentity_{0}', parameters('Timestamp'))]",
-      "resourceGroup": "[variables('ResourceGroups')[0]]",
+      "resourceGroup": "[variables('ResourceGroups')[range(0, length(variables('ResourceGroups')))[0]]]",
       "properties": {
         "expressionEvaluationOptions": {
           "scope": "inner"
@@ -794,7 +794,10 @@
             }
           }
         }
-      }
+      },
+      "dependsOn": [
+        "[subscriptionResourceId('Microsoft.Resources/resourceGroups', variables('ResourceGroups')[range(0, length(variables('ResourceGroups')))[0]])]"
+      ]
     },
     {
       "copy": {
@@ -815,7 +818,7 @@
             "value": "[variables('RoleAssignments')[range(0, length(variables('RoleAssignments')))[copyIndex()]].condition]"
           },
           "PrincipalId": {
-            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroups')[0]), 'Microsoft.Resources/deployments', format('managedIdentity_{0}', parameters('Timestamp')))).outputs.principalId.value]"
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroups')[range(0, length(variables('ResourceGroups')))[copyIndex()]]), 'Microsoft.Resources/deployments', format('managedIdentity_{0}', parameters('Timestamp')))).outputs.principalId.value]"
           },
           "RoleDefinitionId": {
             "value": "[variables('RoleAssignments')[range(0, length(variables('RoleAssignments')))[copyIndex()]].roleDefinitionId]"
@@ -858,14 +861,14 @@
         }
       },
       "dependsOn": [
-        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroups')[0]), 'Microsoft.Resources/deployments', format('managedIdentity_{0}', parameters('Timestamp')))]"
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroups')[range(0, length(variables('ResourceGroups')))[copyIndex()]]), 'Microsoft.Resources/deployments', format('managedIdentity_{0}', parameters('Timestamp')))]"
       ]
     },
     {
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2020-10-01",
       "name": "[format('hostPool_{0}', parameters('Timestamp'))]",
-      "resourceGroup": "[variables('ResourceGroups')[2]]",
+      "resourceGroup": "[variables('ResourceGroups')[range(0, length(variables('ResourceGroups')))[2]]]",
       "properties": {
         "expressionEvaluationOptions": {
           "scope": "inner"
@@ -1041,13 +1044,16 @@
             }
           ]
         }
-      }
+      },
+      "dependsOn": [
+        "[subscriptionResourceId('Microsoft.Resources/resourceGroups', variables('ResourceGroups')[range(0, length(variables('ResourceGroups')))[2]])]"
+      ]
     },
     {
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2020-10-01",
       "name": "[format('validation_{0}', parameters('Timestamp'))]",
-      "resourceGroup": "[variables('ResourceGroups')[0]]",
+      "resourceGroup": "[variables('ResourceGroups')[range(0, length(variables('ResourceGroups')))[0]]]",
       "properties": {
         "expressionEvaluationOptions": {
           "scope": "inner"
@@ -1085,7 +1091,7 @@
             "value": "[parameters('Location')]"
           },
           "ManagedIdentityResourceId": {
-            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroups')[0]), 'Microsoft.Resources/deployments', format('managedIdentity_{0}', parameters('Timestamp')))).outputs.resourceIdentifier.value]"
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroups')[range(0, length(variables('ResourceGroups')))[copyIndex()]]), 'Microsoft.Resources/deployments', format('managedIdentity_{0}', parameters('Timestamp')))).outputs.resourceIdentifier.value]"
           },
           "SasToken": {
             "value": "[parameters('SasToken')]"
@@ -1267,7 +1273,8 @@
         }
       },
       "dependsOn": [
-        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroups')[0]), 'Microsoft.Resources/deployments', format('managedIdentity_{0}', parameters('Timestamp')))]",
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroups')[range(0, length(variables('ResourceGroups')))[copyIndex()]]), 'Microsoft.Resources/deployments', format('managedIdentity_{0}', parameters('Timestamp')))]",
+        "[subscriptionResourceId('Microsoft.Resources/resourceGroups', variables('ResourceGroups')[range(0, length(variables('ResourceGroups')))[0]])]",
         "[subscriptionResourceId('Microsoft.Authorization/roleAssignments', guid(variables('ManagedIdentityName'), variables('RoleDefinitionIds').reader, subscription().id))]"
       ]
     },
@@ -1276,7 +1283,7 @@
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2020-10-01",
       "name": "[format('AutomationAccount_{0}', parameters('Timestamp'))]",
-      "resourceGroup": "[variables('ResourceGroups')[2]]",
+      "resourceGroup": "[variables('ResourceGroups')[range(0, length(variables('ResourceGroups')))[2]]]",
       "properties": {
         "expressionEvaluationOptions": {
           "scope": "inner"
@@ -1325,14 +1332,17 @@
             }
           ]
         }
-      }
+      },
+      "dependsOn": [
+        "[subscriptionResourceId('Microsoft.Resources/resourceGroups', variables('ResourceGroups')[range(0, length(variables('ResourceGroups')))[2]])]"
+      ]
     },
     {
       "condition": "[parameters('Monitoring')]",
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2020-10-01",
       "name": "[format('monitoring_{0}', parameters('Timestamp'))]",
-      "resourceGroup": "[variables('ResourceGroups')[2]]",
+      "resourceGroup": "[variables('ResourceGroups')[range(0, length(variables('ResourceGroups')))[2]]]",
       "properties": {
         "expressionEvaluationOptions": {
           "scope": "inner"
@@ -1943,14 +1953,17 @@
             }
           ]
         }
-      }
+      },
+      "dependsOn": [
+        "[subscriptionResourceId('Microsoft.Resources/resourceGroups', variables('ResourceGroups')[range(0, length(variables('ResourceGroups')))[2]])]"
+      ]
     },
     {
       "condition": "[parameters('DiskEncryption')]",
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2020-10-01",
       "name": "[format('bitLocker_{0}', parameters('Timestamp'))]",
-      "resourceGroup": "[variables('ResourceGroups')[2]]",
+      "resourceGroup": "[variables('ResourceGroups')[range(0, length(variables('ResourceGroups')))[2]]]",
       "properties": {
         "expressionEvaluationOptions": {
           "scope": "inner"
@@ -1964,10 +1977,10 @@
             "value": "[parameters('Location')]"
           },
           "ManagedIdentityPrincipalId": {
-            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroups')[0]), 'Microsoft.Resources/deployments', format('managedIdentity_{0}', parameters('Timestamp')))).outputs.principalId.value]"
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroups')[range(0, length(variables('ResourceGroups')))[copyIndex()]]), 'Microsoft.Resources/deployments', format('managedIdentity_{0}', parameters('Timestamp')))).outputs.principalId.value]"
           },
           "ManagedIdentityResourceId": {
-            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroups')[0]), 'Microsoft.Resources/deployments', format('managedIdentity_{0}', parameters('Timestamp')))).outputs.resourceIdentifier.value]"
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroups')[range(0, length(variables('ResourceGroups')))[copyIndex()]]), 'Microsoft.Resources/deployments', format('managedIdentity_{0}', parameters('Timestamp')))).outputs.resourceIdentifier.value]"
           },
           "SasToken": {
             "value": "[parameters('SasToken')]"
@@ -2074,7 +2087,8 @@
         }
       },
       "dependsOn": [
-        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroups')[0]), 'Microsoft.Resources/deployments', format('managedIdentity_{0}', parameters('Timestamp')))]"
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroups')[range(0, length(variables('ResourceGroups')))[copyIndex()]]), 'Microsoft.Resources/deployments', format('managedIdentity_{0}', parameters('Timestamp')))]",
+        "[subscriptionResourceId('Microsoft.Resources/resourceGroups', variables('ResourceGroups')[range(0, length(variables('ResourceGroups')))[2]])]"
       ]
     },
     {
@@ -2082,7 +2096,7 @@
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2020-10-01",
       "name": "[format('stig_{0}', parameters('Timestamp'))]",
-      "resourceGroup": "[variables('ResourceGroups')[2]]",
+      "resourceGroup": "[variables('ResourceGroups')[range(0, length(variables('ResourceGroups')))[2]]]",
       "properties": {
         "expressionEvaluationOptions": {
           "scope": "inner"
@@ -2249,14 +2263,17 @@
             }
           ]
         }
-      }
+      },
+      "dependsOn": [
+        "[subscriptionResourceId('Microsoft.Resources/resourceGroups', variables('ResourceGroups')[range(0, length(variables('ResourceGroups')))[2]])]"
+      ]
     },
     {
       "condition": "[and(variables('Fslogix'), not(contains(parameters('DomainServices'), 'None')))]",
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2020-10-01",
       "name": "[format('fslogixMgmtVm_{0}', parameters('Timestamp'))]",
-      "resourceGroup": "[variables('ResourceGroups')[0]]",
+      "resourceGroup": "[variables('ResourceGroups')[range(0, length(variables('ResourceGroups')))[0]]]",
       "properties": {
         "expressionEvaluationOptions": {
           "scope": "inner"
@@ -2521,8 +2538,9 @@
         }
       },
       "dependsOn": [
-        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroups')[2]), 'Microsoft.Resources/deployments', format('bitLocker_{0}', parameters('Timestamp')))]",
-        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroups')[2]), 'Microsoft.Resources/deployments', format('stig_{0}', parameters('Timestamp')))]"
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroups')[range(0, length(variables('ResourceGroups')))[copyIndex()]]), 'Microsoft.Resources/deployments', format('bitLocker_{0}', parameters('Timestamp')))]",
+        "[subscriptionResourceId('Microsoft.Resources/resourceGroups', variables('ResourceGroups')[range(0, length(variables('ResourceGroups')))[0]])]",
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroups')[range(0, length(variables('ResourceGroups')))[copyIndex()]]), 'Microsoft.Resources/deployments', format('stig_{0}', parameters('Timestamp')))]"
       ]
     },
     {
@@ -2530,7 +2548,7 @@
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2020-10-01",
       "name": "[format('fslogixNetApp_{0}', parameters('Timestamp'))]",
-      "resourceGroup": "[variables('ResourceGroups')[3]]",
+      "resourceGroup": "[variables('ResourceGroups')[range(0, length(variables('ResourceGroups')))[3]]]",
       "properties": {
         "expressionEvaluationOptions": {
           "scope": "inner"
@@ -2538,13 +2556,13 @@
         "mode": "Incremental",
         "parameters": {
           "ActiveDirectoryConnection": {
-            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroups')[0]), 'Microsoft.Resources/deployments', format('validation_{0}', parameters('Timestamp')))).outputs.anfActiveDirectory.value]"
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroups')[range(0, length(variables('ResourceGroups')))[copyIndex()]]), 'Microsoft.Resources/deployments', format('validation_{0}', parameters('Timestamp')))).outputs.anfActiveDirectory.value]"
           },
           "DelegatedSubnetId": {
-            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroups')[0]), 'Microsoft.Resources/deployments', format('validation_{0}', parameters('Timestamp')))).outputs.subnetId.value]"
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroups')[range(0, length(variables('ResourceGroups')))[copyIndex()]]), 'Microsoft.Resources/deployments', format('validation_{0}', parameters('Timestamp')))).outputs.subnetId.value]"
           },
           "DnsServers": {
-            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroups')[0]), 'Microsoft.Resources/deployments', format('validation_{0}', parameters('Timestamp')))).outputs.dnsServers.value]"
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroups')[range(0, length(variables('ResourceGroups')))[copyIndex()]]), 'Microsoft.Resources/deployments', format('validation_{0}', parameters('Timestamp')))).outputs.dnsServers.value]"
           },
           "DomainJoinPassword": {
             "value": "[parameters('DomainJoinPassword')]"
@@ -2767,9 +2785,10 @@
         }
       },
       "dependsOn": [
-        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroups')[0]), 'Microsoft.Resources/deployments', format('fslogixMgmtVm_{0}', parameters('Timestamp')))]",
-        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroups')[2]), 'Microsoft.Resources/deployments', format('hostPool_{0}', parameters('Timestamp')))]",
-        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroups')[0]), 'Microsoft.Resources/deployments', format('validation_{0}', parameters('Timestamp')))]"
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroups')[range(0, length(variables('ResourceGroups')))[copyIndex()]]), 'Microsoft.Resources/deployments', format('fslogixMgmtVm_{0}', parameters('Timestamp')))]",
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroups')[range(0, length(variables('ResourceGroups')))[copyIndex()]]), 'Microsoft.Resources/deployments', format('hostPool_{0}', parameters('Timestamp')))]",
+        "[subscriptionResourceId('Microsoft.Resources/resourceGroups', variables('ResourceGroups')[range(0, length(variables('ResourceGroups')))[3]])]",
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroups')[range(0, length(variables('ResourceGroups')))[copyIndex()]]), 'Microsoft.Resources/deployments', format('validation_{0}', parameters('Timestamp')))]"
       ]
     },
     {
@@ -2783,7 +2802,7 @@
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2020-10-01",
       "name": "[format('fslogixStorageAccount_{0}_{1}', range(parameters('StorageIndex'), parameters('StorageCount'))[copyIndex()], parameters('Timestamp'))]",
-      "resourceGroup": "[variables('ResourceGroups')[3]]",
+      "resourceGroup": "[variables('ResourceGroups')[range(0, length(variables('ResourceGroups')))[3]]]",
       "properties": {
         "expressionEvaluationOptions": {
           "scope": "inner"
@@ -2845,7 +2864,7 @@
             "value": "[variables('LocationShortName')]"
           },
           "ManagedIdentityResourceId": {
-            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroups')[0]), 'Microsoft.Resources/deployments', format('managedIdentity_{0}', parameters('Timestamp')))).outputs.resourceIdentifier.value]"
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroups')[range(0, length(variables('ResourceGroups')))[copyIndex()]]), 'Microsoft.Resources/deployments', format('managedIdentity_{0}', parameters('Timestamp')))).outputs.resourceIdentifier.value]"
           },
           "ManagementVmName": {
             "value": "[variables('ManagementVmName')]"
@@ -3759,8 +3778,9 @@
         }
       },
       "dependsOn": [
-        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroups')[0]), 'Microsoft.Resources/deployments', format('fslogixMgmtVm_{0}', parameters('Timestamp')))]",
-        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroups')[0]), 'Microsoft.Resources/deployments', format('managedIdentity_{0}', parameters('Timestamp')))]",
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroups')[range(0, length(variables('ResourceGroups')))[copyIndex()]]), 'Microsoft.Resources/deployments', format('fslogixMgmtVm_{0}', parameters('Timestamp')))]",
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroups')[range(0, length(variables('ResourceGroups')))[copyIndex()]]), 'Microsoft.Resources/deployments', format('managedIdentity_{0}', parameters('Timestamp')))]",
+        "[subscriptionResourceId('Microsoft.Resources/resourceGroups', variables('ResourceGroups')[range(0, length(variables('ResourceGroups')))[3]])]",
         "roleAssignments"
       ]
     },
@@ -3769,7 +3789,7 @@
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2020-10-01",
       "name": "[format('fslogixNtfsPermissions_{0}', parameters('Timestamp'))]",
-      "resourceGroup": "[variables('ResourceGroups')[0]]",
+      "resourceGroup": "[variables('ResourceGroups')[range(0, length(variables('ResourceGroups')))[0]]]",
       "properties": {
         "expressionEvaluationOptions": {
           "scope": "inner"
@@ -3918,8 +3938,9 @@
         }
       },
       "dependsOn": [
-        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroups')[3]), 'Microsoft.Resources/deployments', format('fslogixNetApp_{0}', parameters('Timestamp')))]",
-        "fslogixStorageAccount"
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroups')[range(0, length(variables('ResourceGroups')))[copyIndex()]]), 'Microsoft.Resources/deployments', format('fslogixNetApp_{0}', parameters('Timestamp')))]",
+        "fslogixStorageAccount",
+        "[subscriptionResourceId('Microsoft.Resources/resourceGroups', variables('ResourceGroups')[range(0, length(variables('ResourceGroups')))[0]])]"
       ]
     },
     {
@@ -3927,7 +3948,7 @@
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2020-10-01",
       "name": "[format('AvailabilitySets_{0}', parameters('Timestamp'))]",
-      "resourceGroup": "[variables('ResourceGroups')[1]]",
+      "resourceGroup": "[variables('ResourceGroups')[range(0, length(variables('ResourceGroups')))[1]]]",
       "properties": {
         "expressionEvaluationOptions": {
           "scope": "inner"
@@ -3992,14 +4013,17 @@
             }
           ]
         }
-      }
+      },
+      "dependsOn": [
+        "[subscriptionResourceId('Microsoft.Resources/resourceGroups', variables('ResourceGroups')[range(0, length(variables('ResourceGroups')))[1]])]"
+      ]
     },
     {
       "condition": "[contains(parameters('DomainServices'), 'None')]",
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2020-10-01",
       "name": "[format('SessionHosts_RoleAssignments_{0}', parameters('Timestamp'))]",
-      "resourceGroup": "[variables('ResourceGroups')[1]]",
+      "resourceGroup": "[variables('ResourceGroups')[range(0, length(variables('ResourceGroups')))[1]]]",
       "properties": {
         "expressionEvaluationOptions": {
           "scope": "inner"
@@ -4047,7 +4071,10 @@
             }
           ]
         }
-      }
+      },
+      "dependsOn": [
+        "[subscriptionResourceId('Microsoft.Resources/resourceGroups', variables('ResourceGroups')[range(0, length(variables('ResourceGroups')))[1]])]"
+      ]
     },
     {
       "copy": {
@@ -4057,7 +4084,7 @@
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2020-10-01",
       "name": "[format('sessionHosts_{0}_{1}', sub(range(1, variables('SessionHostBatchCount'))[copyIndex()], 1), parameters('Timestamp'))]",
-      "resourceGroup": "[variables('ResourceGroups')[1]]",
+      "resourceGroup": "[variables('ResourceGroups')[range(0, length(variables('ResourceGroups')))[1]]]",
       "properties": {
         "expressionEvaluationOptions": {
           "scope": "inner"
@@ -4065,7 +4092,7 @@
         "mode": "Incremental",
         "parameters": {
           "AcceleratedNetworking": {
-            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroups')[0]), 'Microsoft.Resources/deployments', format('validation_{0}', parameters('Timestamp')))).outputs.acceleratedNetworking.value]"
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroups')[range(0, length(variables('ResourceGroups')))[copyIndex()]]), 'Microsoft.Resources/deployments', format('validation_{0}', parameters('Timestamp')))).outputs.acceleratedNetworking.value]"
           },
           "AutomationAccountName": {
             "value": "[variables('AutomationAccountName')]"
@@ -4101,7 +4128,7 @@
             "value": "[parameters('DomainServices')]"
           },
           "EphemeralOsDisk": {
-            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroups')[0]), 'Microsoft.Resources/deployments', format('validation_{0}', parameters('Timestamp')))).outputs.ephemeralOsDisk.value]"
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroups')[range(0, length(variables('ResourceGroups')))[copyIndex()]]), 'Microsoft.Resources/deployments', format('validation_{0}', parameters('Timestamp')))).outputs.ephemeralOsDisk.value]"
           },
           "FileShares": {
             "value": "[variables('FileShares')]"
@@ -4152,7 +4179,7 @@
             "value": "[variables('NetworkSecurityGroupName')]"
           },
           "NetAppFileShare": {
-            "value": "[if(equals(variables('StorageSolution'), 'AzureNetAppFiles'), reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroups')[3]), 'Microsoft.Resources/deployments', format('fslogixNetApp_{0}', parameters('Timestamp'))), '2020-10-01').outputs.fileshare.value, 'None')]"
+            "value": "[if(equals(variables('StorageSolution'), 'AzureNetAppFiles'), reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroups')[range(0, length(variables('ResourceGroups')))[copyIndex()]]), 'Microsoft.Resources/deployments', format('fslogixNetApp_{0}', parameters('Timestamp'))), '2020-10-01').outputs.fileshare.value, 'None')]"
           },
           "OuPath": {
             "value": "[parameters('OuPath')]"
@@ -4810,12 +4837,13 @@
         }
       },
       "dependsOn": [
-        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroups')[1]), 'Microsoft.Resources/deployments', format('AvailabilitySets_{0}', parameters('Timestamp')))]",
-        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroups')[2]), 'Microsoft.Resources/deployments', format('bitLocker_{0}', parameters('Timestamp')))]",
-        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroups')[3]), 'Microsoft.Resources/deployments', format('fslogixNetApp_{0}', parameters('Timestamp')))]",
-        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroups')[2]), 'Microsoft.Resources/deployments', format('monitoring_{0}', parameters('Timestamp')))]",
-        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroups')[2]), 'Microsoft.Resources/deployments', format('stig_{0}', parameters('Timestamp')))]",
-        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroups')[0]), 'Microsoft.Resources/deployments', format('validation_{0}', parameters('Timestamp')))]"
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroups')[range(0, length(variables('ResourceGroups')))[copyIndex()]]), 'Microsoft.Resources/deployments', format('AvailabilitySets_{0}', parameters('Timestamp')))]",
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroups')[range(0, length(variables('ResourceGroups')))[copyIndex()]]), 'Microsoft.Resources/deployments', format('bitLocker_{0}', parameters('Timestamp')))]",
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroups')[range(0, length(variables('ResourceGroups')))[copyIndex()]]), 'Microsoft.Resources/deployments', format('fslogixNetApp_{0}', parameters('Timestamp')))]",
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroups')[range(0, length(variables('ResourceGroups')))[copyIndex()]]), 'Microsoft.Resources/deployments', format('monitoring_{0}', parameters('Timestamp')))]",
+        "[subscriptionResourceId('Microsoft.Resources/resourceGroups', variables('ResourceGroups')[range(0, length(variables('ResourceGroups')))[1]])]",
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroups')[range(0, length(variables('ResourceGroups')))[copyIndex()]]), 'Microsoft.Resources/deployments', format('stig_{0}', parameters('Timestamp')))]",
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroups')[range(0, length(variables('ResourceGroups')))[copyIndex()]]), 'Microsoft.Resources/deployments', format('validation_{0}', parameters('Timestamp')))]"
       ]
     },
     {
@@ -4823,7 +4851,7 @@
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2020-10-01",
       "name": "[format('backup_{0}', parameters('Timestamp'))]",
-      "resourceGroup": "[variables('ResourceGroups')[2]]",
+      "resourceGroup": "[variables('ResourceGroups')[range(0, length(variables('ResourceGroups')))[2]]]",
       "properties": {
         "expressionEvaluationOptions": {
           "scope": "inner"
@@ -5142,6 +5170,7 @@
       },
       "dependsOn": [
         "fslogixStorageAccount",
+        "[subscriptionResourceId('Microsoft.Resources/resourceGroups', variables('ResourceGroups')[range(0, length(variables('ResourceGroups')))[2]])]",
         "sessionHosts"
       ]
     },
@@ -5150,7 +5179,7 @@
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2020-10-01",
       "name": "[format('scale_{0}', parameters('Timestamp'))]",
-      "resourceGroup": "[variables('ResourceGroups')[2]]",
+      "resourceGroup": "[variables('ResourceGroups')[range(0, length(variables('ResourceGroups')))[2]]]",
       "properties": {
         "expressionEvaluationOptions": {
           "scope": "inner"
@@ -5564,8 +5593,9 @@
         }
       },
       "dependsOn": [
-        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroups')[2]), 'Microsoft.Resources/deployments', format('AutomationAccount_{0}', parameters('Timestamp')))]",
-        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroups')[2]), 'Microsoft.Resources/deployments', format('backup_{0}', parameters('Timestamp')))]",
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroups')[range(0, length(variables('ResourceGroups')))[copyIndex()]]), 'Microsoft.Resources/deployments', format('AutomationAccount_{0}', parameters('Timestamp')))]",
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroups')[range(0, length(variables('ResourceGroups')))[copyIndex()]]), 'Microsoft.Resources/deployments', format('backup_{0}', parameters('Timestamp')))]",
+        "[subscriptionResourceId('Microsoft.Resources/resourceGroups', variables('ResourceGroups')[range(0, length(variables('ResourceGroups')))[2]])]",
         "sessionHosts"
       ]
     },
@@ -5574,7 +5604,7 @@
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2020-10-01",
       "name": "[format('drainMode_{0}', parameters('Timestamp'))]",
-      "resourceGroup": "[variables('ResourceGroups')[0]]",
+      "resourceGroup": "[variables('ResourceGroups')[range(0, length(variables('ResourceGroups')))[0]]]",
       "properties": {
         "expressionEvaluationOptions": {
           "scope": "inner"
@@ -5591,7 +5621,7 @@
             "value": "[parameters('Location')]"
           },
           "ManagedIdentityResourceId": {
-            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroups')[0]), 'Microsoft.Resources/deployments', format('managedIdentity_{0}', parameters('Timestamp')))).outputs.resourceIdentifier.value]"
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroups')[range(0, length(variables('ResourceGroups')))[copyIndex()]]), 'Microsoft.Resources/deployments', format('managedIdentity_{0}', parameters('Timestamp')))).outputs.resourceIdentifier.value]"
           },
           "SasToken": {
             "value": "[parameters('SasToken')]"
@@ -5670,7 +5700,8 @@
         }
       },
       "dependsOn": [
-        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroups')[0]), 'Microsoft.Resources/deployments', format('managedIdentity_{0}', parameters('Timestamp')))]",
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroups')[range(0, length(variables('ResourceGroups')))[copyIndex()]]), 'Microsoft.Resources/deployments', format('managedIdentity_{0}', parameters('Timestamp')))]",
+        "[subscriptionResourceId('Microsoft.Resources/resourceGroups', variables('ResourceGroups')[range(0, length(variables('ResourceGroups')))[0]])]",
         "sessionHosts"
       ]
     }

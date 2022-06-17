@@ -469,7 +469,7 @@ resource resourceGroups 'Microsoft.Resources/resourceGroups@2020-10-01' = [for i
 
 // Custom Role for Start VM On Connect
 // https://docs.microsoft.com/en-us/azure/virtual-desktop/start-virtual-machine-connect
-resource customRole 'Microsoft.Authorization/roleDefinitions@2018-01-01-preview' = if(StartVmOnConnect) {
+resource roleDefinition 'Microsoft.Authorization/roleDefinitions@2018-01-01-preview' = if(StartVmOnConnect) {
   name: guid('StartVmOnConnect', subscription().id)
   properties: {
     assignableScopes: [
@@ -496,7 +496,7 @@ resource customRole 'Microsoft.Authorization/roleDefinitions@2018-01-01-preview'
 resource roleAssignment_svmoc 'Microsoft.Authorization/roleAssignments@2018-01-01-preview' = if(StartVmOnConnect) {
   name: guid('Azure Virtual Desktop', 'StartVmOnConnect', subscription().id)
   properties: {
-    roleDefinitionId: customRole.id
+    roleDefinitionId: roleDefinition.id
     principalId: validation.outputs.avdObjectId
   }
 }
@@ -505,11 +505,14 @@ resource roleAssignment_svmoc 'Microsoft.Authorization/roleAssignments@2018-01-0
 // This resource is needed for Deployment Script resources
 module managedIdentity 'modules/managedIdentity.bicep' = {
   name: 'managedIdentity_${Timestamp}'
-  scope: resourceGroups[0] // Deployment Resource Group
+  scope: resourceGroup(ResourceGroups[0]) // Deployment Resource Group
   params: {
     Location: Location
     ManagedIdentityName: ManagedIdentityName
-  } 
+  }
+  dependsOn: [
+    resourceGroups
+  ]
 }
 
 // Role Assignment for Validation
@@ -533,13 +536,16 @@ module roleAssignments 'modules/managedIdentity_RoleAssignments.bicep' = [for i 
     PrincipalId: managedIdentity.outputs.principalId
     RoleDefinitionId: RoleAssignments[i].roleDefinitionId
   }
+  dependsOn: [
+    resourceGroups
+  ]
 }]
 
 // AVD Management Resources
 // This module deploys the host pool, desktop application group, & workspace
 module hostPool 'modules/hostPool.bicep' = {
   name: 'hostPool_${Timestamp}'
-  scope: resourceGroups[2] // Management Resource Group
+  scope: resourceGroup(ResourceGroups[2]) // Management Resource Group
   params: {
     AppGroupName: AppGroupName
     CustomRdpProperty: CustomRdpProperty
@@ -555,13 +561,16 @@ module hostPool 'modules/hostPool.bicep' = {
     VmTemplate: VmTemplate
     WorkspaceName: WorkspaceName
   }
+  dependsOn: [
+    resourceGroups
+  ]
 }
 
 // Validation Deployment Script
 // This module validates the selected parameter values and collects required data
 module validation 'modules/validation.bicep' = {
   name: 'validation_${Timestamp}'
-  scope: resourceGroups[0] // Deployment Resource Group
+  scope: resourceGroup(ResourceGroups[0]) // Deployment Resource Group
   params: {
     Availability: Availability
     DiskEncryption: DiskEncryption
@@ -588,24 +597,28 @@ module validation 'modules/validation.bicep' = {
     VmSize: VmSize
   }
   dependsOn: [
+    resourceGroups
     roleAssignment_validation
   ]
 }
 
 module automationAccount 'modules/automationAccount.bicep' = if(PooledHostPool || DisaStigCompliance) {
   name: 'AutomationAccount_${Timestamp}'
-  scope: resourceGroups[2] // Management Resource Group
+  scope: resourceGroup(ResourceGroups[2]) // Management Resource Group
   params: {
     AutomationAccountName: AutomationAccountName
     Location: Location
   }
+  dependsOn: [
+    resourceGroups
+  ]
 }
 
 // Monitoring Resources for AVD Insights
 // This module deploys the Log Analytics Workspace with Windows Events & Windows Performance Counters 
 module monitoring 'modules/monitoring.bicep' = if(Monitoring) {
   name: 'monitoring_${Timestamp}'
-  scope: resourceGroups[2] // Management Resource Group
+  scope: resourceGroup(ResourceGroups[2]) // Management Resource Group
   params: {
     AutomationAccountName: AutomationAccountName
     HostPoolName: HostPoolName
@@ -617,11 +630,14 @@ module monitoring 'modules/monitoring.bicep' = if(Monitoring) {
     Tags: Tags
     WorkspaceName: WorkspaceName
   }
+  dependsOn: [
+    resourceGroups
+  ]
 }
 
 module bitLocker 'modules/bitLocker.bicep' = if(DiskEncryption) {
   name: 'bitLocker_${Timestamp}'
-  scope: resourceGroups[2] // Management Resource Group
+  scope: resourceGroup(ResourceGroups[2]) // Management Resource Group
   params: {
     KeyVaultName: KeyVaultName
     Location: Location
@@ -636,7 +652,7 @@ module bitLocker 'modules/bitLocker.bicep' = if(DiskEncryption) {
 
 module stig 'modules/stig.bicep' = if(DisaStigCompliance) {
   name: 'stig_${Timestamp}'
-  scope: resourceGroups[2] // Management Resource Group
+  scope: resourceGroup(ResourceGroups[2]) // Management Resource Group
   params: {
     AutomationAccountName: AutomationAccountName
     ConfigurationName: ConfigurationName
@@ -644,13 +660,16 @@ module stig 'modules/stig.bicep' = if(DisaStigCompliance) {
     Location: Location
     Timestamp: Timestamp
   }
+  dependsOn: [
+    resourceGroups
+  ]
 }
 
 // Fslogix Management VM
 // This module is required to fully configure any storage option for FSLogix
 module fslogixMgmtVm 'modules/fslogixMgmtVm.bicep' = if(Fslogix && !contains(DomainServices, 'None')) {
   name: 'fslogixMgmtVm_${Timestamp}'
-  scope: resourceGroups[0] // Deployment Resource Group
+  scope: resourceGroup(ResourceGroups[0]) // Deployment Resource Group
   params: {
     DiskEncryption: DiskEncryption
     DomainJoinPassword: DomainJoinPassword
@@ -678,7 +697,7 @@ module fslogixMgmtVm 'modules/fslogixMgmtVm.bicep' = if(Fslogix && !contains(Dom
 // Azure NetApp Files for Fslogix
 module fslogixNetApp 'modules/fslogixNetApp.bicep' = if(Fslogix && StorageSolution == 'AzureNetAppFiles' && !contains(DomainServices, 'None')) {
   name: 'fslogixNetApp_${Timestamp}'
-  scope: resourceGroups[3] // Storage Resource Group
+  scope: resourceGroup(ResourceGroups[3]) // Storage Resource Group
   params: {
     ActiveDirectoryConnection: validation.outputs.anfActiveDirectory
     DelegatedSubnetId: validation.outputs.subnetId
@@ -711,7 +730,7 @@ module fslogixNetApp 'modules/fslogixNetApp.bicep' = if(Fslogix && StorageSoluti
 @batchSize(1)
 module fslogixStorageAccount 'modules/fslogixStorageAccount.bicep' = [for i in range(StorageIndex, StorageCount): if(Fslogix && StorageSolution == 'AzureStorageAccount' && !contains(DomainServices, 'None')) {
   name: 'fslogixStorageAccount_${i}_${Timestamp}'
-  scope: resourceGroups[3] // Storage Resource Group
+  scope: resourceGroup(ResourceGroups[3]) // Storage Resource Group
   params: {
     ConfigurationsUri: ConfigurationsUri
     DnsServerForwarderIPAddresses: DnsServerForwarderIPAddresses
@@ -760,7 +779,7 @@ module fslogixStorageAccount 'modules/fslogixStorageAccount.bicep' = [for i in r
 
 module fslogixStorageAccount_NtfsPermissions 'modules/fslogixStorageAccount_NtfsPermissions.bicep' = if(Fslogix && !contains(DomainServices, 'None')) {
   name: 'fslogixNtfsPermissions_${Timestamp}'
-  scope: resourceGroups[0] // Deployment Resource Group
+  scope: resourceGroup(ResourceGroups[0]) // Deployment Resource Group
   params: {
     DomainJoinPassword: DomainJoinPassword
     DomainJoinUserPrincipalName: DomainJoinUserPrincipalName
@@ -788,7 +807,7 @@ module fslogixStorageAccount_NtfsPermissions 'modules/fslogixStorageAccount_Ntfs
 
 module availabilitySets 'modules/availabilitySets.bicep' = if (PooledHostPool && Availability == 'AvailabilitySet') {
   name: 'AvailabilitySets_${Timestamp}'
-  scope: resourceGroups[1] // Hosts Resource Group
+  scope: resourceGroup(ResourceGroups[1]) // Hosts Resource Group
   params: {
     AvailabilitySetCount: AvailabilitySetCount
     AvailabilitySetPrefix: AvailabilitySetPrefix
@@ -801,16 +820,19 @@ module availabilitySets 'modules/availabilitySets.bicep' = if (PooledHostPool &&
 // This module deploys the role assignments to login to Azure AD joined session hosts
 module sessionHosts_RoleAssignments 'modules/sessionHosts_RoleAssignments.bicep' = if (contains(DomainServices, 'None')) {
   name: 'SessionHosts_RoleAssignments_${Timestamp}'
-  scope: resourceGroups[1] // Hosts Resource Group
+  scope: resourceGroup(ResourceGroups[1]) // Hosts Resource Group
   params: {
     RoleDefinitionId: RoleDefinitionIds.virtualMachineUserLogin
     SecurityPrincipalIds: SecurityPrincipalObjectIds
   }
+  dependsOn: [
+    resourceGroups
+  ]
 }
 
 module sessionHosts 'modules/sessionHosts.bicep' = [for i in range(1, SessionHostBatchCount): {
   name: 'sessionHosts_${i-1}_${Timestamp}'
-  scope: resourceGroups[1] // Hosts Resource Group
+  scope: resourceGroup(ResourceGroups[1]) // Hosts Resource Group
   params: {
     AcceleratedNetworking: validation.outputs.acceleratedNetworking
     AutomationAccountName: AutomationAccountName
@@ -874,7 +896,7 @@ module sessionHosts 'modules/sessionHosts.bicep' = [for i in range(1, SessionHos
 
 module backup 'modules/backup.bicep' = if(RecoveryServices) {
   name: 'backup_${Timestamp}'
-  scope: resourceGroups[2] // Management Resource Group
+  scope: resourceGroup(ResourceGroups[2]) // Management Resource Group
   params: {
     DivisionRemainderValue: DivisionRemainderValue
     HostPoolName: HostPoolName
@@ -900,7 +922,7 @@ module backup 'modules/backup.bicep' = if(RecoveryServices) {
 // Deploys scaling for the session hosts and Azure Files Premium, if applicable
 module scale 'modules/scale.bicep' = if(PooledHostPool) {
   name: 'scale_${Timestamp}'
-  scope: resourceGroups[2] // Management Resource Group
+  scope: resourceGroup(ResourceGroups[2]) // Management Resource Group
   params: {
     AutomationAccountName: AutomationAccountName
     BeginPeakTime: ScalingBeginPeakTime
@@ -932,7 +954,7 @@ module scale 'modules/scale.bicep' = if(PooledHostPool) {
 // Enables drain mode on the session hosts so users cannot login
 module drainMode 'modules/drainMode.bicep' = if(DrainMode) {
   name: 'drainMode_${Timestamp}'
-  scope: resourceGroups[0] // Deployment Resource Group
+  scope: resourceGroup(ResourceGroups[0]) // Deployment Resource Group
   params: {
     HostPoolName: HostPoolName
     HostPoolResourceGroupName: ResourceGroups[2] // Management Resource Group

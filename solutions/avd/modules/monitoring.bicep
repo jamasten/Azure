@@ -495,7 +495,7 @@ resource workspaceDiagnostics 'Microsoft.DesktopVirtualization/workspaces/provid
 }
 
 resource hostPoolDiagnostics 'Microsoft.DesktopVirtualization/hostPools/providers/diagnosticsettings@2017-05-01-preview' = {
-  name: '${HostPoolName}/Microsoft.Insightsdiag-${HostPoolName}'
+  name: '${HostPoolName}/Microsoft.Insights/diag-${HostPoolName}'
   properties: {
     logs: environment().name == 'AzureCloud' ? union(HostPoolLogs,NetworkData) : HostPoolLogs //adding NetworkData for AzureCloud, not available in AzureUSGovernment, 2/10/2022
     workspaceId: resourceId('Microsoft.OperationalInsights/workspaces', LogAnalyticsWorkspaceName)

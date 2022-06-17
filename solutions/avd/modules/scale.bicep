@@ -89,7 +89,7 @@ module roleAssignments'./scale_RoleAssignments.bicep' = [for i in range(0, lengt
   name: 'RoleAssignment_${RoleAssignmentResourceGroups[i]}'
   scope: resourceGroup(RoleAssignmentResourceGroups[i])
   params: {
-    AutomationAccountId: reference(resourceId('Microsoft.Automation/automationAccounts', AutomationAccountName)).identity.principalId
+    AutomationAccountId: reference(resourceId('Microsoft.Automation/automationAccounts', AutomationAccountName), '2021-06-22', 'Full').identity.principalId
   }
 }]
 

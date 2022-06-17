@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.6.18.56646",
-      "templateHash": "15753187472595795152"
+      "templateHash": "17698002759423800019"
     }
   },
   "parameters": {
@@ -1374,7 +1374,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.6.18.56646",
-              "templateHash": "7111049359142540353"
+              "templateHash": "2487077078142829699"
             }
           },
           "parameters": {
@@ -1913,7 +1913,7 @@
             {
               "type": "Microsoft.DesktopVirtualization/hostPools/providers/diagnosticsettings",
               "apiVersion": "2017-05-01-preview",
-              "name": "[format('{0}/Microsoft.Insightsdiag-{1}', parameters('HostPoolName'), parameters('HostPoolName'))]",
+              "name": "[format('{0}/Microsoft.Insights/diag-{1}', parameters('HostPoolName'), parameters('HostPoolName'))]",
               "properties": {
                 "logs": "[if(equals(environment().name, 'AzureCloud'), union(variables('HostPoolLogs'), variables('NetworkData')), variables('HostPoolLogs'))]",
                 "workspaceId": "[resourceId('Microsoft.OperationalInsights/workspaces', parameters('LogAnalyticsWorkspaceName'))]"
@@ -2319,7 +2319,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.6.18.56646",
-              "templateHash": "15335728674709970567"
+              "templateHash": "4876056537596360002"
             }
           },
           "parameters": {
@@ -2506,7 +2506,7 @@
                   "EncryptionOperation": "EnableEncryption",
                   "KeyVaultURL": "[reference(resourceId(parameters('ManagementResourceGroup'), 'Microsoft.KeyVault/vaults', parameters('KeyVaultName')), '2016-10-01').properties.vaultUri]",
                   "KeyVaultResourceId": "[resourceId(parameters('ManagementResourceGroup'), 'Microsoft.KeyVault/vaults', parameters('KeyVaultName'))]",
-                  "KeyEncryptionKeyURL": "[reference(resourceId(parameters('ManagementResourceGroup'), parameters('KeyVaultName')), '2016-10-01').properties.outputs.text]",
+                  "KeyEncryptionKeyURL": "[reference(resourceId(parameters('ManagementResourceGroup'), 'Microsoft.KeyVault/vaults', parameters('KeyVaultName')), '2016-10-01').properties.outputs.text]",
                   "KekVaultResourceId": "[resourceId(parameters('ManagementResourceGroup'), 'Microsoft.KeyVault/vaults', parameters('KeyVaultName'))]",
                   "KeyEncryptionAlgorithm": "RSA-OAEP",
                   "VolumeType": "All",
@@ -5222,7 +5222,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.6.18.56646",
-              "templateHash": "2754981123181026774"
+              "templateHash": "1714390896679289267"
             }
           },
           "parameters": {
@@ -5527,7 +5527,7 @@
                 "mode": "Incremental",
                 "parameters": {
                   "AutomationAccountId": {
-                    "value": "[reference(resourceId('Microsoft.Automation/automationAccounts', parameters('AutomationAccountName'))).identity.principalId]"
+                    "value": "[reference(resourceId('Microsoft.Automation/automationAccounts', parameters('AutomationAccountName')), '2021-06-22', 'Full').identity.principalId]"
                   }
                 },
                 "template": {

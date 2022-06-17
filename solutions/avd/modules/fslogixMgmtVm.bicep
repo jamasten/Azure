@@ -141,7 +141,7 @@ resource extension_AzureDiskEncryption 'Microsoft.Compute/virtualMachines/extens
       EncryptionOperation: 'EnableEncryption'
       KeyVaultURL: reference(resourceId(ManagementResourceGroup, 'Microsoft.KeyVault/vaults', KeyVaultName), '2016-10-01').properties.vaultUri
       KeyVaultResourceId: resourceId(ManagementResourceGroup, 'Microsoft.KeyVault/vaults', KeyVaultName)
-      KeyEncryptionKeyURL: reference(resourceId(ManagementResourceGroup, KeyVaultName), '2016-10-01').properties.outputs.text
+      KeyEncryptionKeyURL: reference(resourceId(ManagementResourceGroup, 'Microsoft.KeyVault/vaults', KeyVaultName), '2016-10-01').properties.outputs.text
       KekVaultResourceId: resourceId(ManagementResourceGroup, 'Microsoft.KeyVault/vaults', KeyVaultName)
       KeyEncryptionAlgorithm: 'RSA-OAEP'
       VolumeType: 'All'

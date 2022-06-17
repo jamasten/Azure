@@ -12,7 +12,7 @@ resource userAssignedIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@
 resource roleAssignment 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = {
   name: guid(ManagedIdentityName, RoleDefinitionId, resourceGroup().id)
   properties: {
-    roleDefinitionId: resourceId('Microsoft.Authorization/roleDefinitions', RoleDefinitionId)
+    roleDefinitionId: RoleDefinitionId
     principalId: userAssignedIdentity.properties.principalId
     principalType: 'ServicePrincipal'
   }

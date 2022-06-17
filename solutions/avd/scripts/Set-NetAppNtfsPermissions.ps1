@@ -13,7 +13,7 @@ param
     [String]$ResourceNameSuffix,
 
     [Parameter(Mandatory)]
-    [String]$SecurityPrincipalName,
+    [String]$SecurityPrincipalNames,
 
     [Parameter(Mandatory)]
     [String]$SmbServerLocation
@@ -56,7 +56,7 @@ try
 
     # Set the variables required to mount the Azure file share
     $FileShare = '\\' + $SmbServerName + '.' + $Domain + '\' + $HostPoolName
-    $Group = $Netbios + '\' + $SecurityPrincipalName
+    $Group = $Netbios + '\' + $SecurityPrincipalNames
 
     # Mount file share
     New-PSDrive -Name 'Z' -PSProvider 'FileSystem' -Root $FileShare -Credential $Credential -Persist

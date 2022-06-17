@@ -1,56 +1,36 @@
+param ActiveDirectoryConnection string
+param DelegatedSubnetId string
+param DnsServers string
 @secure()
 param DomainJoinPassword string
 param DomainJoinUserPrincipalName string
 param DomainName string
 param HostPoolName string
 param Location string
-param ManagedIdentityName string
+param ManagementVmName string
 param NetAppAccountName string
 param NetAppCapacityPoolName string
 param OuPath string
-param ResourceNameSuffix string
-param SecurityPrincipalName string
+param NamingStandard string
+param SasToken string
+param ScriptsUri string
+param SecurityPrincipalNames array
 param SmbServerLocation string
 param StorageSku string
 param Tags object
 param Timestamp string
-param VirtualNetwork string
-param VirtualNetworkResourceGroup string
-param VmName string
 
-var VmNameFull = '${VmName}mgt'
-
-resource info 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
-  name: 'Info'
-  location: Location
-  kind: 'AzurePowerShell'
-  identity: {
-    type: 'UserAssigned'
-    userAssignedIdentities: {
-      '${resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', ManagedIdentityName)}': {}
-    }
-  }
-  properties: {
-    forceUpdateTag: Timestamp
-    azPowerShellVersion: '5.4'
-    arguments: '-Location ${Location} -ResourceGroup ${VirtualNetworkResourceGroup} -VnetName ${VirtualNetwork}'
-    scriptContent: 'param([string]$Location, [string]$ResourceGroup, [string]$VnetName); $vnet = Get-AzVirtualNetwork -Name $VnetName -ResourceGroupName $ResourceGroup; $dnsServers = "$($vnet.DhcpOptions.DnsServers[0]),$($vnet.DhcpOptions.DnsServers[1])"; $subnetId = ($vnet.Subnets | Where-Object {$_.Delegations[0].ServiceName -eq "Microsoft.NetApp/volumes"}).Id; Install-Module -Name "Az.NetAppFiles" -Force; $DeployAnfAd = "true"; $Accounts = Get-AzResource -ResourceType "Microsoft.NetApp/netAppAccounts" | Where-Object {$_.Location -eq $Location}; foreach($Account in $Accounts){$AD = Get-AzNetAppFilesActiveDirectory -ResourceGroupName $Account.ResourceGroupName -AccountName $Account.Name; if($AD.ActiveDirectoryId){$DeployAnfAd = "false"}}; $DeploymentScriptOutputs = @{}; $DeploymentScriptOutputs["dnsServers"] = $dnsServers; $DeploymentScriptOutputs["subnetId"] = $subnetId; $DeploymentScriptOutputs["anfAd"] = $DeployAnfAd;'
-    timeout: 'PT4H'
-    cleanupPreference: 'OnSuccess'
-    retentionInterval: 'P1D'
-  }
-}
 
 resource netApp_Account 'Microsoft.NetApp/netAppAccounts@2021-06-01' = {
   name: NetAppAccountName
   location: Location
   tags: Tags
   properties: {
-    activeDirectories: reference(info.name).outputs.anfAd == 'false' ? null : [
+    activeDirectories: ActiveDirectoryConnection == 'false' ? null : [
       {
         aesEncryption: false
         domain: DomainName
-        dns: reference(info.name).outputs.dnsServers
+        dns: DnsServers
         organizationalUnit: OuPath
         password: DomainJoinPassword
         smbServerName: 'anf-${SmbServerLocation}'
@@ -141,7 +121,7 @@ resource netApp_Volume 'Microsoft.NetApp/netAppAccounts/capacityPools/volumes@20
     smbEncryption: true
     snapshotDirectoryVisible: true
     // snapshotId: 'string'
-    subnetId: reference(info.name).outputs.subnetId
+    subnetId: DelegatedSubnetId
     // throughputMibps: int
     // unixPermissions: 'string'
     usageThreshold: 107374182400
@@ -150,7 +130,7 @@ resource netApp_Volume 'Microsoft.NetApp/netAppAccounts/capacityPools/volumes@20
 }
 
 resource customScriptExtension 'Microsoft.Compute/virtualMachines/extensions@2020-12-01' = {
-  name: '${VmNameFull}/CustomScriptExtension'
+  name: '${ManagementVmName}/CustomScriptExtension'
   location: Location
   tags: Tags
   properties: {
@@ -160,12 +140,12 @@ resource customScriptExtension 'Microsoft.Compute/virtualMachines/extensions@202
     autoUpgradeMinorVersion: true
     settings: {
       fileUris: [
-        'https://raw.githubusercontent.com/jamasten/Azure/master/solutions/avd/scripts/Set-NetAppNtfsPermissions.ps1'
+        '${ScriptsUri}Set-NetAppNtfsPermissions.ps1${SasToken}'
       ]
       timestamp: Timestamp
     }
     protectedSettings: {
-      commandToExecute: 'powershell -ExecutionPolicy Unrestricted -File Set-NetAppNtfsPermissions.ps1 -DomainJoinPassword "${DomainJoinPassword}" -DomainJoinUserPrincipalName ${DomainJoinUserPrincipalName} -HostPoolName ${HostPoolName} -ResourceNameSuffix ${ResourceNameSuffix} -SecurityPrincipalName "${SecurityPrincipalName}" -SmbServerLocation ${SmbServerLocation}'
+      commandToExecute: 'powershell -ExecutionPolicy Unrestricted -File Set-NetAppNtfsPermissions.ps1 -DomainJoinPassword "${DomainJoinPassword}" -DomainJoinUserPrincipalName ${DomainJoinUserPrincipalName} -HostPoolName ${HostPoolName} -NamingStandard ${NamingStandard} -SecurityPrincipalNames "${SecurityPrincipalNames}" -SmbServerLocation ${SmbServerLocation}'
     }
   }
   dependsOn: [

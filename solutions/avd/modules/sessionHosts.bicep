@@ -1,13 +1,19 @@
+param AcceleratedNetworking string
+param AvailabilitySetPrefix string
+param AutomationAccountName string
 param Availability string
+param ConfigurationName string
+param DisaStigCompliance bool
+param DiskEncryption bool
 param DiskSku string
-param DodStigCompliance bool
 @secure()
 param DomainJoinPassword string
 param DomainJoinUserPrincipalName string
 param DomainName string
 param DomainServices string
 param EphemeralOsDisk string
-param FSLogix bool
+param FileShares array
+param Fslogix bool
 param HostPoolName string
 param HostPoolResourceGroupName string
 param HostPoolType string
@@ -15,20 +21,26 @@ param ImageOffer string
 param ImagePublisher string
 param ImageSku string
 param ImageVersion string
+param KeyVaultName string
 param Location string
 param LogAnalyticsWorkspaceName string
-param ManagedIdentityResourceId string
+param ManagementResourceGroup string
+param Monitoring bool
+param NamingStandard string
 param NetworkSecurityGroupName string
 param NetAppFileShare string
 param OuPath string
 param RdpShortPath bool
-param ResourceNameSuffix string
-param SecurityPrincipalId string
+param ScreenCaptureProtection bool
+param SasToken string
+param ScriptsUri string
 param SessionHostCount int
 param SessionHostIndex int
-param ScreenCaptureProtection bool
-param StorageAccountName string
+param StorageAccountPrefix string
+param StorageCount int
+param StorageIndex int
 param StorageSolution string
+param StorageSuffix string
 param Subnet string
 param Tags object
 param Timestamp string
@@ -41,6 +53,7 @@ param VmPassword string
 param VmSize string
 param VmUsername string
 
+
 var AmdVmSizes = [
   'Standard_NV4as_v4'
   'Standard_NV8as_v4'
@@ -48,12 +61,7 @@ var AmdVmSizes = [
   'Standard_NV32as_v4'
 ]
 var AmdVmSize = contains(AmdVmSizes, VmSize)
-var AvailabilitySetName = 'as-${ResourceNameSuffix}'
-var AvailabilitySetId = {
-  id: resourceId('Microsoft.Compute/availabilitySets', AvailabilitySetName)
-}
 var Intune = DomainServices == 'NoneWithIntune' ? true : false
-var LogAnalyticsWorkspaceResourceId = resourceId(HostPoolResourceGroupName, 'Microsoft.OperationalInsights/workspaces', LogAnalyticsWorkspaceName)
 var NvidiaVmSizes = [
   'Standard_NV6'
   'Standard_NV12'
@@ -97,82 +105,8 @@ var VmUserAssignedIdentityProperty = {
 var VmIdentity = ((!empty(UserAssignedIdentity)) ? union(VmIdentityTypeProperty, VmUserAssignedIdentityProperty) : VmIdentityTypeProperty)
 
 
-resource deploymentScript 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
-  name: 'vmSizeValidation'
-  location: Location
-  kind: 'AzurePowerShell'
-  identity: {
-    type: 'UserAssigned'
-    userAssignedIdentities: {
-      '${ManagedIdentityResourceId}': {}
-    }
-  }
-  properties: {
-    forceUpdateTag: Timestamp
-    azPowerShellVersion: '5.4'
-    arguments: '-Availability ${Availability} -DiskSku ${DiskSku} -ImageSku ${ImageSku} -Location ${Location} -VmSize ${VmSize}'
-    scriptContent: '''
-      param(
-        [string]$Availability,
-        [string]$DiskSku,
-        [string]$ImageSku,
-        [string]$Location,
-        [string]$VmSize
-      )
-      $Sku = Get-AzComputeResourceSku -Location $Location | Where-Object {$_.ResourceType -eq 'virtualMachines' -and $_.Name -eq $VmSize}
-      # Availability Zones validation
-      if($Availability -eq 'AvailabilityZones' -and $Sku.locationInfo.zones.count -lt 3){
-        Write-Error -Exception 'Invalid Availability' -Message 'The selected VM Size does not support availability zones in this Azure location. https://docs.microsoft.com/en-us/azure/virtual-machines/windows/create-powershell-availability-zone' -ErrorAction Stop
-      } elseif($Availability -eq 'AvailabilityZones' -and $Sku.locationInfo.zones.count -eq 3){
-        $Zones = $true
-      } else {
-        $Zones = $false
-      }
-      # vCPU Validation: range = 4 min, 24 max
-      $vCPUs = [int]($Sku.capabilities | Where-Object {$_.name -eq 'vCPUs'}).value
-      if($vCPUs -lt 4 -or $vCPUs -gt 24){
-        Write-Error -Exception 'Invalid vCPU Count' -Message 'The selected VM Size does not contain the appropriate amount of vCPUs for Azure Virtual Desktop. https://docs.microsoft.com/en-us/windows-server/remote/remote-desktop-services/virtual-machine-recs' -ErrorAction Stop
-      }
-      # Disk SKU validation
-      if($DiskSku -like "Premium*" -and ($Sku.capabilities | Where-Object {$_.name -eq 'PremiumIO'}).value -eq $false){
-        Write-Error -Exception 'Invalid Disk SKU' -Message 'The selected VM Size does not support the Premium SKU for managed disks.' -ErrorAction Stop
-      }
-      # Hyper-V Generation validation
-      if($ImageSku -like "*-g2" -and ($Sku.capabilities | Where-Object {$_.name -eq 'HyperVGenerations'}).value -notlike "*2"){
-        Write-Error -Exception 'Invalid Hyper-V Generation' -Message 'The VM size does not support the selected Image Sku.' -ErrorAction Stop
-      }
-      $DeploymentScriptOutputs = @{};
-      $DeploymentScriptOutputs["acceleratedNetworking"] = ($Sku.capabilities | Where-Object {$_.name -eq 'AcceleratedNetworkingEnabled'}).value;
-    '''
-    timeout: 'PT2H'
-    cleanupPreference: 'OnSuccess'
-    retentionInterval: 'P1D'
-  }
-}
-
-resource roleAssignment_VmUserLogin 'Microsoft.Authorization/roleAssignments@2018-09-01-preview' = if (contains(DomainServices, 'None')) {
-  name: guid(resourceGroup().id, 'VirtualMachineUserLogin')
-  properties: {
-    roleDefinitionId: resourceId('Microsoft.Authorization/roleDefinitions', 'fb879df8-f326-4884-b1cf-06f3ad86be52')
-    principalId: SecurityPrincipalId
-  }
-}
-
-resource availabilitySet 'Microsoft.Compute/availabilitySets@2019-07-01' = if (PooledHostPool && Availability == 'AvailabilitySet') {
-  name: AvailabilitySetName
-  location: Location
-  tags: Tags
-  sku: {
-    name: 'Aligned'
-  }
-  properties: {
-    platformUpdateDomainCount: 5
-    platformFaultDomainCount: 2
-  }
-}
-
-resource nsg 'Microsoft.Network/networkSecurityGroups@2021-03-01' = if (RdpShortPath) {
-  name: NetworkSecurityGroupName
+resource networkSecurityGroup 'Microsoft.Network/networkSecurityGroups@2021-03-01' = if (RdpShortPath) {
+  name: NetworkSecurityGroupName // Fix name
   location: Location
   properties: {
     securityRules: [
@@ -193,8 +127,8 @@ resource nsg 'Microsoft.Network/networkSecurityGroups@2021-03-01' = if (RdpShort
   }
 }
 
-resource nic 'Microsoft.Network/networkInterfaces@2020-05-01' = [for i in range(0, SessionHostCount): {
-  name: 'nic-${ResourceNameSuffix}${padLeft((i + SessionHostIndex), 3, '0')}'
+resource networkInterface 'Microsoft.Network/networkInterfaces@2020-05-01' = [for i in range(0, SessionHostCount): {
+  name: 'nic-${NamingStandard}-${padLeft((i + SessionHostIndex), 3, '0')}'
   location: Location
   tags: Tags
   properties: {
@@ -211,15 +145,15 @@ resource nic 'Microsoft.Network/networkInterfaces@2020-05-01' = [for i in range(
         }
       }
     ]
-    enableAcceleratedNetworking: deploymentScript.properties.outputs.acceleratedNetworking == 'True' ? true : false
+    enableAcceleratedNetworking: AcceleratedNetworking == 'True' ? true : false
     enableIPForwarding: false
     networkSecurityGroup: RdpShortPath ? {
-      id: nsg.id
+      id: networkSecurityGroup.id
     } : null
   }
 }]
 
-resource vm 'Microsoft.Compute/virtualMachines@2021-03-01' = [for i in range(0, SessionHostCount): {
+resource virtualMachine 'Microsoft.Compute/virtualMachines@2021-03-01' = [for i in range(0, SessionHostCount): {
   name: '${VmName}${padLeft((i + SessionHostIndex), 3, '0')}'
   location: Location
   tags: Tags
@@ -228,7 +162,9 @@ resource vm 'Microsoft.Compute/virtualMachines@2021-03-01' = [for i in range(0, 
   ] : null
   identity: VmIdentity
   properties: {
-    availabilitySet: Availability == 'AvailabilitySet' ? AvailabilitySetId : null
+    availabilitySet: Availability == 'AvailabilitySet' ? {
+      id: resourceId('Microsoft.Compute/availabilitySets', '${AvailabilitySetPrefix}${i / 200}')
+    } : null
     hardwareProfile: {
       vmSize: VmSize
     }
@@ -256,7 +192,7 @@ resource vm 'Microsoft.Compute/virtualMachines@2021-03-01' = [for i in range(0, 
     networkProfile: {
       networkInterfaces: [
         {
-          id: resourceId('Microsoft.Network/networkInterfaces', 'nic-${ResourceNameSuffix}${padLeft((i + SessionHostIndex), 3, '0')}')
+          id: resourceId('Microsoft.Network/networkInterfaces', 'nic-${NamingStandard}-${padLeft((i + SessionHostIndex), 3, '0')}')
         }
       ]
     }
@@ -268,32 +204,52 @@ resource vm 'Microsoft.Compute/virtualMachines@2021-03-01' = [for i in range(0, 
     licenseType: ((ImagePublisher == 'MicrosoftWindowsServer') ? 'Windows_Server' : 'Windows_Client')
   }
   dependsOn: [
-    availabilitySet
-    nic
+    networkInterface
   ]
 }]
 
-resource microsoftMonitoringAgent 'Microsoft.Compute/virtualMachines/extensions@2021-03-01' = [for i in range(0, SessionHostCount): {
+resource extension_MicrosoftMonitoringAgent 'Microsoft.Compute/virtualMachines/extensions@2021-03-01' = [for i in range(0, SessionHostCount): if(Monitoring) {
   name: '${VmName}${padLeft((i + SessionHostIndex), 3, '0')}/MicrosoftMonitoringAgent'
-  location: resourceGroup().location
+  location: Location
   properties: {
     publisher: 'Microsoft.EnterpriseCloud.Monitoring'
     type: 'MicrosoftMonitoringAgent'
     typeHandlerVersion: '1.0'
     autoUpgradeMinorVersion: true
     settings: {
-      workspaceId: reference(LogAnalyticsWorkspaceResourceId, '2015-03-20').customerId
+      workspaceId: reference(resourceId(ManagementResourceGroup, LogAnalyticsWorkspaceName), '2015-03-20').customerId
     }
     protectedSettings: {
-      workspaceKey: listKeys(LogAnalyticsWorkspaceResourceId, '2015-03-20').primarySharedKey
+      workspaceKey: listKeys(resourceId(ManagementResourceGroup, LogAnalyticsWorkspaceName), '2015-03-20').primarySharedKey
+    }
+  }
+}]
+
+resource extension_CustomScriptExtension 'Microsoft.Compute/virtualMachines/extensions@2021-03-01' = [for i in range(0, SessionHostCount): {
+  name: '${VmName}${padLeft((i + SessionHostIndex), 3, '0')}/CustomScriptExtension'
+  location: Location
+  tags: Tags
+  properties: {
+    publisher: 'Microsoft.Compute'
+    type: 'CustomScriptExtension'
+    typeHandlerVersion: '1.10'
+    autoUpgradeMinorVersion: true
+    settings: {
+      fileUris: [
+        '${ScriptsUri}Set-SessionHostConfiguration.ps1${SasToken}'
+      ]
+      timestamp: Timestamp
+    }
+    protectedSettings: {
+      commandToExecute: 'powershell -ExecutionPolicy Unrestricted -File Set-SessionHostConfiguration.ps1 -AmdVmSize ${AmdVmSize} -DisaStigCompliance ${DisaStigCompliance} -DomainName ${DomainName} -Environment ${environment().name} -FileShares ${FileShares} -FSLogix ${Fslogix} -HostPoolName ${HostPoolName} -HostPoolRegistrationToken ${reference(resourceId(HostPoolResourceGroupName, 'Microsoft.DesktopVirtualization/hostpools', HostPoolName), '2019-12-10-preview').registrationInfo.token} -ImageOffer ${ImageOffer} -ImagePublisher ${ImagePublisher} -NetAppFileShare ${NetAppFileShare} -NvidiaVmSize ${NvidiaVmSize} -PooledHostPool ${PooledHostPool} -RdpShortPath ${RdpShortPath} -ScreenCaptureProtection ${ScreenCaptureProtection} -StorageAccountPrefix ${StorageAccountPrefix} -StorageCount ${StorageCount} -StorageIndex ${StorageIndex} -StorageSolution ${StorageSolution} -StorageSuffix ${StorageSuffix}'
     }
   }
   dependsOn: [
-    vm
+    virtualMachine
   ]
 }]
 
-resource jsonADDomainExtension 'Microsoft.Compute/virtualMachines/extensions@2021-03-01' = [for i in range(0, SessionHostCount): if (contains(DomainServices, 'ActiveDirectory')) {
+resource extension_JsonADDomainExtension 'Microsoft.Compute/virtualMachines/extensions@2021-03-01' = [for i in range(0, SessionHostCount): if (contains(DomainServices, 'ActiveDirectory')) {
   name: '${VmName}${padLeft((i + SessionHostIndex), 3, '0')}/JsonADDomainExtension'
   location: Location
   tags: Tags
@@ -315,12 +271,12 @@ resource jsonADDomainExtension 'Microsoft.Compute/virtualMachines/extensions@202
     }
   }
   dependsOn: [
-    vm
-    microsoftMonitoringAgent
+    virtualMachine
+    extension_CustomScriptExtension
   ]
 }]
 
-resource aadLoginForWindows 'Microsoft.Compute/virtualMachines/extensions@2021-03-01' = [for i in range(0, SessionHostCount): if (contains(DomainServices, 'None')) {
+resource extension_AADLoginForWindows 'Microsoft.Compute/virtualMachines/extensions@2021-03-01' = [for i in range(0, SessionHostCount): if (contains(DomainServices, 'None')) {
   name: '${VmName}${padLeft((i + SessionHostIndex), 3, '0')}/AADLoginForWindows'
   location: Location
   tags: Tags
@@ -334,38 +290,12 @@ resource aadLoginForWindows 'Microsoft.Compute/virtualMachines/extensions@2021-0
     } : json('null')
   }
   dependsOn: [
-    vm
-    microsoftMonitoringAgent
+    virtualMachine
+    extension_CustomScriptExtension
   ]
 }]
 
-resource customScriptExtension 'Microsoft.Compute/virtualMachines/extensions@2021-03-01' = [for i in range(0, SessionHostCount): {
-  name: '${VmName}${padLeft((i + SessionHostIndex), 3, '0')}/CustomScriptExtension'
-  location: Location
-  tags: Tags
-  properties: {
-    publisher: 'Microsoft.Compute'
-    type: 'CustomScriptExtension'
-    typeHandlerVersion: '1.10'
-    autoUpgradeMinorVersion: true
-    settings: {
-      fileUris: [
-        'https://raw.githubusercontent.com/jamasten/Azure/master/solutions/avd/scripts/Set-SessionHostConfiguration.ps1'
-      ]
-      timestamp: Timestamp
-    }
-    protectedSettings: {
-      commandToExecute: 'powershell -ExecutionPolicy Unrestricted -File Set-SessionHostConfiguration.ps1 -AmdVmSize ${AmdVmSize} -DodStigCompliance ${DodStigCompliance} -DomainName ${DomainName} -Environment ${environment().name} -FSLogix ${FSLogix} -HostPoolName ${HostPoolName} -HostPoolRegistrationToken ${reference(resourceId(HostPoolResourceGroupName, 'Microsoft.DesktopVirtualization/hostpools', HostPoolName), '2019-12-10-preview').registrationInfo.token} -ImageOffer ${ImageOffer} -ImagePublisher ${ImagePublisher} -NetAppFileShare ${NetAppFileShare} -NvidiaVmSize ${NvidiaVmSize} -PooledHostPool ${PooledHostPool} -RdpShortPath ${RdpShortPath} -ScreenCaptureProtection ${ScreenCaptureProtection} -StorageAccountName ${StorageAccountName} -StorageSolution ${StorageSolution}'
-    }
-  }
-  dependsOn: [
-    vm
-    jsonADDomainExtension
-    aadLoginForWindows
-  ]
-}]
-
-resource amdGpuDriverWindows 'Microsoft.Compute/virtualMachines/extensions@2021-03-01' = [for i in range(0, SessionHostCount): if (AmdVmSize) {
+resource extension_AmdGpuDriverWindows 'Microsoft.Compute/virtualMachines/extensions@2021-03-01' = [for i in range(0, SessionHostCount): if(AmdVmSize) {
   name: '${VmName}${padLeft((i + SessionHostIndex), 3, '0')}/AmdGpuDriverWindows'
   location: Location
   tags: Tags
@@ -377,12 +307,13 @@ resource amdGpuDriverWindows 'Microsoft.Compute/virtualMachines/extensions@2021-
     settings: {}
   }
   dependsOn: [
-    vm
-    customScriptExtension
+    virtualMachine
+    extension_JsonADDomainExtension
+    extension_AADLoginForWindows
   ]
 }]
 
-resource nvidiaGpuDriverWindows 'Microsoft.Compute/virtualMachines/extensions@2021-03-01' = [for i in range(0, SessionHostCount): if (NvidiaVmSize) {
+resource extension_NvidiaGpuDriverWindows 'Microsoft.Compute/virtualMachines/extensions@2021-03-01' = [for i in range(0, SessionHostCount): if (NvidiaVmSize) {
   name: '${VmName}${padLeft((i + SessionHostIndex), 3, '0')}/NvidiaGpuDriverWindows'
   location: Location
   tags: Tags
@@ -394,7 +325,95 @@ resource nvidiaGpuDriverWindows 'Microsoft.Compute/virtualMachines/extensions@20
     settings: {}
   }
   dependsOn: [
-    vm
-    customScriptExtension
+    virtualMachine
+    extension_JsonADDomainExtension
+    extension_AADLoginForWindows
+  ]
+}]
+
+resource extension_AzureDiskEncryption 'Microsoft.Compute/virtualMachines/extensions@2017-03-30' = [for i in range(0, SessionHostCount): if(DiskEncryption) {
+  name: '${VmName}${padLeft((i + SessionHostIndex), 3, '0')}/AzureDiskEncryption'
+  location: Location
+  properties: {
+    publisher: 'Microsoft.Azure.Security'
+    type: 'AzureDiskEncryption'
+    typeHandlerVersion: '2.2'
+    autoUpgradeMinorVersion: true
+    forceUpdateTag: Timestamp
+    settings: {
+      EncryptionOperation: 'EnableEncryption'
+      KeyVaultURL: reference(resourceId(ManagementResourceGroup, 'Microsoft.KeyVault/vaults', KeyVaultName), '2016-10-01').properties.vaultUri
+      KeyVaultResourceId: resourceId(ManagementResourceGroup, 'Microsoft.KeyVault/vaults', KeyVaultName)
+      KeyEncryptionKeyURL: reference(resourceId(ManagementResourceGroup, 'Microsoft.KeyVault/vaults', KeyVaultName), '2016-10-01').properties.outputs.text
+      KekVaultResourceId: resourceId(ManagementResourceGroup, 'Microsoft.KeyVault/vaults', KeyVaultName)
+      KeyEncryptionAlgorithm: 'RSA-OAEP'
+      VolumeType: 'All'
+      ResizeOSDisk: false
+    }
+  }
+  dependsOn: [
+    extension_AmdGpuDriverWindows
+    extension_NvidiaGpuDriverWindows
+  ]
+}]
+
+resource extension_DSC 'Microsoft.Compute/virtualMachines/extensions@2019-07-01' = [for i in range(0, SessionHostCount): if(DisaStigCompliance) {
+  name: '${VmName}${padLeft((i + SessionHostIndex), 3, '0')}/DSC'
+  location: Location
+  properties: {
+    publisher: 'Microsoft.Powershell'
+    type: 'DSC'
+    typeHandlerVersion: '2.77'
+    autoUpgradeMinorVersion: true
+    protectedSettings: {
+      Items: {
+        registrationKeyPrivate: listKeys(resourceId(ManagementResourceGroup, 'Microsoft.Automation/automationAccounts', AutomationAccountName), '2018-06-30').Keys[0].value
+      }
+    }
+    settings: {
+      Properties: [
+        {
+          Name: 'RegistrationKey'
+          Value: {
+            UserName: 'PLACEHOLDER_DONOTUSE'
+            Password: 'PrivateSettingsRef:registrationKeyPrivate'
+          }
+          TypeName: 'System.Management.Automation.PSCredential'
+        }
+        {
+          Name: 'RegistrationUrl'
+          Value: reference(resourceId(ManagementResourceGroup, 'Microsoft.Automation/automationAccounts', AutomationAccountName), '2018-06-30').registrationUrl
+          TypeName: 'System.String'
+        }
+        {
+          Name: 'NodeConfigurationName'
+          Value: '${ConfigurationName}.localhost'
+          TypeName: 'System.String'
+        }
+        {
+          Name: 'ConfigurationMode'
+          Value: 'ApplyandAutoCorrect'
+          TypeName: 'System.String'
+        }
+        {
+          Name: 'RebootNodeIfNeeded'
+          Value: true
+          TypeName: 'System.Boolean'
+        }
+        {
+          Name: 'ActionAfterReboot'
+          Value: 'ContinueConfiguration'
+          TypeName: 'System.String'
+        }
+        {
+          Name: 'Timestamp'
+          Value: Timestamp
+          TypeName: 'System.String'
+        }
+      ]
+    }
+  }
+  dependsOn: [
+    extension_AzureDiskEncryption
   ]
 }]

@@ -1,21 +1,25 @@
+param DiskEncryption bool
 @secure()
 param DomainJoinPassword string
 param DomainJoinUserPrincipalName string
 param DomainName string
+param KeyVaultName string
 param Location string
-param ResourceNameSuffix string
+param ManagementResourceGroup string
+param ManagementVmName string
+param NamingStandard string
 param Subnet string
 param Tags object
 param Timestamp string
 param VirtualNetwork string
 param VirtualNetworkResourceGroup string
-param VmName string
 @secure()
 param VmPassword string
 param VmUsername string
 
-var NicName = 'nic-${ResourceNameSuffix}-mgt'
-var VmNameFull = '${VmName}mgt'
+
+var NicName = 'nic-${NamingStandard}-mgt'
+
 
 resource nic 'Microsoft.Network/networkInterfaces@2020-05-01' = {
   name: NicName
@@ -40,8 +44,8 @@ resource nic 'Microsoft.Network/networkInterfaces@2020-05-01' = {
   }
 }
 
-resource vm 'Microsoft.Compute/virtualMachines@2020-12-01' = {
-  name: VmNameFull
+resource vm 'Microsoft.Compute/virtualMachines@2021-11-01' = {
+  name: ManagementVmName
   location: Location
   tags: Tags
   properties: {
@@ -56,17 +60,19 @@ resource vm 'Microsoft.Compute/virtualMachines@2020-12-01' = {
         version: 'latest'
       }
       osDisk: {
+        deleteOption: 'Delete'
         osType: 'Windows'
         createOption: 'FromImage'
         caching: 'None'
         managedDisk: {
           storageAccountType: 'Standard_LRS'
         }
+        name: 'disk-${NamingStandard}-mgt'
       }
       dataDisks: []
     }
     osProfile: {
-      computerName: VmNameFull
+      computerName: ManagementVmName
       adminUsername: VmUsername
       adminPassword: VmPassword
       windowsConfiguration: {
@@ -80,6 +86,9 @@ resource vm 'Microsoft.Compute/virtualMachines@2020-12-01' = {
       networkInterfaces: [
         {
           id: nic.id
+          properties: {
+            deleteOption: 'Delete'
+          }
         }
       ]
     }
@@ -95,7 +104,7 @@ resource vm 'Microsoft.Compute/virtualMachines@2020-12-01' = {
   }
 }
 
-resource jsonADDomainExtension 'Microsoft.Compute/virtualMachines/extensions@2019-07-01' = {
+resource extension_JsonADDomainExtension 'Microsoft.Compute/virtualMachines/extensions@2019-07-01' = {
   parent: vm
   name: 'JsonADDomainExtension'
   location: Location
@@ -114,6 +123,29 @@ resource jsonADDomainExtension 'Microsoft.Compute/virtualMachines/extensions@201
     }
     protectedSettings: {
       Password: DomainJoinPassword
+    }
+  }
+}
+
+resource extension_AzureDiskEncryption 'Microsoft.Compute/virtualMachines/extensions@2017-03-30' = if (DiskEncryption) {
+  parent: vm
+  name: 'AzureDiskEncryption'
+  location: Location
+  properties: {
+    publisher: 'Microsoft.Azure.Security'
+    type: 'AzureDiskEncryption'
+    typeHandlerVersion: '2.2'
+    autoUpgradeMinorVersion: true
+    forceUpdateTag: Timestamp
+    settings: {
+      EncryptionOperation: 'EnableEncryption'
+      KeyVaultURL: reference(resourceId(ManagementResourceGroup, 'Microsoft.KeyVault/vaults', KeyVaultName), '2016-10-01').properties.vaultUri
+      KeyVaultResourceId: resourceId(ManagementResourceGroup, 'Microsoft.KeyVault/vaults', KeyVaultName)
+      KeyEncryptionKeyURL: reference(resourceId(ManagementResourceGroup, KeyVaultName), '2016-10-01').properties.outputs.text
+      KekVaultResourceId: resourceId(ManagementResourceGroup, 'Microsoft.KeyVault/vaults', KeyVaultName)
+      KeyEncryptionAlgorithm: 'RSA-OAEP'
+      VolumeType: 'All'
+      ResizeOSDisk: false
     }
   }
 }

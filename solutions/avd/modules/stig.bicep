@@ -1,12 +1,10 @@
 param AutomationAccountName string
+param ConfigurationName string
+param ConfigurationsUri string
 param Location string
-param SessionHostCount int
-param SessionHostIndex int
 param Timestamp string
-param VmName string
-param VmResourceGroupName string
 
-var ConfigurationName = 'Windows10'
+
 var Modules = [
   {
     name: 'AccessControlDSC'
@@ -70,20 +68,10 @@ var Modules = [
   }
 ]
 
-resource automationAccount 'Microsoft.Automation/automationAccounts@2019-06-01' = {
-  name: '${AutomationAccountName}-stig'
-  location: Location
-  properties: {
-    sku: {
-      name: 'Free'
-    }
-  }
-}
 
 @batchSize(1)
 resource modules 'Microsoft.Automation/automationAccounts/modules@2019-06-01' = [for item in Modules: {
-  parent: automationAccount
-  name: item.name
+  name: '${AutomationAccountName}/${item.name}'
   location: Location
   properties: {
     contentLink: {
@@ -93,13 +81,12 @@ resource modules 'Microsoft.Automation/automationAccounts/modules@2019-06-01' = 
 }]
 
 resource configuration 'Microsoft.Automation/automationAccounts/configurations@2019-06-01' = {
-  parent: automationAccount
-  name: ConfigurationName
+  name: '${AutomationAccountName}/${ConfigurationName}'
   location: Location
   properties: {
     source: {
       type: 'uri'
-      value: 'https://raw.githubusercontent.com/jamasten/Azure/master/solutions/avd/configurations/Windows10.ps1'
+      value: '${ConfigurationsUri}Windows10.ps1'
       version: Timestamp
     }
     parameters: {}
@@ -111,8 +98,7 @@ resource configuration 'Microsoft.Automation/automationAccounts/configurations@2
 }
 
 resource compilationJob 'Microsoft.Automation/automationAccounts/compilationjobs@2019-06-01' = {
-  parent: automationAccount
-  name: guid(deployment().name)
+  name: '${AutomationAccountName}/${guid(deployment().name)}'
   location: Location
   properties: {
     configuration: {
@@ -122,23 +108,5 @@ resource compilationJob 'Microsoft.Automation/automationAccounts/compilationjobs
   dependsOn: [
     modules
     configuration
-  ]
-}
-
-module DscExtensionDeployment './stig_DscExtension.bicep' = {
-  name: 'DscExtensionDeployment'
-  scope: resourceGroup(VmResourceGroupName)
-  params: {
-    AutomationAccountName: automationAccount.name
-    AutomationAccountResourceGroupName: resourceGroup().name
-    ConfigurationName: configuration.name
-    Location: Location
-    SessionHostCount: SessionHostCount
-    SessionHostIndex: SessionHostIndex
-    Timestamp: Timestamp
-    VmName: VmName
-  }
-  dependsOn: [
-    compilationJob
   ]
 }

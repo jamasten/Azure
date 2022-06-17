@@ -176,68 +176,6 @@ if($DomainServices -eq 'AzureActiveDirectory')
 }
 
 
-# Session Host Batching Output
-# sessionHosts.bicep file can only support 113 virtual machines in each nested deployment
-# 3 static resources
-# 7 looped resources
-# (7 * 113) + 3 = 794 resources; limit is 800 resources per deployment
-# BATCH determines how many virtual machines will be deployed in each deployment
-# INDEX determines the number of the first virtual machine in each batch that will be deployed
-if($Count -gt 113)
-{
-    $DivisionValue = [math]::Truncate($Count / 113)
-    $RemainderValue = $Count % 113
-    $Batches = @()
-    $Indexes = @()
-    for($i = 0; $i -lt $DivisionValue; $i++)
-    {
-        # Add first batch manually
-        $Batches += 113
-        
-        if($i -eq 0)
-        {
-            # Add first index manually
-            $Indexes += $Index
-        }
-        else
-        {
-            if($Index -eq 0)
-            {
-                # Create indexes by subtracting 1 if index starts at 0; corrects offset
-                $Indexes += ((113 * $i) + $Index) - 1
-            }
-            else
-            {
-                # Create indexes when Index is greater than 0; no offset required
-                $Indexes += (113 * $i) + $Index
-            }
-        }
-    }
-    if($RemainderValue -gt 0)
-    {
-        # Add last batch if there is a remainder in the division
-        $Batches += $RemainderValue
-        if($Index -eq 0)
-        {   
-            # Create remainder index by subtracting 1 if the index starts at 0; corrects offset
-            $Indexes += ((113 * $DivisionValue) + $Index) - 1
-        }
-        else
-        {
-            # Create remainder index when Index is greater than 0; no offset required
-            $Indexes += (113 * $DivisionValue) + $Index
-        }
-    }
-}
-else 
-{
-    $Batches = @($Count)
-    $Indexes = @($Index)
-}
-$DeploymentScriptOutputs["sessionHostBatches"] = $Batches
-$DeploymentScriptOutputs["sessionHostIndexes"] = $Indexes
-
-
 # Storage Assignment Validation
 # Validate the array length for the Security Principal ID's, Security Principal Names, and Storage Count align
 if($StorageCount -ne $SecurityPrincipalIds.Count -or $StorageCount -ne $SecurityPrincipalNames.Count)

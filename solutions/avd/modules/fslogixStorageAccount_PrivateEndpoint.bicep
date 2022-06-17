@@ -1,4 +1,5 @@
 param Location string
+param PrivateDnsZoneName string
 param StorageAccountId string
 param StorageAccountName string
 param Subnet string
@@ -6,8 +7,7 @@ param Tags object
 param VirtualNetwork string
 param VirtualNetworkResourceGroup string
 
-var PrivateDnsZoneName = 'privatelink.file.${StorageSuffix}'
-var StorageSuffix = environment().suffixes.storage
+
 var SubnetId = resourceId(VirtualNetworkResourceGroup, 'Microsoft.Network/virtualNetworks/subnets', VirtualNetwork, Subnet)
 
 

@@ -1,19 +1,20 @@
+param DivisionRemainderValue int
 param HostPoolName string
 param HostPoolType string
 param Location string
+param MaxResourcesPerTemplateDeployment int
 param RecoveryServicesVaultName string
-param SessionHostCount int
+param SessionHostBatchCount int
 param SessionHostIndex int
 param StorageAccountName string
 param Tags object
+param Timestamp string
 param TimeZone string
 param VmName string
 param VmResourceGroupName string
 
 var ResourceGroupName = resourceGroup().name
 var FileShareBackupContainer = 'storagecontainer;Storage;${ResourceGroupName};${StorageAccountName}'
-var v2VmContainer = 'iaasvmcontainer;iaasvmcontainerv2;'
-var v2Vm = 'vm;iaasvmcontainerv2;'
 var PooledHostPool = split(HostPoolType, ' ')[0] == 'Pooled'
 var BackupSchedulePolicy = {
   scheduleRunFrequency: 'Daily'
@@ -97,13 +98,17 @@ resource protectedItems_FileShare 'Microsoft.RecoveryServices/vaults/backupFabri
   }
 }
 
-resource protectedItems_Vm 'Microsoft.RecoveryServices/vaults/backupFabrics/protectionContainers/protectedItems@2021-08-01' = [for i in range(0, SessionHostCount): if (!PooledHostPool) {
-  name: '${vault.name}/Azure/${v2VmContainer}${VmResourceGroupName};${VmName}${padLeft((i + SessionHostIndex), 3, '0')}/${v2Vm}${VmResourceGroupName};${VmName}${padLeft((i + SessionHostIndex), 3, '0')}'
-  location: Location
-  tags: Tags
-  properties: {
-    protectedItemType: 'Microsoft.Compute/virtualMachines'
-    policyId: backupPolicy_Vm.id
-    sourceResourceId: resourceId(VmResourceGroupName, 'Microsoft.Compute/virtualMachines', '${VmName}${padLeft((i + SessionHostIndex), 3, '0')}')
+module protectedItems_Vm 'backup_VirtualMachines.bicep' = [for i in range(1, SessionHostBatchCount): if (!PooledHostPool) {
+  name: 'BackupProtectedItems_VirtualMachines_${i-1}_${Timestamp}'
+  scope: resourceGroup(resourceGroup().name) // Management Resource Group
+  params: {
+    Location: Location
+    PolicyId: backupPolicy_Vm.id
+    RecoveryServicesVaultName: vault.name
+    SessionHostCount: i == SessionHostBatchCount && DivisionRemainderValue > 0 ? DivisionRemainderValue : MaxResourcesPerTemplateDeployment
+    SessionHostIndex: i == 1 ? SessionHostIndex : ((i - 1) * MaxResourcesPerTemplateDeployment) + SessionHostIndex
+    Tags: Tags
+    VmName: VmName
+    VmResourceGroupName: VmResourceGroupName
   }
 }]

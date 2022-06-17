@@ -6,7 +6,7 @@ Param(
 
     [parameter(Mandatory)]
     [string]
-    $DodStigCompliance,
+    $DisaStigCompliance,
 
     [parameter(Mandatory)]
     [string]
@@ -15,6 +15,10 @@ Param(
     [parameter(Mandatory)]
     [string]
     $Environment,
+
+    [parameter(Mandatory)]
+    [array]
+    $FileShares,
 
     [parameter(Mandatory)]
     [string]
@@ -58,11 +62,23 @@ Param(
 
     [parameter(Mandatory)]
     [string]
-    $StorageAccountName,
+    $StorageAccountPrefix,
+
+    [parameter(Mandatory)]
+    [int]
+    $StorageCount,
+
+    [parameter(Mandatory)]
+    [int]
+    $StorageIndex,
 
     [parameter(Mandatory)]
     [string]
-    $StorageSolution    
+    $StorageSolution,
+
+    [parameter(Mandatory)]
+    [string]
+    $StorageSuffix   
 )
 
 
@@ -112,223 +128,200 @@ function Get-WebFile
 }
 
 
-##############################################################
-#  Output parameter values for validation
-##############################################################
-Write-Log -Message "AmdVmSize: $AmdVmSize" -Type 'INFO'
-Write-Log -Message "DodStigCompliance: $DodStigCompliance" -Type 'INFO'
-Write-Log -Message "DomainName: $DomainName" -Type 'INFO'
-Write-Log -Message "Environment: $Environment" -Type 'INFO'
-Write-Log -Message "FSLogix: $FSLogix" -Type 'INFO'
-Write-Log -Message "HostPoolName: $HostPoolName" -Type 'INFO'
-Write-Log -Message "HostPoolRegistrationToken: $HostPoolRegistrationToken" -Type 'INFO'
-Write-Log -Message "ImageOffer: $ImageOffer" -Type 'INFO'
-Write-Log -Message "ImagePublisher: $ImagePublisher" -Type 'INFO'
-Write-Log -Message "NetAppFileShare: $NetAppFileShare" -Type 'INFO'
-Write-Log -Message "NvidiaVmSize: $NvidiaVmSize" -Type 'INFO'
-Write-Log -Message "PooledHostPool: $PooledHostPool" -Type 'INFO'
-Write-Log -Message "RdpShortPath: $RdpShortPath" -Type 'INFO'
-Write-Log -Message "ScreenCaptureProtection: $ScreenCaptureProtection" -Type 'INFO'
-Write-Log -Message "StorageAccountName: $StorageAccountName" -Type 'INFO'
-Write-Log -Message "StorageSolution: $StorageSolution" -Type 'INFO'
-
-
-##############################################################
-#  DoD STIG Compliance
-##############################################################
-if($DodStigCompliance -eq 'true')
-{
-    # Set Local Admin account password expires True (V-205658)
-    $localAdmin = Get-LocalUser | Where-Object Description -eq "Built-in account for administering the computer/domain"
-    Set-LocalUser -name $localAdmin.Name -PasswordNeverExpires $false
-}
-
-##############################################################
-#  Add Recommended AVD Settings
-##############################################################
-$Settings = @(
-
-    # Disable Automatic Updates: https://docs.microsoft.com/en-us/azure/virtual-desktop/set-up-customize-master-image#disable-automatic-updates
-    [PSCustomObject]@{
-        Name = 'NoAutoUpdate'
-        Path = 'HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate\AU'
-        PropertyType = 'DWord'
-        Value = 1
-    },
-
-    # Enable Time Zone Redirection: https://docs.microsoft.com/en-us/azure/virtual-desktop/set-up-customize-master-image#set-up-time-zone-redirection
-    [PSCustomObject]@{
-        Name = 'fEnableTimeZoneRedirection'
-        Path = 'HKLM:\SOFTWARE\Policies\Microsoft\Windows NT\Terminal Services'
-        PropertyType = 'DWord'
-        Value = 1
-    }
-)
-
-
-##############################################################
-#  Add GPU Settings
-##############################################################
-# This setting applies to the VM Size's recommended for AVD with a GPU
-if ($AmdVmSize -eq 'true' -or $NvidiaVmSize -eq 'true') 
-{
-    $Settings += @(
-
-        # Configure GPU-accelerated app rendering: https://docs.microsoft.com/en-us/azure/virtual-desktop/configure-vm-gpu#configure-gpu-accelerated-app-rendering
-        [PSCustomObject]@{
-            Name = 'bEnumerateHWBeforeSW'
-            Path = 'HKLM:\SOFTWARE\Policies\Microsoft\Windows NT\Terminal Services'
-            PropertyType = 'DWord'
-            Value = 1
-        },
-
-        # Configure fullscreen video encoding: https://docs.microsoft.com/en-us/azure/virtual-desktop/configure-vm-gpu#configure-fullscreen-video-encoding
-        [PSCustomObject]@{
-            Name = 'AVC444ModePreferred'
-            Path = 'HKLM:\SOFTWARE\Policies\Microsoft\Windows NT\Terminal Services'
-            PropertyType = 'DWord'
-            Value = 1
-        }
-    )
-}
-
-# This setting applies only to VM Size's recommended for AVD with a Nvidia GPU
-if($NvidiaVmSize -eq 'true')
-{
-    $Settings += @(
-
-        # Configure GPU-accelerated frame encoding: https://docs.microsoft.com/en-us/azure/virtual-desktop/configure-vm-gpu#configure-gpu-accelerated-frame-encoding
-        [PSCustomObject]@{
-            Name = 'AVChardwareEncodePreferred'
-            Path = 'HKLM:\SOFTWARE\Policies\Microsoft\Windows NT\Terminal Services'
-            PropertyType = 'DWord'
-            Value = 1
-        }
-    )
-}
-
-
-##############################################################
-#  Add Screen Capture Protection
-##############################################################
-if($ScreenCaptureProtection -eq 'true')
-{
-    $Settings += @(
-
-        # Enable Screen Capture Protection: https://docs.microsoft.com/en-us/azure/virtual-desktop/screen-capture-protection
-        [PSCustomObject]@{
-            Name = 'fEnableScreenCaptureProtect'
-            Path = 'HKLM:\SOFTWARE\Policies\Microsoft\Windows NT\Terminal Services'
-            PropertyType = 'DWord'
-            Value = 1
-        }
-    )
-}
-
-
-##############################################################
-#  Add FSLogix Configurations
-##############################################################
-if($PooledHostPool -eq 'true' -and $StorageSolution -ne 'None')
-{
-    $Suffix = switch($Environment)
-    {
-        AzureCloud {'.file.core.windows.net'}
-        AzureUSGovernment {'.file.core.usgovcloudapi.net'}
-    }
-
-    switch($StorageSolution)
-    {
-        'AzureStorageAccount' {$FileShare = '\\' + $StorageAccountName + $Suffix + '\' + $HostPoolName}
-        'AzureNetAppFiles' {$FileShare = '\\' + $NetAppFileShare + '\' + $HostPoolName}
-    }
-    Write-Log -Message "File Share: $FileShare" -Type 'INFO'
-
-    $Settings += @(
-
-        # Enables FSLogix profile containers: https://docs.microsoft.com/en-us/fslogix/profile-container-configuration-reference#enabled
-        [PSCustomObject]@{
-            Name = 'Enabled'
-            Path = 'HKLM:\SOFTWARE\FSLogix\Profiles'
-            PropertyType = 'DWord'
-            Value = 1
-        },
-
-        # Deletes a local profile if it exists and matches the profile being loaded from VHD: https://docs.microsoft.com/en-us/fslogix/profile-container-configuration-reference#deletelocalprofilewhenvhdshouldapply
-        [PSCustomObject]@{
-            Name = 'DeleteLocalProfileWhenVHDShouldApply'
-            Path = 'HKLM:\SOFTWARE\FSLogix\Profiles'
-            PropertyType = 'DWord'
-            Value = 1
-        },
-
-        # The folder created in the FSLogix fileshare will begin with the username instead of the SID: https://docs.microsoft.com/en-us/fslogix/profile-container-configuration-reference#flipflopprofiledirectoryname
-        [PSCustomObject]@{
-            Name = 'FlipFlopProfileDirectoryName'
-            Path = 'HKLM:\SOFTWARE\FSLogix\Profiles'
-            PropertyType = 'DWord'
-            Value = 1
-        },
-
-        # Loads FRXShell if there's a failure attaching to, or using an existing profile VHD(X): https://docs.microsoft.com/en-us/fslogix/profile-container-configuration-reference#preventloginwithfailure
-        [PSCustomObject]@{
-            Name = 'PreventLoginWithFailure'
-            Path = 'HKLM:\SOFTWARE\FSLogix\Profiles'
-            PropertyType = 'DWord'
-            Value = 1
-        },
-
-        # Loads FRXShell if it's determined a temp profile has been created: https://docs.microsoft.com/en-us/fslogix/profile-container-configuration-reference#preventloginwithtempprofile
-        [PSCustomObject]@{
-            Name = 'PreventLoginWithTempProfile'
-            Path = 'HKLM:\SOFTWARE\FSLogix\Profiles'
-            PropertyType = 'DWord'
-            Value = 1
-        },
-
-        # List of file system locations to search for the user's profile VHD(X) file: https://docs.microsoft.com/en-us/fslogix/profile-container-configuration-reference#vhdlocations
-        [PSCustomObject]@{
-            Name = 'VHDLocations'
-            Path = 'HKLM:\SOFTWARE\FSLogix\Profiles'
-            PropertyType = 'MultiString'
-            Value = $FileShare
-        }
-    )
-}
-
-
-##############################################################
-#  Add RDP Short Path
-##############################################################
-if($RdpShortPath -eq 'true')
-{
-    # Allow inbound network traffic for RDP Shortpath
-    New-NetFirewallRule -DisplayName 'Remote Desktop - Shortpath (UDP-In)'  -Action 'Allow' -Description 'Inbound rule for the Remote Desktop service to allow RDP traffic. [UDP 3390]' -Group '@FirewallAPI.dll,-28752' -Name 'RemoteDesktop-UserMode-In-Shortpath-UDP'  -PolicyStore 'PersistentStore' -Profile 'Domain, Private' -Service 'TermService' -Protocol 'udp' -LocalPort 3390 -Program '%SystemRoot%\system32\svchost.exe' -Enabled:True
-
-    $Settings += @(
-
-        # Enable RDP Shortpath for managed networks: https://docs.microsoft.com/en-us/azure/virtual-desktop/shortpath#configure-rdp-shortpath-for-managed-networks
-        [PSCustomObject]@{
-            Name = 'fUseUdpPortRedirector'
-            Path = 'HKLM:\SYSTEM\CurrentControlSet\Control\Terminal Server\WinStations'
-            PropertyType = 'DWord'
-            Value = 1
-        },
-
-        # Enable the port for RDP Shortpath for managed networks: https://docs.microsoft.com/en-us/azure/virtual-desktop/shortpath#configure-rdp-shortpath-for-managed-networks
-        [PSCustomObject]@{
-            Name = 'UdpPortNumber'
-            Path = 'HKLM:\SYSTEM\CurrentControlSet\Control\Terminal Server\WinStations'
-            PropertyType = 'DWord'
-            Value = 3390
-        }
-    )
-}
-
-
-# Set registry settings
 try 
 {
+    ##############################################################
+    #  DISA STIG Compliance
+    ##############################################################
+    if($DisaStigCompliance -eq 'true')
+    {
+        # Set Local Admin account password expires True (V-205658)
+        $localAdmin = Get-LocalUser | Where-Object Description -eq "Built-in account for administering the computer/domain"
+        Set-LocalUser -name $localAdmin.Name -PasswordNeverExpires $false
+    }
+
+    ##############################################################
+    #  Add Recommended AVD Settings
+    ##############################################################
+    $Settings = @(
+
+        # Disable Automatic Updates: https://docs.microsoft.com/en-us/azure/virtual-desktop/set-up-customize-master-image#disable-automatic-updates
+        [PSCustomObject]@{
+            Name = 'NoAutoUpdate'
+            Path = 'HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate\AU'
+            PropertyType = 'DWord'
+            Value = 1
+        },
+
+        # Enable Time Zone Redirection: https://docs.microsoft.com/en-us/azure/virtual-desktop/set-up-customize-master-image#set-up-time-zone-redirection
+        [PSCustomObject]@{
+            Name = 'fEnableTimeZoneRedirection'
+            Path = 'HKLM:\SOFTWARE\Policies\Microsoft\Windows NT\Terminal Services'
+            PropertyType = 'DWord'
+            Value = 1
+        }
+    )
+
+
+    ##############################################################
+    #  Add GPU Settings
+    ##############################################################
+    # This setting applies to the VM Size's recommended for AVD with a GPU
+    if ($AmdVmSize -eq 'true' -or $NvidiaVmSize -eq 'true') 
+    {
+        $Settings += @(
+
+            # Configure GPU-accelerated app rendering: https://docs.microsoft.com/en-us/azure/virtual-desktop/configure-vm-gpu#configure-gpu-accelerated-app-rendering
+            [PSCustomObject]@{
+                Name = 'bEnumerateHWBeforeSW'
+                Path = 'HKLM:\SOFTWARE\Policies\Microsoft\Windows NT\Terminal Services'
+                PropertyType = 'DWord'
+                Value = 1
+            },
+
+            # Configure fullscreen video encoding: https://docs.microsoft.com/en-us/azure/virtual-desktop/configure-vm-gpu#configure-fullscreen-video-encoding
+            [PSCustomObject]@{
+                Name = 'AVC444ModePreferred'
+                Path = 'HKLM:\SOFTWARE\Policies\Microsoft\Windows NT\Terminal Services'
+                PropertyType = 'DWord'
+                Value = 1
+            }
+        )
+    }
+
+    # This setting applies only to VM Size's recommended for AVD with a Nvidia GPU
+    if($NvidiaVmSize -eq 'true')
+    {
+        $Settings += @(
+
+            # Configure GPU-accelerated frame encoding: https://docs.microsoft.com/en-us/azure/virtual-desktop/configure-vm-gpu#configure-gpu-accelerated-frame-encoding
+            [PSCustomObject]@{
+                Name = 'AVChardwareEncodePreferred'
+                Path = 'HKLM:\SOFTWARE\Policies\Microsoft\Windows NT\Terminal Services'
+                PropertyType = 'DWord'
+                Value = 1
+            }
+        )
+    }
+
+
+    ##############################################################
+    #  Add Screen Capture Protection
+    ##############################################################
+    if($ScreenCaptureProtection -eq 'true')
+    {
+        $Settings += @(
+
+            # Enable Screen Capture Protection: https://docs.microsoft.com/en-us/azure/virtual-desktop/screen-capture-protection
+            [PSCustomObject]@{
+                Name = 'fEnableScreenCaptureProtect'
+                Path = 'HKLM:\SOFTWARE\Policies\Microsoft\Windows NT\Terminal Services'
+                PropertyType = 'DWord'
+                Value = 1
+            }
+        )
+    }
+
+
+    ##############################################################
+    #  Add FSLogix Configurations
+    ##############################################################
+    if($PooledHostPool -eq 'true' -and $StorageSolution -ne 'None')
+    {
+        $FilesSuffix = '.file.' + $StorageSuffix
+        $Shares = @()
+        switch($StorageSolution)
+        {
+            'AzureStorageAccount' {for($i = $StorageIndex; $i -lt $($StorageIndex + $StorageCount); $i++){foreach($Share in $FileShares){$Shares += '\\' + $StorageAccountPrefix + $i.ToString().PadLeft(2,'0') + $FilesSuffix + '\' + $Share}}}
+            'AzureNetAppFiles' {$Shares += '\\' + $NetAppFileShare + '\' + $HostPoolName}
+        }
+        
+        $SharesOutput = if($Shares.Count -eq 1){$Shares}else{$Shares -join ', '}
+        Write-Log -Message "File Shares: $SharesOutput" -Type 'INFO'
+
+        $Settings += @(
+
+            # Enables FSLogix profile containers: https://docs.microsoft.com/en-us/fslogix/profile-container-configuration-reference#enabled
+            [PSCustomObject]@{
+                Name = 'Enabled'
+                Path = 'HKLM:\SOFTWARE\FSLogix\Profiles'
+                PropertyType = 'DWord'
+                Value = 1
+            },
+
+            # Deletes a local profile if it exists and matches the profile being loaded from VHD: https://docs.microsoft.com/en-us/fslogix/profile-container-configuration-reference#deletelocalprofilewhenvhdshouldapply
+            [PSCustomObject]@{
+                Name = 'DeleteLocalProfileWhenVHDShouldApply'
+                Path = 'HKLM:\SOFTWARE\FSLogix\Profiles'
+                PropertyType = 'DWord'
+                Value = 1
+            },
+
+            # The folder created in the FSLogix fileshare will begin with the username instead of the SID: https://docs.microsoft.com/en-us/fslogix/profile-container-configuration-reference#flipflopprofiledirectoryname
+            [PSCustomObject]@{
+                Name = 'FlipFlopProfileDirectoryName'
+                Path = 'HKLM:\SOFTWARE\FSLogix\Profiles'
+                PropertyType = 'DWord'
+                Value = 1
+            },
+
+            # Loads FRXShell if there's a failure attaching to, or using an existing profile VHD(X): https://docs.microsoft.com/en-us/fslogix/profile-container-configuration-reference#preventloginwithfailure
+            [PSCustomObject]@{
+                Name = 'PreventLoginWithFailure'
+                Path = 'HKLM:\SOFTWARE\FSLogix\Profiles'
+                PropertyType = 'DWord'
+                Value = 1
+            },
+
+            # Loads FRXShell if it's determined a temp profile has been created: https://docs.microsoft.com/en-us/fslogix/profile-container-configuration-reference#preventloginwithtempprofile
+            [PSCustomObject]@{
+                Name = 'PreventLoginWithTempProfile'
+                Path = 'HKLM:\SOFTWARE\FSLogix\Profiles'
+                PropertyType = 'DWord'
+                Value = 1
+            },
+
+            # List of file system locations to search for the user's profile VHD(X) file: https://docs.microsoft.com/en-us/fslogix/profile-container-configuration-reference#vhdlocations
+            [PSCustomObject]@{
+                Name = 'VHDLocations'
+                Path = 'HKLM:\SOFTWARE\FSLogix\Profiles'
+                PropertyType = 'MultiString'
+                Value = $Shares
+            }
+        )
+    }
+
+
+    ##############################################################
+    #  Add RDP Short Path
+    ##############################################################
+    if($RdpShortPath -eq 'true')
+    {
+        # Allow inbound network traffic for RDP Shortpath
+        New-NetFirewallRule -DisplayName 'Remote Desktop - Shortpath (UDP-In)'  -Action 'Allow' -Description 'Inbound rule for the Remote Desktop service to allow RDP traffic. [UDP 3390]' -Group '@FirewallAPI.dll,-28752' -Name 'RemoteDesktop-UserMode-In-Shortpath-UDP'  -PolicyStore 'PersistentStore' -Profile 'Domain, Private' -Service 'TermService' -Protocol 'udp' -LocalPort 3390 -Program '%SystemRoot%\system32\svchost.exe' -Enabled:True
+
+        $Settings += @(
+
+            # Enable RDP Shortpath for managed networks: https://docs.microsoft.com/en-us/azure/virtual-desktop/shortpath#configure-rdp-shortpath-for-managed-networks
+            [PSCustomObject]@{
+                Name = 'fUseUdpPortRedirector'
+                Path = 'HKLM:\SYSTEM\CurrentControlSet\Control\Terminal Server\WinStations'
+                PropertyType = 'DWord'
+                Value = 1
+            },
+
+            # Enable the port for RDP Shortpath for managed networks: https://docs.microsoft.com/en-us/azure/virtual-desktop/shortpath#configure-rdp-shortpath-for-managed-networks
+            [PSCustomObject]@{
+                Name = 'UdpPortNumber'
+                Path = 'HKLM:\SYSTEM\CurrentControlSet\Control\Terminal Server\WinStations'
+                PropertyType = 'DWord'
+                Value = 3390
+            }
+        )
+    }
+
+
+    # Set registry settings
     foreach($Setting in $Settings)
     {
         $Value = Get-ItemProperty -Path $Setting.Path -Name $Setting.Name -ErrorAction 'SilentlyContinue'
@@ -349,19 +342,12 @@ try
         }
         Start-Sleep -Seconds 1
     }
-}
-catch 
-{
-    Write-Log -Message $_ -Type 'ERROR'
-}
 
 
-##############################################################
-# Add Defender Exclusions for FSLogix 
-##############################################################
-# https://docs.microsoft.com/en-us/azure/architecture/example-scenario/wvd/windows-virtual-desktop-fslogix#antivirus-exclusions
-try
-{
+    ##############################################################
+    # Add Defender Exclusions for FSLogix 
+    ##############################################################
+    # https://docs.microsoft.com/en-us/azure/architecture/example-scenario/wvd/windows-virtual-desktop-fslogix#antivirus-exclusions
     if($PooledHostPool -eq 'true' -and $FSLogix -eq 'true')
     {
 
@@ -372,10 +358,13 @@ try
             "%TEMP%\*.VHD",
             "%TEMP%\*.VHDX",
             "%Windir%\TEMP\*.VHD",
-            "%Windir%\TEMP\*.VHDX",
-            "$FileShare\*.VHD",
-            "$FileShare\*.VHDX"
+            "%Windir%\TEMP\*.VHDX"
         )
+        foreach($Share in $Shares)
+        {
+            $Files += "$Share\*.VHD"
+            $Files += "$Share\*.VHDX"
+        }
 
         $CloudCache = Get-ItemProperty -Path 'HKLM:\SOFTWARE\FSLogix\Profiles' -Name 'CCDLocations' -ErrorAction 'SilentlyContinue'
         if($CloudCache)
@@ -406,19 +395,12 @@ try
         }
         Write-Log -Message 'Enabled Defender exlusions for FSLogix processes' -Type 'INFO'
     }
-}
-catch 
-{
-    Write-Log -Message $_ -Type 'ERROR'
-}
 
 
-##############################################################
-#  Install the AVD Agent
-##############################################################
-# Disabling this method for installing the AVD agent until AAD Join can completed successfully
-try 
-{   
+    ##############################################################
+    #  Install the AVD Agent
+    ##############################################################
+    # Disabling this method for installing the AVD agent until AAD Join can completed successfully
     $BootInstaller = 'AVD-Bootloader.msi'
     Get-WebFile -FileName $BootInstaller -URL 'https://query.prod.cms.rt.microsoft.com/cms/api/am/binary/RWrxrH'
     Start-Process -FilePath 'msiexec.exe' -ArgumentList "/i $BootInstaller /quiet /qn /norestart /passive" -Wait -Passthru -ErrorAction 'Stop'
@@ -430,19 +412,12 @@ try
     Start-Process -FilePath 'msiexec.exe' -ArgumentList "/i $AgentInstaller /quiet /qn /norestart /passive REGISTRATIONTOKEN=$HostPoolRegistrationToken" -Wait -PassThru -ErrorAction 'Stop'
     Write-Log -Message 'Installed AVD Agent' -Type 'INFO'
     Start-Sleep -Seconds 5
-}
-catch 
-{
-    Write-Log -Message $_ -Type 'ERROR'    
-}
-   
 
-##############################################################
-#  Run the Virtual Desktop Optimization Tool (VDOT)
-##############################################################
-# https://github.com/The-Virtual-Desktop-Team/Virtual-Desktop-Optimization-Tool
-try 
-{
+
+    ##############################################################
+    #  Run the Virtual Desktop Optimization Tool (VDOT)
+    ##############################################################
+    # https://github.com/The-Virtual-Desktop-Team/Virtual-Desktop-Optimization-Tool
     if($ImagePublisher -eq 'MicrosoftWindowsDesktop' -and $ImageOffer -ne 'windows-7')
     {
         # Download VDOT
@@ -452,34 +427,35 @@ try
         
         # Extract VDOT from ZIP archive
         Expand-Archive -LiteralPath $ZIP -Force -ErrorAction 'Stop'
-            
+        
+        # Fix to disable AppX Packages
+        # As of 2/8/22, all AppX Packages are enabled by default
+        $Files = (Get-ChildItem -Path .\VDOT\Virtual-Desktop-Optimization-Tool-main -File -Recurse -Filter "AppxPackages.json" -ErrorAction 'Stop').FullName
+        foreach($File in $Files)
+        {
+            $Content = Get-Content -Path $File -ErrorAction 'Stop'
+            $Settings = $Content | ConvertFrom-Json -ErrorAction 'Stop'
+            $NewSettings = @()
+            foreach($Setting in $Settings)
+            {
+                $NewSettings += [pscustomobject][ordered]@{
+                    AppxPackage = $Setting.AppxPackage
+                    VDIState = 'Disabled'
+                    URL = $Setting.URL
+                    Description = $Setting.Description
+                }
+            }
+
+            $JSON = $NewSettings | ConvertTo-Json -ErrorAction 'Stop'
+            $JSON | Out-File -FilePath $File -Force -ErrorAction 'Stop'
+        }
+
         # Run VDOT
-        & .\VDOT\Virtual-Desktop-Optimization-Tool-main\Win10_VirtualDesktop_Optimize.ps1 -AcceptEULA
-        Write-Log -Message 'Optimized the operating system using the VDOT' -Type 'INFO'
+        & .\VDOT\Virtual-Desktop-Optimization-Tool-main\Windows_VDOT.ps1 -AcceptEULA
+        Write-Log -Message 'Optimized the operating system using VDOT' -Type 'INFO'
     }
 }
 catch 
 {
     Write-Log -Message $_ -Type 'ERROR'
-}
-
-
-##############################################################
-#  Reboot the Virtual Machine
-##############################################################
-# If the GPU extensions are not deployed then force a reboot for VDOT
-try 
-{
-    if ($AmdVmSize -eq 'false' -and $NvidiaVmSize -eq 'false') 
-    {
-        Start-Process -FilePath 'shutdown' -ArgumentList '/r /t 30' -ErrorAction 'Stop'
-        Write-Log -Message 'Rebooted virtual machine' -Type 'INFO'
-    }
-}
-catch 
-{
-    Write-Log -Message $_ -Type 'ERROR'
-    $ErrorData = $_ | Select-Object *
-    $ErrorData | Out-File -FilePath 'C:\cse.txt' -Append
-    throw
 }

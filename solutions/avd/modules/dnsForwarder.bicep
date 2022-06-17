@@ -1,4 +1,6 @@
 param ConfigurationsUri string
+param DnsServerForwarderIPAddresses array
+param DnsServerSize string
 @secure()
 param DomainJoinPassword string
 param DomainJoinUserPrincipalName string
@@ -13,6 +15,7 @@ param NamingStandard string
 param SasToken string
 param ScriptsUri string
 param StampIndexFull string
+param StorageSuffix string
 param Subnet string
 param Tags object
 param Timestamp string
@@ -88,7 +91,7 @@ resource vm 'Microsoft.Compute/virtualMachines@2019-07-01' = {
   tags: Tags
   properties: {
     hardwareProfile: {
-      vmSize: 'Standard_D2s_v3'
+      vmSize: DnsServerSize
     }
     storageProfile: {
       imageReference: {
@@ -171,13 +174,17 @@ resource dscExt 'Microsoft.Compute/virtualMachines/extensions@2019-07-01' = {
         ActionAfterReboot: 'ContinueConfiguration'
         ConfigurationMode: 'ApplyandAutoCorrect'
         RebootNodeIfNeeded: true
-        IPAddresses: deploymentScript_GetDns.properties.outputs.dns
       }
       properties: [
         {
-          Name: 'IPAddresses'
-          Value: deploymentScript_GetDns.properties.outputs.dns
+          Name: 'ForwarderIPAddresses'
+          Value: DnsServerForwarderIPAddresses
           TypeName: 'System.Array'
+        }
+        {
+          Name: 'StorageSuffix'
+          Value: StorageSuffix
+          TypeName: 'System.String'
         }
       ]
     }

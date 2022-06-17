@@ -9,7 +9,7 @@ param ImageSku string
 param KerberosEncryption string
 param Location string
 param ManagedIdentityResourceId string
-param ScriptsSasToken string
+param SasToken string
 param ScriptsUri string
 param SecurityPrincipalIds array
 param SecurityPrincipalNames array
@@ -37,7 +37,7 @@ resource deploymentScript 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
     forceUpdateTag: Timestamp
     azPowerShellVersion: '5.4'
     arguments: '-Availability ${Availability} -DiskEncryption ${DiskEncryption} -DiskSku ${DiskSku} -DomainName ${DomainName} -DomainServices ${DomainServices} -EphemeralOsDisk ${EphemeralOsDisk} -FSLogixStorage ${FSLogixStorage} -ImageSku ${ImageSku} -KerberosEncryption ${KerberosEncryption} -Location ${Location} -SecurityPrincipalIds ${SecurityPrincipalIds} -SecurityPrincipalNames ${SecurityPrincipalNames} -SessionHostCount ${SessionHostCount} -SessionHostIndex ${SessionHostIndex} -StorageCount ${StorageCount} -VmSize ${VmSize} -VnetName ${VirtualNetwork} -VnetResourceGroupName ${VirtualNetworkResourceGroup}'
-    primaryScriptUri: '${ScriptsUri}Get-Validation.ps1${ScriptsSasToken}'
+    primaryScriptUri: '${ScriptsUri}Get-Validation.ps1${SasToken}'
     timeout: 'PT2H'
     cleanupPreference: 'OnSuccess'
     retentionInterval: 'P1D'

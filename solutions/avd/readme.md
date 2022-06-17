@@ -26,7 +26,9 @@ az deployment sub create \
 
 ## Description
 
-This Azure Virtual Desktop (AVD) solution will deploy a fully operational [stamp](https://docs.microsoft.com/en-us/azure/architecture/patterns/deployment-stamp) in an Azure subscription.  Due to Azure deployment limitations, this solution will allow you to deploy shards to increase capacity while using the same AVD host pool, app group, log analytics workspace, etc. for the whole solution.  See the diagram below for more details:
+This Azure Virtual Desktop (AVD) solution will deploy a fully operational AVD [stamp](https://docs.microsoft.com/en-us/azure/architecture/patterns/deployment-stamp) in an Azure subscription. The "StampIndex" parameter in this solution allows each stamp to be identified and scale beyond a single subscription.  However, several different stamps could be deployed in one subscription or one large stamp could consume the whole subscription, depending on resource limitations and other considerations like billing.  To uniquely name multiple, unrelated stamps within a subscription, input a unique value for the "Identifier" parameter in each deployment.  
+
+With this solution you can scale up to Azure's subscription limitations.  The code is idempotent, allowing you to scale storage, networking, and sessions hosts but the core management resources will persist and update for an subsequent deployments.  Some of those resources are the host pool, application group, and log analytics workspace.  See the diagram below for more details about the resources deployed in this solution:
 
 ![Solution](images/solution.png)
 
@@ -38,6 +40,10 @@ Both a personal or pooled host pool can be deployed with this solution.  Either 
     - Domain joins the Storage Account or creates the AD connection on the Azure NetApp Account
     - Sets the required permissions for access to the file share
   - Custom Script Extension on Session Hosts to enable FSLogix using registry settings
+  - Private Endpoint (Optional) - deploys the requirements to enable private endpoints on the Azure Storage Accounts to improve performance and enhance security:
+    - Private Endpoint on the Azure Storage Account
+    - Private DNS Zone with an A record and Virtual Network Link
+    - DNS Forwarder
 - **Scaling Automation** (pooled host pools only) - deploys the required resources to enable the tool:
   - Automation Account with a Managed Identity
     - Runbook
@@ -68,6 +74,7 @@ Both a personal or pooled host pool can be deployed with this solution.  Either 
 - **RDP ShortPath** (Optional) - deploys the requirements to enable RDP ShortPath for AVD.
 - **SMB Multichannel** - Enables multiple connections to an SMB share.  This feature is only supported with a premium Azure Storage Account.
 - **High Availability** (Optional) - allows the virtual machines to be deployed in either Availability Zones or Availability Sets, to provide a higher SLA for your solution.  This is only applicable to pooled host pools.  SLA: 99.99% for Availability Zones, 99.95% for Availability Sets.
+- **Security Technical Implementation Guides (STIG)** (Optional) - deploys a Desired State Configuration configuration using Automation State Configuration to enforce and report [DISA STIG](https://public.cyber.mil/stigs/) compliance.  
 
 ## Assumptions
 
@@ -85,10 +92,12 @@ To successfully deploy this solution, you will need to first ensure the followin
 
 - Create a service principal or user account to domain join the session hosts if applicable.  Azure AD joined session hosts do not apply.
 - Create a security group for your AVD users and if applicable, ensure the principal has synchronized with your domain services (Azure AD DS) or directory (AD DS).
-- If you plan to use Azure NetApp Files with FSLogix, complete the following:
+- If you plan to deploy an Azure Storage Account with a Service Endpoint for FSLogix, be sure the subnet  for the sessions hosts has the "Azure Storage" service endpoint enabled on the subnet.
+- If you plan to deploy Azure NetApp Files with FSLogix, complete the following:
   - [Register the resource provider](https://docs.microsoft.com/en-us/azure/azure-netapp-files/azure-netapp-files-register)
   - [Delegate a subnet to Azure NetApp Files](https://docs.microsoft.com/en-us/azure/azure-netapp-files/azure-netapp-files-delegate-subnet)
   - [Enable the shared AD feature](https://docs.microsoft.com/en-us/azure/azure-netapp-files/create-active-directory-connections#shared_ad): this feature is required if you plan to deploy more than one domain joined NetApp account in the same Azure subscription and region.  As of 1/31/2022, this feature is in "public preview" in Azure Cloud and not available in Azure US Government.
+- If you plan to deploy an Azure Storage Account with a Private Endpoint, ensure the [Private Endpoint Network Policy has been disabled](https://docs.microsoft.com/en-us/azure/private-link/disable-private-endpoint-network-policy).  Otherwise, the private endpoint resource will fail to deploy.
 
 ## Considerations
 
@@ -116,4 +125,4 @@ In this example, each shard will contain 250 session hosts and each set of sessi
 
 ### Storage Shard
 
-To add storage capacity to an AVD stamp, the "StorageShardIndex" parameter should be incremented by 1 for every deployment.  The last two digits in the name for the chosen storage solution will be incremented between each deployment.  The "VHDLocations" setting will include all the file shares.  The "SecurityPrincipalId" and "SecurityPrincipalName" should differ between each deployment for the RBAC assignment and NTFS permissions on the storage solution.  Each user in the stamp should only have access to one file share. When the user accesses a session host, their profile will load from the one file share.  
+To add storage capacity to an AVD stamp, the "StorageIndex" and "StorageCount" parameters should be modified to your desired capacity.  The last two digits in the name for the chosen storage solution will be incremented between each deployment.  The "VHDLocations" setting will include all the file shares.  The "SecurityPrincipalIds" and "SecurityPrincipalNames" will have an RBAC assignment and NTFS permissions on one storage shard per stamp.  Each user in the stamp should only have access to one file share. When the user accesses a session host, their profile will load from their respective file share.  

@@ -1,10 +1,46 @@
+param AutomationAccountName string
+param HostPoolName string
 param Location string
 param LogAnalyticsWorkspaceName string
 param LogAnalyticsWorkspaceRetention int
 param LogAnalyticsWorkspaceSku string
+param PooledHostPool bool
 param Tags object
+param WorkspaceName string
 
 
+var HostPoolLogs = [
+  {
+    category: 'Checkpoint'
+    enabled: true
+  }
+  {
+    category: 'Error'
+    enabled: true
+  }
+  {
+    category: 'Management'
+    enabled: true
+  }
+  {
+    category: 'Connection'
+    enabled: true
+  }
+  {
+    category: 'HostRegistration'
+    enabled: true
+  }
+  {
+    category: 'AgentHealthStatus'
+    enabled: true
+  }
+]
+var NetworkData = [
+  {
+    category: 'NetworkData'
+    enabled: true
+  }
+]
 var WindowsEvents = [
   {
     name: 'Microsoft-FSLogix-Apps/Operational'
@@ -433,5 +469,52 @@ resource windowsPerformanceCounters 'Microsoft.OperationalInsights/workspaces/da
   ]
 }]
 
+resource workspaceDiagnostics 'Microsoft.DesktopVirtualization/workspaces/providers/diagnosticsettings@2017-05-01-preview' = {
+  name: '${WorkspaceName}/Microsoft.Insights/diag-${WorkspaceName}'
+  properties: {
+    logs: [
+      {
+        category: 'Checkpoint'
+        enabled: true
+      }
+      {
+        category: 'Error'
+        enabled: true
+      }
+      {
+        category: 'Management'
+        enabled: true
+      }
+      {
+        category: 'Feed'
+        enabled: true
+      }
+    ]
+    workspaceId: resourceId('Microsoft.OperationalInsights/workspaces', LogAnalyticsWorkspaceName)
+  }
+}
 
-output LogAnalyticsWorkspaceId string = logAnalyticsWorkspace.id
+resource hostPoolDiagnostics 'Microsoft.DesktopVirtualization/hostPools/providers/diagnosticsettings@2017-05-01-preview' = {
+  name: '${HostPoolName}/Microsoft.Insightsdiag-${HostPoolName}'
+  properties: {
+    logs: environment().name == 'AzureCloud' ? union(HostPoolLogs,NetworkData) : HostPoolLogs //adding NetworkData for AzureCloud, not available in AzureUSGovernment, 2/10/2022
+    workspaceId: resourceId('Microsoft.OperationalInsights/workspaces', LogAnalyticsWorkspaceName)
+  }
+}
+
+resource diagnostics 'Microsoft.Automation/automationAccounts/providers/diagnosticsettings@2017-05-01-preview' = if(PooledHostPool) {
+  name: '${AutomationAccountName}/Microsoft.Insights/diag-${AutomationAccountName}'
+  properties: {
+    logs: [
+      {
+        category: 'JobLogs'
+        enabled: true
+      }
+      {
+        category: 'JobStreams'
+        enabled: true
+      }
+    ]
+    workspaceId: logAnalyticsWorkspace.id
+  }
+}

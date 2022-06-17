@@ -1,25 +1,70 @@
+param ConfigurationsUri string
+param DnsServerForwarderIPAddresses array
+param DnsServerSize string
 @secure()
 param DomainJoinPassword string
 param DomainJoinUserPrincipalName string
+param DomainName string
 param DomainServices string
+param Environment string
+param FileShares array
+param FslogixShareSizeInGB int
+param FslogixStorage string
 param HostPoolName string
-param KerberosEncryptionType string
+param HybridUseBenefit bool
+param Identifier string
+param Index int
+param KerberosEncryption string
 param Location string
-param Netbios string
-param OuPath string
+param LocationShortName string
+param ManagedIdentityResourceId string
+param ManagementVmName string
+param NamingStandard string
+param PrivateDnsZoneName string
+param PrivateEndpoint bool
+param SasToken string
+param ScriptsUri string
 param SecurityPrincipalId string
-param SecurityPrincipalName string
-param StorageAccountName string
+param StampIndexFull string
+param StorageAccountPrefix string
 param StorageSku string
+param StorageSuffix string
+param Subnet string
 param Tags object
 param Timestamp string
-param VmName string
+param VirtualNetwork string
+param VirtualNetworkResourceGroup string
+@secure()
+param VmPassword string
+param VmUsername string
 
 
+var Endpoint = split(FslogixStorage, ' ')[2]
 var ResourceGroupName = resourceGroup().name
-var RoleAssignmentName = guid(StorageAccountName, '0')
 var RoleAssignmentName_Users = guid('${StorageAccountName}/default/${HostPoolName}', '0')
-var VmNameFull = '${VmName}mgt'
+var SmbMultiChannel = {
+  multichannel: {
+    enabled: true
+  }
+}
+var SmbSettings = {
+  versions: 'SMB3.0;SMB3.1.1;'
+  authenticationMethods: 'NTLMv2;Kerberos;'
+  kerberosTicketEncryption: KerberosEncryption == 'RC4' ? 'RC4-HMAC;' : 'AES-256;'
+  channelEncryption: 'AES-128-CCM;AES-128-GCM;AES-256-GCM;'
+}
+var StorageAccountName = '${StorageAccountPrefix}${padLeft(Index, 2, '0')}'
+var SubnetId = resourceId(VirtualNetworkResourceGroup, 'Microsoft.Network/virtualNetworks/subnets', VirtualNetwork, Subnet)
+var VirtualNetworkRules = {
+  PrivateEndpoint: []
+  PublicEndpoint: []
+  ServiceEndpoint: [
+    {
+      id: SubnetId
+      action: 'Allow'
+    }
+  ]
+}
 
 
 resource storageAccount 'Microsoft.Storage/storageAccounts@2021-02-01' = {
@@ -34,9 +79,9 @@ resource storageAccount 'Microsoft.Storage/storageAccounts@2021-02-01' = {
     minimumTlsVersion: 'TLS1_2'
     networkAcls: {
       bypass: 'AzureServices'
-      virtualNetworkRules: []
+      virtualNetworkRules: VirtualNetworkRules[Endpoint]
       ipRules: []
-      defaultAction: 'Allow'
+      defaultAction: Endpoint == 'PublicEndpoint' ? 'Allow' : 'Deny'
     }
     supportsHttpsTrafficOnly: true
     encryption: {
@@ -55,12 +100,12 @@ resource storageAccount 'Microsoft.Storage/storageAccounts@2021-02-01' = {
   }
 }
 
-resource roleAssignment 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = if (DomainServices == 'ActiveDirectory') {
+resource roleAssignment_Vm 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = {
   scope: storageAccount
-  name: RoleAssignmentName
+  name: guid(StorageAccountName, 'Contributor')
   properties: {
-    roleDefinitionId: resourceId('Microsoft.Authorization/roleDefinitions', 'b24988ac-6180-42a0-ab88-20f7382dd24c')
-    principalId: reference(resourceId('Microsoft.Compute/virtualMachines', VmNameFull), '2020-12-01', 'Full').identity.principalId
+    roleDefinitionId: resourceId('Microsoft.Authorization/roleDefinitions', 'b24988ac-6180-42a0-ab88-20f7382dd24c') // Contributor
+    principalId: reference(resourceId('Microsoft.Compute/virtualMachines', ManagementVmName), '2020-12-01', 'Full').identity.principalId
     principalType: 'ServicePrincipal'
   }
 }
@@ -73,7 +118,7 @@ resource roleAssignment_Users 'Microsoft.Authorization/roleAssignments@2020-04-0
     principalId: SecurityPrincipalId
   }
   dependsOn: [
-    roleAssignment
+    roleAssignment_Vm
   ]
 }
 
@@ -81,57 +126,73 @@ resource storageAccount_FileServices 'Microsoft.Storage/storageAccounts/fileServ
   parent: storageAccount
   name: 'default'
   properties: {
-    protocolSettings: StorageSku == 'Standard' ? null : {
-      smb: {
-        multichannel: {
-          enabled: true
-        }
-      }
+    protocolSettings: {
+      smb: StorageSku == 'Standard' ? SmbSettings : union(SmbSettings, SmbMultiChannel)
     }
     shareDeleteRetentionPolicy: {
       enabled: false
     }
   }
   dependsOn: [
-    roleAssignment
+    roleAssignment_Vm
   ]
 }
 
-resource storageAccount_FileShare 'Microsoft.Storage/storageAccounts/fileServices/shares@2021-02-01' = {
+resource storageAccount_FileShares 'Microsoft.Storage/storageAccounts/fileServices/shares@2021-02-01' = [for i in range(0, length(FileShares)): {
   parent: storageAccount_FileServices
-  name: toLower(HostPoolName)
+  name: FileShares[i]
   properties: {
     accessTier: StorageSku == 'Premium' ? 'Premium' : 'TransactionOptimized'
-    shareQuota: 100
+    shareQuota: FslogixShareSizeInGB
     enabledProtocols: 'SMB'
   }
   dependsOn: [
-    roleAssignment
+    roleAssignment_Users
   ]
+}]
+
+module privateEndpoint 'fslogixStorageAccount_PrivateEndpoint.bicep' = if(PrivateEndpoint) {
+  name: 'fslogixStorageAccountd_PrivateEndpoint_${Timestamp}'
+  scope: resourceGroup(ResourceGroupName)
+  params: {
+    Location: Location
+    PrivateDnsZoneName: PrivateDnsZoneName
+    StorageAccountId: storageAccount.id
+    StorageAccountName: storageAccount.name
+    Subnet: Subnet
+    Tags: Tags    
+    VirtualNetwork: VirtualNetwork
+    VirtualNetworkResourceGroup: VirtualNetworkResourceGroup
+  }
 }
 
-resource customScriptExtension 'Microsoft.Compute/virtualMachines/extensions@2020-12-01' = {
-  name: '${VmNameFull}/CustomScriptExtension'
-  location: Location
-  tags: Tags
-  properties: {
-    publisher: 'Microsoft.Compute'
-    type: 'CustomScriptExtension'
-    typeHandlerVersion: '1.10'
-    autoUpgradeMinorVersion: true
-    settings: {
-      fileUris: [
-        'https://raw.githubusercontent.com/jamasten/Azure/master/solutions/avd/scripts/New-DomainJoinStorageAccount.ps1'
-      ]
-      timestamp: Timestamp
-    }
-    protectedSettings: {
-      commandToExecute: 'powershell -ExecutionPolicy Unrestricted -File New-DomainJoinStorageAccount.ps1 -DomainJoinPassword "${DomainJoinPassword}" -DomainJoinUserPrincipalName ${DomainJoinUserPrincipalName} -DomainServices ${DomainServices} -Environment ${environment().name} -HostPoolName ${HostPoolName} -KerberosEncryptionType ${KerberosEncryptionType} -Netbios ${Netbios} -OuPath "${OuPath}" -ResourceGroupName ${ResourceGroupName} -SecurityPrincipalName "${SecurityPrincipalName}" -StorageAccountName ${StorageAccountName} -StorageKey ${listKeys(storageAccount.id, '2019-06-01').keys[0].value} -SubscriptionId ${subscription().subscriptionId} -TenantId ${subscription().tenantId}'
-    }
+module dnsForwarder 'dnsForwarder.bicep' = if(PrivateEndpoint) {
+  name: 'dnsForwarder_${Timestamp}'
+  scope: resourceGroup(ResourceGroupName)
+  params: {
+    ConfigurationsUri: ConfigurationsUri
+    DnsServerForwarderIPAddresses: DnsServerForwarderIPAddresses
+    DnsServerSize: DnsServerSize
+    DomainJoinPassword: DomainJoinPassword
+    DomainJoinUserPrincipalName: DomainJoinUserPrincipalName
+    DomainName: DomainName
+    Environment: Environment
+    HybridUseBenefit: HybridUseBenefit
+    Identifier: Identifier
+    Location: Location
+    LocationShortName: LocationShortName
+    ManagedIdentityResourceId: ManagedIdentityResourceId
+    NamingStandard: NamingStandard
+    SasToken: SasToken
+    ScriptsUri: ScriptsUri
+    StampIndexFull: StampIndexFull
+    StorageSuffix: StorageSuffix
+    Subnet: Subnet
+    Tags: Tags
+    Timestamp: Timestamp
+    VirtualNetwork: VirtualNetwork
+    VirtualNetworkResourceGroup: VirtualNetworkResourceGroup
+    VmPassword: VmPassword
+    VmUsername: VmUsername
   }
-  dependsOn: [
-    roleAssignment
-    storageAccount_FileServices
-    storageAccount_FileShare
-  ]
 }

@@ -1,5 +1,8 @@
 targetScope = 'subscription'
 
+@description('The URL prefix for linked resources.')
+param ArtifactsLocation string = 'https://raw.githubusercontent.com/jamasten/Azure/master/solutions/avd/'
+
 @allowed([
   'AvailabilitySet'
   'AvailabilityZones'
@@ -8,13 +11,10 @@ targetScope = 'subscription'
 @description('Set the desired availability / SLA with a pooled host pool.  Choose "None" if deploying a personal host pool.')
 param Availability string = 'None'
 
-@description('The Object ID for the Windows Virtual Desktop Enterprise Application in Azure AD.  The Object ID can found by selecting Microsoft Applications using the Application type filter in the Enterprise Applications blade of Azure AD.')
-param AvdObjectId string = 'cdcfb416-e2fe-41e2-be12-33813c1cd427'
-
 @description('Input RDP properties to add or remove RDP functionality on the AVD host pool. Settings reference: https://docs.microsoft.com/en-us/windows-server/remote/remote-desktop-services/clients/rdp-files?context=/azure/virtual-desktop/context/context')
 param CustomRdpProperty string = 'audiocapturemode:i:1;camerastoredirect:s:*;use multimon:i:0;drivestoredirect:s:;'
 
-@description('Enable BitLocker encrytion on the AVD session hosts and management VM if applicable.')
+@description('Enable BitLocker encrytion on the AVD session hosts and management VM.')
 param DiskEncryption bool = false
 
 @allowed([
@@ -25,7 +25,25 @@ param DiskEncryption bool = false
 @description('The storage SKU for the AVD session host disks.  Production deployments should use Premium_LRS.')
 param DiskSku string = 'Standard_LRS'
 
-param DodStigCompliance bool = false
+@description('Deploys an Automation Account and uses State Configuration to deploy and monitor DSC compliance.  PowerSTIG is used for the STIG configurations that adhere to DISAs STIG compliance.')
+param DisaStigCompliance bool = false
+
+@description('The IP address for the first Forwarder on the DNS Server.')
+param DnsServerForwarderIPAddress01 string = ''
+
+@description('The IP address for the second Forwarder on the DNS Server.')
+param DnsServerForwarderIPAddress02 string = ''
+
+@allowed([
+  'Standard_D2s_v4'
+  'Standard_D4s_v4'
+  'Standard_D2s_v3'
+  'Standard_D4s_v3'
+  'Standard_DS2_v2'
+  'Standard_DS3_v2'
+])
+@description('The size of the virtual machine for the DNS server.')
+param DnsServerSize string = 'Standard_D2s_v4'
 
 @secure()
 @description('The password of the privileged account to domain join the AVD session hosts to your domain')
@@ -50,23 +68,42 @@ param DomainServices string = 'AzureActiveDirectory'
 param DrainMode bool = false
 
 @allowed([
-  'CacheDisk'
-  'None'
-  'ResourceDisk'
+  'd' // Development
+  'p' // Production
+  's' // Shared
+  't' // Test
 ])
+@description('The target environment for the solution.')
+param Environment string = 'd'
+
+
 @description('Choose whether the session host uses an ephemeral disk for the operating system.  Be sure to select a VM SKU that offers a temporary disk that meets your image requirements. Reference: https://docs.microsoft.com/en-us/azure/virtual-machines/ephemeral-os-disks')
-param EphemeralOsDisk string = 'None'
+param EphemeralOsDisk bool = false
+
+@description('The file share size(s) in GB for the Fslogix storage solution.')
+param FslogixShareSizeInGB int
 
 @allowed([
-  'AzureNetAppFiles Premium'
-  'AzureNetAppFiles Standard'
-  'AzureNetAppFiles Ultra'
-  'AzureStorageAccount Premium'
-  'AzureStorageAccount Standard'
+  'CloudCache' // FSLogix Cloud Cache
+  'ProfileContainer' // FSLogix Profile Container
+  'ProfileOfficeContainer' // FSLogix Profile & Office Container
+])
+param FslogixSolution string = 'ProfileContainer'
+
+@allowed([
+  'AzureNetAppFiles Premium' // ANF with the Premium SKU, 450,000 IOPS
+  'AzureNetAppFiles Standard' // ANF with the Standard SKU, 320,000 IOPS
+  'AzureNetAppFiles Ultra' // ANF with the Ultra SKU, 450,000 IOPS
+  'AzureStorageAccount Premium PublicEndpoint' // Azure Files Premium with the default public endpoint, 100,000 IOPS
+  'AzureStorageAccount Premium PrivateEndpoint' // Azure Files Premium with a Private Endpoint, 100,000 IOPS
+  'AzureStorageAccount Premium ServiceEndpoint' // Azure Files Premium with a Service Endpoint, 100,000 IOPs
+  'AzureStorageAccount Standard PublicEndpoint' // Azure Files Standard with the Large File Share option and the default public endpoint, 20,000 IOPS
+  'AzureStorageAccount Standard PrivateEndpoint' // Azure Files Standard with the Large File Share option and a Private Endpoint, 20,000 IOPS
+  'AzureStorageAccount Standard ServiceEndpoint' // Azure Files Standard with the Large File Share option and a Service Endpoint, 20,000 IOPS
   'None'
 ])
-@description('Enable an FSLogix storage option to manage user profiles for the AVD session hosts. The selected service & SKU should provide sufficient IOPS for all of your users. https://docs.microsoft.com/en-us/azure/architecture/example-scenario/wvd/windows-virtual-desktop-fslogix#performance-requirements')
-param FSLogixStorage string = 'AzureStorageAccount Standard'
+@description('Enable an Fslogix storage option to manage user profiles for the AVD session hosts. The selected service & SKU should provide sufficient IOPS for all of your users. https://docs.microsoft.com/en-us/azure/architecture/example-scenario/wvd/windows-virtual-desktop-fslogix#performance-requirements')
+param FslogixStorage string = 'AzureStorageAccount Standard PublicEndpoint'
 
 @allowed([
   'Pooled DepthFirst'
@@ -76,6 +113,13 @@ param FSLogixStorage string = 'AzureStorageAccount Standard'
 ])
 @description('These options specify the host pool type and depending on the type provides the load balancing options and assignment types.')
 param HostPoolType string = 'Pooled DepthFirst'
+
+@description('Choose whether to enable the Hybrid Use Benefit on the DNS forwarder to support Private Endpoints.  Leave the default value if you are not deploying an Azure Storage Account with a Private Endpoint.')
+param HybridUseBenefit bool = false
+
+@maxLength(3)
+@description('The unique identifier between each business unit or project supporting AVD in your tenant. This is the unique naming component between each AVD stamp.')
+param Identifier string = 'avd'
 
 @description('Offer for the virtual machine image')
 param ImageOffer string = 'office-365'
@@ -95,6 +139,8 @@ param ImageVersion string = 'latest'
 ])
 @description('The Active Directory computer object Kerberos encryption type for the Azure Storage Account or Azure NetApp Files Account.')
 param KerberosEncryption string = 'RC4'
+
+param Location string = deployment().location
 
 @maxValue(730)
 @minValue(30)
@@ -116,18 +162,17 @@ param LogAnalyticsWorkspaceSku string = 'PerGB2018'
 @description('The maximum number of sessions per AVD session host.')
 param MaxSessionLimit int = 2
 
+@description('Deploys the required monitoring resources to enable AVD Insights.')
+param Monitoring bool = true
+
 @description('The distinguished name for the target Organization Unit in Active Directory Domain Services.')
-param OuPath string = 'OU=AADDC Computers,DC=jasonmasten,DC=com'
+param OuPath string
 
 @description('Enables the RDP Short Path feature: https://docs.microsoft.com/en-us/azure/virtual-desktop/shortpath')
 param RdpShortPath bool = false
 
 @description('Enable backups to an Azure Recovery Services vault.  For a pooled host pool this will enable backups on the Azure file share.  For a personal host pool this will enable backups on the AVD sessions hosts.')
 param RecoveryServices bool = false
-
-@maxLength(10)
-@description('Use letters and numbers only.  This suffix is used in conjunction with the resource type prefixes to name most of the Azure resources in this solution.  The only exception is the Storage Account since the value must globally unique and has stricter character requirements.')
-param ResourceNameSuffix string = 'avddeu'
 
 @description('Time when session hosts will scale up and continue to stay on to support peak demand; Format 24 hours e.g. 9:00 for 9am')
 param ScalingBeginPeakTime string = '9:00'
@@ -150,23 +195,33 @@ param ScalingTimeDifference string = '-5:00'
 @description('Determines whether the Screen Capture Protection feature is enabled.  As of 9/17/21 this is only supported in Azure Cloud. https://docs.microsoft.com/en-us/azure/virtual-desktop/screen-capture-protection')
 param ScreenCaptureProtection bool = false
 
-@description('The Object ID for the Security Principal to assign to the AVD Application Group.  This Security Principal will be assigned the Desktop Virtualization User role on the Application Group.')
-param SecurityPrincipalId string = 'f05646a6-dc96-4b13-99e9-678f10d30c10'
+@description('The SAS Token for the scripts if they are stored on an Azure Storage Account.')
+param SasToken string = ''
 
-@description('The name for the Security Principal to assign NTFS permissions on the Azure File Share to support FSLogix.  Any value can be input in this field if performing a deployment update or choosing a personal host pool.')
-param SecurityPrincipalName string = 'AVD'
+@description('An array of Object IDs for the Security Principals to assign to the AVD Application Group and FSLogix Storage.')
+param SecurityPrincipalObjectIds array
 
-@description('The number of session hosts to deploy in the host pool')
-param SessionHostCount int = 1
+@description('The name for the Security Principal to assign NTFS permissions on the Azure File Share to support Fslogix.  Any value can be input in this field if performing a deployment update or choosing a personal host pool.')
+param SecurityPrincipalNames array
+
+@description('The number of session hosts to deploy in the host pool.  The default values will allow you deploy 250 VMs using 4 nested deployments.  These integers may be modified to create a smaller deployment in a shard.')
+param SessionHostCount int = 2
 
 @description('The session host number to begin with for the deployment. This is important when adding virtual machines to ensure the names do not conflict.')
 param SessionHostIndex int = 0
 
+@description('The stamp index specifies the AVD stamp within an Azure environment.')
+param StampIndex int = 0
+
 @description('Determines whether the Start VM On Connect feature is enabled. https://docs.microsoft.com/en-us/azure/virtual-desktop/start-virtual-machine-connect')
 param StartVmOnConnect bool = true
 
-@description('The Storage Shard Index allows an AVD stamp to be scaled within an Azure subscription to support more users.  All of the existing AVD infrastruture will be included in the deployment when the shard value is greater than 0.  However, this will allow the solution to scale to a new Azure Storage Account to increase capacity.')
-param StorageShardIndex int = 0
+@minValue(1)
+@description('The Storage Count allows the deployment of one or more storage resources within an AVD stamp to shard for extra capacity. https://docs.microsoft.com/en-us/azure/architecture/patterns/sharding')
+param StorageCount int = 1
+
+@description('The Storage Index allows the deployment of one or more storage resources within an AVD stamp to shard for extra capacity. https://docs.microsoft.com/en-us/azure/architecture/patterns/sharding')
+param StorageIndex int = 0
 
 @description('The subnet for the AVD session hosts.')
 param Subnet string = 'Clients'
@@ -178,7 +233,7 @@ param Tags object = {
   Environment: 'Development'
 }
 
-param TimeStamp string = utcNow('yyyyMMddhhmmss')
+param Timestamp string = utcNow('yyyyMMddhhmmss')
 
 @description('The value determines whether the hostpool should receive early AVD updates for testing.')
 param ValidationEnvironment bool = false
@@ -200,13 +255,53 @@ param VmSize string = 'Standard_B2s'
 param VmUsername string
 
 
-var AppGroupName = 'dag-${ResourceNameSuffix}'
-var AutomationAccountName = 'aa-${ResourceNameSuffix}'
-var FSLogix = FSLogixStorage == 'None' || contains(DomainServices, 'None') ? false : true
-var HostPoolName = 'hp-${ResourceNameSuffix}'
-var KeyVaultName = 'kv-${ResourceNameSuffix}'
-var Location = deployment().location
-var LocationShort = {
+/*  BEGIN BATCHING SESSION HOSTS */
+// The following variables are used to determine the batches to deploy any number of AVD session hosts.
+var MaxResourcesPerTemplateDeployment = 79 // This is the max number of session hosts that can be deployed from the sessionHosts.bicep file in each batch / for loop. Math: (800 - <Number of Static Resources>) / <Number of Looped Resources> 
+var DivisionValue = SessionHostCount / MaxResourcesPerTemplateDeployment // This determines if any full batches are required.
+var DivisionRemainderValue = SessionHostCount % MaxResourcesPerTemplateDeployment // This determines if any partial batches are required.
+var SessionHostBatchCount = DivisionRemainderValue > 0 ? DivisionValue + 1 : DivisionValue // This determines the total number of batches needed, whether full and / or partial.
+/*  END BATCHING SESSION HOSTS */
+
+
+/*  BEGIN AVAILABILITY SET COUNT */
+// The following variables are used to determine the number of availability sets.
+var MaxAvSetCount = 200 // This is the max number of session hosts that can be deployed in an availability set.
+var DivisionAvSetValue = SessionHostCount / MaxAvSetCount // This determines if any full availability sets are required.
+var DivisionAvSetRemainderValue = SessionHostCount % MaxAvSetCount // This determines if any partial availability sets are required.
+var AvailabilitySetCount = DivisionAvSetRemainderValue > 0 ? DivisionAvSetValue + 1 : DivisionAvSetValue // This determines the total number of availability sets needed, whether full and / or partial.
+/*  END AVAILABILITY SET COUNT */
+
+
+var AppGroupName = 'dag-${NamingStandard}'
+var AvailabilitySetPrefix = 'as-${NamingStandard}'
+var AutomationAccountName = 'aa-${NamingStandard}'
+var DnsServerForwarderIPAddresses = empty(DnsServerForwarderIPAddress02) ? [
+  DnsServerForwarderIPAddress01
+] : [
+  DnsServerForwarderIPAddress01
+  DnsServerForwarderIPAddress02
+]
+var ConfigurationName = 'Windows10'
+var ConfigurationsUri = '${ArtifactsLocation}configurations/'
+var FileShareNames = {
+  ProfileContainer: [
+    'profilecontainers'
+  ]
+  ProfileOfficeContainer: [
+    'officecontainers'
+    'profilecontainers'
+  ]
+  CloudCache: [
+    'cloudcache'
+  ]
+}
+var FileShares = FileShareNames[FslogixSolution]
+var Fslogix = FslogixStorage == 'None' || contains(DomainServices, 'None') ? false : true
+var HostPoolName = 'hp-${NamingStandard}'
+var KeyVaultName = 'kv-${NamingStandard}'
+var LocationShortName = LocationShortNames[Location]
+var LocationShortNames = {
   australiacentral: 'ac'
   australiacentral2: 'ac2'
   australiaeast: 'ae'
@@ -248,10 +343,10 @@ var LocationShort = {
   ukwest: 'uw'
   usdodcentral: 'uc'
   usdodeast: 'ue'
-  usgovarizona: 'ua'
-  usgoviowa: 'ui'
-  usgovtexas: 'ut'
-  usgovvirginia: 'uv'
+  usgovarizona: 'az'
+  usgoviowa: 'ia'
+  usgovtexas: 'tx'
+  usgovvirginia: 'va'
   westcentralus: 'wcu'
   westeurope: 'we'
   westindia: 'wi'
@@ -259,27 +354,50 @@ var LocationShort = {
   westus2: 'wu2'
   westus3: 'wu3'
 }
-var LogAnalyticsWorkspaceName = 'law-${ResourceNameSuffix}'
-var LogicAppName = 'la-${ResourceNameSuffix}'
-var ManagedIdentityName = 'uami-${ResourceNameSuffix}'
-var NetAppAccountName = 'naa-${ResourceNameSuffix}'
-var NetAppCapacityPoolName = 'nacp-${ResourceNameSuffix}'
+var LogAnalyticsWorkspaceName = 'law-${NamingStandard}'
+var LogicAppPrefix = 'la-${NamingStandard}'
+var ManagedIdentityName = 'uami-${NamingStandard}'
+var ManagementVmName = '${VmName}mgt'
+var NamingStandard = '${Identifier}-${Environment}-${LocationShortName}-${StampIndexFull}'
+var NetAppAccountName = 'naa-${NamingStandard}'
+var NetAppCapacityPoolName = 'nacp-${NamingStandard}'
 var Netbios = split(DomainName, '.')[0]
-var NetworkContributorId = '4d97b98b-1d4f-4787-a291-c67834d212e7'
-var NetworkSecurityGroupName = 'nsg-${ResourceNameSuffix}'
+var NetworkSecurityGroupName = 'nsg-${NamingStandard}'
 var PooledHostPool = split(HostPoolType, ' ')[0] == 'Pooled' ? true : false
-var ReaderId = 'acdd72a7-3385-48ef-bd42-f606fba81ae7'
-var RecoveryServicesVaultName = 'rsv-${ResourceNameSuffix}'
+var PrivateDnsZoneName = 'privatelink.file.${StorageSuffix}'
+var PrivateEndpoint = contains(FslogixStorage, 'PrivateEndpoint') ? true : false
+var RecoveryServicesVaultName = 'rsv-${NamingStandard}'
 var ResourceGroups = [
-    'rg-${ResourceNameSuffix}-infra'
-    'rg-${ResourceNameSuffix}-hosts'
+  'rg-${NamingStandard}-deployment'  
+  'rg-${NamingStandard}-hosts'
+  'rg-${NamingStandard}-management'
+  'rg-${NamingStandard}-storage'
 ]
-var RoleAssignmentName_StartVmOnConnect = guid(subscription().id, 'StartVmOnConnect')
-var RoleAssignmentName_AzureNetAppFiles = guid(subscription().id, 'AzureNetAppFiles', ResourceNameSuffix)
-var RoleDefinitionName = guid(subscription().id, 'StartVmOnConnect')
-var StorageAccountName = 'stor${toLower(substring(uniqueString(subscription().id, ResourceGroups[0]), 0, 9))}${padLeft(StorageShardIndex, 2, '0')}'
-var StorageSolution = split(FSLogixStorage, ' ')[0]
-var StorageSku = FSLogixStorage == 'None' ? 'None' : split(FSLogixStorage, ' ')[1]
+var RoleAssignments = [
+  {
+    condition: DrainMode // Supports drain mode on session hosts
+    resourceGroup: ResourceGroups[2] // Management resource group
+    roleDefinitionId: RoleDefinitionIds.desktopVirtualizationSessionHostOperator // https://docs.microsoft.com/en-us/azure/virtual-desktop/rbac#desktop-virtualization-session-host-operator
+  }
+
+  {
+    condition: contains(FslogixStorage, 'PrivateEndpoint') // Supports private endpoints on Azure Files
+    resourceGroup: VirtualNetworkResourceGroup // Networking resource group
+    roleDefinitionId: RoleDefinitionIds.networkContributor
+  }
+]
+var RoleDefinitionIds = {
+  desktopVirtualizationSessionHostOperator: '2ad6aaab-ead9-4eaa-8ac5-da422f562408'
+  networkContributor: '4d97b98b-1d4f-4787-a291-c67834d212e7'
+  reader: 'acdd72a7-3385-48ef-bd42-f606fba81ae7'
+  virtualMachineUserLogin: 'fb879df8-f326-4884-b1cf-06f3ad86be52'
+}
+var ScriptsUri = '${ArtifactsLocation}scripts/'
+var StampIndexFull = padLeft(StampIndex, 2, '0')
+var StorageAccountPrefix = 'st${Identifier}${Environment}${LocationShortName}${StampIndexFull}'
+var StorageSolution = split(FslogixStorage, ' ')[0]
+var StorageSku = FslogixStorage == 'None' ? 'None' : split(FslogixStorage, ' ')[1]
+var StorageSuffix = environment().suffixes.storage
 var TimeZones = {
     australiacentral: 'Australian Eastern Standard Time'
     australiacentral2: 'Australian Eastern Standard Time'
@@ -337,24 +455,22 @@ var TimeZones = {
     westus2: 'Pacific Standard Time'
     westus3: 'Mountain Standard Time'
 }
-var VmName = 'vm${ResourceNameSuffix}'
+var VmName = 'vm${Identifier}${Environment}${LocationShortName}${StampIndexFull}'
 var VmTemplate = '{"domain":"${DomainName}","galleryImageOffer":"${ImageOffer}","galleryImagePublisher":"${ImagePublisher}","galleryImageSKU":"${ImageSku}","imageType":"Gallery","imageUri":null,"customImageId":null,"namePrefix":"${VmName}","osDiskType":"${DiskSku}","useManagedDisks":true,"vmSize":{"id":"${VmSize}","cores":null,"ram":null},"galleryItemId":"${ImagePublisher}.${ImageOffer}${ImageSku}"}'
-var WorkspaceName = 'ws-${ResourceNameSuffix}'
+var WorkspaceName = 'ws-${NamingStandard}'
 
-resource rgInfra 'Microsoft.Resources/resourceGroups@2020-10-01' = {
-  name: ResourceGroups[0]
+
+// Resource Groups needed for the solution
+resource resourceGroups 'Microsoft.Resources/resourceGroups@2020-10-01' = [for i in range(0, length(ResourceGroups)): {
+  name: ResourceGroups[i]
   location: Location
   tags: Tags
-}
+}]
 
-resource rgHosts 'Microsoft.Resources/resourceGroups@2020-10-01' = {
-  name: ResourceGroups[1]
-  location: Location
-  tags: Tags
-}
-
+// Custom Role for Start VM On Connect
+// https://docs.microsoft.com/en-us/azure/virtual-desktop/start-virtual-machine-connect
 resource customRole 'Microsoft.Authorization/roleDefinitions@2018-01-01-preview' = if(StartVmOnConnect) {
-  name: RoleDefinitionName
+  name: guid('StartVmOnConnect', subscription().id)
   properties: {
     assignableScopes: [
       subscription().id
@@ -375,177 +491,372 @@ resource customRole 'Microsoft.Authorization/roleDefinitions@2018-01-01-preview'
   }
 }
 
-resource roleAssignment_svoc 'Microsoft.Authorization/roleAssignments@2018-01-01-preview' = if(StartVmOnConnect) {
-  name: RoleAssignmentName_StartVmOnConnect
+// Role Assignment for Start VM On Connect
+// https://docs.microsoft.com/en-us/azure/virtual-desktop/start-virtual-machine-connect
+resource roleAssignment_svmoc 'Microsoft.Authorization/roleAssignments@2018-01-01-preview' = if(StartVmOnConnect) {
+  name: guid('Azure Virtual Desktop', 'StartVmOnConnect', subscription().id)
   properties: {
     roleDefinitionId: customRole.id
-    principalId: AvdObjectId
+    principalId: validation.outputs.avdObjectId
   }
 }
 
+// User Assigned Managed Identity
+// This resource is needed for Deployment Script resources
+module managedIdentity 'modules/managedIdentity.bicep' = {
+  name: 'managedIdentity_${Timestamp}'
+  scope: resourceGroup(ResourceGroups[0]) // Deployment Resource Group
+  params: {
+    Location: Location
+    ManagedIdentityName: ManagedIdentityName
+  } 
+}
+
+// Role Assignment for Validation
+// This is required to collect validation information
+resource roleAssignment_validation 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = {
+  name: guid(ManagedIdentityName, RoleDefinitionIds.reader, subscription().id)
+  properties: {
+    roleDefinitionId: resourceId('Microsoft.Authorization/roleDefinitions', RoleDefinitionIds.reader)
+    principalId: managedIdentity.outputs.principalId
+    principalType: 'ServicePrincipal'
+  }
+}
+
+// Role Assignments on Resource Groups 
+// These role assignments are needed to support different features based on parameter values and are conditionally deployed
+module roleAssignments 'modules/managedIdentity_RoleAssignments.bicep' = [for i in range(0, length(RoleAssignments)): {
+  name: 'RoleAssignments_${RoleAssignments[i].resourceGroup}_${Timestamp}'
+  scope: resourceGroup(RoleAssignments[i].resourceGroup)
+  params: {
+    Condition: RoleAssignments[i].condition
+    PrincipalId: managedIdentity.outputs.principalId
+    RoleDefinitionId: RoleAssignments[i].roleDefinitionId
+  }
+}]
+
+// AVD Management Resources
+// This module deploys the host pool, desktop application group, & workspace
 module hostPool 'modules/hostPool.bicep' = {
-  name: 'hostPool_${TimeStamp}'
-  scope: resourceGroup(rgInfra.name)
+  name: 'hostPool_${Timestamp}'
+  scope: resourceGroup(ResourceGroups[2]) // Management Resource Group
   params: {
     AppGroupName: AppGroupName
     CustomRdpProperty: CustomRdpProperty
     DomainServices: DomainServices
     HostPoolName: HostPoolName
     HostPoolType: HostPoolType
-    LogAnalyticsWorkspaceName: LogAnalyticsWorkspaceName
-    LogAnalyticsWorkspaceRetention: LogAnalyticsWorkspaceRetention
-    LogAnalyticsWorkspaceSku: LogAnalyticsWorkspaceSku
     Location: Location
-    ManagedIdentityName: ManagedIdentityName
     MaxSessionLimit: MaxSessionLimit
-    SecurityPrincipalId: SecurityPrincipalId
+    SecurityPrincipalIds: SecurityPrincipalObjectIds
     StartVmOnConnect: StartVmOnConnect
     Tags: Tags
     ValidationEnvironment: ValidationEnvironment
     VmTemplate: VmTemplate
     WorkspaceName: WorkspaceName
-  } 
-}
-
-module managedIdentity './modules/managedIdentity.bicep' = if(StorageSolution == 'AzureNetAppFiles') {
-  name: 'ManagedIdentityTemplate'
-  scope: resourceGroup(VirtualNetworkResourceGroup)
-  params: {
-    ManagedIdentityId: hostPool.outputs.managedIdentityId
-    NetworkContributorId: NetworkContributorId
   }
 }
 
-resource roleAssignment_anf 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = if(StorageSolution == 'AzureNetAppFiles') {
-  name: RoleAssignmentName_AzureNetAppFiles
-  properties: {
-    roleDefinitionId: resourceId('Microsoft.Authorization/roleDefinitions', ReaderId)
-    principalId: hostPool.outputs.managedIdentityId
-    principalType: 'ServicePrincipal'
+// Validation Deployment Script
+// This module validates the selected parameter values and collects required data
+module validation 'modules/validation.bicep' = {
+  name: 'validation_${Timestamp}'
+  scope: resourceGroup(ResourceGroups[0]) // Deployment Resource Group
+  params: {
+    Availability: Availability
+    DiskEncryption: DiskEncryption
+    DiskSku: DiskSku
+    DomainName: DomainName
+    DomainServices: DomainServices
+    EphemeralOsDisk: EphemeralOsDisk
+    FSLogixStorage: FslogixStorage
+    ImageSku: ImageSku
+    KerberosEncryption: KerberosEncryption
+    Location: Location
+    ManagedIdentityResourceId: managedIdentity.outputs.resourceIdentifier
+    SasToken: SasToken
+    ScriptsUri: ScriptsUri    
+    SecurityPrincipalIds: SecurityPrincipalObjectIds
+    SecurityPrincipalNames: SecurityPrincipalNames
+    SessionHostCount: SessionHostCount
+    SessionHostIndex: SessionHostIndex
+    StorageCount: StorageCount
+    Tags: Tags
+    Timestamp: Timestamp
+    VirtualNetwork: VirtualNetwork
+    VirtualNetworkResourceGroup: VirtualNetworkResourceGroup
+    VmSize: VmSize
+  }
+  dependsOn: [
+    roleAssignment_validation
+  ]
+}
+
+module automationAccount 'modules/automationAccount.bicep' = if(PooledHostPool || DisaStigCompliance) {
+  name: 'AutomationAccount_${Timestamp}'
+  scope: resourceGroup(ResourceGroups[2]) // Management Resource Group
+  params: {
+    AutomationAccountName: AutomationAccountName
+    Location: Location
   }
 }
 
-
-module fslogixMgmtVm 'modules/fslogixMgmtVm.bicep' = if(FSLogix && !contains(DomainServices, 'None')) {
-  name: 'fslogixMgmtVm_${TimeStamp}'
-  scope: resourceGroup(rgInfra.name)
+// Monitoring Resources for AVD Insights
+// This module deploys the Log Analytics Workspace with Windows Events & Windows Performance Counters 
+module monitoring 'modules/monitoring.bicep' = if(Monitoring) {
+  name: 'monitoring_${Timestamp}'
+  scope: resourceGroup(ResourceGroups[2]) // Management Resource Group
   params: {
+    AutomationAccountName: AutomationAccountName
+    HostPoolName: HostPoolName
+    LogAnalyticsWorkspaceName: LogAnalyticsWorkspaceName
+    LogAnalyticsWorkspaceRetention: LogAnalyticsWorkspaceRetention
+    LogAnalyticsWorkspaceSku: LogAnalyticsWorkspaceSku
+    Location: Location
+    PooledHostPool: PooledHostPool
+    Tags: Tags
+    WorkspaceName: WorkspaceName
+  }
+}
+
+module bitLocker 'modules/bitLocker.bicep' = if(DiskEncryption) {
+  name: 'bitLocker_${Timestamp}'
+  scope: resourceGroup(ResourceGroups[2]) // Management Resource Group
+  params: {
+    KeyVaultName: KeyVaultName
+    Location: Location
+    //ManagedIdentityName: managedIdentity.name
+    ManagedIdentityPrincipalId: managedIdentity.outputs.principalId
+    ManagedIdentityResourceId: managedIdentity.outputs.resourceIdentifier
+    SasToken: SasToken
+    ScriptsUri: ScriptsUri
+    Timestamp: Timestamp
+  }
+}
+
+module stig 'modules/stig.bicep' = if(DisaStigCompliance) {
+  name: 'stig_${Timestamp}'
+  scope: resourceGroup(ResourceGroups[2]) // Management Resource Group
+  params: {
+    AutomationAccountName: AutomationAccountName
+    ConfigurationName: ConfigurationName
+    ConfigurationsUri: ConfigurationsUri
+    Location: Location
+    Timestamp: Timestamp
+  }
+}
+
+// Fslogix Management VM
+// This module is required to fully configure any storage option for FSLogix
+module fslogixMgmtVm 'modules/fslogixMgmtVm.bicep' = if(Fslogix && !contains(DomainServices, 'None')) {
+  name: 'fslogixMgmtVm_${Timestamp}'
+  scope: resourceGroup(ResourceGroups[0]) // Deployment Resource Group
+  params: {
+    DiskEncryption: DiskEncryption
     DomainJoinPassword: DomainJoinPassword
     DomainJoinUserPrincipalName: DomainJoinUserPrincipalName
     DomainName: DomainName
+    KeyVaultName: KeyVaultName
     Location: Location
-    ResourceNameSuffix: ResourceNameSuffix
+    ManagementResourceGroup: ResourceGroups[2] // Management Resource Group
+    ManagementVmName: ManagementVmName
+    NamingStandard: NamingStandard
     Subnet: Subnet
     Tags: Tags
-    Timestamp: TimeStamp
+    Timestamp: Timestamp
     VirtualNetwork: VirtualNetwork
     VirtualNetworkResourceGroup: VirtualNetworkResourceGroup
-    VmName: VmName
     VmPassword: VmPassword
     VmUsername: VmUsername
   }
   dependsOn: [
-    hostPool
-    managedIdentity
-    roleAssignment_anf
+    bitLocker
+    stig
   ]
 }
 
-
-module fslogixNetApp 'modules/fslogixNetApp.bicep' = if(FSLogix && StorageSolution == 'AzureNetAppFiles' && !contains(DomainServices, 'None')) {
-  name: 'fslogixNetApp_${TimeStamp}'
-  scope: resourceGroup(rgInfra.name)
+// Azure NetApp Files for Fslogix
+module fslogixNetApp 'modules/fslogixNetApp.bicep' = if(Fslogix && StorageSolution == 'AzureNetAppFiles' && !contains(DomainServices, 'None')) {
+  name: 'fslogixNetApp_${Timestamp}'
+  scope: resourceGroup(ResourceGroups[3]) // Storage Resource Group
   params: {
+    ActiveDirectoryConnection: validation.outputs.anfActiveDirectory
+    DelegatedSubnetId: validation.outputs.subnetId
+    DnsServers: validation.outputs.dnsServers
     DomainJoinPassword: DomainJoinPassword
     DomainJoinUserPrincipalName: DomainJoinUserPrincipalName
     DomainName: DomainName
     HostPoolName: HostPoolName
     Location: Location
-    ManagedIdentityName: ManagedIdentityName
+    ManagementVmName: ManagementVmName
     NetAppAccountName: NetAppAccountName
     NetAppCapacityPoolName: NetAppCapacityPoolName
     OuPath: OuPath
-    ResourceNameSuffix: ResourceNameSuffix
-    SecurityPrincipalName: SecurityPrincipalName
-    SmbServerLocation: LocationShort[Location]
+    NamingStandard: NamingStandard
+    SasToken: SasToken
+    ScriptsUri: ScriptsUri
+    SecurityPrincipalNames: SecurityPrincipalNames
+    SmbServerLocation: LocationShortName
     StorageSku: StorageSku
     Tags: Tags
-    Timestamp: TimeStamp
-    VirtualNetwork: VirtualNetwork
-    VirtualNetworkResourceGroup: VirtualNetworkResourceGroup
-    VmName: VmName
+    Timestamp: Timestamp
   }
   dependsOn: [
     hostPool
-    managedIdentity
     fslogixMgmtVm
   ]
 }
 
-module fslogixStorageAccount 'modules/fslogixStorageAccount.bicep' = if(FSLogix && StorageSolution == 'AzureStorageAccount' && !contains(DomainServices, 'None')) {
-  name: 'fslogixStorageAccount_${TimeStamp}'
-  scope: resourceGroup(rgInfra.name)
+// Azure Storage Account(s) for FSLogix
+@batchSize(1)
+module fslogixStorageAccount 'modules/fslogixStorageAccount.bicep' = [for i in range(StorageIndex, StorageCount): if(Fslogix && StorageSolution == 'AzureStorageAccount' && !contains(DomainServices, 'None')) {
+  name: 'fslogixStorageAccount_${i}_${Timestamp}'
+  scope: resourceGroup(ResourceGroups[3]) // Storage Resource Group
   params: {
-    DomainJoinPassword: DomainJoinPassword
-    DomainJoinUserPrincipalName: DomainJoinUserPrincipalName
-    DomainServices: DomainServices
-    HostPoolName: HostPoolName
-    KerberosEncryptionType: KerberosEncryption
-    Location: Location
-    Netbios: Netbios
-    OuPath: OuPath
-    SecurityPrincipalId: SecurityPrincipalId
-    SecurityPrincipalName: SecurityPrincipalName
-    StorageAccountName: StorageAccountName
-    StorageSku: StorageSku
-    Tags: Tags
-    Timestamp: TimeStamp
-    VmName: VmName
-  }
-  dependsOn: [
-    hostPool
-    managedIdentity
-    fslogixMgmtVm
-  ]
-}
-
-module sessionHosts 'modules/sessionHosts.bicep' = {
-  name: 'sessionHosts_${TimeStamp}'
-  scope: resourceGroup(ResourceGroups[1])
-  params: {
-    Availability: Availability
-    DiskSku: DiskSku
-    DodStigCompliance: DodStigCompliance
+    ConfigurationsUri: ConfigurationsUri
+    DnsServerForwarderIPAddresses: DnsServerForwarderIPAddresses
+    DnsServerSize: DnsServerSize
     DomainJoinPassword: DomainJoinPassword
     DomainJoinUserPrincipalName: DomainJoinUserPrincipalName
     DomainName: DomainName
     DomainServices: DomainServices
-    EphemeralOsDisk: EphemeralOsDisk
-    FSLogix: FSLogix
+    Environment: Environment
+    FileShares: FileShares
+    FslogixShareSizeInGB: FslogixShareSizeInGB
+    FslogixStorage: FslogixStorage
     HostPoolName: HostPoolName
-    HostPoolResourceGroupName: rgInfra.name
+    HybridUseBenefit: HybridUseBenefit
+    Identifier: Identifier
+    Index: i
+    KerberosEncryption: KerberosEncryption
+    Location: Location
+    LocationShortName: LocationShortName
+    ManagedIdentityResourceId: managedIdentity.outputs.resourceIdentifier
+    ManagementVmName: ManagementVmName
+    NamingStandard: NamingStandard
+    PrivateDnsZoneName: PrivateDnsZoneName
+    PrivateEndpoint: PrivateEndpoint
+    SasToken: SasToken
+    ScriptsUri: ScriptsUri
+    StampIndexFull: StampIndexFull
+    SecurityPrincipalId: SecurityPrincipalObjectIds[i]
+    StorageAccountPrefix: StorageAccountPrefix
+    StorageSku: StorageSku
+    StorageSuffix: StorageSuffix
+    Subnet: Subnet
+    Tags: Tags
+    Timestamp: Timestamp
+    VirtualNetwork: VirtualNetwork
+    VirtualNetworkResourceGroup: VirtualNetworkResourceGroup
+    VmPassword: VmPassword
+    VmUsername: VmUsername
+  }
+  dependsOn: [
+    managedIdentity
+    roleAssignments
+    fslogixMgmtVm
+  ]
+}]
+
+module fslogixStorageAccount_NtfsPermissions 'modules/fslogixStorageAccount_NtfsPermissions.bicep' = if(Fslogix && !contains(DomainServices, 'None')) {
+  name: 'fslogixNtfsPermissions_${Timestamp}'
+  scope: resourceGroup(ResourceGroups[0]) // Deployment Resource Group
+  params: {
+    DomainJoinPassword: DomainJoinPassword
+    DomainJoinUserPrincipalName: DomainJoinUserPrincipalName
+    DomainServices: DomainServices
+    KerberosEncryptionType: KerberosEncryption
+    Location: Location
+    ManagementVmName: ManagementVmName
+    Netbios: Netbios
+    OuPath: OuPath
+    SasToken: SasToken
+    ScriptsUri: ScriptsUri
+    SecurityPrincipalNames: SecurityPrincipalNames
+    StorageCount: StorageCount
+    StorageIndex: StorageIndex
+    StorageAccountPrefix: StorageAccountPrefix
+    StorageAccountResourceGroupName: ResourceGroups[3] // Storage Resource Group
+    Tags: Tags
+    Timestamp: Timestamp
+  }
+  dependsOn: [
+    fslogixNetApp
+    fslogixStorageAccount
+  ]
+}
+
+module availabilitySets 'modules/availabilitySets.bicep' = if (PooledHostPool && Availability == 'AvailabilitySet') {
+  name: 'AvailabilitySets_${Timestamp}'
+  scope: resourceGroup(ResourceGroups[1]) // Hosts Resource Group
+  params: {
+    AvailabilitySetCount: AvailabilitySetCount
+    AvailabilitySetPrefix: AvailabilitySetPrefix
+    Location: Location
+    Tags: Tags
+  }
+}
+
+// Role Assignment for Virtual Machine Login User
+// This module deploys the role assignments to login to Azure AD joined session hosts
+module sessionHosts_RoleAssignments 'modules/sessionHosts_RoleAssignments.bicep' = if (contains(DomainServices, 'None')) {
+  name: 'SessionHosts_RoleAssignments_${Timestamp}'
+  scope: resourceGroup(ResourceGroups[1]) // Hosts Resource Group
+  params: {
+    RoleDefinitionId: RoleDefinitionIds.virtualMachineUserLogin
+    SecurityPrincipalIds: SecurityPrincipalObjectIds
+  }
+}
+
+module sessionHosts 'modules/sessionHosts.bicep' = [for i in range(1, SessionHostBatchCount): {
+  name: 'sessionHosts_${i-1}_${Timestamp}'
+  scope: resourceGroup(ResourceGroups[1]) // Hosts Resource Group
+  params: {
+    AcceleratedNetworking: validation.outputs.acceleratedNetworking
+    AutomationAccountName: AutomationAccountName
+    Availability: Availability
+    AvailabilitySetPrefix: AvailabilitySetPrefix
+    ConfigurationName: ConfigurationName
+    DisaStigCompliance: DisaStigCompliance
+    DiskEncryption: DiskEncryption
+    DiskSku: DiskSku
+    DomainJoinPassword: DomainJoinPassword
+    DomainJoinUserPrincipalName: DomainJoinUserPrincipalName
+    DomainName: DomainName
+    DomainServices: DomainServices
+    EphemeralOsDisk: validation.outputs.ephemeralOsDisk
+    FileShares: FileShares
+    Fslogix: Fslogix
+    HostPoolName: HostPoolName
+    HostPoolResourceGroupName: ResourceGroups[2] // Management Resource Group
     HostPoolType: HostPoolType
     ImageOffer: ImageOffer
     ImagePublisher: ImagePublisher
     ImageSku: ImageSku
     ImageVersion: ImageVersion
+    KeyVaultName: KeyVaultName
     Location: Location
     LogAnalyticsWorkspaceName: LogAnalyticsWorkspaceName
-    ManagedIdentityResourceId: hostPool.outputs.managedIdentityResourceId
+    ManagementResourceGroup: ResourceGroups[2]
+    Monitoring: Monitoring
+    NamingStandard: NamingStandard
     NetworkSecurityGroupName: NetworkSecurityGroupName
     NetAppFileShare: StorageSolution == 'AzureNetAppFiles' ? fslogixNetApp.outputs.fileshare : 'None'
     OuPath: OuPath
     RdpShortPath: RdpShortPath
-    ResourceNameSuffix: ResourceNameSuffix
     ScreenCaptureProtection: ScreenCaptureProtection
-    SecurityPrincipalId: SecurityPrincipalId
-    SessionHostCount: SessionHostCount
-    SessionHostIndex: SessionHostIndex
-    StorageAccountName: StorageAccountName
+    SasToken: SasToken
+    ScriptsUri: ScriptsUri
+    SessionHostCount: i == SessionHostBatchCount && DivisionRemainderValue > 0 ? DivisionRemainderValue : MaxResourcesPerTemplateDeployment
+    SessionHostIndex: i == 1 ? SessionHostIndex : ((i - 1) * MaxResourcesPerTemplateDeployment) + SessionHostIndex
+    StorageAccountPrefix: StorageAccountPrefix
+    StorageCount: StorageCount
+    StorageIndex: StorageIndex 
     StorageSolution: StorageSolution
+    StorageSuffix: StorageSuffix
     Subnet: Subnet
     Tags: Tags
-    Timestamp: TimeStamp
+    Timestamp: Timestamp
     VirtualNetwork: VirtualNetwork
     VirtualNetworkResourceGroup: VirtualNetworkResourceGroup
     VmName: VmName
@@ -553,110 +864,86 @@ module sessionHosts 'modules/sessionHosts.bicep' = {
     VmSize: VmSize
     VmUsername: VmUsername
   }
-}
+  dependsOn: [
+    availabilitySets
+    monitoring
+    bitLocker
+    stig
+  ]
+}]
 
 module backup 'modules/backup.bicep' = if(RecoveryServices) {
-  name: 'backup_${TimeStamp}'
-  scope: resourceGroup(rgInfra.name)
+  name: 'backup_${Timestamp}'
+  scope: resourceGroup(ResourceGroups[2]) // Management Resource Group
   params: {
+    DivisionRemainderValue: DivisionRemainderValue
     HostPoolName: HostPoolName
     HostPoolType: HostPoolType
     Location: Location
+    MaxResourcesPerTemplateDeployment: MaxResourcesPerTemplateDeployment
     RecoveryServicesVaultName: RecoveryServicesVaultName
-    SessionHostCount: SessionHostCount
+    SessionHostBatchCount: SessionHostBatchCount
     SessionHostIndex: SessionHostIndex
-    StorageAccountName: StorageAccountName
+    StorageAccountName: StorageAccountPrefix
     Tags: Tags
+    Timestamp: Timestamp
     TimeZone: TimeZones[Location]
     VmName: VmName
     VmResourceGroupName: ResourceGroups[1]
   }
   dependsOn: [
-    fslogixNetApp
+    sessionHosts
     fslogixStorageAccount
-    hostPool
-    sessionHosts
   ]
 }
 
-module bitLocker 'modules/bitLocker.bicep' = if(DiskEncryption) {
-  name: 'bitLocker_${TimeStamp}'
-  scope: resourceGroup(rgInfra.name)
-  params: {
-    FSLogix: FSLogix
-    KeyVaultName: KeyVaultName
-    Location: Location
-    SessionHostCount: SessionHostCount
-    SessionHostIndex: SessionHostIndex
-    SessionHostResourceGroupName: ResourceGroups[1]
-    Timestamp: TimeStamp
-    VmName: VmName
-  }
-  dependsOn: [
-    sessionHosts
-  ]
-}
-
-module stig 'modules/stig.bicep' = if(DodStigCompliance) {
-  name: 'stig_${TimeStamp}'
-  scope: resourceGroup(rgInfra.name)
-  params: {
-    AutomationAccountName: AutomationAccountName
-    Location: Location
-    SessionHostCount: SessionHostCount
-    SessionHostIndex: SessionHostIndex
-    Timestamp: TimeStamp
-    VmName: VmName
-    VmResourceGroupName: ResourceGroups[1]
-  }
-  dependsOn: [
-    sessionHosts
-    bitLocker
-  ]
-}
-
+// Deploys scaling for the session hosts and Azure Files Premium, if applicable
 module scale 'modules/scale.bicep' = if(PooledHostPool) {
-  name: 'scale_${TimeStamp}'
-  scope: resourceGroup(rgInfra.name)
+  name: 'scale_${Timestamp}'
+  scope: resourceGroup(ResourceGroups[2]) // Management Resource Group
   params: {
     AutomationAccountName: AutomationAccountName
     BeginPeakTime: ScalingBeginPeakTime
     EndPeakTime: ScalingEndPeakTime
+    FslogixStorage: FslogixStorage
     HostPoolName: HostPoolName
-    HostPoolResourceGroupName: rgInfra.name
+    HostPoolResourceGroupName: ResourceGroups[2] // Management Resource Group
     LimitSecondsToForceLogOffUser: ScalingLimitSecondsToForceLogOffUser
     Location: Location
-    LogAnalyticsWorkspaceName: LogAnalyticsWorkspaceName
-    LogicAppName: LogicAppName
+    LogicAppPrefix: LogicAppPrefix
     MinimumNumberOfRdsh: ScalingMinimumNumberOfRdsh
-    SessionHostsResourceGroupName: ResourceGroups[1]
+    SasToken: SasToken
+    ScriptsUri: ScriptsUri    
+    SessionHostsResourceGroupName: ResourceGroups[1] // Hosts Resource Group
     SessionThresholdPerCPU: ScalingSessionThresholdPerCPU
+    StorageAccountPrefix: StorageAccountPrefix
+    StorageResourceGroupName: ResourceGroups[3] // Hosts Resource Group
+    StorageCount: StorageCount
+    StorageIndex: StorageIndex
     TimeDifference: ScalingTimeDifference
   }
   dependsOn: [
+    automationAccount
     backup
-    bitLocker
-    fslogixNetApp
-    fslogixStorageAccount
-    hostPool
     sessionHosts
-    stig
   ]
 }
 
-module drainMode 'modules/drainMode.bicep' = if(PooledHostPool && DrainMode) {
-  name: 'drainMode_${TimeStamp}'
-  scope: resourceGroup(rgInfra.name)
+// Enables drain mode on the session hosts so users cannot login
+module drainMode 'modules/drainMode.bicep' = if(DrainMode) {
+  name: 'drainMode_${Timestamp}'
+  scope: resourceGroup(ResourceGroups[0]) // Deployment Resource Group
   params: {
     HostPoolName: HostPoolName
-    HostPoolResourceGroupName: rgInfra.name
+    HostPoolResourceGroupName: ResourceGroups[2] // Management Resource Group
     Location: Location
-    Timestamp: TimeStamp
+    ManagedIdentityResourceId: managedIdentity.outputs.resourceIdentifier
+    SasToken: SasToken
+    ScriptsUri: ScriptsUri
+    Tags: Tags
+    Timestamp: Timestamp
   }
   dependsOn: [
-    fslogixNetApp
-    fslogixStorageAccount
-    hostPool
     sessionHosts
   ]
 }

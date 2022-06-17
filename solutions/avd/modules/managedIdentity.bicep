@@ -1,15 +1,12 @@
-param ManagedIdentityId string
-param NetworkContributorId string
+param Location string
+param ManagedIdentityName string
 
 
-var RoleAssignmentName = guid(resourceGroup().name, ManagedIdentityId, NetworkContributorId)
-
-
-resource roleAssignment 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = {
-  name: RoleAssignmentName
-  properties: {
-    roleDefinitionId: resourceId('Microsoft.Authorization/roleDefinitions', NetworkContributorId)
-    principalId: ManagedIdentityId
-    principalType: 'ServicePrincipal'
-  }
+resource managedIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2018-11-30' = {
+  name: ManagedIdentityName
+  location: Location
 }
+
+
+output principalId string = managedIdentity.properties.principalId
+output resourceIdentifier string = managedIdentity.id

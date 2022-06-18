@@ -249,7 +249,7 @@ param VirtualNetworkResourceGroup string = 'rg-shd-net-d-eu'
 param VmPassword string
 
 @description('The VM SKU for the AVD session hosts.')
-param VmSize string = 'Standard_B2s'
+param VmSize string = 'Standard_D4s_v4'
 
 @description('The Local Administrator Username for the Session Hosts')
 param VmUsername string

@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.6.18.56646",
-      "templateHash": "14475200269123267285"
+      "templateHash": "10566142172179510374"
     }
   },
   "parameters": {
@@ -475,7 +475,7 @@
     },
     "VmSize": {
       "type": "string",
-      "defaultValue": "Standard_B2s",
+      "defaultValue": "Standard_D4s_v4",
       "metadata": {
         "description": "The VM SKU for the AVD session hosts."
       }

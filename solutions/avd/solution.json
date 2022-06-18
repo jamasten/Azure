@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.6.18.56646",
-      "templateHash": "10566142172179510374"
+      "templateHash": "5190162038186702606"
     }
   },
   "parameters": {
@@ -1028,6 +1028,9 @@
           "SessionHostIndex": {
             "value": "[parameters('SessionHostIndex')]"
           },
+          "StartVmOnConnect": {
+            "value": "[parameters('StartVmOnConnect')]"
+          },
           "StorageCount": {
             "value": "[parameters('StorageCount')]"
           },
@@ -1054,7 +1057,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.6.18.56646",
-              "templateHash": "6947685123696402733"
+              "templateHash": "5581862127252824518"
             }
           },
           "parameters": {
@@ -1112,6 +1115,9 @@
             "SessionHostIndex": {
               "type": "int"
             },
+            "StartVmOnConnect": {
+              "type": "bool"
+            },
             "StorageCount": {
               "type": "int"
             },
@@ -1148,7 +1154,7 @@
               "properties": {
                 "forceUpdateTag": "[parameters('Timestamp')]",
                 "azPowerShellVersion": "5.4",
-                "arguments": "[format('-Availability {0} -DiskEncryption {1} -DiskSku {2} -DomainName {3} -DomainServices {4} -EphemeralOsDisk {5} -FSLogixStorage {6} -ImageSku {7} -KerberosEncryption {8} -Location {9} -SecurityPrincipalIds {10} -SecurityPrincipalNames {11} -SessionHostCount {12} -SessionHostIndex {13} -StorageCount {14} -VmSize {15} -VnetName {16} -VnetResourceGroupName {17}', parameters('Availability'), parameters('DiskEncryption'), parameters('DiskSku'), parameters('DomainName'), parameters('DomainServices'), parameters('EphemeralOsDisk'), parameters('FSLogixStorage'), parameters('ImageSku'), parameters('KerberosEncryption'), parameters('Location'), parameters('SecurityPrincipalIds'), parameters('SecurityPrincipalNames'), parameters('SessionHostCount'), parameters('SessionHostIndex'), parameters('StorageCount'), parameters('VmSize'), parameters('VirtualNetwork'), parameters('VirtualNetworkResourceGroup'))]",
+                "arguments": "[format('-Availability {0} -DiskEncryption {1} -DiskSku {2} -DomainName {3} -DomainServices {4} -EphemeralOsDisk {5} -FSLogixStorage {6} -ImageSku {7} -KerberosEncryption {8} -Location {9} -SecurityPrincipalIds {10} -SecurityPrincipalNames {11} -SessionHostCount {12} -SessionHostIndex {13} -StartVmOnConnect {14} -StorageCount {15} -VmSize {16} -VnetName {17} -VnetResourceGroupName {18}', parameters('Availability'), parameters('DiskEncryption'), parameters('DiskSku'), parameters('DomainName'), parameters('DomainServices'), parameters('EphemeralOsDisk'), parameters('FSLogixStorage'), parameters('ImageSku'), parameters('KerberosEncryption'), parameters('Location'), parameters('SecurityPrincipalIds'), parameters('SecurityPrincipalNames'), parameters('SessionHostCount'), parameters('SessionHostIndex'), parameters('StartVmOnConnect'), parameters('StorageCount'), parameters('VmSize'), parameters('VirtualNetwork'), parameters('VirtualNetworkResourceGroup'))]",
                 "primaryScriptUri": "[format('{0}Get-Validation.ps1{1}', parameters('ScriptsUri'), parameters('SasToken'))]",
                 "timeout": "PT2H",
                 "cleanupPreference": "OnSuccess",
@@ -2149,6 +2155,9 @@
         },
         "mode": "Incremental",
         "parameters": {
+          "DeploymentResourceGroup": {
+            "value": "[variables('ResourceGroups')[0]]"
+          },
           "KeyVaultName": {
             "value": "[variables('KeyVaultName')]"
           },
@@ -2160,6 +2169,9 @@
           },
           "ManagedIdentityResourceId": {
             "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('managedIdentity_{0}', parameters('Timestamp')))).outputs.resourceIdentifier.value]"
+          },
+          "NamingStandard": {
+            "value": "[variables('NamingStandard')]"
           },
           "SasToken": {
             "value": "[parameters('SasToken')]"
@@ -2178,10 +2190,13 @@
             "_generator": {
               "name": "bicep",
               "version": "0.6.18.56646",
-              "templateHash": "9541910827912107493"
+              "templateHash": "3530909959540836667"
             }
           },
           "parameters": {
+            "DeploymentResourceGroup": {
+              "type": "string"
+            },
             "KeyVaultName": {
               "type": "string"
             },
@@ -2194,8 +2209,11 @@
             "ManagedIdentityResourceId": {
               "type": "string"
             },
-            "SasToken": {
+            "NamingStandard": {
               "type": "string"
+            },
+            "SasToken": {
+              "type": "secureString"
             },
             "ScriptsUri": {
               "type": "string"
@@ -2237,26 +2255,97 @@
               }
             },
             {
-              "type": "Microsoft.Resources/deploymentScripts",
-              "apiVersion": "2019-10-01-preview",
-              "name": "ds-bitlocker-kek",
-              "identity": {
-                "type": "UserAssigned",
-                "userAssignedIdentities": {
-                  "[format('{0}', parameters('ManagedIdentityResourceId'))]": {}
-                }
-              },
-              "location": "[parameters('Location')]",
-              "kind": "AzurePowerShell",
-              "tags": {},
+              "type": "Microsoft.Resources/deployments",
+              "apiVersion": "2020-10-01",
+              "name": "[format('DeploymentScript_{0}', parameters('Timestamp'))]",
+              "resourceGroup": "[parameters('DeploymentResourceGroup')]",
               "properties": {
-                "azPowerShellVersion": "5.4",
-                "cleanupPreference": "OnSuccess",
-                "primaryScriptUri": "[format('{0}New-AzureKeyEncryptionKey.ps1{1}', parameters('ScriptsUri'), parameters('SasToken'))]",
-                "arguments": "[format(' -KeyVault {0}', parameters('KeyVaultName'))]",
-                "forceUpdateTag": "[parameters('Timestamp')]",
-                "retentionInterval": "P1D",
-                "timeout": "PT30M"
+                "expressionEvaluationOptions": {
+                  "scope": "inner"
+                },
+                "mode": "Incremental",
+                "parameters": {
+                  "KeyVaultName": {
+                    "value": "[parameters('KeyVaultName')]"
+                  },
+                  "Location": {
+                    "value": "[parameters('Location')]"
+                  },
+                  "ManagedIdentityResourceId": {
+                    "value": "[parameters('ManagedIdentityResourceId')]"
+                  },
+                  "NamingStandard": {
+                    "value": "[parameters('NamingStandard')]"
+                  },
+                  "SasToken": {
+                    "value": "[parameters('SasToken')]"
+                  },
+                  "ScriptsUri": {
+                    "value": "[parameters('ScriptsUri')]"
+                  },
+                  "Timestamp": {
+                    "value": "[parameters('Timestamp')]"
+                  }
+                },
+                "template": {
+                  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                  "contentVersion": "1.0.0.0",
+                  "metadata": {
+                    "_generator": {
+                      "name": "bicep",
+                      "version": "0.6.18.56646",
+                      "templateHash": "4601776957987619522"
+                    }
+                  },
+                  "parameters": {
+                    "KeyVaultName": {
+                      "type": "string"
+                    },
+                    "Location": {
+                      "type": "string"
+                    },
+                    "ManagedIdentityResourceId": {
+                      "type": "string"
+                    },
+                    "NamingStandard": {
+                      "type": "string"
+                    },
+                    "SasToken": {
+                      "type": "secureString"
+                    },
+                    "ScriptsUri": {
+                      "type": "string"
+                    },
+                    "Timestamp": {
+                      "type": "string"
+                    }
+                  },
+                  "resources": [
+                    {
+                      "type": "Microsoft.Resources/deploymentScripts",
+                      "apiVersion": "2019-10-01-preview",
+                      "name": "[format('ds-{0}-bitlockerKek', parameters('NamingStandard'))]",
+                      "identity": {
+                        "type": "UserAssigned",
+                        "userAssignedIdentities": {
+                          "[format('{0}', parameters('ManagedIdentityResourceId'))]": {}
+                        }
+                      },
+                      "location": "[parameters('Location')]",
+                      "kind": "AzurePowerShell",
+                      "tags": {},
+                      "properties": {
+                        "azPowerShellVersion": "5.4",
+                        "cleanupPreference": "OnSuccess",
+                        "primaryScriptUri": "[format('{0}New-AzureKeyEncryptionKey.ps1{1}', parameters('ScriptsUri'), parameters('SasToken'))]",
+                        "arguments": "[format(' -KeyVault {0}', parameters('KeyVaultName'))]",
+                        "forceUpdateTag": "[parameters('Timestamp')]",
+                        "retentionInterval": "P1D",
+                        "timeout": "PT30M"
+                      }
+                    }
+                  ]
+                }
               },
               "dependsOn": [
                 "[resourceId('Microsoft.KeyVault/vaults', parameters('KeyVaultName'))]"

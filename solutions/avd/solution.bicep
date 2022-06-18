@@ -499,6 +499,7 @@ module validation 'modules/validation.bicep' = {
     SecurityPrincipalNames: SecurityPrincipalNames
     SessionHostCount: SessionHostCount
     SessionHostIndex: SessionHostIndex
+    StartVmOnConnect: StartVmOnConnect
     StorageCount: StorageCount
     Tags: Tags
     Timestamp: Timestamp
@@ -578,15 +579,17 @@ module monitoring 'modules/monitoring.bicep' = if(Monitoring) {
   ]
 }
 
-module bitLocker 'modules/bitLocker.bicep' = if(DiskEncryption) {
+module bitLocker 'modules/bitlocker/bitLocker.bicep' = if(DiskEncryption) {
   name: 'bitLocker_${Timestamp}'
   scope: resourceGroup(ResourceGroups[2]) // Management Resource Group
   params: {
+    DeploymentResourceGroup: ResourceGroups[0] // Deployment Resource Group
     KeyVaultName: KeyVaultName
     Location: Location
     //ManagedIdentityName: managedIdentity.name
     ManagedIdentityPrincipalId: managedIdentity.outputs.principalId
     ManagedIdentityResourceId: managedIdentity.outputs.resourceIdentifier
+    NamingStandard: NamingStandard
     SasToken: SasToken
     ScriptsUri: ScriptsUri
     Timestamp: Timestamp

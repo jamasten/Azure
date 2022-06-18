@@ -1,8 +1,11 @@
+param DeploymentResourceGroup string
 param KeyVaultName string
 param Location string
 //param ManagedIdentityName string
 param ManagedIdentityPrincipalId string
 param ManagedIdentityResourceId string
+param NamingStandard string
+@secure()
 param SasToken string
 param ScriptsUri string
 param Timestamp string
@@ -47,27 +50,19 @@ resource vault 'Microsoft.KeyVault/vaults@2016-10-01' = {
   }
 }
 
-resource deploymentScript 'Microsoft.Resources/deploymentScripts@2019-10-01-preview' = {
-  name: 'ds-bitlocker-kek'
-  identity: {
-    type: 'UserAssigned'
-    userAssignedIdentities: {
-      '${ManagedIdentityResourceId}': {}
-    }
+module deploymentScript 'deploymentScript.bicep' = {
+  name: 'DeploymentScript_${Timestamp}'
+  scope: resourceGroup(DeploymentResourceGroup)
+  params: {
+    KeyVaultName: vault.name
+    Location: Location
+    ManagedIdentityResourceId: ManagedIdentityResourceId
+    NamingStandard: NamingStandard
+    SasToken: SasToken
+    ScriptsUri: ScriptsUri
+    Timestamp: Timestamp
   }
-  location: Location
-  kind: 'AzurePowerShell'
-  tags: {}
-  properties: {
-    azPowerShellVersion: '5.4'
-    cleanupPreference: 'OnSuccess'
-    primaryScriptUri: '${ScriptsUri}New-AzureKeyEncryptionKey.ps1${SasToken}'
-    arguments: ' -KeyVault ${vault.name}'
-    forceUpdateTag: Timestamp
-    retentionInterval: 'P1D'
-    timeout: 'PT30M'
-  }
-/*   dependsOn: [
+/* dependsOn: [
     roleAssignment
   ] */
 }

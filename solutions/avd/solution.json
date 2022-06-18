@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.6.18.56646",
-      "templateHash": "275451657682424935"
+      "templateHash": "13114696104624701774"
     }
   },
   "parameters": {
@@ -1059,7 +1059,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.6.18.56646",
-              "templateHash": "12144300129099226620"
+              "templateHash": "6593067273021845721"
             }
           },
           "parameters": {
@@ -1156,7 +1156,7 @@
               "properties": {
                 "forceUpdateTag": "[parameters('Timestamp')]",
                 "azPowerShellVersion": "5.4",
-                "arguments": "[format('-Availability {0} -DiskEncryption {1} -DiskSku {2} -DomainName {3} -DomainServices {4} -EphemeralOsDisk {5} -FSLogixStorage \"{6}\" -ImageSku {7} -KerberosEncryption {8} -Location {9} -SecurityPrincipalIds {10} -SecurityPrincipalNames {11} -SessionHostCount {12} -SessionHostIndex {13} -StartVmOnConnect {14} -StorageCount {15} -VmSize {16} -VnetName {17} -VnetResourceGroupName {18}', parameters('Availability'), parameters('DiskEncryption'), parameters('DiskSku'), parameters('DomainName'), parameters('DomainServices'), parameters('EphemeralOsDisk'), parameters('FSLogixStorage'), parameters('ImageSku'), parameters('KerberosEncryption'), parameters('Location'), parameters('SecurityPrincipalIds'), parameters('SecurityPrincipalNames'), parameters('SessionHostCount'), parameters('SessionHostIndex'), parameters('StartVmOnConnect'), parameters('StorageCount'), parameters('VmSize'), parameters('VirtualNetwork'), parameters('VirtualNetworkResourceGroup'))]",
+                "arguments": "[format('-Availability {0} -DiskEncryption {1} -DiskSku {2} -DomainName {3} -DomainServices {4} -EphemeralOsDisk {5} -FSLogixStorage \\\"{6}\\\" -ImageSku {7} -KerberosEncryption {8} -Location {9} -SecurityPrincipalIds {10} -SecurityPrincipalNames {11} -SessionHostCount {12} -SessionHostIndex {13} -StartVmOnConnect {14} -StorageCount {15} -VmSize {16} -VnetName {17} -VnetResourceGroupName {18}', parameters('Availability'), parameters('DiskEncryption'), parameters('DiskSku'), parameters('DomainName'), parameters('DomainServices'), parameters('EphemeralOsDisk'), parameters('FSLogixStorage'), parameters('ImageSku'), parameters('KerberosEncryption'), parameters('Location'), parameters('SecurityPrincipalIds'), parameters('SecurityPrincipalNames'), parameters('SessionHostCount'), parameters('SessionHostIndex'), parameters('StartVmOnConnect'), parameters('StorageCount'), parameters('VmSize'), parameters('VirtualNetwork'), parameters('VirtualNetworkResourceGroup'))]",
                 "primaryScriptUri": "[format('{0}Get-Validation.ps1{1}', parameters('ScriptsUri'), parameters('SasToken'))]",
                 "timeout": "PT2H",
                 "cleanupPreference": "OnSuccess",

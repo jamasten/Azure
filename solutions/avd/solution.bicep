@@ -376,6 +376,7 @@ var ResourceGroups = [
 var RoleDefinitionIds = {
   contributor: 'b24988ac-6180-42a0-ab88-20f7382dd24c'
   desktopVirtualizationSessionHostOperator: '2ad6aaab-ead9-4eaa-8ac5-da422f562408'
+  desktopVirtualizationUser: '1d18fff3-a72a-46b5-b4a9-0b38a3cd7e63'
   networkContributor: '4d97b98b-1d4f-4787-a291-c67834d212e7'
   reader: 'acdd72a7-3385-48ef-bd42-f606fba81ae7'
   storageFileDataSMBShareContributor: '0c867c2a-1d8c-454a-a3db-ab2ea1bdc8bb'
@@ -545,6 +546,7 @@ module hostPool 'modules/hostPool.bicep' = {
     HostPoolType: HostPoolType
     Location: Location
     MaxSessionLimit: MaxSessionLimit
+    RoleDefinitionIds: RoleDefinitionIds
     SecurityPrincipalIds: SecurityPrincipalObjectIds
     StartVmOnConnect: StartVmOnConnect
     Tags: Tags
@@ -810,6 +812,7 @@ module drainMode 'modules/drainMode.bicep' = if(DrainMode) {
     HostPoolResourceGroupName: ResourceGroups[2] // Management Resource Group
     Location: Location
     ManagedIdentityResourceId: managedIdentity.outputs.resourceIdentifier
+    NamingStandard: NamingStandard
     SasToken: SasToken
     ScriptsUri: ScriptsUri
     Tags: Tags

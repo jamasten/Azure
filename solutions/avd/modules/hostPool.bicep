@@ -5,6 +5,7 @@ param HostPoolName string
 param HostPoolType string
 param Location string
 param MaxSessionLimit int
+param RoleDefinitionIds object
 param SecurityPrincipalIds array
 param StartVmOnConnect bool
 param Tags object
@@ -15,6 +16,7 @@ param WorkspaceName string
 
 
 var CustomRdpProperty_Complete = contains(DomainServices, 'None') ? '${CustomRdpProperty}targetisaadjoined:i:1' : CustomRdpProperty
+
 
 resource hostPool 'Microsoft.DesktopVirtualization/hostPools@2021-03-09-preview' = {
   name: HostPoolName
@@ -50,9 +52,9 @@ resource appGroup 'Microsoft.DesktopVirtualization/applicationGroups@2021-03-09-
 
 resource appGroupAssignment 'Microsoft.Authorization/roleAssignments@2018-01-01-preview' = [for i in range(0, length(SecurityPrincipalIds)): {
   scope: appGroup
-  name: guid(HostPoolName, SecurityPrincipalIds[i])
+  name: guid(SecurityPrincipalIds[i], RoleDefinitionIds.desktopVirtualizationUser, AppGroupName)
   properties: {
-    roleDefinitionId: resourceId('Microsoft.Authorization/roleDefinitions', '1d18fff3-a72a-46b5-b4a9-0b38a3cd7e63') // Desktop Virtualization User
+    roleDefinitionId: resourceId('Microsoft.Authorization/roleDefinitions', RoleDefinitionIds.desktopVirtualizationUser)
     principalId: SecurityPrincipalIds[i]
   }
 }]

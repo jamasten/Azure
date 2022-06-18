@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.6.18.56646",
-      "templateHash": "5190162038186702606"
+      "templateHash": "14112482007509372224"
     }
   },
   "parameters": {
@@ -594,6 +594,7 @@
     "RoleDefinitionIds": {
       "contributor": "b24988ac-6180-42a0-ab88-20f7382dd24c",
       "desktopVirtualizationSessionHostOperator": "2ad6aaab-ead9-4eaa-8ac5-da422f562408",
+      "desktopVirtualizationUser": "1d18fff3-a72a-46b5-b4a9-0b38a3cd7e63",
       "networkContributor": "4d97b98b-1d4f-4787-a291-c67834d212e7",
       "reader": "acdd72a7-3385-48ef-bd42-f606fba81ae7",
       "storageFileDataSMBShareContributor": "0c867c2a-1d8c-454a-a3db-ab2ea1bdc8bb",
@@ -1368,6 +1369,9 @@
           "MaxSessionLimit": {
             "value": "[parameters('MaxSessionLimit')]"
           },
+          "RoleDefinitionIds": {
+            "value": "[variables('RoleDefinitionIds')]"
+          },
           "SecurityPrincipalIds": {
             "value": "[parameters('SecurityPrincipalObjectIds')]"
           },
@@ -1394,7 +1398,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.6.18.56646",
-              "templateHash": "1153138993820111379"
+              "templateHash": "10955339227929811282"
             }
           },
           "parameters": {
@@ -1418,6 +1422,9 @@
             },
             "MaxSessionLimit": {
               "type": "int"
+            },
+            "RoleDefinitionIds": {
+              "type": "object"
             },
             "SecurityPrincipalIds": {
               "type": "array"
@@ -1490,9 +1497,9 @@
               "type": "Microsoft.Authorization/roleAssignments",
               "apiVersion": "2018-01-01-preview",
               "scope": "[format('Microsoft.DesktopVirtualization/applicationGroups/{0}', parameters('AppGroupName'))]",
-              "name": "[guid(parameters('HostPoolName'), parameters('SecurityPrincipalIds')[range(0, length(parameters('SecurityPrincipalIds')))[copyIndex()]])]",
+              "name": "[guid(parameters('SecurityPrincipalIds')[range(0, length(parameters('SecurityPrincipalIds')))[copyIndex()]], parameters('RoleDefinitionIds').desktopVirtualizationUser, parameters('AppGroupName'))]",
               "properties": {
-                "roleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', '1d18fff3-a72a-46b5-b4a9-0b38a3cd7e63')]",
+                "roleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', parameters('RoleDefinitionIds').desktopVirtualizationUser)]",
                 "principalId": "[parameters('SecurityPrincipalIds')[range(0, length(parameters('SecurityPrincipalIds')))[copyIndex()]]]"
               },
               "dependsOn": [
@@ -6692,6 +6699,9 @@
           "ManagedIdentityResourceId": {
             "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('managedIdentity_{0}', parameters('Timestamp')))).outputs.resourceIdentifier.value]"
           },
+          "NamingStandard": {
+            "value": "[variables('NamingStandard')]"
+          },
           "SasToken": {
             "value": "[parameters('SasToken')]"
           },
@@ -6712,7 +6722,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.6.18.56646",
-              "templateHash": "212906186156533781"
+              "templateHash": "8515167579020826572"
             }
           },
           "parameters": {
@@ -6726,6 +6736,9 @@
               "type": "string"
             },
             "ManagedIdentityResourceId": {
+              "type": "string"
+            },
+            "NamingStandard": {
               "type": "string"
             },
             "SasToken": {
@@ -6745,7 +6758,7 @@
             {
               "type": "Microsoft.Resources/deploymentScripts",
               "apiVersion": "2019-10-01-preview",
-              "name": "enableDrainMode",
+              "name": "[format('ds-{0}-drainMode', parameters('NamingStandard'))]",
               "identity": {
                 "type": "UserAssigned",
                 "userAssignedIdentities": {

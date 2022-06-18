@@ -2,13 +2,14 @@ param HostPoolName string
 param HostPoolResourceGroupName string
 param Location string
 param ManagedIdentityResourceId string
+param NamingStandard string
 param SasToken string
 param ScriptsUri string
 param Tags object
 param Timestamp string
 
 resource deploymentScript 'Microsoft.Resources/deploymentScripts@2019-10-01-preview' = {
-  name: 'enableDrainMode'
+  name: 'ds-${NamingStandard}-drainMode'
   identity: {
     type: 'UserAssigned'
     userAssignedIdentities: {

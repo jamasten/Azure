@@ -42,6 +42,7 @@ resource roleDefinition 'Microsoft.Authorization/roleDefinitions@2018-01-01-prev
           'Microsoft.ContainerInstance/containerGroups/*'
           'Microsoft.Resources/deployments/*'
           'Microsoft.Resources/deploymentScripts/*'
+          'Microsoft.ManagedIdentity/userAssignedIdentities/assign/action'
         ]
         notActions: []
       }

@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.6.18.56646",
-      "templateHash": "2617363925356632060"
+      "templateHash": "275451657682424935"
     }
   },
   "parameters": {
@@ -722,7 +722,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.6.18.56646",
-              "templateHash": "9860936390686776934"
+              "templateHash": "2239238266289019320"
             }
           },
           "parameters": {
@@ -783,7 +783,8 @@
                       "Microsoft.Storage/storageAccounts/*",
                       "Microsoft.ContainerInstance/containerGroups/*",
                       "Microsoft.Resources/deployments/*",
-                      "Microsoft.Resources/deploymentScripts/*"
+                      "Microsoft.Resources/deploymentScripts/*",
+                      "Microsoft.ManagedIdentity/userAssignedIdentities/assign/action"
                     ],
                     "notActions": []
                   }

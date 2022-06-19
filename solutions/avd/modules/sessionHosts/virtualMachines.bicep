@@ -15,7 +15,6 @@ param EphemeralOsDisk string
 param FileShares array
 param Fslogix bool
 param HostPoolName string
-param HostPoolResourceGroupName string
 param HostPoolType string
 param ImageOffer string
 param ImagePublisher string
@@ -24,13 +23,13 @@ param ImageVersion string
 param KeyVaultName string
 param Location string
 param LogAnalyticsWorkspaceName string
-param ManagementResourceGroup string
 param Monitoring bool
 param NamingStandard string
 param NetworkSecurityGroupName string
 param NetAppFileShare string
 param OuPath string
 param RdpShortPath bool
+param ResourceGroups array
 param ScreenCaptureProtection bool
 param SasToken string
 param ScriptsUri string
@@ -61,6 +60,7 @@ var AmdVmSizes = [
   'Standard_NV32as_v4'
 ]
 var AmdVmSize = contains(AmdVmSizes, VmSize)
+var DeploymentResourceGroup = ResourceGroups[0] // Deployment Resource Group
 var Intune = DomainServices == 'NoneWithIntune' ? true : false
 var NvidiaVmSizes = [
   'Standard_NV6'
@@ -85,6 +85,7 @@ var EphemeralOsDisk_var = {
     placement: EphemeralOsDisk
   }
 }
+var ManagementResourceGroup = ResourceGroups[2] // Management Resource Group
 var StatefulOsDisk = {
   osType: 'Windows'
   createOption: 'FromImage'
@@ -241,7 +242,7 @@ resource extension_CustomScriptExtension 'Microsoft.Compute/virtualMachines/exte
       timestamp: Timestamp
     }
     protectedSettings: {
-      commandToExecute: 'powershell -ExecutionPolicy Unrestricted -File Set-SessionHostConfiguration.ps1 -AmdVmSize ${AmdVmSize} -DisaStigCompliance ${DisaStigCompliance} -DomainName ${DomainName} -Environment ${environment().name} -FileShares ${FileShares} -FSLogix ${Fslogix} -HostPoolName ${HostPoolName} -HostPoolRegistrationToken ${reference(resourceId(HostPoolResourceGroupName, 'Microsoft.DesktopVirtualization/hostpools', HostPoolName), '2019-12-10-preview').registrationInfo.token} -ImageOffer ${ImageOffer} -ImagePublisher ${ImagePublisher} -NetAppFileShare ${NetAppFileShare} -NvidiaVmSize ${NvidiaVmSize} -PooledHostPool ${PooledHostPool} -RdpShortPath ${RdpShortPath} -ScreenCaptureProtection ${ScreenCaptureProtection} -StorageAccountPrefix ${StorageAccountPrefix} -StorageCount ${StorageCount} -StorageIndex ${StorageIndex} -StorageSolution ${StorageSolution} -StorageSuffix ${StorageSuffix}'
+      commandToExecute: 'powershell -ExecutionPolicy Unrestricted -File Set-SessionHostConfiguration.ps1 -AmdVmSize ${AmdVmSize} -DisaStigCompliance ${DisaStigCompliance} -DomainName ${DomainName} -Environment ${environment().name} -FileShares ${FileShares} -FSLogix ${Fslogix} -HostPoolName ${HostPoolName} -HostPoolRegistrationToken ${reference(resourceId(ManagementResourceGroup, 'Microsoft.DesktopVirtualization/hostpools', HostPoolName), '2019-12-10-preview').registrationInfo.token} -ImageOffer ${ImageOffer} -ImagePublisher ${ImagePublisher} -NetAppFileShare ${NetAppFileShare} -NvidiaVmSize ${NvidiaVmSize} -PooledHostPool ${PooledHostPool} -RdpShortPath ${RdpShortPath} -ScreenCaptureProtection ${ScreenCaptureProtection} -StorageAccountPrefix ${StorageAccountPrefix} -StorageCount ${StorageCount} -StorageIndex ${StorageIndex} -StorageSolution ${StorageSolution} -StorageSuffix ${StorageSuffix}'
     }
   }
   dependsOn: [
@@ -344,7 +345,7 @@ resource extension_AzureDiskEncryption 'Microsoft.Compute/virtualMachines/extens
       EncryptionOperation: 'EnableEncryption'
       KeyVaultURL: reference(resourceId(ManagementResourceGroup, 'Microsoft.KeyVault/vaults', KeyVaultName), '2016-10-01').properties.vaultUri
       KeyVaultResourceId: resourceId(ManagementResourceGroup, 'Microsoft.KeyVault/vaults', KeyVaultName)
-      KeyEncryptionKeyURL: reference(resourceId(ManagementResourceGroup, 'Microsoft.KeyVault/vaults', KeyVaultName), '2016-10-01').properties.outputs.text
+      KeyEncryptionKeyURL: reference(resourceId(DeploymentResourceGroup, 'Microsoft.Resources/deploymentScripts', 'ds-${NamingStandard}-bitlockerKek'), '2019-10-01-preview').properties.outputs.text
       KekVaultResourceId: resourceId(ManagementResourceGroup, 'Microsoft.KeyVault/vaults', KeyVaultName)
       KeyEncryptionAlgorithm: 'RSA-OAEP'
       VolumeType: 'All'

@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.6.18.56646",
-      "templateHash": "761166377886262043"
+      "templateHash": "7792025691850047168"
     }
   },
   "parameters": {
@@ -2711,7 +2711,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.6.18.56646",
-              "templateHash": "9060551454394778490"
+              "templateHash": "16266204153320484712"
             }
           },
           "parameters": {
@@ -2903,14 +2903,14 @@
                   "Location": {
                     "value": "[parameters('Location')]"
                   },
-                  "ManagementResourceGroup": {
-                    "value": "[parameters('ResourceGroups')[2]]"
-                  },
                   "ManagementVmName": {
                     "value": "[parameters('ManagementVmName')]"
                   },
                   "NamingStandard": {
                     "value": "[parameters('NamingStandard')]"
+                  },
+                  "ResourceGroups": {
+                    "value": "[parameters('ResourceGroups')]"
                   },
                   "Subnet": {
                     "value": "[parameters('Subnet')]"
@@ -2941,7 +2941,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.6.18.56646",
-                      "templateHash": "4876056537596360002"
+                      "templateHash": "2338904168039667559"
                     }
                   },
                   "parameters": {
@@ -2963,14 +2963,14 @@
                     "Location": {
                       "type": "string"
                     },
-                    "ManagementResourceGroup": {
-                      "type": "string"
-                    },
                     "ManagementVmName": {
                       "type": "string"
                     },
                     "NamingStandard": {
                       "type": "string"
+                    },
+                    "ResourceGroups": {
+                      "type": "array"
                     },
                     "Subnet": {
                       "type": "string"
@@ -2995,6 +2995,8 @@
                     }
                   },
                   "variables": {
+                    "DeploymentResourceGroup": "[parameters('ResourceGroups')[0]]",
+                    "ManagementResourceGroup": "[parameters('ResourceGroups')[2]]",
                     "NicName": "[format('nic-{0}-mgt', parameters('NamingStandard'))]"
                   },
                   "resources": [
@@ -3126,10 +3128,10 @@
                         "forceUpdateTag": "[parameters('Timestamp')]",
                         "settings": {
                           "EncryptionOperation": "EnableEncryption",
-                          "KeyVaultURL": "[reference(resourceId(parameters('ManagementResourceGroup'), 'Microsoft.KeyVault/vaults', parameters('KeyVaultName')), '2016-10-01').properties.vaultUri]",
-                          "KeyVaultResourceId": "[resourceId(parameters('ManagementResourceGroup'), 'Microsoft.KeyVault/vaults', parameters('KeyVaultName'))]",
-                          "KeyEncryptionKeyURL": "[reference(resourceId(parameters('ManagementResourceGroup'), 'Microsoft.KeyVault/vaults', parameters('KeyVaultName')), '2016-10-01').properties.outputs.text]",
-                          "KekVaultResourceId": "[resourceId(parameters('ManagementResourceGroup'), 'Microsoft.KeyVault/vaults', parameters('KeyVaultName'))]",
+                          "KeyVaultURL": "[reference(resourceId(variables('ManagementResourceGroup'), 'Microsoft.KeyVault/vaults', parameters('KeyVaultName')), '2016-10-01').properties.vaultUri]",
+                          "KeyVaultResourceId": "[resourceId(variables('ManagementResourceGroup'), 'Microsoft.KeyVault/vaults', parameters('KeyVaultName'))]",
+                          "KeyEncryptionKeyURL": "[reference(resourceId(variables('DeploymentResourceGroup'), 'Microsoft.Resources/deploymentScripts', format('ds-{0}-bitlockerKek', parameters('NamingStandard'))), '2019-10-01-preview').properties.outputs.text]",
+                          "KekVaultResourceId": "[resourceId(variables('ManagementResourceGroup'), 'Microsoft.KeyVault/vaults', parameters('KeyVaultName'))]",
                           "KeyEncryptionAlgorithm": "RSA-OAEP",
                           "VolumeType": "All",
                           "ResizeOSDisk": false
@@ -4839,7 +4841,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.6.18.56646",
-              "templateHash": "17814735985854171575"
+              "templateHash": "7123863558915912238"
             }
           },
           "parameters": {
@@ -5203,9 +5205,6 @@
                   "HostPoolName": {
                     "value": "[parameters('HostPoolName')]"
                   },
-                  "HostPoolResourceGroupName": {
-                    "value": "[parameters('ResourceGroups')[2]]"
-                  },
                   "HostPoolType": {
                     "value": "[parameters('HostPoolType')]"
                   },
@@ -5230,9 +5229,6 @@
                   "LogAnalyticsWorkspaceName": {
                     "value": "[parameters('LogAnalyticsWorkspaceName')]"
                   },
-                  "ManagementResourceGroup": {
-                    "value": "[parameters('ResourceGroups')[2]]"
-                  },
                   "Monitoring": {
                     "value": "[parameters('Monitoring')]"
                   },
@@ -5250,6 +5246,9 @@
                   },
                   "RdpShortPath": {
                     "value": "[parameters('RdpShortPath')]"
+                  },
+                  "ResourceGroups": {
+                    "value": "[parameters('ResourceGroups')]"
                   },
                   "ScreenCaptureProtection": {
                     "value": "[parameters('ScreenCaptureProtection')]"
@@ -5316,7 +5315,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.6.18.56646",
-                      "templateHash": "13629004885129713752"
+                      "templateHash": "7406501792977964571"
                     }
                   },
                   "parameters": {
@@ -5368,9 +5367,6 @@
                     "HostPoolName": {
                       "type": "string"
                     },
-                    "HostPoolResourceGroupName": {
-                      "type": "string"
-                    },
                     "HostPoolType": {
                       "type": "string"
                     },
@@ -5395,9 +5391,6 @@
                     "LogAnalyticsWorkspaceName": {
                       "type": "string"
                     },
-                    "ManagementResourceGroup": {
-                      "type": "string"
-                    },
                     "Monitoring": {
                       "type": "bool"
                     },
@@ -5415,6 +5408,9 @@
                     },
                     "RdpShortPath": {
                       "type": "bool"
+                    },
+                    "ResourceGroups": {
+                      "type": "array"
                     },
                     "ScreenCaptureProtection": {
                       "type": "bool"
@@ -5486,6 +5482,7 @@
                       "Standard_NV32as_v4"
                     ],
                     "AmdVmSize": "[contains(variables('AmdVmSizes'), parameters('VmSize'))]",
+                    "DeploymentResourceGroup": "[parameters('ResourceGroups')[0]]",
                     "Intune": "[if(equals(parameters('DomainServices'), 'NoneWithIntune'), true(), false())]",
                     "NvidiaVmSizes": [
                       "Standard_NV6",
@@ -5510,6 +5507,7 @@
                         "placement": "[parameters('EphemeralOsDisk')]"
                       }
                     },
+                    "ManagementResourceGroup": "[parameters('ResourceGroups')[2]]",
                     "StatefulOsDisk": {
                       "osType": "Windows",
                       "createOption": "FromImage",
@@ -5658,10 +5656,10 @@
                         "typeHandlerVersion": "1.0",
                         "autoUpgradeMinorVersion": true,
                         "settings": {
-                          "workspaceId": "[reference(resourceId(parameters('ManagementResourceGroup'), parameters('LogAnalyticsWorkspaceName')), '2015-03-20').customerId]"
+                          "workspaceId": "[reference(resourceId(variables('ManagementResourceGroup'), parameters('LogAnalyticsWorkspaceName')), '2015-03-20').customerId]"
                         },
                         "protectedSettings": {
-                          "workspaceKey": "[listKeys(resourceId(parameters('ManagementResourceGroup'), parameters('LogAnalyticsWorkspaceName')), '2015-03-20').primarySharedKey]"
+                          "workspaceKey": "[listKeys(resourceId(variables('ManagementResourceGroup'), parameters('LogAnalyticsWorkspaceName')), '2015-03-20').primarySharedKey]"
                         }
                       }
                     },
@@ -5687,7 +5685,7 @@
                           "timestamp": "[parameters('Timestamp')]"
                         },
                         "protectedSettings": {
-                          "commandToExecute": "[format('powershell -ExecutionPolicy Unrestricted -File Set-SessionHostConfiguration.ps1 -AmdVmSize {0} -DisaStigCompliance {1} -DomainName {2} -Environment {3} -FileShares {4} -FSLogix {5} -HostPoolName {6} -HostPoolRegistrationToken {7} -ImageOffer {8} -ImagePublisher {9} -NetAppFileShare {10} -NvidiaVmSize {11} -PooledHostPool {12} -RdpShortPath {13} -ScreenCaptureProtection {14} -StorageAccountPrefix {15} -StorageCount {16} -StorageIndex {17} -StorageSolution {18} -StorageSuffix {19}', variables('AmdVmSize'), parameters('DisaStigCompliance'), parameters('DomainName'), environment().name, parameters('FileShares'), parameters('Fslogix'), parameters('HostPoolName'), reference(resourceId(parameters('HostPoolResourceGroupName'), 'Microsoft.DesktopVirtualization/hostpools', parameters('HostPoolName')), '2019-12-10-preview').registrationInfo.token, parameters('ImageOffer'), parameters('ImagePublisher'), parameters('NetAppFileShare'), variables('NvidiaVmSize'), variables('PooledHostPool'), parameters('RdpShortPath'), parameters('ScreenCaptureProtection'), parameters('StorageAccountPrefix'), parameters('StorageCount'), parameters('StorageIndex'), parameters('StorageSolution'), parameters('StorageSuffix'))]"
+                          "commandToExecute": "[format('powershell -ExecutionPolicy Unrestricted -File Set-SessionHostConfiguration.ps1 -AmdVmSize {0} -DisaStigCompliance {1} -DomainName {2} -Environment {3} -FileShares {4} -FSLogix {5} -HostPoolName {6} -HostPoolRegistrationToken {7} -ImageOffer {8} -ImagePublisher {9} -NetAppFileShare {10} -NvidiaVmSize {11} -PooledHostPool {12} -RdpShortPath {13} -ScreenCaptureProtection {14} -StorageAccountPrefix {15} -StorageCount {16} -StorageIndex {17} -StorageSolution {18} -StorageSuffix {19}', variables('AmdVmSize'), parameters('DisaStigCompliance'), parameters('DomainName'), environment().name, parameters('FileShares'), parameters('Fslogix'), parameters('HostPoolName'), reference(resourceId(variables('ManagementResourceGroup'), 'Microsoft.DesktopVirtualization/hostpools', parameters('HostPoolName')), '2019-12-10-preview').registrationInfo.token, parameters('ImageOffer'), parameters('ImagePublisher'), parameters('NetAppFileShare'), variables('NvidiaVmSize'), variables('PooledHostPool'), parameters('RdpShortPath'), parameters('ScreenCaptureProtection'), parameters('StorageAccountPrefix'), parameters('StorageCount'), parameters('StorageIndex'), parameters('StorageSolution'), parameters('StorageSuffix'))]"
                         }
                       },
                       "dependsOn": [
@@ -5816,10 +5814,10 @@
                         "forceUpdateTag": "[parameters('Timestamp')]",
                         "settings": {
                           "EncryptionOperation": "EnableEncryption",
-                          "KeyVaultURL": "[reference(resourceId(parameters('ManagementResourceGroup'), 'Microsoft.KeyVault/vaults', parameters('KeyVaultName')), '2016-10-01').properties.vaultUri]",
-                          "KeyVaultResourceId": "[resourceId(parameters('ManagementResourceGroup'), 'Microsoft.KeyVault/vaults', parameters('KeyVaultName'))]",
-                          "KeyEncryptionKeyURL": "[reference(resourceId(parameters('ManagementResourceGroup'), 'Microsoft.KeyVault/vaults', parameters('KeyVaultName')), '2016-10-01').properties.outputs.text]",
-                          "KekVaultResourceId": "[resourceId(parameters('ManagementResourceGroup'), 'Microsoft.KeyVault/vaults', parameters('KeyVaultName'))]",
+                          "KeyVaultURL": "[reference(resourceId(variables('ManagementResourceGroup'), 'Microsoft.KeyVault/vaults', parameters('KeyVaultName')), '2016-10-01').properties.vaultUri]",
+                          "KeyVaultResourceId": "[resourceId(variables('ManagementResourceGroup'), 'Microsoft.KeyVault/vaults', parameters('KeyVaultName'))]",
+                          "KeyEncryptionKeyURL": "[reference(resourceId(variables('DeploymentResourceGroup'), 'Microsoft.Resources/deploymentScripts', format('ds-{0}-bitlockerKek', parameters('NamingStandard'))), '2019-10-01-preview').properties.outputs.text]",
+                          "KekVaultResourceId": "[resourceId(variables('ManagementResourceGroup'), 'Microsoft.KeyVault/vaults', parameters('KeyVaultName'))]",
                           "KeyEncryptionAlgorithm": "RSA-OAEP",
                           "VolumeType": "All",
                           "ResizeOSDisk": false
@@ -5847,7 +5845,7 @@
                         "autoUpgradeMinorVersion": true,
                         "protectedSettings": {
                           "Items": {
-                            "registrationKeyPrivate": "[listKeys(resourceId(parameters('ManagementResourceGroup'), 'Microsoft.Automation/automationAccounts', parameters('AutomationAccountName')), '2018-06-30').Keys[0].value]"
+                            "registrationKeyPrivate": "[listKeys(resourceId(variables('ManagementResourceGroup'), 'Microsoft.Automation/automationAccounts', parameters('AutomationAccountName')), '2018-06-30').Keys[0].value]"
                           }
                         },
                         "settings": {
@@ -5862,7 +5860,7 @@
                             },
                             {
                               "Name": "RegistrationUrl",
-                              "Value": "[reference(resourceId(parameters('ManagementResourceGroup'), 'Microsoft.Automation/automationAccounts', parameters('AutomationAccountName')), '2018-06-30').registrationUrl]",
+                              "Value": "[reference(resourceId(variables('ManagementResourceGroup'), 'Microsoft.Automation/automationAccounts', parameters('AutomationAccountName')), '2018-06-30').registrationUrl]",
                               "TypeName": "System.String"
                             },
                             {

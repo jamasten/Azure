@@ -100,7 +100,6 @@ module virtualMachines 'virtualMachines.bicep' = [for i in range(1, SessionHostB
     FileShares: FileShares
     Fslogix: Fslogix
     HostPoolName: HostPoolName
-    HostPoolResourceGroupName: ResourceGroups[2] // Management Resource Group
     HostPoolType: HostPoolType
     ImageOffer: ImageOffer
     ImagePublisher: ImagePublisher
@@ -109,13 +108,13 @@ module virtualMachines 'virtualMachines.bicep' = [for i in range(1, SessionHostB
     KeyVaultName: KeyVaultName
     Location: Location
     LogAnalyticsWorkspaceName: LogAnalyticsWorkspaceName
-    ManagementResourceGroup: ResourceGroups[2]
     Monitoring: Monitoring
     NamingStandard: NamingStandard
     NetworkSecurityGroupName: NetworkSecurityGroupName
     NetAppFileShare: NetAppFileShare
     OuPath: OuPath
     RdpShortPath: RdpShortPath
+    ResourceGroups: ResourceGroups
     ScreenCaptureProtection: ScreenCaptureProtection
     SasToken: SasToken
     ScriptsUri: ScriptsUri

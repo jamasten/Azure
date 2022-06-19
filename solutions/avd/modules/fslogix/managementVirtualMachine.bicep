@@ -5,9 +5,9 @@ param DomainJoinUserPrincipalName string
 param DomainName string
 param KeyVaultName string
 param Location string
-param ManagementResourceGroup string
 param ManagementVmName string
 param NamingStandard string
+param ResourceGroups array
 param Subnet string
 param Tags object
 param Timestamp string
@@ -18,6 +18,8 @@ param VmPassword string
 param VmUsername string
 
 
+var DeploymentResourceGroup = ResourceGroups[0] // Deployment Resource Group
+var ManagementResourceGroup = ResourceGroups[2] // Management Resource Group
 var NicName = 'nic-${NamingStandard}-mgt'
 
 
@@ -141,7 +143,7 @@ resource extension_AzureDiskEncryption 'Microsoft.Compute/virtualMachines/extens
       EncryptionOperation: 'EnableEncryption'
       KeyVaultURL: reference(resourceId(ManagementResourceGroup, 'Microsoft.KeyVault/vaults', KeyVaultName), '2016-10-01').properties.vaultUri
       KeyVaultResourceId: resourceId(ManagementResourceGroup, 'Microsoft.KeyVault/vaults', KeyVaultName)
-      KeyEncryptionKeyURL: reference(resourceId(ManagementResourceGroup, 'Microsoft.KeyVault/vaults', KeyVaultName), '2016-10-01').properties.outputs.text
+      KeyEncryptionKeyURL: reference(resourceId(DeploymentResourceGroup, 'Microsoft.Resources/deploymentScripts', 'ds-${NamingStandard}-bitlockerKek'), '2019-10-01-preview').properties.outputs.text
       KekVaultResourceId: resourceId(ManagementResourceGroup, 'Microsoft.KeyVault/vaults', KeyVaultName)
       KeyEncryptionAlgorithm: 'RSA-OAEP'
       VolumeType: 'All'

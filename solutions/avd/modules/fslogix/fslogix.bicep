@@ -69,9 +69,9 @@ module managementVirtualMachine 'managementVirtualMachine.bicep' = if(!contains(
     DomainName: DomainName
     KeyVaultName: KeyVaultName
     Location: Location
-    ManagementResourceGroup: ResourceGroups[2] // Management Resource Group
     ManagementVmName: ManagementVmName
     NamingStandard: NamingStandard
+    ResourceGroups: ResourceGroups
     Subnet: Subnet
     Tags: Tags
     Timestamp: Timestamp

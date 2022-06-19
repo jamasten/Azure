@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.6.18.56646",
-      "templateHash": "15542327079085650633"
+      "templateHash": "2197271120574858223"
     }
   },
   "parameters": {
@@ -2711,7 +2711,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.6.18.56646",
-              "templateHash": "3785784566362948172"
+              "templateHash": "13183168878922193337"
             }
           },
           "parameters": {
@@ -3536,7 +3536,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.6.18.56646",
-                      "templateHash": "786975773721627448"
+                      "templateHash": "8511047066336790314"
                     }
                   },
                   "parameters": {
@@ -3668,6 +3668,7 @@
                     }
                   },
                   "variables": {
+                    "DeploymentResourceGroup": "[parameters('ResourceGroups')[0]]",
                     "Endpoint": "[split(parameters('FslogixStorage'), ' ')[2]]",
                     "ResourceGroupName": "[resourceGroup().name]",
                     "SmbMultiChannel": {
@@ -3743,7 +3744,7 @@
                       "name": "[guid(format('{0}{1}', parameters('StorageAccountPrefix'), padLeft(range(parameters('StorageIndex'), parameters('StorageCount'))[range(parameters('StorageIndex'), parameters('StorageCount'))[copyIndex()]], 2, '0')), parameters('RoleDefinitionIds').contributor, parameters('ManagementVmName'))]",
                       "properties": {
                         "roleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', parameters('RoleDefinitionIds').contributor)]",
-                        "principalId": "[reference(resourceId('Microsoft.Compute/virtualMachines', parameters('ManagementVmName')), '2020-12-01', 'Full').identity.principalId]",
+                        "principalId": "[reference(resourceId(variables('DeploymentResourceGroup'), 'Microsoft.Compute/virtualMachines', parameters('ManagementVmName')), '2020-12-01', 'Full').identity.principalId]",
                         "principalType": "ServicePrincipal"
                       },
                       "dependsOn": [

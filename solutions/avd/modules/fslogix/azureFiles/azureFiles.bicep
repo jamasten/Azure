@@ -44,6 +44,7 @@ param VmPassword string
 param VmUsername string
 
 
+var DeploymentResourceGroup = ResourceGroups[0]
 var Endpoint = split(FslogixStorage, ' ')[2]
 var ResourceGroupName = resourceGroup().name
 var SmbMultiChannel = {
@@ -110,7 +111,7 @@ resource roleAssignment_Vm 'Microsoft.Authorization/roleAssignments@2020-04-01-p
   name: guid(storageAccounts[i].name, RoleDefinitionIds.contributor, ManagementVmName)
   properties: {
     roleDefinitionId: resourceId('Microsoft.Authorization/roleDefinitions', RoleDefinitionIds.contributor)
-    principalId: reference(resourceId('Microsoft.Compute/virtualMachines', ManagementVmName), '2020-12-01', 'Full').identity.principalId
+    principalId: reference(resourceId(DeploymentResourceGroup, 'Microsoft.Compute/virtualMachines', ManagementVmName), '2020-12-01', 'Full').identity.principalId
     principalType: 'ServicePrincipal'
   }
 }]

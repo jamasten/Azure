@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.6.18.56646",
-      "templateHash": "13032136888120247098"
+      "templateHash": "761166377886262043"
     }
   },
   "parameters": {
@@ -1065,7 +1065,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.6.18.56646",
-              "templateHash": "6593067273021845721"
+              "templateHash": "2040563364471049729"
             }
           },
           "parameters": {
@@ -1179,10 +1179,6 @@
               "type": "string",
               "value": "[reference(resourceId('Microsoft.Resources/deploymentScripts', format('ds-{0}-validation', parameters('NamingStandard')))).outputs.anfActiveDirectory]"
             },
-            "avdObjectId": {
-              "type": "string",
-              "value": "[reference(resourceId('Microsoft.Resources/deploymentScripts', format('ds-{0}-validation', parameters('NamingStandard')))).outputs.avdObjectId]"
-            },
             "dnsServers": {
               "type": "string",
               "value": "[reference(resourceId('Microsoft.Resources/deploymentScripts', format('ds-{0}-validation', parameters('NamingStandard')))).outputs.dnsServers]"
@@ -1190,14 +1186,6 @@
             "ephemeralOsDisk": {
               "type": "string",
               "value": "[reference(resourceId('Microsoft.Resources/deploymentScripts', format('ds-{0}-validation', parameters('NamingStandard')))).outputs.ephemeralOsDisk]"
-            },
-            "sessionHostBatches": {
-              "type": "array",
-              "value": "[reference(resourceId('Microsoft.Resources/deploymentScripts', format('ds-{0}-validation', parameters('NamingStandard')))).outputs.sessionHostBatches]"
-            },
-            "sessionHostIndexes": {
-              "type": "array",
-              "value": "[reference(resourceId('Microsoft.Resources/deploymentScripts', format('ds-{0}-validation', parameters('NamingStandard')))).outputs.sessionHostIndexes]"
             },
             "subnetId": {
               "type": "string",

@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.6.18.56646",
-      "templateHash": "5200047008470659982"
+      "templateHash": "15542327079085650633"
     }
   },
   "parameters": {
@@ -2711,7 +2711,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.6.18.56646",
-              "templateHash": "4174635804142047597"
+              "templateHash": "3785784566362948172"
             }
           },
           "parameters": {
@@ -2941,7 +2941,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.6.18.56646",
-                      "templateHash": "13745435564998210564"
+                      "templateHash": "7045095565741959010"
                     }
                   },
                   "parameters": {
@@ -3130,7 +3130,7 @@
                           "EncryptionOperation": "EnableEncryption",
                           "KeyVaultURL": "[reference(resourceId(variables('ManagementResourceGroup'), 'Microsoft.KeyVault/vaults', parameters('KeyVaultName')), '2016-10-01', 'Full').properties.vaultUri]",
                           "KeyVaultResourceId": "[resourceId(variables('ManagementResourceGroup'), 'Microsoft.KeyVault/vaults', parameters('KeyVaultName'))]",
-                          "KeyEncryptionKeyURL": "[reference(resourceId(variables('DeploymentResourceGroup'), 'Microsoft.Resources/deploymentScripts', format('ds-{0}-bitlockerKek', parameters('NamingStandard'))), '2019-10-01-preview').properties.outputs.text]",
+                          "KeyEncryptionKeyURL": "[reference(resourceId(variables('DeploymentResourceGroup'), 'Microsoft.Resources/deploymentScripts', format('ds-{0}-bitlockerKek', parameters('NamingStandard'))), '2019-10-01-preview', 'Full').properties.outputs.text]",
                           "KekVaultResourceId": "[resourceId(variables('ManagementResourceGroup'), 'Microsoft.KeyVault/vaults', parameters('KeyVaultName'))]",
                           "KeyEncryptionAlgorithm": "RSA-OAEP",
                           "VolumeType": "All",
@@ -4024,7 +4024,7 @@
                       "condition": "[parameters('PrivateEndpoint')]",
                       "type": "Microsoft.Resources/deployments",
                       "apiVersion": "2020-10-01",
-                      "name": "[format('dnsForwarder_{0}', parameters('Timestamp'))]",
+                      "name": "[format('DnsForwarder_{0}', parameters('Timestamp'))]",
                       "resourceGroup": "[variables('ResourceGroupName')]",
                       "properties": {
                         "expressionEvaluationOptions": {
@@ -4478,7 +4478,7 @@
                       "condition": "[not(contains(parameters('DomainServices'), 'None'))]",
                       "type": "Microsoft.Resources/deployments",
                       "apiVersion": "2020-10-01",
-                      "name": "[format('fslogixNtfsPermissions_{0}', parameters('Timestamp'))]",
+                      "name": "[format('FslogixNtfsPermissions_{0}', parameters('Timestamp'))]",
                       "resourceGroup": "[parameters('ResourceGroups')[0]]",
                       "properties": {
                         "expressionEvaluationOptions": {
@@ -4841,7 +4841,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.6.18.56646",
-              "templateHash": "14304032734647489933"
+              "templateHash": "12904255555244375948"
             }
           },
           "parameters": {
@@ -5149,7 +5149,7 @@
               },
               "type": "Microsoft.Resources/deployments",
               "apiVersion": "2020-10-01",
-              "name": "[format('sessionHosts_{0}_{1}', sub(range(1, parameters('SessionHostBatchCount'))[copyIndex()], 1), parameters('Timestamp'))]",
+              "name": "[format('VirtualMachines_{0}_{1}', sub(range(1, parameters('SessionHostBatchCount'))[copyIndex()], 1), parameters('Timestamp'))]",
               "resourceGroup": "[parameters('ResourceGroups')[1]]",
               "properties": {
                 "expressionEvaluationOptions": {
@@ -5315,7 +5315,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.6.18.56646",
-                      "templateHash": "10937367157277141987"
+                      "templateHash": "9199788853849717624"
                     }
                   },
                   "parameters": {
@@ -5816,7 +5816,7 @@
                           "EncryptionOperation": "EnableEncryption",
                           "KeyVaultURL": "[reference(resourceId(variables('ManagementResourceGroup'), 'Microsoft.KeyVault/vaults', parameters('KeyVaultName')), '2016-10-01', 'Full').properties.vaultUri]",
                           "KeyVaultResourceId": "[resourceId(variables('ManagementResourceGroup'), 'Microsoft.KeyVault/vaults', parameters('KeyVaultName'))]",
-                          "KeyEncryptionKeyURL": "[reference(resourceId(variables('DeploymentResourceGroup'), 'Microsoft.Resources/deploymentScripts', format('ds-{0}-bitlockerKek', parameters('NamingStandard'))), '2019-10-01-preview').properties.outputs.text]",
+                          "KeyEncryptionKeyURL": "[reference(resourceId(variables('DeploymentResourceGroup'), 'Microsoft.Resources/deploymentScripts', format('ds-{0}-bitlockerKek', parameters('NamingStandard'))), '2019-10-01-preview', 'Full').properties.outputs.text]",
                           "KekVaultResourceId": "[resourceId(variables('ManagementResourceGroup'), 'Microsoft.KeyVault/vaults', parameters('KeyVaultName'))]",
                           "KeyEncryptionAlgorithm": "RSA-OAEP",
                           "VolumeType": "All",

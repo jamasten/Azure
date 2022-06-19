@@ -11,6 +11,9 @@ param ArtifactsLocation string = 'https://raw.githubusercontent.com/jamasten/Azu
 @description('Set the desired availability / SLA with a pooled host pool.  Choose "None" if deploying a personal host pool.')
 param Availability string = 'None'
 
+@description('The Object ID for the Windows Virtual Desktop Enterprise Application in Azure AD.  The Object ID can found by selecting Microsoft Applications using the Application type filter in the Enterprise Applications blade of Azure AD.')
+param AvdObjectId string
+
 @description('Input RDP properties to add or remove RDP functionality on the AVD host pool. Settings reference: https://docs.microsoft.com/en-us/windows-server/remote/remote-desktop-services/clients/rdp-files?context=/azure/virtual-desktop/context/context')
 param CustomRdpProperty string = 'audiocapturemode:i:1;camerastoredirect:s:*;use multimon:i:0;drivestoredirect:s:;'
 
@@ -517,7 +520,7 @@ module validation 'modules/validation.bicep' = {
 module startVmOnConnect 'modules/startVmOnConnect.bicep' = if(StartVmOnConnect) {
   name: 'StartVmOnConnect_${Timestamp}'
   params: {
-    PrincipalId: validation.outputs.avdObjectId
+    PrincipalId: AvdObjectId
   }
 }
 

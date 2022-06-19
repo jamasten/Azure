@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.6.18.56646",
-      "templateHash": "13114696104624701774"
+      "templateHash": "13032136888120247098"
     }
   },
   "parameters": {
@@ -27,6 +27,12 @@
         "AvailabilityZones",
         "None"
       ]
+    },
+    "AvdObjectId": {
+      "type": "string",
+      "metadata": {
+        "description": "The Object ID for the Windows Virtual Desktop Enterprise Application in Azure AD.  The Object ID can found by selecting Microsoft Applications using the Application type filter in the Enterprise Applications blade of Azure AD."
+      }
     },
     "CustomRdpProperty": {
       "type": "string",
@@ -1218,7 +1224,7 @@
         "mode": "Incremental",
         "parameters": {
           "PrincipalId": {
-            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroups')[0]), 'Microsoft.Resources/deployments', format('Validation_{0}', parameters('Timestamp')))).outputs.avdObjectId.value]"
+            "value": "[parameters('AvdObjectId')]"
           }
         },
         "template": {
@@ -1274,10 +1280,7 @@
             }
           ]
         }
-      },
-      "dependsOn": [
-        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroups')[0]), 'Microsoft.Resources/deployments', format('Validation_{0}', parameters('Timestamp')))]"
-      ]
+      }
     },
     {
       "condition": "[or(variables('PooledHostPool'), parameters('DisaStigCompliance'))]",

@@ -82,11 +82,11 @@ if($Availability -eq 'AvailabilityZones' -and $Sku.locationInfo.zones.count -lt 
 
 # AVD Object ID Output
 # https://docs.microsoft.com/en-us/azure/virtual-desktop/start-virtual-machine-connect?tabs=azure-portal#assign-the-custom-role-with-the-azure-portal
-if($StartVmOnConnect -eq 'true')
+<# if($StartVmOnConnect -eq 'true')
 {
-    $AvdObjectId = (Get-AzADServicePrincipal -ApplicationId 9cdead84-a844-4324-93f2-b2e6bb768d07).Id
+    $AvdObjectId = (Get-AzADServicePrincipal -ApplicationId '9cdead84-a844-4324-93f2-b2e6bb768d07').Id
 }
-$DeploymentScriptOutputs["avdObjectId"] = $AvdObjectId
+$DeploymentScriptOutputs["avdObjectId"] = $AvdObjectId #>
 
 
 # Azure NetApp Files Validation & Output

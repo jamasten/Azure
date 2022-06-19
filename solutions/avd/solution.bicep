@@ -713,7 +713,7 @@ module sessionHosts 'modules/sessionHosts/sessionHosts.bicep' = {
     MaxResourcesPerTemplateDeployment: MaxResourcesPerTemplateDeployment
     Monitoring: Monitoring
     NamingStandard: NamingStandard
-    NetAppFileShare: StorageSolution == 'AzureNetAppFiles' ? fslogix.outputs.netAppShare : 'None'
+    NetAppFileShare: fslogix.outputs.netAppShare
     NetworkSecurityGroupName: NetworkSecurityGroupName
     OuPath: OuPath
     PooledHostPool: PooledHostPool

@@ -167,4 +167,4 @@ module azureFiles 'azureFiles/azureFiles.bicep' = if(StorageSolution == 'AzureSt
   ]
 }
 
-output netAppShare string = azureNetAppFiles.outputs.fileShare
+output netAppShare string = StorageSolution == 'AzureNetAppFiles' ? azureNetAppFiles.outputs.fileShare : 'None'

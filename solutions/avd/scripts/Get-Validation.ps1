@@ -105,11 +105,17 @@ if($FSLogixStorage -like "AzureNetAppFiles*")
     foreach($Account in $Accounts)
     {
         $AD = Get-AzNetAppFilesActiveDirectory -ResourceGroupName $Account.ResourceGroupName -AccountName $Account.Name
-        if($AD.ActiveDirectoryId){$DeployAnfAd = "false"}
+        if($AD.ActiveDirectoryId){$DeployAnfAd = 'false'}
     }
     $DeploymentScriptOutputs["dnsServers"] = $DnsServers
     $DeploymentScriptOutputs["subnetId"] = $SubnetId
     $DeploymentScriptOutputs["anfActiveDirectory"] = $DeployAnfAd
+}
+else 
+{
+    $DeploymentScriptOutputs["dnsServers"] = 'NotApplicable'
+    $DeploymentScriptOutputs["subnetId"] = 'NotApplicable'
+    $DeploymentScriptOutputs["anfActiveDirectory"] = 'false'   
 }
 
 

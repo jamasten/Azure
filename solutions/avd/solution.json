@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.6.18.56646",
-      "templateHash": "3773923519054444216"
+      "templateHash": "5200047008470659982"
     }
   },
   "parameters": {
@@ -2711,7 +2711,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.6.18.56646",
-              "templateHash": "8689170993997949540"
+              "templateHash": "4174635804142047597"
             }
           },
           "parameters": {
@@ -2941,7 +2941,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.6.18.56646",
-                      "templateHash": "5036875203602515966"
+                      "templateHash": "13745435564998210564"
                     }
                   },
                   "parameters": {
@@ -3128,7 +3128,7 @@
                         "forceUpdateTag": "[parameters('Timestamp')]",
                         "settings": {
                           "EncryptionOperation": "EnableEncryption",
-                          "KeyVaultURL": "[reference(resourceId(variables('ManagementResourceGroup'), 'Microsoft.KeyVault/vaults', parameters('KeyVaultName')), '2016-10-01').vaultUri]",
+                          "KeyVaultURL": "[reference(resourceId(variables('ManagementResourceGroup'), 'Microsoft.KeyVault/vaults', parameters('KeyVaultName')), '2016-10-01', 'Full').properties.vaultUri]",
                           "KeyVaultResourceId": "[resourceId(variables('ManagementResourceGroup'), 'Microsoft.KeyVault/vaults', parameters('KeyVaultName'))]",
                           "KeyEncryptionKeyURL": "[reference(resourceId(variables('DeploymentResourceGroup'), 'Microsoft.Resources/deploymentScripts', format('ds-{0}-bitlockerKek', parameters('NamingStandard'))), '2019-10-01-preview').properties.outputs.text]",
                           "KekVaultResourceId": "[resourceId(variables('ManagementResourceGroup'), 'Microsoft.KeyVault/vaults', parameters('KeyVaultName'))]",
@@ -4841,7 +4841,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.6.18.56646",
-              "templateHash": "4554532596388336102"
+              "templateHash": "14304032734647489933"
             }
           },
           "parameters": {
@@ -5315,7 +5315,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.6.18.56646",
-                      "templateHash": "13011487982252668302"
+                      "templateHash": "10937367157277141987"
                     }
                   },
                   "parameters": {
@@ -5814,7 +5814,7 @@
                         "forceUpdateTag": "[parameters('Timestamp')]",
                         "settings": {
                           "EncryptionOperation": "EnableEncryption",
-                          "KeyVaultURL": "[reference(resourceId(variables('ManagementResourceGroup'), 'Microsoft.KeyVault/vaults', parameters('KeyVaultName')), '2016-10-01').vaultUri]",
+                          "KeyVaultURL": "[reference(resourceId(variables('ManagementResourceGroup'), 'Microsoft.KeyVault/vaults', parameters('KeyVaultName')), '2016-10-01', 'Full').properties.vaultUri]",
                           "KeyVaultResourceId": "[resourceId(variables('ManagementResourceGroup'), 'Microsoft.KeyVault/vaults', parameters('KeyVaultName'))]",
                           "KeyEncryptionKeyURL": "[reference(resourceId(variables('DeploymentResourceGroup'), 'Microsoft.Resources/deploymentScripts', format('ds-{0}-bitlockerKek', parameters('NamingStandard'))), '2019-10-01-preview').properties.outputs.text]",
                           "KekVaultResourceId": "[resourceId(variables('ManagementResourceGroup'), 'Microsoft.KeyVault/vaults', parameters('KeyVaultName'))]",

@@ -141,7 +141,7 @@ resource extension_AzureDiskEncryption 'Microsoft.Compute/virtualMachines/extens
     forceUpdateTag: Timestamp
     settings: {
       EncryptionOperation: 'EnableEncryption'
-      KeyVaultURL: reference(resourceId(ManagementResourceGroup, 'Microsoft.KeyVault/vaults', KeyVaultName), '2016-10-01').properties.vaultUri
+      KeyVaultURL: reference(resourceId(ManagementResourceGroup, 'Microsoft.KeyVault/vaults', KeyVaultName), '2016-10-01').vaultUri
       KeyVaultResourceId: resourceId(ManagementResourceGroup, 'Microsoft.KeyVault/vaults', KeyVaultName)
       KeyEncryptionKeyURL: reference(resourceId(DeploymentResourceGroup, 'Microsoft.Resources/deploymentScripts', 'ds-${NamingStandard}-bitlockerKek'), '2019-10-01-preview').properties.outputs.text
       KekVaultResourceId: resourceId(ManagementResourceGroup, 'Microsoft.KeyVault/vaults', KeyVaultName)

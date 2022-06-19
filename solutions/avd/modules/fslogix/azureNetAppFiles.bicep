@@ -21,7 +21,7 @@ param Tags object
 param Timestamp string
 
 
-resource netApp_Account 'Microsoft.NetApp/netAppAccounts@2021-06-01' = {
+resource netAppAccount 'Microsoft.NetApp/netAppAccounts@2021-06-01' = {
   name: NetAppAccountName
   location: Location
   tags: Tags
@@ -43,8 +43,8 @@ resource netApp_Account 'Microsoft.NetApp/netAppAccounts@2021-06-01' = {
   }
 }
 
-resource netApp_CapacityPool 'Microsoft.NetApp/netAppAccounts/capacityPools@2021-06-01' = {
-  parent:netApp_Account
+resource capacityPool 'Microsoft.NetApp/netAppAccounts/capacityPools@2021-06-01' = {
+  parent:netAppAccount
   name: NetAppCapacityPoolName
   location: Location
   tags: Tags
@@ -57,8 +57,8 @@ resource netApp_CapacityPool 'Microsoft.NetApp/netAppAccounts/capacityPools@2021
   }
 }
 
-resource netApp_Volume 'Microsoft.NetApp/netAppAccounts/capacityPools/volumes@2021-06-01' = {
-  parent: netApp_CapacityPool
+resource volume 'Microsoft.NetApp/netAppAccounts/capacityPools/volumes@2021-06-01' = {
+  parent: capacityPool
   name: HostPoolName
   location: Location
   tags: Tags
@@ -149,8 +149,8 @@ resource customScriptExtension 'Microsoft.Compute/virtualMachines/extensions@202
     }
   }
   dependsOn: [
-    netApp_Volume
+    volume
   ]
 }
 
-output fileShare string = netApp_Volume.properties.mountTargets[0].smbServerFqdn
+output fileShare string = volume.properties.mountTargets[0].smbServerFqdn

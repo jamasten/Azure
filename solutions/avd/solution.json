@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.6.18.56646",
-      "templateHash": "2197271120574858223"
+      "templateHash": "5287687508861560019"
     }
   },
   "parameters": {
@@ -2711,7 +2711,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.6.18.56646",
-              "templateHash": "13183168878922193337"
+              "templateHash": "17040210002799395869"
             }
           },
           "parameters": {
@@ -4643,7 +4643,7 @@
           "outputs": {
             "netAppShare": {
               "type": "string",
-              "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('ResourceGroups')[3]), 'Microsoft.Resources/deployments', format('AzureNetAppFiles_{0}', parameters('Timestamp'))), '2020-10-01').outputs.fileShare.value]"
+              "value": "[if(equals(parameters('StorageSolution'), 'AzureNetAppFiles'), reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('ResourceGroups')[3]), 'Microsoft.Resources/deployments', format('AzureNetAppFiles_{0}', parameters('Timestamp'))), '2020-10-01').outputs.fileShare.value, 'None')]"
             }
           }
         }
@@ -4754,7 +4754,7 @@
             "value": "[variables('NamingStandard')]"
           },
           "NetAppFileShare": {
-            "value": "[if(equals(variables('StorageSolution'), 'AzureNetAppFiles'), reference(subscriptionResourceId('Microsoft.Resources/deployments', format('FSLogix_{0}', parameters('Timestamp'))), '2020-10-01').outputs.netAppShare.value, 'None')]"
+            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('FSLogix_{0}', parameters('Timestamp'))), '2020-10-01').outputs.netAppShare.value]"
           },
           "NetworkSecurityGroupName": {
             "value": "[variables('NetworkSecurityGroupName')]"

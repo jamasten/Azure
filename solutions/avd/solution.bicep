@@ -463,7 +463,7 @@ resource resourceGroups 'Microsoft.Resources/resourceGroups@2020-10-01' = [for i
 // User Assigned Managed Identity
 // This resource is needed to run several deployment scripts
 module managedIdentity 'modules/managedIdentity/managedIdentity.bicep' = {
-  name: 'managedIdentity_${Timestamp}'
+  name: 'ManagedIdentity_${Timestamp}'
   params: {
     DrainMode: DrainMode
     FslogixStorage: FslogixStorage
@@ -539,7 +539,7 @@ module automationAccount 'modules/automationAccount.bicep' = if(PooledHostPool |
 // AVD Management Resources
 // This module deploys the host pool, desktop application group, & workspace
 module hostPool 'modules/hostPool.bicep' = {
-  name: 'hostPool_${Timestamp}'
+  name: 'HostPool_${Timestamp}'
   scope: resourceGroup(ResourceGroups[2]) // Management Resource Group
   params: {
     AppGroupName: AppGroupName
@@ -565,7 +565,7 @@ module hostPool 'modules/hostPool.bicep' = {
 // Monitoring Resources for AVD Insights
 // This module deploys a Log Analytics Workspace with Windows Events & Windows Performance Counters plus diagnostic settings on the required resources 
 module monitoring 'modules/monitoring.bicep' = if(Monitoring) {
-  name: 'monitoring_${Timestamp}'
+  name: 'Monitoring_${Timestamp}'
   scope: resourceGroup(ResourceGroups[2]) // Management Resource Group
   params: {
     AutomationAccountName: AutomationAccountName
@@ -585,7 +585,7 @@ module monitoring 'modules/monitoring.bicep' = if(Monitoring) {
 }
 
 module bitLocker 'modules/bitlocker/bitLocker.bicep' = if(DiskEncryption) {
-  name: 'bitLocker_${Timestamp}'
+  name: 'BitLocker_${Timestamp}'
   scope: resourceGroup(ResourceGroups[2]) // Management Resource Group
   params: {
     DeploymentResourceGroup: ResourceGroups[0] // Deployment Resource Group
@@ -602,7 +602,7 @@ module bitLocker 'modules/bitlocker/bitLocker.bicep' = if(DiskEncryption) {
 }
 
 module stig 'modules/stig.bicep' = if(DisaStigCompliance) {
-  name: 'stig_${Timestamp}'
+  name: 'STIG_${Timestamp}'
   scope: resourceGroup(ResourceGroups[2]) // Management Resource Group
   params: {
     AutomationAccountName: AutomationAccountName
@@ -750,7 +750,7 @@ module sessionHosts 'modules/sessionHosts/sessionHosts.bicep' = {
 }
 
 module backup 'modules/backup.bicep' = if(RecoveryServices) {
-  name: 'backup_${Timestamp}'
+  name: 'Backup_${Timestamp}'
   scope: resourceGroup(ResourceGroups[2]) // Management Resource Group
   params: {
     DivisionRemainderValue: DivisionRemainderValue
@@ -776,7 +776,7 @@ module backup 'modules/backup.bicep' = if(RecoveryServices) {
 
 // Deploys scaling for the session hosts and Azure Files Premium, if applicable
 module scale 'modules/scale.bicep' = if(PooledHostPool) {
-  name: 'scale_${Timestamp}'
+  name: 'Scale_${Timestamp}'
   scope: resourceGroup(ResourceGroups[2]) // Management Resource Group
   params: {
     AutomationAccountName: AutomationAccountName
@@ -808,7 +808,7 @@ module scale 'modules/scale.bicep' = if(PooledHostPool) {
 
 // Enables drain mode on the session hosts so users cannot login
 module drainMode 'modules/drainMode.bicep' = if(DrainMode) {
-  name: 'drainMode_${Timestamp}'
+  name: 'DrainMode_${Timestamp}'
   scope: resourceGroup(ResourceGroups[0]) // Deployment Resource Group
   params: {
     HostPoolName: HostPoolName

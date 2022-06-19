@@ -81,7 +81,7 @@ module roleAssignments 'roleAssignments.bicep' = if (contains(DomainServices, 'N
 }
 
 module virtualMachines 'virtualMachines.bicep' = [for i in range(1, SessionHostBatchCount): {
-  name: 'sessionHosts_${i-1}_${Timestamp}'
+  name: 'VirtualMachines_${i-1}_${Timestamp}'
   scope: resourceGroup(ResourceGroups[1]) // Hosts Resource Group
   params: {
     AcceleratedNetworking: AcceleratedNetworking

@@ -174,7 +174,7 @@ module privateEndpoint 'privateEndpoint.bicep' = [for i in range(StorageIndex, S
 }]
 
 module dnsForwarder 'dnsForwarder.bicep' = if(PrivateEndpoint) {
-  name: 'dnsForwarder_${Timestamp}'
+  name: 'DnsForwarder_${Timestamp}'
   scope: resourceGroup(ResourceGroupName)
   params: {
     ConfigurationsUri: ConfigurationsUri
@@ -205,7 +205,7 @@ module dnsForwarder 'dnsForwarder.bicep' = if(PrivateEndpoint) {
 }
 
 module ntfsPermissions 'ntfsPermissions.bicep' = if(!contains(DomainServices, 'None')) {
-  name: 'fslogixNtfsPermissions_${Timestamp}'
+  name: 'FslogixNtfsPermissions_${Timestamp}'
   scope: resourceGroup(ResourceGroups[0]) // Deployment Resource Group
   params: {
     DomainJoinPassword: DomainJoinPassword

@@ -688,7 +688,7 @@
     {
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2020-10-01",
-      "name": "[format('managedIdentity_{0}', parameters('Timestamp'))]",
+      "name": "[format('ManagedIdentity_{0}', parameters('Timestamp'))]",
       "location": "[deployment().location]",
       "properties": {
         "expressionEvaluationOptions": {
@@ -1013,7 +1013,7 @@
             "value": "[parameters('Location')]"
           },
           "ManagedIdentityResourceId": {
-            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('managedIdentity_{0}', parameters('Timestamp')))).outputs.resourceIdentifier.value]"
+            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('ManagedIdentity_{0}', parameters('Timestamp')))).outputs.resourceIdentifier.value]"
           },
           "NamingStandard": {
             "value": "[variables('NamingStandard')]"
@@ -1195,7 +1195,7 @@
         }
       },
       "dependsOn": [
-        "[subscriptionResourceId('Microsoft.Resources/deployments', format('managedIdentity_{0}', parameters('Timestamp')))]",
+        "[subscriptionResourceId('Microsoft.Resources/deployments', format('ManagedIdentity_{0}', parameters('Timestamp')))]",
         "resourceGroups"
       ]
     },
@@ -1332,7 +1332,7 @@
     {
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2020-10-01",
-      "name": "[format('hostPool_{0}', parameters('Timestamp'))]",
+      "name": "[format('HostPool_{0}', parameters('Timestamp'))]",
       "resourceGroup": "[variables('ResourceGroups')[2]]",
       "properties": {
         "expressionEvaluationOptions": {
@@ -1524,7 +1524,7 @@
       "condition": "[parameters('Monitoring')]",
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2020-10-01",
-      "name": "[format('monitoring_{0}', parameters('Timestamp'))]",
+      "name": "[format('Monitoring_{0}', parameters('Timestamp'))]",
       "resourceGroup": "[variables('ResourceGroups')[2]]",
       "properties": {
         "expressionEvaluationOptions": {
@@ -2138,7 +2138,7 @@
         }
       },
       "dependsOn": [
-        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroups')[2]), 'Microsoft.Resources/deployments', format('hostPool_{0}', parameters('Timestamp')))]",
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroups')[2]), 'Microsoft.Resources/deployments', format('HostPool_{0}', parameters('Timestamp')))]",
         "resourceGroups"
       ]
     },
@@ -2146,7 +2146,7 @@
       "condition": "[parameters('DiskEncryption')]",
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2020-10-01",
-      "name": "[format('bitLocker_{0}', parameters('Timestamp'))]",
+      "name": "[format('BitLocker_{0}', parameters('Timestamp'))]",
       "resourceGroup": "[variables('ResourceGroups')[2]]",
       "properties": {
         "expressionEvaluationOptions": {
@@ -2164,10 +2164,10 @@
             "value": "[parameters('Location')]"
           },
           "ManagedIdentityPrincipalId": {
-            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('managedIdentity_{0}', parameters('Timestamp')))).outputs.principalId.value]"
+            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('ManagedIdentity_{0}', parameters('Timestamp')))).outputs.principalId.value]"
           },
           "ManagedIdentityResourceId": {
-            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('managedIdentity_{0}', parameters('Timestamp')))).outputs.resourceIdentifier.value]"
+            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('ManagedIdentity_{0}', parameters('Timestamp')))).outputs.resourceIdentifier.value]"
           },
           "NamingStandard": {
             "value": "[variables('NamingStandard')]"
@@ -2354,14 +2354,14 @@
         }
       },
       "dependsOn": [
-        "[subscriptionResourceId('Microsoft.Resources/deployments', format('managedIdentity_{0}', parameters('Timestamp')))]"
+        "[subscriptionResourceId('Microsoft.Resources/deployments', format('ManagedIdentity_{0}', parameters('Timestamp')))]"
       ]
     },
     {
       "condition": "[parameters('DisaStigCompliance')]",
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2020-10-01",
-      "name": "[format('stig_{0}', parameters('Timestamp'))]",
+      "name": "[format('STIG_{0}', parameters('Timestamp'))]",
       "resourceGroup": "[variables('ResourceGroups')[2]]",
       "properties": {
         "expressionEvaluationOptions": {
@@ -2614,7 +2614,7 @@
             "value": "[variables('LocationShortName')]"
           },
           "ManagedIdentityResourceId": {
-            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('managedIdentity_{0}', parameters('Timestamp')))).outputs.resourceIdentifier.value]"
+            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('ManagedIdentity_{0}', parameters('Timestamp')))).outputs.resourceIdentifier.value]"
           },
           "ManagementVmName": {
             "value": "[variables('ManagementVmName')]"
@@ -4648,9 +4648,9 @@
         }
       },
       "dependsOn": [
-        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroups')[2]), 'Microsoft.Resources/deployments', format('bitLocker_{0}', parameters('Timestamp')))]",
-        "[subscriptionResourceId('Microsoft.Resources/deployments', format('managedIdentity_{0}', parameters('Timestamp')))]",
-        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroups')[2]), 'Microsoft.Resources/deployments', format('stig_{0}', parameters('Timestamp')))]",
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroups')[2]), 'Microsoft.Resources/deployments', format('BitLocker_{0}', parameters('Timestamp')))]",
+        "[subscriptionResourceId('Microsoft.Resources/deployments', format('ManagedIdentity_{0}', parameters('Timestamp')))]",
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroups')[2]), 'Microsoft.Resources/deployments', format('STIG_{0}', parameters('Timestamp')))]",
         "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroups')[0]), 'Microsoft.Resources/deployments', format('Validation_{0}', parameters('Timestamp')))]"
       ]
     },
@@ -5906,11 +5906,11 @@
         }
       },
       "dependsOn": [
-        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroups')[2]), 'Microsoft.Resources/deployments', format('bitLocker_{0}', parameters('Timestamp')))]",
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroups')[2]), 'Microsoft.Resources/deployments', format('BitLocker_{0}', parameters('Timestamp')))]",
         "[subscriptionResourceId('Microsoft.Resources/deployments', format('FSLogix_{0}', parameters('Timestamp')))]",
-        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroups')[2]), 'Microsoft.Resources/deployments', format('monitoring_{0}', parameters('Timestamp')))]",
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroups')[2]), 'Microsoft.Resources/deployments', format('Monitoring_{0}', parameters('Timestamp')))]",
         "resourceGroups",
-        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroups')[2]), 'Microsoft.Resources/deployments', format('stig_{0}', parameters('Timestamp')))]",
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroups')[2]), 'Microsoft.Resources/deployments', format('STIG_{0}', parameters('Timestamp')))]",
         "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroups')[0]), 'Microsoft.Resources/deployments', format('Validation_{0}', parameters('Timestamp')))]"
       ]
     },
@@ -5918,7 +5918,7 @@
       "condition": "[parameters('RecoveryServices')]",
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2020-10-01",
-      "name": "[format('backup_{0}', parameters('Timestamp'))]",
+      "name": "[format('Backup_{0}', parameters('Timestamp'))]",
       "resourceGroup": "[variables('ResourceGroups')[2]]",
       "properties": {
         "expressionEvaluationOptions": {
@@ -6245,7 +6245,7 @@
       "condition": "[variables('PooledHostPool')]",
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2020-10-01",
-      "name": "[format('scale_{0}', parameters('Timestamp'))]",
+      "name": "[format('Scale_{0}', parameters('Timestamp'))]",
       "resourceGroup": "[variables('ResourceGroups')[2]]",
       "properties": {
         "expressionEvaluationOptions": {
@@ -6661,7 +6661,7 @@
       },
       "dependsOn": [
         "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroups')[2]), 'Microsoft.Resources/deployments', format('AutomationAccount_{0}', parameters('Timestamp')))]",
-        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroups')[2]), 'Microsoft.Resources/deployments', format('backup_{0}', parameters('Timestamp')))]",
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroups')[2]), 'Microsoft.Resources/deployments', format('Backup_{0}', parameters('Timestamp')))]",
         "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroups')[1]), 'Microsoft.Resources/deployments', format('SessionHosts_{0}', parameters('Timestamp')))]"
       ]
     },
@@ -6669,7 +6669,7 @@
       "condition": "[parameters('DrainMode')]",
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2020-10-01",
-      "name": "[format('drainMode_{0}', parameters('Timestamp'))]",
+      "name": "[format('DrainMode_{0}', parameters('Timestamp'))]",
       "resourceGroup": "[variables('ResourceGroups')[0]]",
       "properties": {
         "expressionEvaluationOptions": {
@@ -6687,7 +6687,7 @@
             "value": "[parameters('Location')]"
           },
           "ManagedIdentityResourceId": {
-            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('managedIdentity_{0}', parameters('Timestamp')))).outputs.resourceIdentifier.value]"
+            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('ManagedIdentity_{0}', parameters('Timestamp')))).outputs.resourceIdentifier.value]"
           },
           "NamingStandard": {
             "value": "[variables('NamingStandard')]"
@@ -6772,7 +6772,7 @@
         }
       },
       "dependsOn": [
-        "[subscriptionResourceId('Microsoft.Resources/deployments', format('managedIdentity_{0}', parameters('Timestamp')))]",
+        "[subscriptionResourceId('Microsoft.Resources/deployments', format('ManagedIdentity_{0}', parameters('Timestamp')))]",
         "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroups')[1]), 'Microsoft.Resources/deployments', format('SessionHosts_{0}', parameters('Timestamp')))]"
       ]
     }

@@ -229,5 +229,7 @@ module ntfsPermissions 'ntfsPermissions.bicep' = if(!contains(DomainServices, 'N
   }
   dependsOn: [
     shares
+    privateEndpoint
+    dnsForwarder
   ]
 }

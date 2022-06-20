@@ -26,7 +26,7 @@ param
     [String]$OuPath,
 
     [Parameter(Mandatory)]
-    [String]$SecurityPrincipalNames,
+    [Array]$SecurityPrincipalNames,
 
     [Parameter(Mandatory)]
     [Int]$StorageCount,

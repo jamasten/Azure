@@ -74,15 +74,23 @@ $ErrorActionPreference = 'Stop'
 try 
 {   
     # Install latest NuGet Provider; recommended for PowerShellGet
-    Install-PackageProvider -Name 'NuGet' -Force
+    $NuGet = Get-PackageProvider | Where-Object {$_.Name -eq 'NuGet'}
+    if(!$NuGet)
+    {
+        Install-PackageProvider -Name 'NuGet' -Force
+    }
     Write-Log -Message "Installed the NuGet Package Provider" -Type 'INFO'
 
     # Install PowerShellGet; prereq for the Az.Storage module
-    Install-Module -Name 'PowerShellGet' -Force
-    Write-Log -Message "Installed the PowerShellGet module" -Type 'INFO'
+    #Install-Module -Name 'PowerShellGet' -Force
+    #Write-Log -Message "Installed the PowerShellGet module" -Type 'INFO'
 
     # Install required Az.Storage module
-    Install-Module -Name 'Az.Storage' -Repository 'PSGallery' -Force
+    $AzStorageModule = Get-Module -ListAvailable | Where-Object {$_.Name -eq 'Az.Storage'}
+    if(!$AzStorageModule)
+    {
+        Install-Module -Name 'Az.Storage' -Repository 'PSGallery' -Force
+    }
     Write-Log -Message "Installed the Az.Storage module" -Type 'INFO'
 
     # Connects to Azure using a User Assigned Managed Identity

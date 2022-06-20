@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.6.18.56646",
-      "templateHash": "5287687508861560019"
+      "templateHash": "7860797614114509376"
     }
   },
   "parameters": {
@@ -2711,7 +2711,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.6.18.56646",
-              "templateHash": "17040210002799395869"
+              "templateHash": "11853588800230176904"
             }
           },
           "parameters": {
@@ -3536,7 +3536,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.6.18.56646",
-                      "templateHash": "8511047066336790314"
+                      "templateHash": "11515250314959182566"
                     }
                   },
                   "parameters": {
@@ -4629,6 +4629,8 @@
                         }
                       },
                       "dependsOn": [
+                        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroupName')), 'Microsoft.Resources/deployments', format('DnsForwarder_{0}', parameters('Timestamp')))]",
+                        "privateEndpoint",
                         "shares"
                       ]
                     }

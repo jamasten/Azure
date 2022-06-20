@@ -136,14 +136,14 @@ if($FSLogixStorage -like "AzureNetAppFiles*")
         $AD = Get-AzNetAppFilesActiveDirectory -ResourceGroupName $Account.ResourceGroupName -AccountName $Account.Name
         if($AD.ActiveDirectoryId){$DeployAnfAd = 'false'}
     }
-    $DeploymentScriptOutputs["dnsServers"] = $DnsServers
-    $DeploymentScriptOutputs["subnetId"] = $SubnetId
+    $DeploymentScriptOutputs["anfDnsServers"] = $DnsServers
+    $DeploymentScriptOutputs["anfSubnetId"] = $SubnetId
     $DeploymentScriptOutputs["anfActiveDirectory"] = $DeployAnfAd
 }
 else 
 {
-    $DeploymentScriptOutputs["dnsServers"] = 'NotApplicable'
-    $DeploymentScriptOutputs["subnetId"] = 'NotApplicable'
+    $DeploymentScriptOutputs["anfDnsServers"] = 'NotApplicable'
+    $DeploymentScriptOutputs["anfSubnetId"] = 'NotApplicable'
     $DeploymentScriptOutputs["anfActiveDirectory"] = 'false'   
 }
 
@@ -157,11 +157,12 @@ if($DiskSku -like "Premium*" -and ($Sku.capabilities | Where-Object {$_.name -eq
 
 # DNS Forwarders
 # This information is used to support Azure Private Link and only used when Private Endpoints are selected for the FSLogix storage.
-$DnsForwarders = (Get-AzVirtualNetwork -Name $VnetName -ResourceGroupName $VnetResourceGroupName).DhcpOptions.DnsServers
+[array]$DnsForwarders = (Get-AzVirtualNetwork -Name $VnetName -ResourceGroupName $VnetResourceGroupName).DhcpOptions.DnsServers
 $DeploymentScriptOutputs["dnsForwarders"] = $DnsForwarders
 
 
 # DNS Server Size
+# This information is used to support Azure Private Link and only used when Private Endpoints are selected for the FSLogix storage.
 $Tests = @()
 $DnsServerSizes = (Get-AzVMSize -Location $Location | Where-Object {$_.Name -match "Standard_D[0-9]s_v[3-9]" -and $_.NumberOfCores -eq 2}).Name
 foreach($DnsServerSize in $DnsServerSizes)

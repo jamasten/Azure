@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.6.18.56646",
-      "templateHash": "7860797614114509376"
+      "templateHash": "15340103888500815771"
     }
   },
   "parameters": {
@@ -66,35 +66,6 @@
       "metadata": {
         "description": "Deploys an Automation Account and uses State Configuration to deploy and monitor DSC compliance.  PowerSTIG is used for the STIG configurations that adhere to DISAs STIG compliance."
       }
-    },
-    "DnsServerForwarderIPAddress01": {
-      "type": "string",
-      "defaultValue": "",
-      "metadata": {
-        "description": "The IP address for the first Forwarder on the DNS Server."
-      }
-    },
-    "DnsServerForwarderIPAddress02": {
-      "type": "string",
-      "defaultValue": "",
-      "metadata": {
-        "description": "The IP address for the second Forwarder on the DNS Server."
-      }
-    },
-    "DnsServerSize": {
-      "type": "string",
-      "defaultValue": "Standard_D2s_v4",
-      "metadata": {
-        "description": "The size of the virtual machine for the DNS server."
-      },
-      "allowedValues": [
-        "Standard_D2s_v4",
-        "Standard_D4s_v4",
-        "Standard_D2s_v3",
-        "Standard_D4s_v3",
-        "Standard_DS2_v2",
-        "Standard_DS3_v2"
-      ]
     },
     "DomainJoinPassword": {
       "type": "secureString",
@@ -505,7 +476,6 @@
     "AppGroupName": "[format('dag-{0}', variables('NamingStandard'))]",
     "AvailabilitySetPrefix": "[format('as-{0}', variables('NamingStandard'))]",
     "AutomationAccountName": "[format('aa-{0}', variables('NamingStandard'))]",
-    "DnsServerForwarderIPAddresses": "[if(empty(parameters('DnsServerForwarderIPAddress02')), createArray(parameters('DnsServerForwarderIPAddress01')), createArray(parameters('DnsServerForwarderIPAddress01'), parameters('DnsServerForwarderIPAddress02')))]",
     "ConfigurationName": "Windows10",
     "ConfigurationsUri": "[format('{0}configurations/', parameters('ArtifactsLocation'))]",
     "FileShareNames": {
@@ -1065,7 +1035,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.6.18.56646",
-              "templateHash": "2040563364471049729"
+              "templateHash": "15533680087352942918"
             }
           },
           "parameters": {
@@ -1179,17 +1149,25 @@
               "type": "string",
               "value": "[reference(resourceId('Microsoft.Resources/deploymentScripts', format('ds-{0}-validation', parameters('NamingStandard')))).outputs.anfActiveDirectory]"
             },
-            "dnsServers": {
+            "anfDnsServers": {
               "type": "string",
-              "value": "[reference(resourceId('Microsoft.Resources/deploymentScripts', format('ds-{0}-validation', parameters('NamingStandard')))).outputs.dnsServers]"
+              "value": "[reference(resourceId('Microsoft.Resources/deploymentScripts', format('ds-{0}-validation', parameters('NamingStandard')))).outputs.anfDnsServers]"
+            },
+            "anfSubnetId": {
+              "type": "string",
+              "value": "[reference(resourceId('Microsoft.Resources/deploymentScripts', format('ds-{0}-validation', parameters('NamingStandard')))).outputs.anfSubnetId]"
+            },
+            "dnsForwarders": {
+              "type": "array",
+              "value": "[reference(resourceId('Microsoft.Resources/deploymentScripts', format('ds-{0}-validation', parameters('NamingStandard')))).outputs.dnsForwarders]"
+            },
+            "dnsServerSize": {
+              "type": "string",
+              "value": "[reference(resourceId('Microsoft.Resources/deploymentScripts', format('ds-{0}-validation', parameters('NamingStandard')))).outputs.dnsServerSize]"
             },
             "ephemeralOsDisk": {
               "type": "string",
               "value": "[reference(resourceId('Microsoft.Resources/deploymentScripts', format('ds-{0}-validation', parameters('NamingStandard')))).outputs.ephemeralOsDisk]"
-            },
-            "subnetId": {
-              "type": "string",
-              "value": "[reference(resourceId('Microsoft.Resources/deploymentScripts', format('ds-{0}-validation', parameters('NamingStandard')))).outputs.subnetId]"
             }
           }
         }
@@ -2554,19 +2532,19 @@
             "value": "[variables('ConfigurationsUri')]"
           },
           "DelegatedSubnetId": {
-            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroups')[0]), 'Microsoft.Resources/deployments', format('Validation_{0}', parameters('Timestamp')))).outputs.subnetId.value]"
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroups')[0]), 'Microsoft.Resources/deployments', format('Validation_{0}', parameters('Timestamp')))).outputs.anfSubnetId.value]"
           },
           "DiskEncryption": {
             "value": "[parameters('DiskEncryption')]"
           },
           "DnsServerForwarderIPAddresses": {
-            "value": "[variables('DnsServerForwarderIPAddresses')]"
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroups')[0]), 'Microsoft.Resources/deployments', format('Validation_{0}', parameters('Timestamp')))).outputs.dnsForwarders.value]"
           },
           "DnsServers": {
-            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroups')[0]), 'Microsoft.Resources/deployments', format('Validation_{0}', parameters('Timestamp')))).outputs.dnsServers.value]"
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroups')[0]), 'Microsoft.Resources/deployments', format('Validation_{0}', parameters('Timestamp')))).outputs.anfDnsServers.value]"
           },
           "DnsServerSize": {
-            "value": "[parameters('DnsServerSize')]"
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroups')[0]), 'Microsoft.Resources/deployments', format('Validation_{0}', parameters('Timestamp')))).outputs.dnsServerSize.value]"
           },
           "DomainJoinPassword": {
             "value": "[parameters('DomainJoinPassword')]"

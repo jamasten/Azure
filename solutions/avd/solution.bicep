@@ -31,23 +31,6 @@ param DiskSku string = 'Standard_LRS'
 @description('Deploys an Automation Account and uses State Configuration to deploy and monitor DSC compliance.  PowerSTIG is used for the STIG configurations that adhere to DISAs STIG compliance.')
 param DisaStigCompliance bool = false
 
-@description('The IP address for the first Forwarder on the DNS Server.')
-param DnsServerForwarderIPAddress01 string = ''
-
-@description('The IP address for the second Forwarder on the DNS Server.')
-param DnsServerForwarderIPAddress02 string = ''
-
-@allowed([
-  'Standard_D2s_v4'
-  'Standard_D4s_v4'
-  'Standard_D2s_v3'
-  'Standard_D4s_v3'
-  'Standard_DS2_v2'
-  'Standard_DS3_v2'
-])
-@description('The size of the virtual machine for the DNS server.')
-param DnsServerSize string = 'Standard_D2s_v4'
-
 @secure()
 @description('The password of the privileged account to domain join the AVD session hosts to your domain')
 param DomainJoinPassword string
@@ -279,12 +262,6 @@ var AvailabilitySetCount = DivisionAvSetRemainderValue > 0 ? DivisionAvSetValue 
 var AppGroupName = 'dag-${NamingStandard}'
 var AvailabilitySetPrefix = 'as-${NamingStandard}'
 var AutomationAccountName = 'aa-${NamingStandard}'
-var DnsServerForwarderIPAddresses = empty(DnsServerForwarderIPAddress02) ? [
-  DnsServerForwarderIPAddress01
-] : [
-  DnsServerForwarderIPAddress01
-  DnsServerForwarderIPAddress02
-]
 var ConfigurationName = 'Windows10'
 var ConfigurationsUri = '${ArtifactsLocation}configurations/'
 var FileShareNames = {
@@ -622,11 +599,11 @@ module fslogix 'modules/fslogix/fslogix.bicep' = if(Fslogix) {
   params: {
     ActiveDirectoryConnection: validation.outputs.anfActiveDirectory
     ConfigurationsUri: ConfigurationsUri
-    DelegatedSubnetId: validation.outputs.subnetId
+    DelegatedSubnetId: validation.outputs.anfSubnetId
     DiskEncryption: DiskEncryption
-    DnsServerForwarderIPAddresses: DnsServerForwarderIPAddresses
-    DnsServers: validation.outputs.dnsServers
-    DnsServerSize: DnsServerSize
+    DnsServerForwarderIPAddresses: validation.outputs.dnsForwarders
+    DnsServers: validation.outputs.anfDnsServers
+    DnsServerSize: validation.outputs.dnsServerSize
     DomainJoinPassword: DomainJoinPassword
     DomainJoinUserPrincipalName: DomainJoinUserPrincipalName
     DomainName: DomainName

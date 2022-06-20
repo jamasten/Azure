@@ -90,7 +90,7 @@ try
     Write-Log -Message "Authenticated to Azure" -Type 'INFO'
 
     $FilesSuffix = '.file.' + $StorageSuffix
-    Write-Log -Message "Azure Files Suffix = $Suffix" -Type 'INFO'
+    Write-Log -Message "Azure Files Suffix = $FilesSuffix" -Type 'INFO'
 
     for($i = $StorageIndex; $i -lt ($StorageIndex + $StorageCount); $i++)
     {

@@ -48,6 +48,8 @@ resource deploymentScript 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
 
 output acceleratedNetworking string = deploymentScript.properties.outputs.acceleratedNetworking
 output anfActiveDirectory string = deploymentScript.properties.outputs.anfActiveDirectory
-output dnsServers string = deploymentScript.properties.outputs.dnsServers
+output anfDnsServers string = deploymentScript.properties.outputs.anfDnsServers
+output anfSubnetId string = deploymentScript.properties.outputs.anfSubnetId
+output dnsForwarders array = deploymentScript.properties.outputs.dnsForwarders
+output dnsServerSize string = deploymentScript.properties.outputs.dnsServerSize
 output ephemeralOsDisk string = deploymentScript.properties.outputs.ephemeralOsDisk
-output subnetId string = deploymentScript.properties.outputs.subnetId

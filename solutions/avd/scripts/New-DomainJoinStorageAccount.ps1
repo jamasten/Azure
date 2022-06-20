@@ -133,7 +133,7 @@ try
             $Description = "Computer account object for Azure storage account $($StorageAccountName)."
 
             # Create the AD computer object for the Azure Storage Account
-            $Computer = Get-ADComputer -Filter {Name -eq $StorageAccountName}
+            $Computer = Get-ADComputer -Credential $Credential -Filter {Name -eq $StorageAccountName}
             if($Computer)
             {
                 Remove-ADComputer -Credential $Credential -Identity $StorageAccountName -Confirm:$false
@@ -146,7 +146,7 @@ try
             Write-Log -Message "Domain 'INFO' collection succeeded" -Type 'INFO'
 
             # Get the SID for the Azure Storage Account Computer Object in AD
-            $ComputerSid = (Get-ADComputer -Identity $StorageAccountName).SID.Value
+            $ComputerSid = (Get-ADComputer -Credential $Credential -Identity $StorageAccountName).SID.Value
             Write-Log -Message "Computer object 'INFO' collection succeeded" -Type 'INFO'
 
             # Update the Azure Storage Account with the domain join 'INFO'

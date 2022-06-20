@@ -150,4 +150,7 @@ resource extension_AzureDiskEncryption 'Microsoft.Compute/virtualMachines/extens
       ResizeOSDisk: false
     }
   }
+  dependsOn: [
+    extension_JsonADDomainExtension
+  ]
 }

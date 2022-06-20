@@ -60,6 +60,34 @@ param(
 
 $ErrorActionPreference = 'Stop'
 
+function Test-AzureCoreQuota {
+param(
+
+    [Parameter(Mandatory)]
+    [string]$Location,
+
+    [Parameter(Mandatory)]
+    [int]$RequestedCores,
+
+    [Parameter(Mandatory)]
+    [string]$VmSize
+
+)
+
+    $Family = (Get-AzComputeResourceSku -Location $Location | Where-Object {$_.Name -eq $VmSize}).Family
+    $CpuData = Get-AzVMUsage -Location $Location | Where-Object {$_.Name.Value -eq $Family}
+    $AvailableCores = $CpuData.Limit - $CpuData.CurrentValue
+    $RequestedCores = $vCPUs * $SessionHostCount
+    if($RequestedCores -gt $AvailableCores)
+    {
+        return $false
+    }
+    else 
+    {
+        return $true
+    }
+}
+
 # Object for collecting output
 $DeploymentScriptOutputs = @{}
 
@@ -81,6 +109,7 @@ if($Availability -eq 'AvailabilityZones' -and $Sku.locationInfo.zones.count -lt 
 
 
 # AVD Object ID Output
+# This cannot be supported until a user-assigned identity can run Get-AzADServicePrincipal with Azure permissions
 # https://docs.microsoft.com/en-us/azure/virtual-desktop/start-virtual-machine-connect?tabs=azure-portal#assign-the-custom-role-with-the-azure-portal
 <# if($StartVmOnConnect -eq 'true')
 {
@@ -124,6 +153,27 @@ if($DiskSku -like "Premium*" -and ($Sku.capabilities | Where-Object {$_.name -eq
 {
     Write-Error -Exception 'Invalid Disk SKU' -Message 'The selected VM Size does not support the Premium SKU for managed disks.'
 }
+
+
+# DNS Forwarders
+# This information is used to support Azure Private Link and only used when Private Endpoints are selected for the FSLogix storage.
+$DnsForwarders = (Get-AzVirtualNetwork -Name $VnetName -ResourceGroupName $VnetResourceGroupName).DhcpOptions.DnsServers
+$DeploymentScriptOutputs["dnsForwarders"] = $DnsForwarders
+
+
+# DNS Server Size
+$Tests = @()
+$DnsServerSizes = (Get-AzVMSize -Location $Location | Where-Object {$_.Name -match "Standard_D[0-9]s_v[3-9]" -and $_.NumberOfCores -eq 2}).Name
+foreach($DnsServerSize in $DnsServerSizes)
+{
+    $Tests += Test-AzureCoreQuota -Location $Location -RequestedCores 2 -VmSize $DnsServerSize
+}
+$Index = [array]::indexof($Tests,$true)
+if($Index -eq -1)
+{
+    Write-Error -Exception 'Insufficient Core Quota for all DS VM families' -Message 'The selected VM Family does not have adequate core quota in the selected location.  Request more quota and once that has been provided, you may redeploy.'
+}
+$DeploymentScriptOutputs["dnsServerSize"] = $DnsServerSizes[$Index]
 
 
 # Ephemeral Disks Validation & Output
@@ -201,11 +251,9 @@ if($vCPUs -lt 4 -or $vCPUs -gt 24)
 
 
 # vCPU Quota Validation
-$Family = (Get-AzComputeResourceSku -Location $Location | Where-Object {$_.Name -eq $VmSize}).Family
-$CpuData = Get-AzVMUsage -Location $Location | Where-Object {$_.Name.Value -eq $Family}
-$AvailableCores = $CpuData.Limit - $CpuData.CurrentValue
 $RequestedCores = $vCPUs * $SessionHostCount
-if($RequestedCores -gt $AvailableCores)
+$Test = Test-AzureCoreQuota -Location $Location -RequestedCores $RequestedCores -VmSize $VmSize
+if(!$Test)
 {
-    Write-Error -Exception 'Insufficient Core Quota' -Message 'The selected VM Family does not have adequate core quota in the selected location.  Request more quota and once that has been provided, you may redeploy.'
+    Write-Error -Exception "Insufficient Core Quota for the $VmSize VM size" -Message 'The selected VM Family does not have adequate core quota in the selected location.  Request more quota and once that has been provided, you may redeploy.'
 }

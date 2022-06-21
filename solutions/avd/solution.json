@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.6.18.56646",
-      "templateHash": "15340103888500815771"
+      "templateHash": "11344312487398727714"
     }
   },
   "parameters": {
@@ -2689,7 +2689,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.6.18.56646",
-              "templateHash": "11853588800230176904"
+              "templateHash": "10415342650277218263"
             }
           },
           "parameters": {
@@ -2919,7 +2919,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.6.18.56646",
-                      "templateHash": "7045095565741959010"
+                      "templateHash": "14059912686551358202"
                     }
                   },
                   "parameters": {
@@ -3116,6 +3116,7 @@
                         }
                       },
                       "dependsOn": [
+                        "[resourceId('Microsoft.Compute/virtualMachines/extensions', parameters('ManagementVmName'), 'JsonADDomainExtension')]",
                         "[resourceId('Microsoft.Compute/virtualMachines', parameters('ManagementVmName'))]"
                       ]
                     }
@@ -3514,7 +3515,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.6.18.56646",
-                      "templateHash": "11515250314959182566"
+                      "templateHash": "5831491992683011870"
                     }
                   },
                   "parameters": {
@@ -4524,7 +4525,7 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "0.6.18.56646",
-                              "templateHash": "2659793297729745708"
+                              "templateHash": "1132828398907356806"
                             }
                           },
                           "parameters": {
@@ -4599,7 +4600,7 @@
                                   "timestamp": "[parameters('Timestamp')]"
                                 },
                                 "protectedSettings": {
-                                  "commandToExecute": "[format('powershell -ExecutionPolicy Unrestricted -File New-DomainJoinStorageAccount.ps1 -DomainJoinPassword \"{0}\" -DomainJoinUserPrincipalName {1} -DomainServices {2} -Environment {3} -KerberosEncryptionType {4} -Netbios {5} -OuPath \"{6}\" -SecurityPrincipalNames \"{7}\" -StorageCount {8} -StorageIndex {9} -StorageAccountPrefix {10} -StorageAccountResourceGroupName {11} -StorageSuffix {12} -SubscriptionId {13} -TenantId {14}', parameters('DomainJoinPassword'), parameters('DomainJoinUserPrincipalName'), parameters('DomainServices'), environment().name, parameters('KerberosEncryptionType'), parameters('Netbios'), parameters('OuPath'), parameters('SecurityPrincipalNames'), parameters('StorageCount'), parameters('StorageIndex'), parameters('StorageAccountPrefix'), parameters('StorageAccountResourceGroupName'), environment().suffixes.storage, subscription().subscriptionId, subscription().tenantId)]"
+                                  "commandToExecute": "[format('powershell -ExecutionPolicy Unrestricted -File New-DomainJoinStorageAccount.ps1 -DomainJoinPassword \"{0}\" -DomainJoinUserPrincipalName {1} -DomainServices {2} -Environment {3} -KerberosEncryptionType {4} -Netbios {5} -OuPath \"{6}\" -SecurityPrincipalNames {7} -StorageCount {8} -StorageIndex {9} -StorageAccountPrefix {10} -StorageAccountResourceGroupName {11} -StorageSuffix {12} -SubscriptionId {13} -TenantId {14}', parameters('DomainJoinPassword'), parameters('DomainJoinUserPrincipalName'), parameters('DomainServices'), environment().name, parameters('KerberosEncryptionType'), parameters('Netbios'), parameters('OuPath'), parameters('SecurityPrincipalNames'), parameters('StorageCount'), parameters('StorageIndex'), parameters('StorageAccountPrefix'), parameters('StorageAccountResourceGroupName'), environment().suffixes.storage, subscription().subscriptionId, subscription().tenantId)]"
                                 }
                               }
                             }

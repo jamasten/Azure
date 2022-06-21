@@ -34,7 +34,7 @@ resource customScriptExtension 'Microsoft.Compute/virtualMachines/extensions@202
       timestamp: Timestamp
     }
     protectedSettings: {
-      commandToExecute: 'powershell -ExecutionPolicy Unrestricted -File New-DomainJoinStorageAccount.ps1 -DomainJoinPassword "${DomainJoinPassword}" -DomainJoinUserPrincipalName ${DomainJoinUserPrincipalName} -DomainServices ${DomainServices} -Environment ${environment().name} -KerberosEncryptionType ${KerberosEncryptionType} -Netbios ${Netbios} -OuPath "${OuPath}" -SecurityPrincipalNames "${SecurityPrincipalNames}" -StorageCount ${StorageCount} -StorageIndex ${StorageIndex} -StorageAccountPrefix ${StorageAccountPrefix} -StorageAccountResourceGroupName ${StorageAccountResourceGroupName} -StorageSuffix ${environment().suffixes.storage} -SubscriptionId ${subscription().subscriptionId} -TenantId ${subscription().tenantId}'
+      commandToExecute: 'powershell -ExecutionPolicy Unrestricted -File New-DomainJoinStorageAccount.ps1 -DomainJoinPassword "${DomainJoinPassword}" -DomainJoinUserPrincipalName ${DomainJoinUserPrincipalName} -DomainServices ${DomainServices} -Environment ${environment().name} -KerberosEncryptionType ${KerberosEncryptionType} -Netbios ${Netbios} -OuPath "${OuPath}" -SecurityPrincipalNames ${SecurityPrincipalNames} -StorageCount ${StorageCount} -StorageIndex ${StorageIndex} -StorageAccountPrefix ${StorageAccountPrefix} -StorageAccountResourceGroupName ${StorageAccountResourceGroupName} -StorageSuffix ${environment().suffixes.storage} -SubscriptionId ${subscription().subscriptionId} -TenantId ${subscription().tenantId}'
     }
   }
 }

@@ -196,6 +196,7 @@ try
 
         # Set the variables required to mount the Azure file share
         $Group = $Netbios + '\' + $SecurityGroupName
+        Write-Log -Message "Group for NTFS Permissions = $Group" -Type 'INFO'
         $Username = 'Azure\' + $StorageAccountName
         $Password = ConvertTo-SecureString -String "$($StorageKey)" -AsPlainText -Force
         [pscredential]$Credential = New-Object System.Management.Automation.PSCredential ($Username, $Password)

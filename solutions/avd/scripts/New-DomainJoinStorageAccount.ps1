@@ -26,7 +26,7 @@ param
     [String]$OuPath,
 
     [Parameter(Mandatory)]
-    [Array]$SecurityPrincipalNames,
+    [String]$SecurityPrincipalNames,
 
     [Parameter(Mandatory)]
     [Int]$StorageCount,
@@ -71,6 +71,10 @@ function Write-Log
 
 $ErrorActionPreference = 'Stop'
 
+# Convert JSON strings to PS arrays
+[array]$SecurityPrincipalNames = $SecurityPrincipalNames | ConvertFrom-Json
+Write-Log -Message "Security Principal Names:" -Type 'INFO'
+$SecurityPrincipalNames | Add-Content -Path 'C:\cse.txt' -Force
 try 
 {   
     # Install latest NuGet Provider; recommended for PowerShellGet

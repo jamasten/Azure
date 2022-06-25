@@ -69,16 +69,15 @@ function Write-Log
     $Entry | Out-File -FilePath $Path -Append
 }
 
-Write-Log -Message "$SecurityPrincipalNames" -Type 'INFO'
-
 $ErrorActionPreference = 'Stop'
 
-# Convert JSON strings to PS arrays
-[array]$SecurityPrincipalNames = $SecurityPrincipalNames | ConvertFrom-Json
-Write-Log -Message "Security Principal Names:" -Type 'INFO'
-$SecurityPrincipalNames | Add-Content -Path 'C:\cse.txt' -Force
 try 
 {   
+    # Convert JSON strings to PS arrays
+    [array]$SecurityPrincipalNames = $SecurityPrincipalNames.Replace("'",'"') | ConvertFrom-Json
+    Write-Log -Message "Security Principal Names:" -Type 'INFO'
+    $SecurityPrincipalNames | Add-Content -Path 'C:\cse.txt' -Force
+
     # Install latest NuGet Provider; recommended for PowerShellGet
     $NuGet = Get-PackageProvider | Where-Object {$_.Name -eq 'NuGet'}
     if(!$NuGet)

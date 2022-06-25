@@ -69,6 +69,8 @@ function Write-Log
     $Entry | Out-File -FilePath $Path -Append
 }
 
+Write-Log -Message "$SecurityPrincipalNames" -Type 'INFO'
+
 $ErrorActionPreference = 'Stop'
 
 # Convert JSON strings to PS arrays

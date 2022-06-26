@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.6.18.56646",
-      "templateHash": "1176424562437175431"
+      "templateHash": "2194494429992800052"
     }
   },
   "parameters": {
@@ -4823,7 +4823,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.6.18.56646",
-              "templateHash": "12904255555244375948"
+              "templateHash": "14392852206622209163"
             }
           },
           "parameters": {
@@ -5297,7 +5297,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.6.18.56646",
-                      "templateHash": "9199788853849717624"
+                      "templateHash": "1142555671440736468"
                     }
                   },
                   "parameters": {
@@ -5638,12 +5638,15 @@
                         "typeHandlerVersion": "1.0",
                         "autoUpgradeMinorVersion": true,
                         "settings": {
-                          "workspaceId": "[reference(resourceId(variables('ManagementResourceGroup'), parameters('LogAnalyticsWorkspaceName')), '2015-03-20').customerId]"
+                          "workspaceId": "[reference(resourceId(variables('ManagementResourceGroup'), 'Microsoft.OperationalInsights/workspaces', parameters('LogAnalyticsWorkspaceName')), '2015-03-20').customerId]"
                         },
                         "protectedSettings": {
-                          "workspaceKey": "[listKeys(resourceId(variables('ManagementResourceGroup'), parameters('LogAnalyticsWorkspaceName')), '2015-03-20').primarySharedKey]"
+                          "workspaceKey": "[listKeys(resourceId(variables('ManagementResourceGroup'), 'Microsoft.OperationalInsights/workspaces', parameters('LogAnalyticsWorkspaceName')), '2015-03-20').primarySharedKey]"
                         }
-                      }
+                      },
+                      "dependsOn": [
+                        "virtualMachine"
+                      ]
                     },
                     {
                       "copy": {

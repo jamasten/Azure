@@ -218,12 +218,15 @@ resource extension_MicrosoftMonitoringAgent 'Microsoft.Compute/virtualMachines/e
     typeHandlerVersion: '1.0'
     autoUpgradeMinorVersion: true
     settings: {
-      workspaceId: reference(resourceId(ManagementResourceGroup, LogAnalyticsWorkspaceName), '2015-03-20').customerId
+      workspaceId: reference(resourceId(ManagementResourceGroup, 'Microsoft.OperationalInsights/workspaces', LogAnalyticsWorkspaceName), '2015-03-20').customerId
     }
     protectedSettings: {
-      workspaceKey: listKeys(resourceId(ManagementResourceGroup, LogAnalyticsWorkspaceName), '2015-03-20').primarySharedKey
+      workspaceKey: listKeys(resourceId(ManagementResourceGroup, 'Microsoft.OperationalInsights/workspaces', LogAnalyticsWorkspaceName), '2015-03-20').primarySharedKey
     }
   }
+  dependsOn: [
+    virtualMachine
+  ]
 }]
 
 resource extension_CustomScriptExtension 'Microsoft.Compute/virtualMachines/extensions@2021-03-01' = [for i in range(0, SessionHostCount): {

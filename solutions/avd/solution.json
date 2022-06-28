@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.6.18.56646",
-      "templateHash": "13280502677472140522"
+      "templateHash": "2156184193301577334"
     }
   },
   "parameters": {
@@ -478,6 +478,7 @@
     "AutomationAccountName": "[format('aa-{0}', variables('NamingStandard'))]",
     "ConfigurationName": "Windows10",
     "ConfigurationsUri": "[format('{0}configurations/', parameters('ArtifactsLocation'))]",
+    "DiskName": "[format('disk-{0}', variables('NamingStandard'))]",
     "FileShareNames": {
       "ProfileContainer": [
         "profilecontainers"
@@ -2689,7 +2690,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.6.18.56646",
-              "templateHash": "17312773616041881719"
+              "templateHash": "14421122393357104511"
             }
           },
           "parameters": {
@@ -2919,7 +2920,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.6.18.56646",
-                      "templateHash": "14059912686551358202"
+                      "templateHash": "3741876369891514816"
                     }
                   },
                   "parameters": {
@@ -3106,9 +3107,9 @@
                         "forceUpdateTag": "[parameters('Timestamp')]",
                         "settings": {
                           "EncryptionOperation": "EnableEncryption",
-                          "KeyVaultURL": "[reference(resourceId(variables('ManagementResourceGroup'), 'Microsoft.KeyVault/vaults', parameters('KeyVaultName')), '2016-10-01', 'Full').properties.vaultUri]",
+                          "KeyVaultURL": "[if(parameters('DiskEncryption'), reference(resourceId(variables('ManagementResourceGroup'), 'Microsoft.KeyVault/vaults', parameters('KeyVaultName')), '2016-10-01', 'Full').properties.vaultUri, null())]",
                           "KeyVaultResourceId": "[resourceId(variables('ManagementResourceGroup'), 'Microsoft.KeyVault/vaults', parameters('KeyVaultName'))]",
-                          "KeyEncryptionKeyURL": "[reference(resourceId(variables('DeploymentResourceGroup'), 'Microsoft.Resources/deploymentScripts', format('ds-{0}-bitlockerKek', parameters('NamingStandard'))), '2019-10-01-preview', 'Full').properties.outputs.text]",
+                          "KeyEncryptionKeyURL": "[if(parameters('DiskEncryption'), reference(resourceId(variables('DeploymentResourceGroup'), 'Microsoft.Resources/deploymentScripts', format('ds-{0}-bitlockerKek', parameters('NamingStandard'))), '2019-10-01-preview', 'Full').properties.outputs.text, null())]",
                           "KekVaultResourceId": "[resourceId(variables('ManagementResourceGroup'), 'Microsoft.KeyVault/vaults', parameters('KeyVaultName'))]",
                           "KeyEncryptionAlgorithm": "RSA-OAEP",
                           "VolumeType": "All",
@@ -4671,6 +4672,9 @@
           "DiskEncryption": {
             "value": "[parameters('DiskEncryption')]"
           },
+          "DiskName": {
+            "value": "[variables('DiskName')]"
+          },
           "DiskSku": {
             "value": "[parameters('DiskSku')]"
           },
@@ -4823,7 +4827,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.6.18.56646",
-              "templateHash": "17217229990517374048"
+              "templateHash": "4549756600408606752"
             }
           },
           "parameters": {
@@ -4850,6 +4854,9 @@
             },
             "DiskEncryption": {
               "type": "bool"
+            },
+            "DiskName": {
+              "type": "string"
             },
             "DiskSku": {
               "type": "string"
@@ -5162,6 +5169,9 @@
                   "DiskEncryption": {
                     "value": "[parameters('DiskEncryption')]"
                   },
+                  "DiskName": {
+                    "value": "[parameters('DiskName')]"
+                  },
                   "DiskSku": {
                     "value": "[parameters('DiskSku')]"
                   },
@@ -5299,7 +5309,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.6.18.56646",
-                      "templateHash": "1011849733534154972"
+                      "templateHash": "8697323086595230579"
                     }
                   },
                   "parameters": {
@@ -5323,6 +5333,9 @@
                     },
                     "DiskEncryption": {
                       "type": "bool"
+                    },
+                    "DiskName": {
+                      "type": "string"
                     },
                     "DiskSku": {
                       "type": "string"
@@ -5482,24 +5495,7 @@
                     ],
                     "NvidiaVmSize": "[contains(variables('NvidiaVmSizes'), parameters('VmSize'))]",
                     "PooledHostPool": "[equals(split(parameters('HostPoolType'), ' ')[0], 'Pooled')]",
-                    "EphemeralOsDisk_var": {
-                      "osType": "Windows",
-                      "createOption": "FromImage",
-                      "caching": "ReadOnly",
-                      "diffDiskSettings": {
-                        "option": "Local",
-                        "placement": "[parameters('EphemeralOsDisk')]"
-                      }
-                    },
                     "ManagementResourceGroup": "[parameters('ResourceGroups')[2]]",
-                    "StatefulOsDisk": {
-                      "osType": "Windows",
-                      "createOption": "FromImage",
-                      "caching": "None",
-                      "managedDisk": {
-                        "storageAccountType": "[parameters('DiskSku')]"
-                      }
-                    },
                     "VmIdentityType": "[if(contains(parameters('DomainServices'), 'None'), if(not(empty(parameters('UserAssignedIdentity'))), 'SystemAssigned, UserAssigned', 'SystemAssigned'), if(not(empty(parameters('UserAssignedIdentity'))), 'UserAssigned', 'None'))]",
                     "VmIdentityTypeProperty": {
                       "type": "[variables('VmIdentityType')]"
@@ -5592,7 +5588,14 @@
                             "sku": "[parameters('ImageSku')]",
                             "version": "[parameters('ImageVersion')]"
                           },
-                          "osDisk": "[if(equals(parameters('EphemeralOsDisk'), 'None'), variables('StatefulOsDisk'), variables('EphemeralOsDisk_var'))]",
+                          "osDisk": {
+                            "name": "[format('{0}{1}', parameters('DiskName'), padLeft(add(range(0, parameters('SessionHostCount'))[copyIndex()], parameters('SessionHostIndex')), 3, '0'))]",
+                            "osType": "Windows",
+                            "createOption": "FromImage",
+                            "caching": "[if(equals(parameters('EphemeralOsDisk'), 'None'), 'None', 'ReadOnly')]",
+                            "managedDisk": "[if(equals(parameters('EphemeralOsDisk'), 'None'), createObject('storageAccountType', parameters('DiskSku')), null())]",
+                            "diffDiskSettings": "[if(equals(parameters('EphemeralOsDisk'), 'None'), null(), createObject('option', 'Local', 'placement', parameters('EphemeralOsDisk')))]"
+                          },
                           "dataDisks": []
                         },
                         "osProfile": {
@@ -5640,10 +5643,10 @@
                         "typeHandlerVersion": "1.0",
                         "autoUpgradeMinorVersion": true,
                         "settings": {
-                          "workspaceId": "[reference(resourceId(variables('ManagementResourceGroup'), 'Microsoft.OperationalInsights/workspaces', parameters('LogAnalyticsWorkspaceName')), '2015-03-20').customerId]"
+                          "workspaceId": "[if(parameters('Monitoring'), reference(resourceId(variables('ManagementResourceGroup'), 'Microsoft.OperationalInsights/workspaces', parameters('LogAnalyticsWorkspaceName')), '2015-03-20').customerId, null())]"
                         },
                         "protectedSettings": {
-                          "workspaceKey": "[listKeys(resourceId(variables('ManagementResourceGroup'), 'Microsoft.OperationalInsights/workspaces', parameters('LogAnalyticsWorkspaceName')), '2015-03-20').primarySharedKey]"
+                          "workspaceKey": "[if(parameters('Monitoring'), listKeys(resourceId(variables('ManagementResourceGroup'), 'Microsoft.OperationalInsights/workspaces', parameters('LogAnalyticsWorkspaceName')), '2015-03-20').primarySharedKey, null())]"
                         }
                       },
                       "dependsOn": [
@@ -5801,9 +5804,9 @@
                         "forceUpdateTag": "[parameters('Timestamp')]",
                         "settings": {
                           "EncryptionOperation": "EnableEncryption",
-                          "KeyVaultURL": "[reference(resourceId(variables('ManagementResourceGroup'), 'Microsoft.KeyVault/vaults', parameters('KeyVaultName')), '2016-10-01', 'Full').properties.vaultUri]",
+                          "KeyVaultURL": "[if(parameters('DiskEncryption'), reference(resourceId(variables('ManagementResourceGroup'), 'Microsoft.KeyVault/vaults', parameters('KeyVaultName')), '2016-10-01', 'Full').properties.vaultUri, null())]",
                           "KeyVaultResourceId": "[resourceId(variables('ManagementResourceGroup'), 'Microsoft.KeyVault/vaults', parameters('KeyVaultName'))]",
-                          "KeyEncryptionKeyURL": "[reference(resourceId(variables('DeploymentResourceGroup'), 'Microsoft.Resources/deploymentScripts', format('ds-{0}-bitlockerKek', parameters('NamingStandard'))), '2019-10-01-preview', 'Full').properties.outputs.text]",
+                          "KeyEncryptionKeyURL": "[if(parameters('DiskEncryption'), reference(resourceId(variables('DeploymentResourceGroup'), 'Microsoft.Resources/deploymentScripts', format('ds-{0}-bitlockerKek', parameters('NamingStandard'))), '2019-10-01-preview', 'Full').properties.outputs.text, null())]",
                           "KekVaultResourceId": "[resourceId(variables('ManagementResourceGroup'), 'Microsoft.KeyVault/vaults', parameters('KeyVaultName'))]",
                           "KeyEncryptionAlgorithm": "RSA-OAEP",
                           "VolumeType": "All",
@@ -5832,7 +5835,7 @@
                         "autoUpgradeMinorVersion": true,
                         "protectedSettings": {
                           "Items": {
-                            "registrationKeyPrivate": "[listKeys(resourceId(variables('ManagementResourceGroup'), 'Microsoft.Automation/automationAccounts', parameters('AutomationAccountName')), '2018-06-30').Keys[0].value]"
+                            "registrationKeyPrivate": "[if(parameters('DisaStigCompliance'), listKeys(resourceId(variables('ManagementResourceGroup'), 'Microsoft.Automation/automationAccounts', parameters('AutomationAccountName')), '2018-06-30').Keys[0].value, null())]"
                           }
                         },
                         "settings": {
@@ -5847,7 +5850,7 @@
                             },
                             {
                               "Name": "RegistrationUrl",
-                              "Value": "[reference(resourceId(variables('ManagementResourceGroup'), 'Microsoft.Automation/automationAccounts', parameters('AutomationAccountName')), '2018-06-30').registrationUrl]",
+                              "Value": "[if(parameters('DisaStigCompliance'), reference(resourceId(variables('ManagementResourceGroup'), 'Microsoft.Automation/automationAccounts', parameters('AutomationAccountName')), '2018-06-30').registrationUrl, null())]",
                               "TypeName": "System.String"
                             },
                             {

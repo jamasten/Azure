@@ -5,6 +5,7 @@ param Availability string
 param ConfigurationName string
 param DisaStigCompliance bool
 param DiskEncryption bool
+param DiskName string
 param DiskSku string
 @secure()
 param DomainJoinPassword string
@@ -76,24 +77,7 @@ var NvidiaVmSizes = [
 ]
 var NvidiaVmSize = contains(NvidiaVmSizes, VmSize)
 var PooledHostPool = (split(HostPoolType, ' ')[0] == 'Pooled')
-var EphemeralOsDisk_var = {
-  osType: 'Windows'
-  createOption: 'FromImage'
-  caching: 'ReadOnly'
-  diffDiskSettings: {
-    option: 'Local'
-    placement: EphemeralOsDisk
-  }
-}
 var ManagementResourceGroup = ResourceGroups[2] // Management Resource Group
-var StatefulOsDisk = {
-  osType: 'Windows'
-  createOption: 'FromImage'
-  caching: 'None'
-  managedDisk: {
-    storageAccountType: DiskSku
-  }
-}
 var VmIdentityType = (contains(DomainServices, 'None') ? ((!empty(UserAssignedIdentity)) ? 'SystemAssigned, UserAssigned' : 'SystemAssigned') : ((!empty(UserAssignedIdentity)) ? 'UserAssigned' : 'None'))
 var VmIdentityTypeProperty = {
   type: VmIdentityType
@@ -176,7 +160,19 @@ resource virtualMachine 'Microsoft.Compute/virtualMachines@2021-03-01' = [for i 
         sku: ImageSku
         version: ImageVersion
       }
-      osDisk: EphemeralOsDisk == 'None' ? StatefulOsDisk : EphemeralOsDisk_var
+      osDisk: {
+        name: '${DiskName}${padLeft((i + SessionHostIndex), 3, '0')}'
+        osType: 'Windows'
+        createOption: 'FromImage'
+        caching: EphemeralOsDisk == 'None' ? 'None' : 'ReadOnly'
+        managedDisk: EphemeralOsDisk == 'None'? {
+          storageAccountType: DiskSku
+        } : null
+        diffDiskSettings: EphemeralOsDisk == 'None' ? null : {
+          option: 'Local'
+          placement: EphemeralOsDisk
+        }
+      }
       dataDisks: []
     }
     osProfile: {
@@ -218,10 +214,10 @@ resource extension_MicrosoftMonitoringAgent 'Microsoft.Compute/virtualMachines/e
     typeHandlerVersion: '1.0'
     autoUpgradeMinorVersion: true
     settings: {
-      workspaceId: reference(resourceId(ManagementResourceGroup, 'Microsoft.OperationalInsights/workspaces', LogAnalyticsWorkspaceName), '2015-03-20').customerId
+      workspaceId: Monitoring ? reference(resourceId(ManagementResourceGroup, 'Microsoft.OperationalInsights/workspaces', LogAnalyticsWorkspaceName), '2015-03-20').customerId : null
     }
     protectedSettings: {
-      workspaceKey: listKeys(resourceId(ManagementResourceGroup, 'Microsoft.OperationalInsights/workspaces', LogAnalyticsWorkspaceName), '2015-03-20').primarySharedKey
+      workspaceKey: Monitoring ? listKeys(resourceId(ManagementResourceGroup, 'Microsoft.OperationalInsights/workspaces', LogAnalyticsWorkspaceName), '2015-03-20').primarySharedKey : null
     }
   }
   dependsOn: [
@@ -346,9 +342,9 @@ resource extension_AzureDiskEncryption 'Microsoft.Compute/virtualMachines/extens
     forceUpdateTag: Timestamp
     settings: {
       EncryptionOperation: 'EnableEncryption'
-      KeyVaultURL: reference(resourceId(ManagementResourceGroup, 'Microsoft.KeyVault/vaults', KeyVaultName), '2016-10-01', 'Full').properties.vaultUri
+      KeyVaultURL: DiskEncryption ? reference(resourceId(ManagementResourceGroup, 'Microsoft.KeyVault/vaults', KeyVaultName), '2016-10-01', 'Full').properties.vaultUri : null
       KeyVaultResourceId: resourceId(ManagementResourceGroup, 'Microsoft.KeyVault/vaults', KeyVaultName)
-      KeyEncryptionKeyURL: reference(resourceId(DeploymentResourceGroup, 'Microsoft.Resources/deploymentScripts', 'ds-${NamingStandard}-bitlockerKek'), '2019-10-01-preview', 'Full').properties.outputs.text
+      KeyEncryptionKeyURL: DiskEncryption ? reference(resourceId(DeploymentResourceGroup, 'Microsoft.Resources/deploymentScripts', 'ds-${NamingStandard}-bitlockerKek'), '2019-10-01-preview', 'Full').properties.outputs.text : null
       KekVaultResourceId: resourceId(ManagementResourceGroup, 'Microsoft.KeyVault/vaults', KeyVaultName)
       KeyEncryptionAlgorithm: 'RSA-OAEP'
       VolumeType: 'All'
@@ -371,7 +367,7 @@ resource extension_DSC 'Microsoft.Compute/virtualMachines/extensions@2019-07-01'
     autoUpgradeMinorVersion: true
     protectedSettings: {
       Items: {
-        registrationKeyPrivate: listKeys(resourceId(ManagementResourceGroup, 'Microsoft.Automation/automationAccounts', AutomationAccountName), '2018-06-30').Keys[0].value
+        registrationKeyPrivate: DisaStigCompliance ? listKeys(resourceId(ManagementResourceGroup, 'Microsoft.Automation/automationAccounts', AutomationAccountName), '2018-06-30').Keys[0].value : null
       }
     }
     settings: {
@@ -386,7 +382,7 @@ resource extension_DSC 'Microsoft.Compute/virtualMachines/extensions@2019-07-01'
         }
         {
           Name: 'RegistrationUrl'
-          Value: reference(resourceId(ManagementResourceGroup, 'Microsoft.Automation/automationAccounts', AutomationAccountName), '2018-06-30').registrationUrl
+          Value: DisaStigCompliance ? reference(resourceId(ManagementResourceGroup, 'Microsoft.Automation/automationAccounts', AutomationAccountName), '2018-06-30').registrationUrl : null
           TypeName: 'System.String'
         }
         {

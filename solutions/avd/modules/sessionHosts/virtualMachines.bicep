@@ -165,6 +165,7 @@ resource virtualMachine 'Microsoft.Compute/virtualMachines@2021-03-01' = [for i 
         osType: 'Windows'
         createOption: 'FromImage'
         caching: EphemeralOsDisk == 'None' ? 'None' : 'ReadOnly'
+        deleteOption: 'Delete'
         managedDisk: EphemeralOsDisk == 'None'? {
           storageAccountType: DiskSku
         } : null
@@ -190,6 +191,9 @@ resource virtualMachine 'Microsoft.Compute/virtualMachines@2021-03-01' = [for i 
       networkInterfaces: [
         {
           id: resourceId('Microsoft.Network/networkInterfaces', 'nic-${NamingStandard}-${padLeft((i + SessionHostIndex), 3, '0')}')
+          properties: {
+            deleteOption: 'Delete'
+          }
         }
       ]
     }

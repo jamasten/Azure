@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.6.18.56646",
-      "templateHash": "2156184193301577334"
+      "templateHash": "2461338404152661681"
     }
   },
   "parameters": {
@@ -4827,7 +4827,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.6.18.56646",
-              "templateHash": "4549756600408606752"
+              "templateHash": "9734624997292980080"
             }
           },
           "parameters": {
@@ -5309,7 +5309,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.6.18.56646",
-                      "templateHash": "8697323086595230579"
+                      "templateHash": "14820217310518965769"
                     }
                   },
                   "parameters": {
@@ -5593,6 +5593,7 @@
                             "osType": "Windows",
                             "createOption": "FromImage",
                             "caching": "[if(equals(parameters('EphemeralOsDisk'), 'None'), 'None', 'ReadOnly')]",
+                            "deleteOption": "Delete",
                             "managedDisk": "[if(equals(parameters('EphemeralOsDisk'), 'None'), createObject('storageAccountType', parameters('DiskSku')), null())]",
                             "diffDiskSettings": "[if(equals(parameters('EphemeralOsDisk'), 'None'), null(), createObject('option', 'Local', 'placement', parameters('EphemeralOsDisk')))]"
                           },
@@ -5612,7 +5613,10 @@
                         "networkProfile": {
                           "networkInterfaces": [
                             {
-                              "id": "[resourceId('Microsoft.Network/networkInterfaces', format('nic-{0}-{1}', parameters('NamingStandard'), padLeft(add(range(0, parameters('SessionHostCount'))[copyIndex()], parameters('SessionHostIndex')), 3, '0')))]"
+                              "id": "[resourceId('Microsoft.Network/networkInterfaces', format('nic-{0}-{1}', parameters('NamingStandard'), padLeft(add(range(0, parameters('SessionHostCount'))[copyIndex()], parameters('SessionHostIndex')), 3, '0')))]",
+                              "properties": {
+                                "deleteOption": "Delete"
+                              }
                             }
                           ]
                         },

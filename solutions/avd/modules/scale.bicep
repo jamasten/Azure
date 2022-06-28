@@ -141,7 +141,7 @@ resource logicApp_ScaleHostPool 'Microsoft.Logic/workflows@2016-06-01' = {
 
 // Logic App to trigger scaling runbook for each "officecontainers" file share 
 resource logicApp_ScaleFileShares_OfficeContainers 'Microsoft.Logic/workflows@2016-06-01' = [for i in range(StorageIndex, StorageCount): if(contains(FslogixStorage, 'AzureStorageAccount Premium')) {
-  name: '${LogicAppPrefix}-${StorageAccountPrefix}${string(i)}-officecontainers'
+  name: '${LogicAppPrefix}-${StorageAccountPrefix}${padLeft(i, 2, '0')}-officecontainers'
   location: Location
   properties: {
     state: 'Enabled'
@@ -157,7 +157,7 @@ resource logicApp_ScaleFileShares_OfficeContainers 'Microsoft.Logic/workflows@20
               Environment: Environment
               FileShareName: 'officecontainers'
               ResourceGroupName: StorageResourceGroupName
-              StorageAccountName: '${StorageAccountPrefix}${string(i)}'
+              StorageAccountName: '${StorageAccountPrefix}${padLeft(i, 2, '0')}'
               SubscriptionId: SubscriptionId
             }
           }
@@ -178,7 +178,7 @@ resource logicApp_ScaleFileShares_OfficeContainers 'Microsoft.Logic/workflows@20
 
 // Logic App to trigger scaling runbook for each "profilecontainers" file share 
 resource logicApp_ScaleFileShares_ProfileContainers 'Microsoft.Logic/workflows@2016-06-01' = [for i in range(StorageIndex, StorageCount): if(contains(FslogixStorage, 'AzureStorageAccount Premium')) {
-  name: '${LogicAppPrefix}-${StorageAccountPrefix}${string(i)}-profilecontainers'
+  name: '${LogicAppPrefix}-${StorageAccountPrefix}${padLeft(i, 2, '0')}-profilecontainers'
   location: Location
   properties: {
     state: 'Enabled'
@@ -194,7 +194,7 @@ resource logicApp_ScaleFileShares_ProfileContainers 'Microsoft.Logic/workflows@2
               Environment: Environment
               FileShareName: 'profilecontainers'
               ResourceGroupName: StorageResourceGroupName
-              StorageAccountName: '${StorageAccountPrefix}${string(i)}'
+              StorageAccountName: '${StorageAccountPrefix}${padLeft(i, 2, '0')}'
               SubscriptionId: SubscriptionId
             }
           }

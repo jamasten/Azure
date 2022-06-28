@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.6.18.56646",
-      "templateHash": "2461338404152661681"
+      "templateHash": "12143154665845356501"
     }
   },
   "parameters": {
@@ -6312,7 +6312,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.6.18.56646",
-              "templateHash": "1714390896679289267"
+              "templateHash": "1095538899237878415"
             }
           },
           "parameters": {
@@ -6519,7 +6519,7 @@
               },
               "type": "Microsoft.Logic/workflows",
               "apiVersion": "2016-06-01",
-              "name": "[format('{0}-{1}{2}-officecontainers', parameters('LogicAppPrefix'), parameters('StorageAccountPrefix'), string(range(parameters('StorageIndex'), parameters('StorageCount'))[copyIndex()]))]",
+              "name": "[format('{0}-{1}{2}-officecontainers', parameters('LogicAppPrefix'), parameters('StorageAccountPrefix'), padLeft(range(parameters('StorageIndex'), parameters('StorageCount'))[copyIndex()], 2, '0'))]",
               "location": "[parameters('Location')]",
               "properties": {
                 "state": "Enabled",
@@ -6535,7 +6535,7 @@
                           "Environment": "[variables('Environment')]",
                           "FileShareName": "officecontainers",
                           "ResourceGroupName": "[parameters('StorageResourceGroupName')]",
-                          "StorageAccountName": "[format('{0}{1}', parameters('StorageAccountPrefix'), string(range(parameters('StorageIndex'), parameters('StorageCount'))[copyIndex()]))]",
+                          "StorageAccountName": "[format('{0}{1}', parameters('StorageAccountPrefix'), padLeft(range(parameters('StorageIndex'), parameters('StorageCount'))[copyIndex()], 2, '0'))]",
                           "SubscriptionId": "[variables('SubscriptionId')]"
                         }
                       }
@@ -6564,7 +6564,7 @@
               },
               "type": "Microsoft.Logic/workflows",
               "apiVersion": "2016-06-01",
-              "name": "[format('{0}-{1}{2}-profilecontainers', parameters('LogicAppPrefix'), parameters('StorageAccountPrefix'), string(range(parameters('StorageIndex'), parameters('StorageCount'))[copyIndex()]))]",
+              "name": "[format('{0}-{1}{2}-profilecontainers', parameters('LogicAppPrefix'), parameters('StorageAccountPrefix'), padLeft(range(parameters('StorageIndex'), parameters('StorageCount'))[copyIndex()], 2, '0'))]",
               "location": "[parameters('Location')]",
               "properties": {
                 "state": "Enabled",
@@ -6580,7 +6580,7 @@
                           "Environment": "[variables('Environment')]",
                           "FileShareName": "profilecontainers",
                           "ResourceGroupName": "[parameters('StorageResourceGroupName')]",
-                          "StorageAccountName": "[format('{0}{1}', parameters('StorageAccountPrefix'), string(range(parameters('StorageIndex'), parameters('StorageCount'))[copyIndex()]))]",
+                          "StorageAccountName": "[format('{0}{1}', parameters('StorageAccountPrefix'), padLeft(range(parameters('StorageIndex'), parameters('StorageCount'))[copyIndex()], 2, '0'))]",
                           "SubscriptionId": "[variables('SubscriptionId')]"
                         }
                       }

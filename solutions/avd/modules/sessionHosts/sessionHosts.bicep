@@ -6,6 +6,7 @@ param Availability string
 param ConfigurationName string
 param DisaStigCompliance bool
 param DiskEncryption bool
+param DiskName string
 param DiskSku string
 param DivisionRemainderValue int
 @secure()
@@ -92,6 +93,7 @@ module virtualMachines 'virtualMachines.bicep' = [for i in range(1, SessionHostB
     ConfigurationName: ConfigurationName
     DisaStigCompliance: DisaStigCompliance
     DiskEncryption: DiskEncryption
+    DiskName: DiskName
     DiskSku: DiskSku
     DomainJoinPassword: DomainJoinPassword
     DomainJoinUserPrincipalName: DomainJoinUserPrincipalName

@@ -264,6 +264,7 @@ var AvailabilitySetPrefix = 'as-${NamingStandard}'
 var AutomationAccountName = 'aa-${NamingStandard}'
 var ConfigurationName = 'Windows10'
 var ConfigurationsUri = '${ArtifactsLocation}configurations/'
+var DiskName = 'disk-${NamingStandard}'
 var FileShareNames = {
   ProfileContainer: [
     'profilecontainers'
@@ -669,6 +670,7 @@ module sessionHosts 'modules/sessionHosts/sessionHosts.bicep' = {
     ConfigurationName: ConfigurationName
     DisaStigCompliance: DisaStigCompliance
     DiskEncryption: DiskEncryption
+    DiskName: DiskName
     DiskSku: DiskSku
     DivisionRemainderValue: DivisionRemainderValue
     DomainJoinPassword: DomainJoinPassword

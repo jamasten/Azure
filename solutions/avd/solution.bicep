@@ -70,7 +70,8 @@ param EphemeralOsDisk bool = false
 param FslogixShareSizeInGB int
 
 @allowed([
-  'CloudCache' // FSLogix Cloud Cache
+  'CloudCacheProfileContainer' // FSLogix Cloud Cache Profile Container
+  'CloudCacheProfileOfficeContainer' // FSLogix Cloud Cache Profile & Office Container
   'ProfileContainer' // FSLogix Profile Container
   'ProfileOfficeContainer' // FSLogix Profile & Office Container
 ])
@@ -266,15 +267,19 @@ var ConfigurationName = 'Windows10'
 var ConfigurationsUri = '${ArtifactsLocation}configurations/'
 var DiskName = 'disk-${NamingStandard}'
 var FileShareNames = {
+  CloudCacheProfileContainer: [
+    'profilecontainers'
+  ]
+  CloudCacheProfileOfficeContainer: [
+    'officecontainers'
+    'profilecontainers'
+  ]
   ProfileContainer: [
     'profilecontainers'
   ]
   ProfileOfficeContainer: [
     'officecontainers'
     'profilecontainers'
-  ]
-  CloudCache: [
-    'cloudcache'
   ]
 }
 var FileShares = FileShareNames[FslogixSolution]
@@ -678,8 +683,8 @@ module sessionHosts 'modules/sessionHosts/sessionHosts.bicep' = {
     DomainName: DomainName
     DomainServices: DomainServices
     EphemeralOsDisk: validation.outputs.ephemeralOsDisk
-    FileShares: FileShares
     Fslogix: Fslogix
+    FslogixSolution: FslogixSolution
     HostPoolName: HostPoolName
     HostPoolType: HostPoolType
     ImageOffer: ImageOffer

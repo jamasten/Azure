@@ -73,7 +73,7 @@ $ErrorActionPreference = 'Stop'
 
 try 
 {   
-    # Convert JSON strings to PS arrays
+    # Convert JSON array to PS array
     [array]$SecurityPrincipalNames = $SecurityPrincipalNames.Replace("'",'"') | ConvertFrom-Json
     Write-Log -Message "Security Principal Names:" -Type 'INFO'
     $SecurityPrincipalNames | Add-Content -Path 'C:\cse.txt' -Force

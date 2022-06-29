@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.6.18.56646",
-      "templateHash": "12143154665845356501"
+      "templateHash": "6245669651140753358"
     }
   },
   "parameters": {
@@ -136,7 +136,8 @@
       "type": "string",
       "defaultValue": "ProfileContainer",
       "allowedValues": [
-        "CloudCache",
+        "CloudCacheProfileContainer",
+        "CloudCacheProfileOfficeContainer",
         "ProfileContainer",
         "ProfileOfficeContainer"
       ]
@@ -480,15 +481,19 @@
     "ConfigurationsUri": "[format('{0}configurations/', parameters('ArtifactsLocation'))]",
     "DiskName": "[format('disk-{0}', variables('NamingStandard'))]",
     "FileShareNames": {
+      "CloudCacheProfileContainer": [
+        "profilecontainers"
+      ],
+      "CloudCacheProfileOfficeContainer": [
+        "officecontainers",
+        "profilecontainers"
+      ],
       "ProfileContainer": [
         "profilecontainers"
       ],
       "ProfileOfficeContainer": [
         "officecontainers",
         "profilecontainers"
-      ],
-      "CloudCache": [
-        "cloudcache"
       ]
     },
     "FileShares": "[variables('FileShareNames')[parameters('FslogixSolution')]]",
@@ -4696,11 +4701,11 @@
           "EphemeralOsDisk": {
             "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroups')[0]), 'Microsoft.Resources/deployments', format('Validation_{0}', parameters('Timestamp')))).outputs.ephemeralOsDisk.value]"
           },
-          "FileShares": {
-            "value": "[variables('FileShares')]"
-          },
           "Fslogix": {
             "value": "[variables('Fslogix')]"
+          },
+          "FslogixSolution": {
+            "value": "[parameters('FslogixSolution')]"
           },
           "HostPoolName": {
             "value": "[variables('HostPoolName')]"
@@ -4827,7 +4832,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.6.18.56646",
-              "templateHash": "9734624997292980080"
+              "templateHash": "8012296139315617289"
             }
           },
           "parameters": {
@@ -4879,8 +4884,8 @@
             "EphemeralOsDisk": {
               "type": "string"
             },
-            "FileShares": {
-              "type": "array"
+            "FslogixSolution": {
+              "type": "string"
             },
             "Fslogix": {
               "type": "bool"
@@ -5190,11 +5195,11 @@
                   "EphemeralOsDisk": {
                     "value": "[parameters('EphemeralOsDisk')]"
                   },
-                  "FileShares": {
-                    "value": "[parameters('FileShares')]"
-                  },
                   "Fslogix": {
                     "value": "[parameters('Fslogix')]"
+                  },
+                  "FslogixSolution": {
+                    "value": "[parameters('FslogixSolution')]"
                   },
                   "HostPoolName": {
                     "value": "[parameters('HostPoolName')]"
@@ -5309,7 +5314,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.6.18.56646",
-                      "templateHash": "14820217310518965769"
+                      "templateHash": "17272903623619835382"
                     }
                   },
                   "parameters": {
@@ -5355,11 +5360,11 @@
                     "EphemeralOsDisk": {
                       "type": "string"
                     },
-                    "FileShares": {
-                      "type": "array"
-                    },
                     "Fslogix": {
                       "type": "bool"
+                    },
+                    "FslogixSolution": {
+                      "type": "string"
                     },
                     "HostPoolName": {
                       "type": "string"
@@ -5679,7 +5684,7 @@
                           "timestamp": "[parameters('Timestamp')]"
                         },
                         "protectedSettings": {
-                          "commandToExecute": "[format('powershell -ExecutionPolicy Unrestricted -File Set-SessionHostConfiguration.ps1 -AmdVmSize {0} -DisaStigCompliance {1} -DomainName {2} -Environment {3} -FileShares {4} -FSLogix {5} -HostPoolName {6} -HostPoolRegistrationToken {7} -ImageOffer {8} -ImagePublisher {9} -NetAppFileShare {10} -NvidiaVmSize {11} -PooledHostPool {12} -RdpShortPath {13} -ScreenCaptureProtection {14} -StorageAccountPrefix {15} -StorageCount {16} -StorageIndex {17} -StorageSolution {18} -StorageSuffix {19}', variables('AmdVmSize'), parameters('DisaStigCompliance'), parameters('DomainName'), environment().name, parameters('FileShares'), parameters('Fslogix'), parameters('HostPoolName'), reference(resourceId(variables('ManagementResourceGroup'), 'Microsoft.DesktopVirtualization/hostpools', parameters('HostPoolName')), '2019-12-10-preview').registrationInfo.token, parameters('ImageOffer'), parameters('ImagePublisher'), parameters('NetAppFileShare'), variables('NvidiaVmSize'), variables('PooledHostPool'), parameters('RdpShortPath'), parameters('ScreenCaptureProtection'), parameters('StorageAccountPrefix'), parameters('StorageCount'), parameters('StorageIndex'), parameters('StorageSolution'), parameters('StorageSuffix'))]"
+                          "commandToExecute": "[format('powershell -ExecutionPolicy Unrestricted -File Set-SessionHostConfiguration.ps1 -AmdVmSize {0} -DisaStigCompliance {1} -DomainName {2} -Environment {3} -FSLogix {4} -FslogixSolution {5} -HostPoolName {6} -HostPoolRegistrationToken {7} -ImageOffer {8} -ImagePublisher {9} -NetAppFileShare {10} -NvidiaVmSize {11} -PooledHostPool {12} -RdpShortPath {13} -ScreenCaptureProtection {14} -StorageAccountPrefix {15} -StorageCount {16} -StorageIndex {17} -StorageSolution {18} -StorageSuffix {19}', variables('AmdVmSize'), parameters('DisaStigCompliance'), parameters('DomainName'), environment().name, parameters('Fslogix'), parameters('FslogixSolution'), parameters('HostPoolName'), reference(resourceId(variables('ManagementResourceGroup'), 'Microsoft.DesktopVirtualization/hostpools', parameters('HostPoolName')), '2019-12-10-preview').registrationInfo.token, parameters('ImageOffer'), parameters('ImagePublisher'), parameters('NetAppFileShare'), variables('NvidiaVmSize'), variables('PooledHostPool'), parameters('RdpShortPath'), parameters('ScreenCaptureProtection'), parameters('StorageAccountPrefix'), parameters('StorageCount'), parameters('StorageIndex'), parameters('StorageSolution'), parameters('StorageSuffix'))]"
                         }
                       },
                       "dependsOn": [

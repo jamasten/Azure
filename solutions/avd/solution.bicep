@@ -186,10 +186,10 @@ param ScreenCaptureProtection bool = false
 param SasToken string = ''
 
 @description('An array of Object IDs for the Security Principals to assign to the AVD Application Group and FSLogix Storage.')
-param SecurityPrincipalObjectIds array
+param SecurityPrincipalObjectIds array = []
 
 @description('The name for the Security Principal to assign NTFS permissions on the Azure File Share to support Fslogix.  Any value can be input in this field if performing a deployment update or choosing a personal host pool.')
-param SecurityPrincipalNames array
+param SecurityPrincipalNames array = []
 
 @description('The number of session hosts to deploy in the host pool.  The default values will allow you deploy 250 VMs using 4 nested deployments.  These integers may be modified to create a smaller deployment in a shard.')
 param SessionHostCount int = 2
@@ -203,7 +203,6 @@ param StampIndex int = 0
 @description('Determines whether the Start VM On Connect feature is enabled. https://docs.microsoft.com/en-us/azure/virtual-desktop/start-virtual-machine-connect')
 param StartVmOnConnect bool = true
 
-@minValue(1)
 @description('The Storage Count allows the deployment of one or more storage resources within an AVD stamp to shard for extra capacity. https://docs.microsoft.com/en-us/azure/architecture/patterns/sharding')
 param StorageCount int = 1
 
@@ -220,16 +219,17 @@ param Tags object = {
   Environment: 'Development'
 }
 
+@description('DO NOT MODIFY THIS VALUE! The timestamp is needed to differentiate deployments for certain Azure resources and must be set using a parameter.')
 param Timestamp string = utcNow('yyyyMMddhhmmss')
 
 @description('The value determines whether the hostpool should receive early AVD updates for testing.')
 param ValidationEnvironment bool = false
 
 @description('Virtual network for the AVD sessions hosts')
-param VirtualNetwork string = 'vnet-shd-net-d-eu'
+param VirtualNetwork string
 
 @description('Virtual network resource group for the AVD sessions hosts')
-param VirtualNetworkResourceGroup string = 'rg-shd-net-d-eu'
+param VirtualNetworkResourceGroup string
 
 @secure()
 @description('Local administrator password for the AVD session hosts')
@@ -480,6 +480,8 @@ module validation 'modules/validation.bicep' = {
     Location: Location
     ManagedIdentityResourceId: managedIdentity.outputs.resourceIdentifier
     NamingStandard: NamingStandard
+    PooledHostPool: PooledHostPool
+    RecoveryServices: RecoveryServices
     SasToken: SasToken
     ScriptsUri: ScriptsUri    
     SecurityPrincipalIds: SecurityPrincipalObjectIds
@@ -759,13 +761,14 @@ module backup 'modules/backup.bicep' = if(RecoveryServices) {
 }
 
 // Deploys scaling for the session hosts and Azure Files Premium, if applicable
-module scale 'modules/scale.bicep' = if(PooledHostPool) {
+module scale 'modules/scale/scale.bicep' = if(PooledHostPool) {
   name: 'Scale_${Timestamp}'
   scope: resourceGroup(ResourceGroups[2]) // Management Resource Group
   params: {
     AutomationAccountName: AutomationAccountName
     BeginPeakTime: ScalingBeginPeakTime
     EndPeakTime: ScalingEndPeakTime
+    FslogixSolution: FslogixSolution
     FslogixStorage: FslogixStorage
     HostPoolName: HostPoolName
     HostPoolResourceGroupName: ResourceGroups[2] // Management Resource Group

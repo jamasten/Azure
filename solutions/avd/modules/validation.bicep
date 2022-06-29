@@ -10,6 +10,8 @@ param KerberosEncryption string
 param Location string
 param ManagedIdentityResourceId string
 param NamingStandard string
+param PooledHostPool bool
+param RecoveryServices bool
 param SasToken string
 param ScriptsUri string
 param SecurityPrincipalIds array
@@ -38,7 +40,7 @@ resource deploymentScript 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
   properties: {
     forceUpdateTag: Timestamp
     azPowerShellVersion: '5.4'
-    arguments: '-Availability ${Availability} -DiskEncryption ${DiskEncryption} -DiskSku ${DiskSku} -DomainName ${DomainName} -DomainServices ${DomainServices} -EphemeralOsDisk ${EphemeralOsDisk} -FSLogixStorage \\"${FSLogixStorage}\\" -ImageSku ${ImageSku} -KerberosEncryption ${KerberosEncryption} -Location ${Location} -SecurityPrincipalIds ${SecurityPrincipalIds} -SecurityPrincipalNames ${SecurityPrincipalNames} -SessionHostCount ${SessionHostCount} -SessionHostIndex ${SessionHostIndex} -StartVmOnConnect ${StartVmOnConnect} -StorageCount ${StorageCount} -VmSize ${VmSize} -VnetName ${VirtualNetwork} -VnetResourceGroupName ${VirtualNetworkResourceGroup}'
+    arguments: '-Availability ${Availability} -DiskEncryption ${DiskEncryption} -DiskSku ${DiskSku} -DomainName ${DomainName} -DomainServices ${DomainServices} -EphemeralOsDisk ${EphemeralOsDisk} -FSLogixStorage \\"${FSLogixStorage}\\" -ImageSku ${ImageSku} -KerberosEncryption ${KerberosEncryption} -Location ${Location} -PooledHostPool ${PooledHostPool} -RecoveryServices ${RecoveryServices} -SecurityPrincipalIds ${SecurityPrincipalIds} -SecurityPrincipalNames ${SecurityPrincipalNames} -SessionHostCount ${SessionHostCount} -SessionHostIndex ${SessionHostIndex} -StartVmOnConnect ${StartVmOnConnect} -StorageCount ${StorageCount} -VmSize ${VmSize} -VnetName ${VirtualNetwork} -VnetResourceGroupName ${VirtualNetworkResourceGroup}'
     primaryScriptUri: '${ScriptsUri}Get-Validation.ps1${SasToken}'
     timeout: 'PT2H'
     cleanupPreference: 'OnSuccess'

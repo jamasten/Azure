@@ -31,6 +31,12 @@ param(
     [string]$Location,
 
     [parameter(Mandatory)]
+    [string]$PooledHostPool,
+
+    [parameter(Mandatory)]
+    [string]$RecoveryServices,
+
+    [parameter(Mandatory)]
     [string]$SecurityPrincipalIds,
 
     [parameter(Mandatory)]
@@ -108,7 +114,7 @@ $DeploymentScriptOutputs["acceleratedNetworking"] = ($Sku.capabilities | Where-O
 # Availability Zone Validation
 if($Availability -eq 'AvailabilityZones' -and $Sku.locationInfo.zones.count -lt 3)
 {
-    Write-Error -Exception 'Invalid Availability' -Message 'The selected VM Size does not support availability zones in this Azure location. https://docs.microsoft.com/en-us/azure/virtual-machines/windows/create-powershell-availability-zone'
+    Write-Error -Exception 'INVALID AVAILABILITY: The selected VM Size does not support availability zones in this Azure location. https://docs.microsoft.com/en-us/azure/virtual-machines/windows/create-powershell-availability-zone'
 } 
 
 
@@ -130,7 +136,7 @@ if($FSLogixStorage -like "AzureNetAppFiles*")
     $SubnetId = ($Vnet.Subnets | Where-Object {$_.Delegations[0].ServiceName -eq "Microsoft.NetApp/volumes"}).Id
     if($null -eq $SubnetId -or $SubnetId -eq '')
     {
-        Write-Error -Exception 'Invalid Azure NetApp Files Configuration' -Message 'A dedicated subnet must be delegated to the ANF resource provider.'
+        Write-Error -Exception 'INVALID AZURE NETAPP FILES CONFIGURATION: A dedicated subnet must be delegated to the ANF resource provider.'
     }
     Install-Module -Name "Az.NetAppFiles" -Force
     $DeployAnfAd = "true"
@@ -155,7 +161,7 @@ else
 # Disk SKU validation
 if($DiskSku -like "Premium*" -and ($Sku.capabilities | Where-Object {$_.name -eq 'PremiumIO'}).value -eq $false)
 {
-    Write-Error -Exception 'Invalid Disk SKU' -Message 'The selected VM Size does not support the Premium SKU for managed disks.'
+    Write-Error -Exception 'INVALID DISK SKU: The selected VM Size does not support the Premium SKU for managed disks.'
 }
 
 
@@ -176,7 +182,7 @@ foreach($DnsServerSize in $DnsServerSizes)
 $Index = [array]::indexof($Tests,$true)
 if($Index -eq -1)
 {
-    Write-Error -Exception 'Insufficient Core Quota for all DS VM families' -Message 'The selected VM Family does not have adequate core quota in the selected location.  Request more quota and once that has been provided, you may redeploy.'
+    Write-Error -Exception 'INSUFFICIENT CORE QUOTA: The selected VM Family does not have adequate core quota in the selected location.'
 }
 $DeploymentScriptOutputs["dnsServerSize"] = $DnsServerSizes[$Index]
 
@@ -190,7 +196,13 @@ if($EphemeralOsDisk -eq 'true')
         # Azure Disk Encryption is not support with Ephemeral Disks
         if($DiskEncryption -eq 'true')
         {
-            Write-Error -Exception 'Invalid Ephemeral Disk Configuration' -Message 'Azure Disk Encryption is not supported with an Ephemeral OS Disk.'
+            Write-Error -Exception 'INVALID EPHEMERAL DISK CONFIGURATION: Azure Disk Encryption is not supported with an Ephemeral OS Disk.'
+        }
+
+        # Azure Disk Encryption is not support with Ephemeral Disks
+        if($RecoveryServices -eq 'true' -and $PooledHostPool -eq 'false')
+        {
+            Write-Error -Exception 'INVALID EPHEMERAL DISK CONFIGURATION: Azure Backup is not supported with an Ephemeral OS Disk.'
         }
 
         $ImageSize = 127 * 1GB
@@ -210,7 +222,7 @@ if($EphemeralOsDisk -eq 'true')
     }
     else
     {
-        Write-Error -Exception 'Invalid VM Size' -Message "VM Size, $VmSize, does not support Ephemeral Disks. "
+        Write-Error -Exception "INVALID VM SIZE: VM Size, $VmSize, does not support Ephemeral Disks."
     }
 }
 else
@@ -222,7 +234,7 @@ else
 # Hyper-V Generation validation
 if($ImageSku -like "*-g2" -and ($Sku.capabilities | Where-Object {$_.name -eq 'HyperVGenerations'}).value -notlike "*2")
 {
-    Write-Error -Exception 'Invalid Hyper-V Generation' -Message 'The VM size does not support the selected Image Sku.'
+    Write-Error -Exception 'INVALID HYPER-V GENERATION: The selected VM size does not support the selected Image Sku.'
 }
 
 
@@ -232,7 +244,7 @@ if($DomainServices -eq 'AzureActiveDirectory')
     $KerberosRc4Encryption = (Get-AzResource -Name $DomainName -ExpandProperties).Properties.domainSecuritySettings.kerberosRc4Encryption
     if($KerberosRc4Encryption -eq 'Enabled' -and $KerberosEncryption -eq 'AES256')
     {
-        Write-Error -Exception 'Invalid Kerberos Encryption' -Message 'The Kerberos Encryption on Azure AD DS does not match your Kerberos Encyrption selection.  Please choose a different Kerberos Encryption Type or fix the security setting on your domain then redploy.'
+        Write-Error -Exception 'INVALID KERBEROS ENCRYPTION: The Kerberos Encryption on Azure AD DS does not match your Kerberos Encyrption selection.'
     }
 }
 
@@ -241,7 +253,7 @@ if($DomainServices -eq 'AzureActiveDirectory')
 # Validate the array length for the Security Principal ID's, Security Principal Names, and Storage Count align
 if($StorageCount -ne $SecurityPrincipalIds.Count -or $StorageCount -ne $SecurityPrincipalNames.Count)
 {
-    Write-Error -Exception 'Invalid Arrays' -Message 'The Security Prinicapl IDs length, Security Principal Names length, and Storage length must have the same value.'
+    Write-Error -Exception 'INVALID ARRAYS: The "SecurityPrinicaplIds" count, "SecurityPrincipalNames" count, and StorageCount value must be equal.'
 }
 
 
@@ -251,7 +263,7 @@ if($StorageCount -ne $SecurityPrincipalIds.Count -or $StorageCount -ne $Security
 $vCPUs = [int]($Sku.capabilities | Where-Object {$_.name -eq 'vCPUs'}).value
 if($vCPUs -lt 4 -or $vCPUs -gt 24)
 {
-    Write-Error -Exception 'Invalid vCPU Count' -Message 'The selected VM Size does not contain the appropriate amount of vCPUs for Azure Virtual Desktop. https://docs.microsoft.com/en-us/windows-server/remote/remote-desktop-services/virtual-machine-recs'
+    Write-Error -Exception 'INVALID VCPU COUNT: The selected VM Size does not contain the appropriate amount of vCPUs for Azure Virtual Desktop. https://docs.microsoft.com/en-us/windows-server/remote/remote-desktop-services/virtual-machine-recs'
 }
 
 
@@ -260,5 +272,5 @@ $RequestedCores = $vCPUs * $SessionHostCount
 $Test = Test-AzureCoreQuota -Location $Location -RequestedCores $RequestedCores -VmSize $VmSize
 if(!$Test)
 {
-    Write-Error -Exception "Insufficient Core Quota for the $VmSize VM size" -Message 'The selected VM Family does not have adequate core quota in the selected location.  Request more quota and once that has been provided, you may redeploy.'
+    Write-Error -Exception "INSUFFICIENT CORE QUOTA: The selected VM size, $VmSize, does not have adequate core quota in the selected location."
 }

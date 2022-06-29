@@ -31,10 +31,10 @@ param(
     [string]$Location,
 
     [parameter(Mandatory)]
-    [array]$SecurityPrincipalIds,
+    [string]$SecurityPrincipalIds,
 
     [parameter(Mandatory)]
-    [array]$SecurityPrincipalNames,
+    [string]$SecurityPrincipalNames,
 
     [parameter(Mandatory)]
     [int]$SessionHostCount,
@@ -87,6 +87,10 @@ param(
         return $true
     }
 }
+
+# Convert JSON arrays to PS arrays
+[array]$SecurityPrincipalIds = $SecurityPrincipalIds.Replace("'",'"') | ConvertFrom-Json
+[array]$SecurityPrincipalNames = $SecurityPrincipalNames.Replace("'",'"') | ConvertFrom-Json
 
 # Object for collecting output
 $DeploymentScriptOutputs = @{}

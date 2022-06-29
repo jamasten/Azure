@@ -130,7 +130,7 @@ function Get-WebFile
 
 try 
 {
-    # Convert JSON strings to PS arrays
+    # Convert JSON array to PS array
     [array]$FileShares = $FileShares.Replace("'",'"') | ConvertFrom-Json
     Write-Log -Message "File Shares:" -Type 'INFO'
     $SecurityPrincipalNames | Add-Content -Path 'C:\cse.txt' -Force

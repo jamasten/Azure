@@ -130,6 +130,11 @@ function Get-WebFile
 
 try 
 {
+    # Convert JSON strings to PS arrays
+    [array]$FileShares = $FileShares.Replace("'",'"') | ConvertFrom-Json
+    Write-Log -Message "File Shares:" -Type 'INFO'
+    $SecurityPrincipalNames | Add-Content -Path 'C:\cse.txt' -Force
+
     ##############################################################
     #  DISA STIG Compliance
     ##############################################################

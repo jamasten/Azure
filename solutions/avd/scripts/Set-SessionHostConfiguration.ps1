@@ -17,12 +17,12 @@ Param(
     $Environment,
 
     [parameter(Mandatory)]
-    [array]
-    $FileShares,
+    [string]
+    $Fslogix,
 
     [parameter(Mandatory)]
     [string]
-    $FSLogix,
+    $FslogixSolution,
 
     [parameter(Mandatory)]
     [string]
@@ -130,11 +130,6 @@ function Get-WebFile
 
 try 
 {
-    # Convert JSON array to PS array
-    [array]$FileShares = $FileShares.Replace("'",'"') | ConvertFrom-Json
-    Write-Log -Message "File Shares:" -Type 'INFO'
-    $SecurityPrincipalNames | Add-Content -Path 'C:\cse.txt' -Force
-
     ##############################################################
     #  DISA STIG Compliance
     ##############################################################
@@ -229,27 +224,47 @@ try
 
 
     ##############################################################
-    #  Add FSLogix Configurations
+    #  Add Fslogix Configurations
     ##############################################################
     if($PooledHostPool -eq 'true' -and $StorageSolution -ne 'None')
     {
         $FilesSuffix = '.file.' + $StorageSuffix
-        $Shares = @()
+        $CloudCacheOfficeContainers = @()
+        $CloudCacheProfileContainers = @()
+        $OfficeContainers = @()
+        $ProfileContainers = @()
         switch($StorageSolution)
         {
-            'AzureStorageAccount' {for($i = $StorageIndex; $i -lt $($StorageIndex + $StorageCount); $i++){foreach($Share in $FileShares){$Shares += '\\' + $StorageAccountPrefix + $i.ToString().PadLeft(2,'0') + $FilesSuffix + '\' + $Share}}}
-            'AzureNetAppFiles' {$Shares += '\\' + $NetAppFileShare + '\' + $HostPoolName}
+            'AzureStorageAccount' {
+                for($i = $StorageIndex; $i -lt $($StorageIndex + $StorageCount); $i++)
+                {
+                    $CloudCacheOfficeContainers += 'type=smb,connectionString=\\' + $StorageAccountPrefix + $i.ToString().PadLeft(2,'0') + $FilesSuffix + '\officecontainers;'
+                    $CloudCacheProfileContainers += 'type=smb,connectionString=\\' + $StorageAccountPrefix + $i.ToString().PadLeft(2,'0') + $FilesSuffix + '\profilecontainers;'
+                    $OfficeContainers += '\\' + $StorageAccountPrefix + $i.ToString().PadLeft(2,'0') + $FilesSuffix + '\officecontainers'
+                    $ProfileContainers += '\\' + $StorageAccountPrefix + $i.ToString().PadLeft(2,'0') + $FilesSuffix + '\profilecontainers'
+
+                }
+            }
+            'AzureNetAppFiles' {
+                $CloudCacheOfficeContainers += 'type=smb,connectionString=\\' + $NetAppFileShare + '\officecontainers;'
+                $CloudCacheProfileContainers += 'type=smb,connectionString=\\' + $NetAppFileShare + '\profilecontainers;'
+                $OfficeContainers += '\\' + $NetAppFileShare + '\officecontainers'
+                $ProfileContainers += '\\' + $NetAppFileShare + '\profilecontainers'
+            }
         }
         
+        $Shares = @()
+        $Shares += $OfficeContainers
+        $Shares += $ProfileContainers
         $SharesOutput = if($Shares.Count -eq 1){$Shares}else{$Shares -join ', '}
         Write-Log -Message "File Shares: $SharesOutput" -Type 'INFO'
 
         $Settings += @(
 
-            # Enables FSLogix profile containers: https://docs.microsoft.com/en-us/fslogix/profile-container-configuration-reference#enabled
+            # Enables Fslogix profile containers: https://docs.microsoft.com/en-us/fslogix/profile-container-configuration-reference#enabled
             [PSCustomObject]@{
                 Name = 'Enabled'
-                Path = 'HKLM:\SOFTWARE\FSLogix\Profiles'
+                Path = 'HKLM:\SOFTWARE\Fslogix\Profiles'
                 PropertyType = 'DWord'
                 Value = 1
             },
@@ -262,7 +277,7 @@ try
                 Value = 1
             },
 
-            # The folder created in the FSLogix fileshare will begin with the username instead of the SID: https://docs.microsoft.com/en-us/fslogix/profile-container-configuration-reference#flipflopprofiledirectoryname
+            # The folder created in the Fslogix fileshare will begin with the username instead of the SID: https://docs.microsoft.com/en-us/fslogix/profile-container-configuration-reference#flipflopprofiledirectoryname
             [PSCustomObject]@{
                 Name = 'FlipFlopProfileDirectoryName'
                 Path = 'HKLM:\SOFTWARE\FSLogix\Profiles'
@@ -284,16 +299,169 @@ try
                 Path = 'HKLM:\SOFTWARE\FSLogix\Profiles'
                 PropertyType = 'DWord'
                 Value = 1
-            },
-
-            # List of file system locations to search for the user's profile VHD(X) file: https://docs.microsoft.com/en-us/fslogix/profile-container-configuration-reference#vhdlocations
-            [PSCustomObject]@{
-                Name = 'VHDLocations'
-                Path = 'HKLM:\SOFTWARE\FSLogix\Profiles'
-                PropertyType = 'MultiString'
-                Value = $Shares
             }
         )
+
+        if($FslogixSolution -like "CloudCache*")
+        {
+            $Settings += @(
+                # List of file system locations to search for the user's profile VHD(X) file: https://docs.microsoft.com/en-us/fslogix/profile-container-configuration-reference#vhdlocations
+                [PSCustomObject]@{
+                    Name = 'CCDLocations'
+                    Path = 'HKLM:\SOFTWARE\FSLogix\Profiles'
+                    PropertyType = 'MultiString'
+                    Value = $CloudCacheProfileContainers
+                }
+            )           
+        }
+        else
+        {
+            $Settings += @(
+                # List of file system locations to search for the user's profile VHD(X) file: https://docs.microsoft.com/en-us/fslogix/profile-container-configuration-reference#vhdlocations
+                [PSCustomObject]@{
+                    Name = 'VHDLocations'
+                    Path = 'HKLM:\SOFTWARE\FSLogix\Profiles'
+                    PropertyType = 'MultiString'
+                    Value = $ProfileContainers
+                }
+            )
+        }
+
+        if($FslogixSolution -like "*OfficeContainer")
+        {
+            $Settings += @(
+
+                # Enables Fslogix office containers: https://docs.microsoft.com/en-us/fslogix/office-container-configuration-reference#enabled
+                [PSCustomObject]@{
+                    Name = 'Enabled'
+                    Path = 'HKLM:\SOFTWARE\Policies\FSLogix\ODFC'
+                    PropertyType = 'DWord'
+                    Value = 1
+                },
+
+                # Deletes a local profile if it exists and matches the profile being loaded from VHD: https://docs.microsoft.com/en-us/fslogix/profile-container-configuration-reference#deletelocalprofilewhenvhdshouldapply
+                [PSCustomObject]@{
+                    Name = 'DeleteLocalProfileWhenVHDShouldApply'
+                    Path = 'HKLM:\SOFTWARE\Policies\FSLogix\ODFC'
+                    PropertyType = 'DWord'
+                    Value = 1
+                },
+
+                # The folder created in the Fslogix fileshare will begin with the username instead of the SID: https://docs.microsoft.com/en-us/fslogix/office-container-configuration-reference#flipflopprofiledirectoryname
+                [PSCustomObject]@{
+                    Name = 'FlipFlopProfileDirectoryName'
+                    Path = 'HKLM:\SOFTWARE\Policies\FSLogix\ODFC'
+                    PropertyType = 'DWord'
+                    Value = 1
+                },
+
+                # OneDrive cache is redirected to the container: https://docs.microsoft.com/en-us/fslogix/office-container-configuration-reference#includeonedrive
+                [PSCustomObject]@{
+                    Name = 'IncludeOneDrive'
+                    Path = 'HKLM:\SOFTWARE\Policies\FSLogix\ODFC'
+                    PropertyType = 'DWord'
+                    Value = 1
+                },
+
+                # OneNote notebook files are redirected to the container: https://docs.microsoft.com/en-us/fslogix/office-container-configuration-reference#includeonenote
+                [PSCustomObject]@{
+                    Name = 'IncludeOneNote'
+                    Path = 'HKLM:\SOFTWARE\Policies\FSLogix\ODFC'
+                    PropertyType = 'DWord'
+                    Value = 1
+                },                
+
+                # OneNote UWP notebook files are redirected to the container: https://docs.microsoft.com/en-us/fslogix/office-container-configuration-reference#includeonenote_uwp
+                [PSCustomObject]@{
+                    Name = 'IncludeOneNote_UWP'
+                    Path = 'HKLM:\SOFTWARE\Policies\FSLogix\ODFC'
+                    PropertyType = 'DWord'
+                    Value = 1
+                },
+                
+                # Outlook data is redirected to the container: https://docs.microsoft.com/en-us/fslogix/office-container-configuration-reference#includeoutlook
+                [PSCustomObject]@{
+                    Name = 'IncludeOutlook'
+                    Path = 'HKLM:\SOFTWARE\Policies\FSLogix\ODFC'
+                    PropertyType = 'DWord'
+                    Value = 1
+                },
+                
+                # Outlook personalization data is redirected to the container: https://docs.microsoft.com/en-us/fslogix/office-container-configuration-reference#includeoutlookpersonalization
+                [PSCustomObject]@{
+                    Name = 'IncludeOutlookPersonalization'
+                    Path = 'HKLM:\SOFTWARE\Policies\FSLogix\ODFC'
+                    PropertyType = 'DWord'
+                    Value = 1
+                },     
+                
+                # Sharepoint data is redirected to the container: https://docs.microsoft.com/en-us/fslogix/office-container-configuration-reference#includesharepoint
+                [PSCustomObject]@{
+                    Name = 'IncludeSharepoint'
+                    Path = 'HKLM:\SOFTWARE\Policies\FSLogix\ODFC'
+                    PropertyType = 'DWord'
+                    Value = 1
+                },          
+                
+                # Skype for Business Global Address List is redirected to the container: https://docs.microsoft.com/en-us/fslogix/office-container-configuration-reference#includeskype
+                [PSCustomObject]@{
+                    Name = 'IncludeSkype'
+                    Path = 'HKLM:\SOFTWARE\Policies\FSLogix\ODFC'
+                    PropertyType = 'DWord'
+                    Value = 1
+                },              
+                
+                # Teams data is redirected to the container: https://docs.microsoft.com/en-us/fslogix/office-container-configuration-reference#includeteams
+                # NOTE: Users will be required to sign in to teams at the beginning of each session.
+                [PSCustomObject]@{
+                    Name = 'IncludeTeams'
+                    Path = 'HKLM:\SOFTWARE\Policies\FSLogix\ODFC'
+                    PropertyType = 'DWord'
+                    Value = 1
+                },                  
+
+                # Loads FRXShell if there's a failure attaching to, or using an existing profile VHD(X): https://docs.microsoft.com/en-us/fslogix/office-container-configuration-reference#preventloginwithfailure
+                [PSCustomObject]@{
+                    Name = 'PreventLoginWithFailure'
+                    Path = 'HKLM:\SOFTWARE\Policies\FSLogix\ODFC'
+                    PropertyType = 'DWord'
+                    Value = 1
+                },
+
+                # Loads FRXShell if it's determined a temp profile has been created: https://docs.microsoft.com/en-us/fslogix/office-container-configuration-reference#preventloginwithtempprofile
+                [PSCustomObject]@{
+                    Name = 'PreventLoginWithTempProfile'
+                    Path = 'HKLM:\SOFTWARE\Policies\FSLogix\ODFC'
+                    PropertyType = 'DWord'
+                    Value = 1
+                }
+            )
+
+            if($FslogixSolution -like "CloudCache*")
+            {
+                $Settings += @(
+                    # List of file system locations to search for the user's profile VHD(X) file: https://docs.microsoft.com/en-us/fslogix/profile-container-configuration-reference#vhdlocations
+                    [PSCustomObject]@{
+                        Name = 'CCDLocations'
+                        Path = 'HKLM:\SOFTWARE\Policies\FSLogix\ODFC'
+                        PropertyType = 'MultiString'
+                        Value = $CloudCacheOfficeContainers
+                    }
+                )           
+            }
+            else
+            {
+                $Settings += @(
+                    # List of file system locations to search for the user's profile VHD(X) file: https://docs.microsoft.com/en-us/fslogix/office-container-configuration-reference#vhdlocations
+                    [PSCustomObject]@{
+                        Name = 'VHDLocations'
+                        Path = 'HKLM:\SOFTWARE\Policies\FSLogix\ODFC'
+                        PropertyType = 'MultiString'
+                        Value = $OfficeContainers
+                    }
+                )
+            }
+        }
     }
 
 
@@ -353,7 +521,7 @@ try
     # Add Defender Exclusions for FSLogix 
     ##############################################################
     # https://docs.microsoft.com/en-us/azure/architecture/example-scenario/wvd/windows-virtual-desktop-fslogix#antivirus-exclusions
-    if($PooledHostPool -eq 'true' -and $FSLogix -eq 'true')
+    if($PooledHostPool -eq 'true' -and $Fslogix -eq 'true')
     {
 
         $Files = @(
@@ -365,14 +533,14 @@ try
             "%Windir%\TEMP\*.VHD",
             "%Windir%\TEMP\*.VHDX"
         )
+
         foreach($Share in $Shares)
         {
             $Files += "$Share\*.VHD"
             $Files += "$Share\*.VHDX"
         }
 
-        $CloudCache = Get-ItemProperty -Path 'HKLM:\SOFTWARE\FSLogix\Profiles' -Name 'CCDLocations' -ErrorAction 'SilentlyContinue'
-        if($CloudCache)
+        if($FslogixSolution -like "CloudCache*")
         { 
             $Files += @(
                 "%ProgramData%\FSLogix\Cache\*.VHD"

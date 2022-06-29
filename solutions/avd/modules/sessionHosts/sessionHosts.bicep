@@ -15,7 +15,7 @@ param DomainJoinUserPrincipalName string
 param DomainName string
 param DomainServices string
 param EphemeralOsDisk string
-param FileShares array
+param FslogixSolution string
 param Fslogix bool
 param HostPoolName string
 param HostPoolType string
@@ -100,8 +100,8 @@ module virtualMachines 'virtualMachines.bicep' = [for i in range(1, SessionHostB
     DomainName: DomainName
     DomainServices: DomainServices
     EphemeralOsDisk: EphemeralOsDisk
-    FileShares: FileShares
     Fslogix: Fslogix
+    FslogixSolution: FslogixSolution
     HostPoolName: HostPoolName
     HostPoolType: HostPoolType
     ImageOffer: ImageOffer

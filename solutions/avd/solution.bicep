@@ -474,7 +474,6 @@ module validation 'modules/validation.bicep' = {
     DomainName: DomainName
     DomainServices: DomainServices
     EphemeralOsDisk: EphemeralOsDisk
-    FSLogixStorage: FslogixStorage
     ImageSku: ImageSku
     KerberosEncryption: KerberosEncryption
     Location: Location
@@ -490,6 +489,7 @@ module validation 'modules/validation.bicep' = {
     SessionHostIndex: SessionHostIndex
     StartVmOnConnect: StartVmOnConnect
     StorageCount: StorageCount
+    StorageSolution: StorageSolution
     Tags: Tags
     Timestamp: Timestamp
     VirtualNetwork: VirtualNetwork

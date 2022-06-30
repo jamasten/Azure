@@ -4,7 +4,6 @@ param DiskSku string
 param DomainName string
 param DomainServices string
 param EphemeralOsDisk bool
-param FSLogixStorage string
 param ImageSku string
 param KerberosEncryption string
 param Location string
@@ -20,11 +19,17 @@ param SessionHostCount int
 param SessionHostIndex int
 param StartVmOnConnect bool
 param StorageCount int
+param StorageSolution string
 param Tags object
 param Timestamp string
 param VirtualNetwork string
 param VirtualNetworkResourceGroup string
 param VmSize string
+
+
+var SecurityPrincipalIdsCount = length(SecurityPrincipalIds)
+var SecurityPrincipalNamesCount = length(SecurityPrincipalNames)
+
 
 resource deploymentScript 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
   name: 'ds-${NamingStandard}-validation'
@@ -40,7 +45,7 @@ resource deploymentScript 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
   properties: {
     forceUpdateTag: Timestamp
     azPowerShellVersion: '5.4'
-    arguments: '-Availability ${Availability} -DiskEncryption ${DiskEncryption} -DiskSku ${DiskSku} -DomainName ${DomainName} -DomainServices ${DomainServices} -EphemeralOsDisk ${EphemeralOsDisk} -FSLogixStorage \\"${FSLogixStorage}\\" -ImageSku ${ImageSku} -KerberosEncryption ${KerberosEncryption} -Location ${Location} -PooledHostPool ${PooledHostPool} -RecoveryServices ${RecoveryServices} -SecurityPrincipalIds ${SecurityPrincipalIds} -SecurityPrincipalNames ${SecurityPrincipalNames} -SessionHostCount ${SessionHostCount} -SessionHostIndex ${SessionHostIndex} -StartVmOnConnect ${StartVmOnConnect} -StorageCount ${StorageCount} -VmSize ${VmSize} -VnetName ${VirtualNetwork} -VnetResourceGroupName ${VirtualNetworkResourceGroup}'
+    arguments: '-Availability ${Availability} -DiskEncryption ${DiskEncryption} -DiskSku ${DiskSku} -DomainName ${DomainName} -DomainServices ${DomainServices} -EphemeralOsDisk ${EphemeralOsDisk} -ImageSku ${ImageSku} -KerberosEncryption ${KerberosEncryption} -Location ${Location} -PooledHostPool ${PooledHostPool} -RecoveryServices ${RecoveryServices} -SecurityPrincipalIdsCount ${SecurityPrincipalIdsCount} -SecurityPrincipalNamesCount ${SecurityPrincipalNamesCount} -SessionHostCount ${SessionHostCount} -SessionHostIndex ${SessionHostIndex} -StartVmOnConnect ${StartVmOnConnect} -StorageCount ${StorageCount} -StorageSolution ${StorageSolution} -VmSize ${VmSize} -VnetName ${VirtualNetwork} -VnetResourceGroupName ${VirtualNetworkResourceGroup}'
     primaryScriptUri: '${ScriptsUri}Get-Validation.ps1${SasToken}'
     timeout: 'PT2H'
     cleanupPreference: 'OnSuccess'

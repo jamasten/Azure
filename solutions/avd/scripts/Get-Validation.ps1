@@ -19,9 +19,6 @@ param(
     [string]$EphemeralOsDisk,
 
     [parameter(Mandatory)]
-    [string]$FSLogixStorage,
-
-    [parameter(Mandatory)]
     [string]$ImageSku,
 
     [parameter(Mandatory)]
@@ -37,10 +34,10 @@ param(
     [string]$RecoveryServices,
 
     [parameter(Mandatory)]
-    [array]$SecurityPrincipalIds,
+    [int]$SecurityPrincipalIdsCount,
 
     [parameter(Mandatory)]
-    [array]$SecurityPrincipalNames,
+    [int]$SecurityPrincipalNamesCount,
 
     [parameter(Mandatory)]
     [int]$SessionHostCount,
@@ -52,7 +49,10 @@ param(
     [string]$StartVmOnConnect,       
 
     [parameter(Mandatory)]
-    [int]$StorageCount,    
+    [int]$StorageCount,
+
+    [parameter(Mandatory)]
+    [string]$StorageSolution,
 
     [parameter(Mandatory)]
     [string]$VmSize,
@@ -94,10 +94,6 @@ param(
     }
 }
 
-# Convert JSON arrays to PS arrays
-#[array]$SecurityPrincipalIds = $SecurityPrincipalIds.Replace("'",'"') | ConvertFrom-Json
-#[array]$SecurityPrincipalNames = $SecurityPrincipalNames.Replace("'",'"') | ConvertFrom-Json
-
 # Object for collecting output
 $DeploymentScriptOutputs = @{}
 
@@ -129,7 +125,7 @@ $DeploymentScriptOutputs["avdObjectId"] = $AvdObjectId #>
 
 
 # Azure NetApp Files Validation & Output
-if($FSLogixStorage -like "AzureNetAppFiles*")
+if($StorageSolution -eq "AzureNetAppFiles")
 {
     $Vnet = Get-AzVirtualNetwork -Name $VnetName -ResourceGroupName $VnetResourceGroupName
     $DnsServers = "$($Vnet.DhcpOptions.DnsServers[0]),$($Vnet.DhcpOptions.DnsServers[1])"
@@ -251,7 +247,7 @@ if($DomainServices -eq 'AzureActiveDirectory')
 
 # Storage Assignment Validation
 # Validate the array length for the Security Principal ID's, Security Principal Names, and Storage Count align
-if(($StorageCount -ne $SecurityPrincipalIds.Count -or $StorageCount -ne $SecurityPrincipalNames.Count) -and $StorageCount -gt 0)
+if(($StorageCount -ne $SecurityPrincipalIdsCount -or $StorageCount -ne $SecurityPrincipalNamesCount) -and $StorageCount -gt 0)
 {
     Write-Error -Exception 'INVALID ARRAYS: The "SecurityPrinicaplIds" count, "SecurityPrincipalNames" count, and "StorageCount" value must be equal.'
 }

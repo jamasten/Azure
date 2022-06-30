@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.6.18.56646",
-      "templateHash": "2946355898819067207"
+      "templateHash": "12211410576802432143"
     }
   },
   "parameters": {
@@ -978,9 +978,6 @@
           "EphemeralOsDisk": {
             "value": "[parameters('EphemeralOsDisk')]"
           },
-          "FSLogixStorage": {
-            "value": "[parameters('FslogixStorage')]"
-          },
           "ImageSku": {
             "value": "[parameters('ImageSku')]"
           },
@@ -1026,6 +1023,9 @@
           "StorageCount": {
             "value": "[parameters('StorageCount')]"
           },
+          "StorageSolution": {
+            "value": "[variables('StorageSolution')]"
+          },
           "Tags": {
             "value": "[parameters('Tags')]"
           },
@@ -1049,7 +1049,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.6.18.56646",
-              "templateHash": "11412198341318331381"
+              "templateHash": "16512241964463451708"
             }
           },
           "parameters": {
@@ -1070,9 +1070,6 @@
             },
             "EphemeralOsDisk": {
               "type": "bool"
-            },
-            "FSLogixStorage": {
-              "type": "string"
             },
             "ImageSku": {
               "type": "string"
@@ -1119,6 +1116,9 @@
             "StorageCount": {
               "type": "int"
             },
+            "StorageSolution": {
+              "type": "string"
+            },
             "Tags": {
               "type": "object"
             },
@@ -1134,6 +1134,10 @@
             "VmSize": {
               "type": "string"
             }
+          },
+          "variables": {
+            "SecurityPrincipalIdsCount": "[length(parameters('SecurityPrincipalIds'))]",
+            "SecurityPrincipalNamesCount": "[length(parameters('SecurityPrincipalNames'))]"
           },
           "resources": [
             {
@@ -1152,7 +1156,7 @@
               "properties": {
                 "forceUpdateTag": "[parameters('Timestamp')]",
                 "azPowerShellVersion": "5.4",
-                "arguments": "[format('-Availability {0} -DiskEncryption {1} -DiskSku {2} -DomainName {3} -DomainServices {4} -EphemeralOsDisk {5} -FSLogixStorage \\\"{6}\\\" -ImageSku {7} -KerberosEncryption {8} -Location {9} -PooledHostPool {10} -RecoveryServices {11} -SecurityPrincipalIds {12} -SecurityPrincipalNames {13} -SessionHostCount {14} -SessionHostIndex {15} -StartVmOnConnect {16} -StorageCount {17} -VmSize {18} -VnetName {19} -VnetResourceGroupName {20}', parameters('Availability'), parameters('DiskEncryption'), parameters('DiskSku'), parameters('DomainName'), parameters('DomainServices'), parameters('EphemeralOsDisk'), parameters('FSLogixStorage'), parameters('ImageSku'), parameters('KerberosEncryption'), parameters('Location'), parameters('PooledHostPool'), parameters('RecoveryServices'), parameters('SecurityPrincipalIds'), parameters('SecurityPrincipalNames'), parameters('SessionHostCount'), parameters('SessionHostIndex'), parameters('StartVmOnConnect'), parameters('StorageCount'), parameters('VmSize'), parameters('VirtualNetwork'), parameters('VirtualNetworkResourceGroup'))]",
+                "arguments": "[format('-Availability {0} -DiskEncryption {1} -DiskSku {2} -DomainName {3} -DomainServices {4} -EphemeralOsDisk {5} -ImageSku {6} -KerberosEncryption {7} -Location {8} -PooledHostPool {9} -RecoveryServices {10} -SecurityPrincipalIdsCount {11} -SecurityPrincipalNamesCount {12} -SessionHostCount {13} -SessionHostIndex {14} -StartVmOnConnect {15} -StorageCount {16} -StorageSolution {17} -VmSize {18} -VnetName {19} -VnetResourceGroupName {20}', parameters('Availability'), parameters('DiskEncryption'), parameters('DiskSku'), parameters('DomainName'), parameters('DomainServices'), parameters('EphemeralOsDisk'), parameters('ImageSku'), parameters('KerberosEncryption'), parameters('Location'), parameters('PooledHostPool'), parameters('RecoveryServices'), variables('SecurityPrincipalIdsCount'), variables('SecurityPrincipalNamesCount'), parameters('SessionHostCount'), parameters('SessionHostIndex'), parameters('StartVmOnConnect'), parameters('StorageCount'), parameters('StorageSolution'), parameters('VmSize'), parameters('VirtualNetwork'), parameters('VirtualNetworkResourceGroup'))]",
                 "primaryScriptUri": "[format('{0}Get-Validation.ps1{1}', parameters('ScriptsUri'), parameters('SasToken'))]",
                 "timeout": "PT2H",
                 "cleanupPreference": "OnSuccess",

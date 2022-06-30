@@ -253,7 +253,7 @@ if($DomainServices -eq 'AzureActiveDirectory')
 # Validate the array length for the Security Principal ID's, Security Principal Names, and Storage Count align
 if(($StorageCount -ne $SecurityPrincipalIds.Count -or $StorageCount -ne $SecurityPrincipalNames.Count) -and $StorageCount -gt 0)
 {
-    Write-Error -Exception 'INVALID ARRAYS: The "SecurityPrinicaplIds" count, "SecurityPrincipalNames" count, and StorageCount value must be equal.'
+    Write-Error -Exception 'INVALID ARRAYS: The "SecurityPrinicaplIds" count, "SecurityPrincipalNames" count, and "StorageCount" value must be equal.'
 }
 
 

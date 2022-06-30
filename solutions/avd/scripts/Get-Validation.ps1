@@ -37,10 +37,10 @@ param(
     [string]$RecoveryServices,
 
     [parameter(Mandatory)]
-    [string]$SecurityPrincipalIds,
+    [array]$SecurityPrincipalIds,
 
     [parameter(Mandatory)]
-    [string]$SecurityPrincipalNames,
+    [array]$SecurityPrincipalNames,
 
     [parameter(Mandatory)]
     [int]$SessionHostCount,
@@ -95,8 +95,8 @@ param(
 }
 
 # Convert JSON arrays to PS arrays
-[array]$SecurityPrincipalIds = $SecurityPrincipalIds.Replace("'",'"') | ConvertFrom-Json
-[array]$SecurityPrincipalNames = $SecurityPrincipalNames.Replace("'",'"') | ConvertFrom-Json
+#[array]$SecurityPrincipalIds = $SecurityPrincipalIds.Replace("'",'"') | ConvertFrom-Json
+#[array]$SecurityPrincipalNames = $SecurityPrincipalNames.Replace("'",'"') | ConvertFrom-Json
 
 # Object for collecting output
 $DeploymentScriptOutputs = @{}

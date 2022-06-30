@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.6.18.56646",
-      "templateHash": "160657244710581451"
+      "templateHash": "17721709489983919528"
     }
   },
   "parameters": {
@@ -6334,7 +6334,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.6.18.56646",
-              "templateHash": "1660428723949265367"
+              "templateHash": "16515979096952388300"
             }
           },
           "parameters": {
@@ -6474,7 +6474,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.6.18.56646",
-                      "templateHash": "2777767204035755650"
+                      "templateHash": "1802041261014187552"
                     }
                   },
                   "parameters": {
@@ -6655,7 +6655,7 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "0.6.18.56646",
-                              "templateHash": "9234773568662019760"
+                              "templateHash": "8824380161702543705"
                             }
                           },
                           "parameters": {
@@ -6667,7 +6667,7 @@
                             {
                               "type": "Microsoft.Authorization/roleAssignments",
                               "apiVersion": "2018-09-01-preview",
-                              "name": "[guid(resourceGroup().id, 'ScalingContributor')]",
+                              "name": "[guid(parameters('AutomationAccountId'), 'ScalingContributor', resourceGroup().id)]",
                               "properties": {
                                 "roleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', 'b24988ac-6180-42a0-ab88-20f7382dd24c')]",
                                 "principalId": "[parameters('AutomationAccountId')]",
@@ -6735,7 +6735,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.6.18.56646",
-                      "templateHash": "1648944388538823439"
+                      "templateHash": "5004301594656522587"
                     }
                   },
                   "parameters": {
@@ -6940,7 +6940,7 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "0.6.18.56646",
-                              "templateHash": "9234773568662019760"
+                              "templateHash": "8824380161702543705"
                             }
                           },
                           "parameters": {
@@ -6952,7 +6952,7 @@
                             {
                               "type": "Microsoft.Authorization/roleAssignments",
                               "apiVersion": "2018-09-01-preview",
-                              "name": "[guid(resourceGroup().id, 'ScalingContributor')]",
+                              "name": "[guid(parameters('AutomationAccountId'), 'ScalingContributor', resourceGroup().id)]",
                               "properties": {
                                 "roleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', 'b24988ac-6180-42a0-ab88-20f7382dd24c')]",
                                 "principalId": "[parameters('AutomationAccountId')]",

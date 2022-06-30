@@ -699,7 +699,7 @@ module sessionHosts 'modules/sessionHosts/sessionHosts.bicep' = {
     MaxResourcesPerTemplateDeployment: MaxResourcesPerTemplateDeployment
     Monitoring: Monitoring
     NamingStandard: NamingStandard
-    NetAppFileShare: fslogix.outputs.netAppShare
+    NetAppFileShare: Fslogix ? fslogix.outputs.netAppShare : 'None'
     NetworkSecurityGroupName: NetworkSecurityGroupName
     OuPath: OuPath
     PooledHostPool: PooledHostPool
@@ -785,6 +785,7 @@ module scale 'modules/scale/scale.bicep' = if(PooledHostPool) {
     StorageCount: StorageCount
     StorageIndex: StorageIndex
     TimeDifference: ScalingTimeDifference
+    Timestamp: Timestamp
   }
   dependsOn: [
     automationAccount

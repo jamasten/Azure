@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.6.18.56646",
-      "templateHash": "17721709489983919528"
+      "templateHash": "2946355898819067207"
     }
   },
   "parameters": {
@@ -4758,7 +4758,7 @@
             "value": "[variables('NamingStandard')]"
           },
           "NetAppFileShare": {
-            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('FSLogix_{0}', parameters('Timestamp'))), '2020-10-01').outputs.netAppShare.value]"
+            "value": "[if(variables('Fslogix'), reference(subscriptionResourceId('Microsoft.Resources/deployments', format('FSLogix_{0}', parameters('Timestamp'))), '2020-10-01').outputs.netAppShare.value, 'None')]"
           },
           "NetworkSecurityGroupName": {
             "value": "[variables('NetworkSecurityGroupName')]"
@@ -6325,6 +6325,9 @@
           },
           "TimeDifference": {
             "value": "[parameters('ScalingTimeDifference')]"
+          },
+          "Timestamp": {
+            "value": "[parameters('Timestamp')]"
           }
         },
         "template": {
@@ -6334,7 +6337,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.6.18.56646",
-              "templateHash": "16515979096952388300"
+              "templateHash": "17875859087866528425"
             }
           },
           "parameters": {
@@ -6399,11 +6402,7 @@
               "type": "string"
             },
             "Timestamp": {
-              "type": "string",
-              "defaultValue": "[utcNow('u')]",
-              "metadata": {
-                "description": "ISO 8601 timestamp used to determine the webhook expiration date.  The webhook is hardcoded to expire 5 years after the timestamp."
-              }
+              "type": "string"
             }
           },
           "variables": {

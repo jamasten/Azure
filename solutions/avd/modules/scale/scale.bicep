@@ -19,8 +19,7 @@ param StorageCount int
 param StorageIndex int
 param StorageResourceGroupName string
 param TimeDifference string
-@description('ISO 8601 timestamp used to determine the webhook expiration date.  The webhook is hardcoded to expire 5 years after the timestamp.')
-param Timestamp string = utcNow('u')
+param Timestamp string
 
 
 var ManagementResourceGroupName = resourceGroup().name

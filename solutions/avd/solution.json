@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.6.18.56646",
-      "templateHash": "12211410576802432143"
+      "templateHash": "6826660885903196224"
     }
   },
   "parameters": {
@@ -4850,7 +4850,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.6.18.56646",
-              "templateHash": "8012296139315617289"
+              "templateHash": "9156394704463386906"
             }
           },
           "parameters": {
@@ -5332,7 +5332,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.6.18.56646",
-                      "templateHash": "17272903623619835382"
+                      "templateHash": "15289510305792265400"
                     }
                   },
                   "parameters": {
@@ -5702,7 +5702,7 @@
                           "timestamp": "[parameters('Timestamp')]"
                         },
                         "protectedSettings": {
-                          "commandToExecute": "[format('powershell -ExecutionPolicy Unrestricted -File Set-SessionHostConfiguration.ps1 -AmdVmSize {0} -DisaStigCompliance {1} -DomainName {2} -Environment {3} -FSLogix {4} -FslogixSolution {5} -HostPoolName {6} -HostPoolRegistrationToken {7} -ImageOffer {8} -ImagePublisher {9} -NetAppFileShare {10} -NvidiaVmSize {11} -PooledHostPool {12} -RdpShortPath {13} -ScreenCaptureProtection {14} -StorageAccountPrefix {15} -StorageCount {16} -StorageIndex {17} -StorageSolution {18} -StorageSuffix {19}', variables('AmdVmSize'), parameters('DisaStigCompliance'), parameters('DomainName'), environment().name, parameters('Fslogix'), parameters('FslogixSolution'), parameters('HostPoolName'), reference(resourceId(variables('ManagementResourceGroup'), 'Microsoft.DesktopVirtualization/hostpools', parameters('HostPoolName')), '2019-12-10-preview').registrationInfo.token, parameters('ImageOffer'), parameters('ImagePublisher'), parameters('NetAppFileShare'), variables('NvidiaVmSize'), variables('PooledHostPool'), parameters('RdpShortPath'), parameters('ScreenCaptureProtection'), parameters('StorageAccountPrefix'), parameters('StorageCount'), parameters('StorageIndex'), parameters('StorageSolution'), parameters('StorageSuffix'))]"
+                          "commandToExecute": "[format('powershell -ExecutionPolicy Unrestricted -File Set-SessionHostConfiguration.ps1 -AmdVmSize {0} -DisaStigCompliance {1} -DomainName {2} -DomainServices {3} -Environment {4} -FSLogix {5} -FslogixSolution {6} -HostPoolName {7} -HostPoolRegistrationToken {8} -ImageOffer {9} -ImagePublisher {10} -NetAppFileShare {11} -NvidiaVmSize {12} -PooledHostPool {13} -RdpShortPath {14} -ScreenCaptureProtection {15} -StorageAccountPrefix {16} -StorageCount {17} -StorageIndex {18} -StorageSolution {19} -StorageSuffix {20}', variables('AmdVmSize'), parameters('DisaStigCompliance'), parameters('DomainName'), parameters('DomainServices'), environment().name, parameters('Fslogix'), parameters('FslogixSolution'), parameters('HostPoolName'), reference(resourceId(variables('ManagementResourceGroup'), 'Microsoft.DesktopVirtualization/hostpools', parameters('HostPoolName')), '2019-12-10-preview').registrationInfo.token, parameters('ImageOffer'), parameters('ImagePublisher'), parameters('NetAppFileShare'), variables('NvidiaVmSize'), variables('PooledHostPool'), parameters('RdpShortPath'), parameters('ScreenCaptureProtection'), parameters('StorageAccountPrefix'), parameters('StorageCount'), parameters('StorageIndex'), parameters('StorageSolution'), parameters('StorageSuffix'))]"
                         }
                       },
                       "dependsOn": [

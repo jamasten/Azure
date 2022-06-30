@@ -10,7 +10,11 @@ Param(
 
     [parameter(Mandatory)]
     [string]
-    $DomainName,    
+    $DomainName,
+
+    [parameter(Mandatory)]
+    [string]
+    $DomainServices,
 
     [parameter(Mandatory)]
     [string]
@@ -462,6 +466,24 @@ try
                 )
             }
         }
+    }
+
+
+    ##############################################################
+    #  Add Azure AD Join Configuration
+    ##############################################################
+    if($DomainServices -like "None*")
+    {
+        $Settings += @(
+
+            # Enable PKU2U: https://docs.microsoft.com/en-us/azure/virtual-desktop/troubleshoot-azure-ad-connections#windows-desktop-client
+            [PSCustomObject]@{
+                Name = 'AllowOnlineID'
+                Path = 'HKLM:\SYSTEM\CurrentControlSet\Control\Lsa\pku2u'
+                PropertyType = 'DWord'
+                Value = 1
+            }
+        )
     }
 
 

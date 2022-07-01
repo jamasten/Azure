@@ -140,7 +140,7 @@ try
             Write-Log -Message "Secure string conversion succeeded" -Type 'INFO'
 
             # Create the SPN value for the Azure Storage Account; attribute for computer object in AD 
-            $SPN = 'cifs/' + $StorageAccountName + $Suffix
+            $SPN = 'cifs/' + $StorageAccountName + $FilesSuffix
 
             # Create the Description value for the Azure Storage Account; attribute for computer object in AD 
             $Description = "Computer account object for Azure storage account $($StorageAccountName)."
@@ -151,16 +151,12 @@ try
             {
                 Remove-ADComputer -Credential $Credential -Identity $StorageAccountName -Confirm:$false
             }
-            New-ADComputer -Credential $Credential -Name $StorageAccountName -Path $OuPath -ServicePrincipalNames $SPN -AccountPassword $ComputerPassword -KerberosEncryptionType $KerberosEncryptionType -Description $Description
+            $ComputerObject = New-ADComputer -Credential $Credential -Name $StorageAccountName -Path $OuPath -ServicePrincipalNames $SPN -AccountPassword $ComputerPassword -KerberosEncryptionType $KerberosEncryptionType -Description $Description -PassThru
             Write-Log -Message "Computer object creation succeeded" -Type 'INFO'
 
             # Get domain 'INFO' required for the Azure Storage Account
             $Domain = Get-ADDomain -Credential $Credential -Current 'LocalComputer'
             Write-Log -Message "Domain 'INFO' collection succeeded" -Type 'INFO'
-
-            # Get the SID for the Azure Storage Account Computer Object in AD
-            $ComputerSid = (Get-ADComputer -Credential $Credential -Identity $StorageAccountName).SID.Value
-            Write-Log -Message "Computer object 'INFO' collection succeeded" -Type 'INFO'
 
             # Update the Azure Storage Account with the domain join 'INFO'
             Set-AzStorageAccount `
@@ -172,7 +168,9 @@ try
                 -ActiveDirectoryForestName $Domain.Forest `
                 -ActiveDirectoryDomainGuid $Domain.ObjectGUID `
                 -ActiveDirectoryDomainsid $Domain.DomainSID `
-                -ActiveDirectoryAzureStorageSid $ComputerSid
+                -ActiveDirectoryAzureStorageSid $ComputerObject.SID.Value `
+                -ActiveDirectorySamAccountName $ComputerObject.SamAccountName `
+                -ActiveDirectoryAccountType 'Computer'
             Write-Log -Message "Storage Account update with domain join info succeeded" -Type 'INFO'
         
             # Enable AES256 encryption if selected

@@ -24,11 +24,11 @@
 
 ### BitLocker Encryption
 
-**Reference:** [Azure Disk Encryption - Microsoft Docs](https://docs.microsoft.com/en-us/azure/virtual-machines/windows/disk-encryption-overview)
-
 This optional feature deploys the required resources & configuration to enable BitLocker encryption on the session hosts.
 
 > NOTE: If deploying a "pooled" host pool with FSLogix, the data in the profile and office containers will not be BitLocker encrypted.
+
+**Reference:** [Azure Disk Encryption - Microsoft Docs](https://docs.microsoft.com/en-us/azure/virtual-machines/windows/disk-encryption-overview)
 
 **Deployed Resources:**
 

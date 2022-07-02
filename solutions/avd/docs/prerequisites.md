@@ -11,10 +11,11 @@ To successfully deploy this solution, you will need to ensure the following prer
   - Virtual network and subnet(s)
   - Deployed and configured domain services if you plan to domain or hybrid join the session hosts
 - Azure Subscription Owner: this solution contains many role assignments so the principal deploying this solution will need to be a Subscription Owner for a successful deployment.
-- Create a service principal or user account to domain join the session hosts with the following permissions:
-  - "Join the Domain" on the domain
-  - "Create Computer" on the parent OU or domain
-  - "Delete Computer" on the parent OU or domain
+- Create a service principal or user account to domain join the session hosts.
+  - For AD DS, ensure the principal has the following permissions
+    - "Join the Domain" on the domain
+    - "Create Computer" on the parent OU or domain
+    - "Delete Computer" on the parent OU or domain
 
   > NOTE: This does not apply to Azure AD joined session hosts.
 

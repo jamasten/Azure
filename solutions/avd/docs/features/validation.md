@@ -24,7 +24,7 @@
 
 ### Validation
 
-This feature will validate your deployment selections to ensure you are deploying a compliant configuration that follows Microsoft's best practices.
+This feature will validate your deployment selections to ensure you are deploying a compliant configuration that follows Microsoft's best practices and collect information needed for the deployment.
 
 **Deployed Resources:**
 

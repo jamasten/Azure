@@ -619,8 +619,8 @@ module fslogix 'modules/fslogix/fslogix.bicep' = if(Fslogix) {
     Environment: Environment
     FileShares: FileShares
     FslogixShareSizeInGB: FslogixShareSizeInGB
+    FslogixSolution: FslogixSolution
     FslogixStorage: FslogixStorage
-    HostPoolName: HostPoolName
     HybridUseBenefit: HybridUseBenefit
     Identifier: Identifier
     KerberosEncryption: KerberosEncryption
@@ -699,7 +699,9 @@ module sessionHosts 'modules/sessionHosts/sessionHosts.bicep' = {
     MaxResourcesPerTemplateDeployment: MaxResourcesPerTemplateDeployment
     Monitoring: Monitoring
     NamingStandard: NamingStandard
-    NetAppFileShare: Fslogix ? fslogix.outputs.netAppShare : 'None'
+    NetAppFileShares: Fslogix ? fslogix.outputs.netAppShares : [
+      'None'
+    ]
     NetworkSecurityGroupName: NetworkSecurityGroupName
     OuPath: OuPath
     PooledHostPool: PooledHostPool

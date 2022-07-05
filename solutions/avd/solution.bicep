@@ -353,11 +353,7 @@ var PooledHostPool = split(HostPoolType, ' ')[0] == 'Pooled' ? true : false
 var PrivateDnsZoneName = 'privatelink.file.${StorageSuffix}'
 var PrivateEndpoint = contains(FslogixStorage, 'PrivateEndpoint') ? true : false
 var RecoveryServicesVaultName = 'rsv-${NamingStandard}'
-var ResourceGroups = FslogixStorage == 'None' ? [
-  'rg-${NamingStandard}-deployment'  
-  'rg-${NamingStandard}-hosts'
-  'rg-${NamingStandard}-management'
-] : [
+var ResourceGroups = [
   'rg-${NamingStandard}-deployment'  
   'rg-${NamingStandard}-hosts'
   'rg-${NamingStandard}-management'

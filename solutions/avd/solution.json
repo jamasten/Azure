@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.6.18.56646",
-      "templateHash": "7392443264587670941"
+      "templateHash": "1401679026569919059"
     }
   },
   "parameters": {
@@ -569,7 +569,12 @@
     "PrivateDnsZoneName": "[format('privatelink.file.{0}', variables('StorageSuffix'))]",
     "PrivateEndpoint": "[if(contains(parameters('FslogixStorage'), 'PrivateEndpoint'), true(), false())]",
     "RecoveryServicesVaultName": "[format('rsv-{0}', variables('NamingStandard'))]",
-    "ResourceGroups": "[if(equals(parameters('FslogixStorage'), 'None'), createArray(format('rg-{0}-deployment', variables('NamingStandard')), format('rg-{0}-hosts', variables('NamingStandard')), format('rg-{0}-management', variables('NamingStandard'))), createArray(format('rg-{0}-deployment', variables('NamingStandard')), format('rg-{0}-hosts', variables('NamingStandard')), format('rg-{0}-management', variables('NamingStandard')), format('rg-{0}-storage', variables('NamingStandard'))))]",
+    "ResourceGroups": [
+      "[format('rg-{0}-deployment', variables('NamingStandard'))]",
+      "[format('rg-{0}-hosts', variables('NamingStandard'))]",
+      "[format('rg-{0}-management', variables('NamingStandard'))]",
+      "[format('rg-{0}-storage', variables('NamingStandard'))]"
+    ],
     "RoleDefinitionIds": {
       "contributor": "b24988ac-6180-42a0-ab88-20f7382dd24c",
       "desktopVirtualizationSessionHostOperator": "2ad6aaab-ead9-4eaa-8ac5-da422f562408",

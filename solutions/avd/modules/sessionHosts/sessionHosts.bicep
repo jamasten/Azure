@@ -30,7 +30,7 @@ param MaxResourcesPerTemplateDeployment int
 param Monitoring bool
 param NamingStandard string
 param NetworkSecurityGroupName string
-param NetAppFileShare string
+param NetAppFileShares array
 param OuPath string
 param PooledHostPool bool
 param RdpShortPath bool
@@ -114,7 +114,7 @@ module virtualMachines 'virtualMachines.bicep' = [for i in range(1, SessionHostB
     Monitoring: Monitoring
     NamingStandard: NamingStandard
     NetworkSecurityGroupName: NetworkSecurityGroupName
-    NetAppFileShare: NetAppFileShare
+    NetAppFileShares: NetAppFileShares
     OuPath: OuPath
     RdpShortPath: RdpShortPath
     ResourceGroups: ResourceGroups

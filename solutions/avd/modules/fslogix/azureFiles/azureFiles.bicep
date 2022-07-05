@@ -9,6 +9,7 @@ param DomainServices string
 param Environment string
 param FileShares array
 param FslogixShareSizeInGB int
+param FslogixSolution string
 param FslogixStorage string
 param HybridUseBenefit bool
 param Identifier string
@@ -33,6 +34,7 @@ param StorageAccountPrefix string
 param StorageCount int
 param StorageIndex int
 param StorageSku string
+param StorageSolution string
 param StorageSuffix string
 param Subnet string
 param Tags object
@@ -205,25 +207,15 @@ module dnsForwarder 'dnsForwarder.bicep' = if(PrivateEndpoint) {
   }
 }
 
-module ntfsPermissions 'ntfsPermissions.bicep' = if(!contains(DomainServices, 'None')) {
+module ntfsPermissions '../ntfsPermissions.bicep' = if(!contains(DomainServices, 'None')) {
   name: 'FslogixNtfsPermissions_${Timestamp}'
   scope: resourceGroup(ResourceGroups[0]) // Deployment Resource Group
   params: {
-    DomainJoinPassword: DomainJoinPassword
-    DomainJoinUserPrincipalName: DomainJoinUserPrincipalName
-    DomainServices: DomainServices
-    KerberosEncryptionType: KerberosEncryption
+    CommandToExecute: 'powershell -ExecutionPolicy Unrestricted -File New-DomainJoinStorageAccount.ps1 -DomainJoinPassword "${DomainJoinPassword}" -DomainJoinUserPrincipalName ${DomainJoinUserPrincipalName} -DomainServices ${DomainServices} -Environment ${environment().name} -FslogixSolution ${FslogixSolution} -KerberosEncryptionType ${KerberosEncryption} -Netbios ${Netbios} -OuPath "${OuPath}" -SecurityPrincipalNames "${SecurityPrincipalNames}" -StorageAccountPrefix ${StorageAccountPrefix} -StorageAccountResourceGroupName ${ResourceGroups[3]} -StorageCount ${StorageCount} -StorageIndex ${StorageIndex} -StorageSolution ${StorageSolution} -StorageSuffix ${environment().suffixes.storage} -SubscriptionId ${subscription().subscriptionId} -TenantId ${subscription().tenantId}'
     Location: Location
     ManagementVmName: ManagementVmName
-    Netbios: Netbios
-    OuPath: OuPath
     SasToken: SasToken
     ScriptsUri: ScriptsUri
-    SecurityPrincipalNames: SecurityPrincipalNames
-    StorageCount: StorageCount
-    StorageIndex: StorageIndex
-    StorageAccountPrefix: StorageAccountPrefix
-    StorageAccountResourceGroupName: ResourceGroups[3] // Storage Resource Group
     Tags: Tags
     Timestamp: Timestamp
   }

@@ -16,8 +16,8 @@ param DomainServices string
 param Environment string
 param FileShares array
 param FslogixShareSizeInGB int
+param FslogixSolution string
 param FslogixStorage string
-param HostPoolName string
 param HybridUseBenefit bool
 param Identifier string
 param KerberosEncryption string
@@ -94,18 +94,20 @@ module azureNetAppFiles 'azureNetAppFiles.bicep' = if(StorageSolution == 'AzureN
     DomainJoinPassword: DomainJoinPassword
     DomainJoinUserPrincipalName: DomainJoinUserPrincipalName
     DomainName: DomainName
-    HostPoolName: HostPoolName
+    FileShares: FileShares
+    FslogixSolution: FslogixSolution
     Location: Location
     ManagementVmName: ManagementVmName
     NetAppAccountName: NetAppAccountName
     NetAppCapacityPoolName: NetAppCapacityPoolName
     OuPath: OuPath
-    NamingStandard: NamingStandard
+    ResourceGroups: ResourceGroups
     SasToken: SasToken
     ScriptsUri: ScriptsUri
     SecurityPrincipalNames: SecurityPrincipalNames
     SmbServerLocation: SmbServerLocation
     StorageSku: StorageSku
+    StorageSolution: StorageSolution
     Tags: Tags
     Timestamp: Timestamp
   }
@@ -129,6 +131,7 @@ module azureFiles 'azureFiles/azureFiles.bicep' = if(StorageSolution == 'AzureSt
     Environment: Environment
     FileShares: FileShares
     FslogixShareSizeInGB: FslogixShareSizeInGB
+    FslogixSolution: FslogixSolution
     FslogixStorage: FslogixStorage
     HybridUseBenefit: HybridUseBenefit
     Identifier: Identifier
@@ -153,6 +156,7 @@ module azureFiles 'azureFiles/azureFiles.bicep' = if(StorageSolution == 'AzureSt
     StorageCount: StorageCount
     StorageIndex: StorageIndex
     StorageSku: StorageSku
+    StorageSolution: StorageSolution
     StorageSuffix: StorageSuffix
     Subnet: Subnet
     Tags: Tags
@@ -167,4 +171,6 @@ module azureFiles 'azureFiles/azureFiles.bicep' = if(StorageSolution == 'AzureSt
   ]
 }
 
-output netAppShare string = StorageSolution == 'AzureNetAppFiles' ? azureNetAppFiles.outputs.fileShare : 'None'
+output netAppShares array = StorageSolution == 'AzureNetAppFiles' ? azureNetAppFiles.outputs.fileShares : [
+  'None'
+]

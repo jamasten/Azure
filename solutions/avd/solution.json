@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.6.18.56646",
-      "templateHash": "16398586287357149434"
+      "templateHash": "1401679026569919059"
     }
   },
   "parameters": {
@@ -2713,7 +2713,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.6.18.56646",
-              "templateHash": "1084349932743603930"
+              "templateHash": "616152227730439109"
             }
           },
           "parameters": {
@@ -3234,7 +3234,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.6.18.56646",
-                      "templateHash": "9729065703035085499"
+                      "templateHash": "10477232110699447577"
                     }
                   },
                   "parameters": {
@@ -3383,7 +3383,7 @@
                         "mode": "Incremental",
                         "parameters": {
                           "CommandToExecute": {
-                            "value": "[format('powershell -ExecutionPolicy Unrestricted -File Set-NetAppNtfsPermissions.ps1 -DomainJoinPassword \"{0}\" -DomainJoinUserPrincipalName {1} -FslogixSolution {2} -SecurityPrincipalNames \"{3}\" -SmbServerLocation {4} -StorageSolution {5}', parameters('DomainJoinPassword'), parameters('DomainJoinUserPrincipalName'), parameters('FslogixSolution'), parameters('SecurityPrincipalNames'), parameters('SmbServerLocation'), parameters('StorageSolution'))]"
+                            "value": "[format('powershell -ExecutionPolicy Unrestricted -File Set-NtfsPermissions.ps1 -DomainJoinPassword \"{0}\" -DomainJoinUserPrincipalName {1} -FslogixSolution {2} -SecurityPrincipalNames \"{3}\" -SmbServerLocation {4} -StorageSolution {5}', parameters('DomainJoinPassword'), parameters('DomainJoinUserPrincipalName'), parameters('FslogixSolution'), parameters('SecurityPrincipalNames'), parameters('SmbServerLocation'), parameters('StorageSolution'))]"
                           },
                           "Location": {
                             "value": "[parameters('Location')]"
@@ -3632,7 +3632,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.6.18.56646",
-                      "templateHash": "1707515788474430523"
+                      "templateHash": "1357338143156973080"
                     }
                   },
                   "parameters": {
@@ -4590,7 +4590,7 @@
                         "mode": "Incremental",
                         "parameters": {
                           "CommandToExecute": {
-                            "value": "[format('powershell -ExecutionPolicy Unrestricted -File New-DomainJoinStorageAccount.ps1 -DomainJoinPassword \"{0}\" -DomainJoinUserPrincipalName {1} -DomainServices {2} -Environment {3} -FslogixSolution {4} -KerberosEncryptionType {5} -Netbios {6} -OuPath \"{7}\" -SecurityPrincipalNames \"{8}\" -StorageAccountPrefix {9} -StorageAccountResourceGroupName {10} -StorageCount {11} -StorageIndex {12} -StorageSolution {13} -StorageSuffix {14} -SubscriptionId {15} -TenantId {16}', parameters('DomainJoinPassword'), parameters('DomainJoinUserPrincipalName'), parameters('DomainServices'), environment().name, parameters('FslogixSolution'), parameters('KerberosEncryption'), parameters('Netbios'), parameters('OuPath'), parameters('SecurityPrincipalNames'), parameters('StorageAccountPrefix'), parameters('ResourceGroups')[3], parameters('StorageCount'), parameters('StorageIndex'), parameters('StorageSolution'), environment().suffixes.storage, subscription().subscriptionId, subscription().tenantId)]"
+                            "value": "[format('powershell -ExecutionPolicy Unrestricted -File Set-NtfsPermissions.ps1 -DomainJoinPassword \"{0}\" -DomainJoinUserPrincipalName {1} -DomainServices {2} -Environment {3} -FslogixSolution {4} -KerberosEncryptionType {5} -Netbios {6} -OuPath \"{7}\" -SecurityPrincipalNames \"{8}\" -StorageAccountPrefix {9} -StorageAccountResourceGroupName {10} -StorageCount {11} -StorageIndex {12} -StorageSolution {13} -StorageSuffix {14} -SubscriptionId {15} -TenantId {16}', parameters('DomainJoinPassword'), parameters('DomainJoinUserPrincipalName'), parameters('DomainServices'), environment().name, parameters('FslogixSolution'), parameters('KerberosEncryption'), parameters('Netbios'), parameters('OuPath'), parameters('SecurityPrincipalNames'), parameters('StorageAccountPrefix'), parameters('ResourceGroups')[3], parameters('StorageCount'), parameters('StorageIndex'), parameters('StorageSolution'), environment().suffixes.storage, subscription().subscriptionId, subscription().tenantId)]"
                           },
                           "Location": {
                             "value": "[parameters('Location')]"

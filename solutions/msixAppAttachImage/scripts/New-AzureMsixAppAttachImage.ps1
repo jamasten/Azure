@@ -26,11 +26,8 @@ Param(
 
 )
 
-# Downloads the MSIX Packaging Tool
-Invoke-WebRequest -Uri "https://download.microsoft.com/download/d/9/7/d9707be8-06db-4b13-a992-48666aad8b78/91b9474c34904fe39de2b66827a93267.msixbundle" -OutFile "MsixPackagingTool.msixbundle"
-
-# Installs the MSIX Packaging Tool
-Add-AppPackage -Path ".\MsixPackagingTool.msixbundle"
+# Downloads & installs the MSIX Packaging Tool
+Start-Process -FilePath 'winget' -ArgumentList 'install "MSIX Packaging Tool" --force --accept-package-agreements'
 
 # Downloads the application installer
 Invoke-WebRequest -Uri $($ApplicationUri + $SasToken) -OutFile $($HOME + '\Downloads\' + $ApplicationShortName + '.' + $ApplicationUri.Split('.')[-1])
@@ -66,7 +63,7 @@ New-Item -Path $ParentDirectory -ItemType Directory -Force
 Invoke-WebRequest -Uri 'https://aka.ms/msixmgr' -OutFile "$HOME\Downloads\msixmgr.zip"
 
 # Extracts the ZIP file containing the MSIXMGR tool
-Expand-Archive -Path "$HOME\Downloads\msixmgr.zip" -DestinationPath "$HOME\Downloads\msixmgr"
+Expand-Archive -Path "$HOME\Downloads\msixmgr.zip" -DestinationPath "$HOME\Downloads\msixmgr" -Force
 
 # Unpacks the MSIX Package and adds it to the mounted VHDX, inside the parent directory
 Start-Process -FilePath "$HOME\Downloads\msixmgr\x64\msixmgr.exe" -ArgumentList "-Unpack -packagePath $PackagePath -destination $ParentDirectory -applyacls"

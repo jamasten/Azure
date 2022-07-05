@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.6.18.56646",
-      "templateHash": "6826660885903196224"
+      "templateHash": "16398586287357149434"
     }
   },
   "parameters": {
@@ -2591,11 +2591,11 @@
           "FslogixShareSizeInGB": {
             "value": "[parameters('FslogixShareSizeInGB')]"
           },
+          "FslogixSolution": {
+            "value": "[parameters('FslogixSolution')]"
+          },
           "FslogixStorage": {
             "value": "[parameters('FslogixStorage')]"
-          },
-          "HostPoolName": {
-            "value": "[variables('HostPoolName')]"
           },
           "HybridUseBenefit": {
             "value": "[parameters('HybridUseBenefit')]"
@@ -2713,7 +2713,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.6.18.56646",
-              "templateHash": "14421122393357104511"
+              "templateHash": "1084349932743603930"
             }
           },
           "parameters": {
@@ -2759,10 +2759,10 @@
             "FslogixShareSizeInGB": {
               "type": "int"
             },
-            "FslogixStorage": {
+            "FslogixSolution": {
               "type": "string"
             },
-            "HostPoolName": {
+            "FslogixStorage": {
               "type": "string"
             },
             "HybridUseBenefit": {
@@ -3178,8 +3178,11 @@
                   "DomainName": {
                     "value": "[parameters('DomainName')]"
                   },
-                  "HostPoolName": {
-                    "value": "[parameters('HostPoolName')]"
+                  "FileShares": {
+                    "value": "[parameters('FileShares')]"
+                  },
+                  "FslogixSolution": {
+                    "value": "[parameters('FslogixSolution')]"
                   },
                   "Location": {
                     "value": "[parameters('Location')]"
@@ -3196,8 +3199,8 @@
                   "OuPath": {
                     "value": "[parameters('OuPath')]"
                   },
-                  "NamingStandard": {
-                    "value": "[parameters('NamingStandard')]"
+                  "ResourceGroups": {
+                    "value": "[parameters('ResourceGroups')]"
                   },
                   "SasToken": {
                     "value": "[parameters('SasToken')]"
@@ -3214,6 +3217,9 @@
                   "StorageSku": {
                     "value": "[parameters('StorageSku')]"
                   },
+                  "StorageSolution": {
+                    "value": "[parameters('StorageSolution')]"
+                  },
                   "Tags": {
                     "value": "[parameters('Tags')]"
                   },
@@ -3228,7 +3234,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.6.18.56646",
-                      "templateHash": "5382912982966050702"
+                      "templateHash": "9729065703035085499"
                     }
                   },
                   "parameters": {
@@ -3250,7 +3256,10 @@
                     "DomainName": {
                       "type": "string"
                     },
-                    "HostPoolName": {
+                    "FileShares": {
+                      "type": "array"
+                    },
+                    "FslogixSolution": {
                       "type": "string"
                     },
                     "Location": {
@@ -3268,8 +3277,8 @@
                     "OuPath": {
                       "type": "string"
                     },
-                    "NamingStandard": {
-                      "type": "string"
+                    "ResourceGroups": {
+                      "type": "array"
                     },
                     "SasToken": {
                       "type": "string"
@@ -3284,6 +3293,9 @@
                       "type": "string"
                     },
                     "StorageSku": {
+                      "type": "string"
+                    },
+                    "StorageSolution": {
                       "type": "string"
                     },
                     "Tags": {
@@ -3325,15 +3337,19 @@
                       ]
                     },
                     {
+                      "copy": {
+                        "name": "volumes",
+                        "count": "[length(range(0, length(parameters('FileShares'))))]"
+                      },
                       "type": "Microsoft.NetApp/netAppAccounts/capacityPools/volumes",
                       "apiVersion": "2021-06-01",
-                      "name": "[format('{0}/{1}/{2}', parameters('NetAppAccountName'), parameters('NetAppCapacityPoolName'), parameters('HostPoolName'))]",
+                      "name": "[format('{0}/{1}/{2}', parameters('NetAppAccountName'), parameters('NetAppCapacityPoolName'), parameters('FileShares')[range(0, length(parameters('FileShares')))[copyIndex()]])]",
                       "location": "[parameters('Location')]",
                       "tags": "[parameters('Tags')]",
                       "properties": {
                         "avsDataStore": "Disabled",
                         "coolAccess": false,
-                        "creationToken": "[parameters('HostPoolName')]",
+                        "creationToken": "[parameters('FileShares')[range(0, length(parameters('FileShares')))[copyIndex()]]]",
                         "defaultGroupQuotaInKiBs": 0,
                         "defaultUserQuotaInKiBs": 0,
                         "encryptionKeySource": "Microsoft.NetApp",
@@ -3356,35 +3372,106 @@
                       ]
                     },
                     {
-                      "type": "Microsoft.Compute/virtualMachines/extensions",
-                      "apiVersion": "2020-12-01",
-                      "name": "[format('{0}/CustomScriptExtension', parameters('ManagementVmName'))]",
-                      "location": "[parameters('Location')]",
-                      "tags": "[parameters('Tags')]",
+                      "type": "Microsoft.Resources/deployments",
+                      "apiVersion": "2020-10-01",
+                      "name": "[format('FslogixNtfsPermissions_{0}', parameters('Timestamp'))]",
+                      "resourceGroup": "[parameters('ResourceGroups')[0]]",
                       "properties": {
-                        "publisher": "Microsoft.Compute",
-                        "type": "CustomScriptExtension",
-                        "typeHandlerVersion": "1.10",
-                        "autoUpgradeMinorVersion": true,
-                        "settings": {
-                          "fileUris": [
-                            "[format('{0}Set-NetAppNtfsPermissions.ps1{1}', parameters('ScriptsUri'), parameters('SasToken'))]"
-                          ],
-                          "timestamp": "[parameters('Timestamp')]"
+                        "expressionEvaluationOptions": {
+                          "scope": "inner"
                         },
-                        "protectedSettings": {
-                          "commandToExecute": "[format('powershell -ExecutionPolicy Unrestricted -File Set-NetAppNtfsPermissions.ps1 -DomainJoinPassword \"{0}\" -DomainJoinUserPrincipalName {1} -HostPoolName {2} -NamingStandard {3} -SecurityPrincipalNames \"{4}\" -SmbServerLocation {5}', parameters('DomainJoinPassword'), parameters('DomainJoinUserPrincipalName'), parameters('HostPoolName'), parameters('NamingStandard'), parameters('SecurityPrincipalNames'), parameters('SmbServerLocation'))]"
+                        "mode": "Incremental",
+                        "parameters": {
+                          "CommandToExecute": {
+                            "value": "[format('powershell -ExecutionPolicy Unrestricted -File Set-NetAppNtfsPermissions.ps1 -DomainJoinPassword \"{0}\" -DomainJoinUserPrincipalName {1} -FslogixSolution {2} -SecurityPrincipalNames \"{3}\" -SmbServerLocation {4} -StorageSolution {5}', parameters('DomainJoinPassword'), parameters('DomainJoinUserPrincipalName'), parameters('FslogixSolution'), parameters('SecurityPrincipalNames'), parameters('SmbServerLocation'), parameters('StorageSolution'))]"
+                          },
+                          "Location": {
+                            "value": "[parameters('Location')]"
+                          },
+                          "ManagementVmName": {
+                            "value": "[parameters('ManagementVmName')]"
+                          },
+                          "SasToken": {
+                            "value": "[parameters('SasToken')]"
+                          },
+                          "ScriptsUri": {
+                            "value": "[parameters('ScriptsUri')]"
+                          },
+                          "Tags": {
+                            "value": "[parameters('Tags')]"
+                          },
+                          "Timestamp": {
+                            "value": "[parameters('Timestamp')]"
+                          }
+                        },
+                        "template": {
+                          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                          "contentVersion": "1.0.0.0",
+                          "metadata": {
+                            "_generator": {
+                              "name": "bicep",
+                              "version": "0.6.18.56646",
+                              "templateHash": "9959386390090423777"
+                            }
+                          },
+                          "parameters": {
+                            "CommandToExecute": {
+                              "type": "secureString"
+                            },
+                            "Location": {
+                              "type": "string"
+                            },
+                            "ManagementVmName": {
+                              "type": "string"
+                            },
+                            "SasToken": {
+                              "type": "string"
+                            },
+                            "ScriptsUri": {
+                              "type": "string"
+                            },
+                            "Tags": {
+                              "type": "object"
+                            },
+                            "Timestamp": {
+                              "type": "string"
+                            }
+                          },
+                          "resources": [
+                            {
+                              "type": "Microsoft.Compute/virtualMachines/extensions",
+                              "apiVersion": "2020-12-01",
+                              "name": "[format('{0}/CustomScriptExtension', parameters('ManagementVmName'))]",
+                              "location": "[parameters('Location')]",
+                              "tags": "[parameters('Tags')]",
+                              "properties": {
+                                "publisher": "Microsoft.Compute",
+                                "type": "CustomScriptExtension",
+                                "typeHandlerVersion": "1.10",
+                                "autoUpgradeMinorVersion": true,
+                                "settings": {
+                                  "fileUris": [
+                                    "[format('{0}Set-NtfsPermissions.ps1{1}', parameters('ScriptsUri'), parameters('SasToken'))]"
+                                  ],
+                                  "timestamp": "[parameters('Timestamp')]"
+                                },
+                                "protectedSettings": {
+                                  "commandToExecute": "[parameters('CommandToExecute')]"
+                                }
+                              }
+                            }
+                          ]
                         }
                       },
                       "dependsOn": [
-                        "[resourceId('Microsoft.NetApp/netAppAccounts/capacityPools/volumes', parameters('NetAppAccountName'), parameters('NetAppCapacityPoolName'), parameters('HostPoolName'))]"
+                        "volumes"
                       ]
                     }
                   ],
                   "outputs": {
-                    "fileShare": {
-                      "type": "string",
-                      "value": "[reference(resourceId('Microsoft.NetApp/netAppAccounts/capacityPools/volumes', parameters('NetAppAccountName'), parameters('NetAppCapacityPoolName'), parameters('HostPoolName'))).mountTargets[0].smbServerFqdn]"
+                    "fileShares": {
+                      "type": "array",
+                      "value": "[if(contains(parameters('FslogixSolution'), 'Office'), createArray(reference(resourceId('Microsoft.NetApp/netAppAccounts/capacityPools/volumes', parameters('NetAppAccountName'), parameters('NetAppCapacityPoolName'), parameters('FileShares')[range(0, length(parameters('FileShares')))[0]])).mountTargets[0].smbServerFqdn, reference(resourceId('Microsoft.NetApp/netAppAccounts/capacityPools/volumes', parameters('NetAppAccountName'), parameters('NetAppCapacityPoolName'), parameters('FileShares')[range(0, length(parameters('FileShares')))[1]])).mountTargets[0].smbServerFqdn), createArray(reference(resourceId('Microsoft.NetApp/netAppAccounts/capacityPools/volumes', parameters('NetAppAccountName'), parameters('NetAppCapacityPoolName'), parameters('FileShares')[range(0, length(parameters('FileShares')))[0]])).mountTargets[0].smbServerFqdn))]"
                     }
                   }
                 }
@@ -3434,6 +3521,9 @@
                   },
                   "FslogixShareSizeInGB": {
                     "value": "[parameters('FslogixShareSizeInGB')]"
+                  },
+                  "FslogixSolution": {
+                    "value": "[parameters('FslogixSolution')]"
                   },
                   "FslogixStorage": {
                     "value": "[parameters('FslogixStorage')]"
@@ -3507,6 +3597,9 @@
                   "StorageSku": {
                     "value": "[parameters('StorageSku')]"
                   },
+                  "StorageSolution": {
+                    "value": "[parameters('StorageSolution')]"
+                  },
                   "StorageSuffix": {
                     "value": "[parameters('StorageSuffix')]"
                   },
@@ -3539,7 +3632,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.6.18.56646",
-                      "templateHash": "11515250314959182566"
+                      "templateHash": "1707515788474430523"
                     }
                   },
                   "parameters": {
@@ -3572,6 +3665,9 @@
                     },
                     "FslogixShareSizeInGB": {
                       "type": "int"
+                    },
+                    "FslogixSolution": {
+                      "type": "string"
                     },
                     "FslogixStorage": {
                       "type": "string"
@@ -3643,6 +3739,9 @@
                       "type": "int"
                     },
                     "StorageSku": {
+                      "type": "string"
+                    },
+                    "StorageSolution": {
                       "type": "string"
                     },
                     "StorageSuffix": {
@@ -4490,17 +4589,8 @@
                         },
                         "mode": "Incremental",
                         "parameters": {
-                          "DomainJoinPassword": {
-                            "value": "[parameters('DomainJoinPassword')]"
-                          },
-                          "DomainJoinUserPrincipalName": {
-                            "value": "[parameters('DomainJoinUserPrincipalName')]"
-                          },
-                          "DomainServices": {
-                            "value": "[parameters('DomainServices')]"
-                          },
-                          "KerberosEncryptionType": {
-                            "value": "[parameters('KerberosEncryption')]"
+                          "CommandToExecute": {
+                            "value": "[format('powershell -ExecutionPolicy Unrestricted -File New-DomainJoinStorageAccount.ps1 -DomainJoinPassword \"{0}\" -DomainJoinUserPrincipalName {1} -DomainServices {2} -Environment {3} -FslogixSolution {4} -KerberosEncryptionType {5} -Netbios {6} -OuPath \"{7}\" -SecurityPrincipalNames \"{8}\" -StorageAccountPrefix {9} -StorageAccountResourceGroupName {10} -StorageCount {11} -StorageIndex {12} -StorageSolution {13} -StorageSuffix {14} -SubscriptionId {15} -TenantId {16}', parameters('DomainJoinPassword'), parameters('DomainJoinUserPrincipalName'), parameters('DomainServices'), environment().name, parameters('FslogixSolution'), parameters('KerberosEncryption'), parameters('Netbios'), parameters('OuPath'), parameters('SecurityPrincipalNames'), parameters('StorageAccountPrefix'), parameters('ResourceGroups')[3], parameters('StorageCount'), parameters('StorageIndex'), parameters('StorageSolution'), environment().suffixes.storage, subscription().subscriptionId, subscription().tenantId)]"
                           },
                           "Location": {
                             "value": "[parameters('Location')]"
@@ -4508,32 +4598,11 @@
                           "ManagementVmName": {
                             "value": "[parameters('ManagementVmName')]"
                           },
-                          "Netbios": {
-                            "value": "[parameters('Netbios')]"
-                          },
-                          "OuPath": {
-                            "value": "[parameters('OuPath')]"
-                          },
                           "SasToken": {
                             "value": "[parameters('SasToken')]"
                           },
                           "ScriptsUri": {
                             "value": "[parameters('ScriptsUri')]"
-                          },
-                          "SecurityPrincipalNames": {
-                            "value": "[parameters('SecurityPrincipalNames')]"
-                          },
-                          "StorageCount": {
-                            "value": "[parameters('StorageCount')]"
-                          },
-                          "StorageIndex": {
-                            "value": "[parameters('StorageIndex')]"
-                          },
-                          "StorageAccountPrefix": {
-                            "value": "[parameters('StorageAccountPrefix')]"
-                          },
-                          "StorageAccountResourceGroupName": {
-                            "value": "[parameters('ResourceGroups')[3]]"
                           },
                           "Tags": {
                             "value": "[parameters('Tags')]"
@@ -4549,21 +4618,12 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "0.6.18.56646",
-                              "templateHash": "2659793297729745708"
+                              "templateHash": "9959386390090423777"
                             }
                           },
                           "parameters": {
-                            "DomainJoinPassword": {
+                            "CommandToExecute": {
                               "type": "secureString"
-                            },
-                            "DomainJoinUserPrincipalName": {
-                              "type": "string"
-                            },
-                            "DomainServices": {
-                              "type": "string"
-                            },
-                            "KerberosEncryptionType": {
-                              "type": "string"
                             },
                             "Location": {
                               "type": "string"
@@ -4571,31 +4631,10 @@
                             "ManagementVmName": {
                               "type": "string"
                             },
-                            "Netbios": {
-                              "type": "string"
-                            },
-                            "OuPath": {
-                              "type": "string"
-                            },
                             "SasToken": {
                               "type": "string"
                             },
                             "ScriptsUri": {
-                              "type": "string"
-                            },
-                            "SecurityPrincipalNames": {
-                              "type": "array"
-                            },
-                            "StorageCount": {
-                              "type": "int"
-                            },
-                            "StorageIndex": {
-                              "type": "int"
-                            },
-                            "StorageAccountPrefix": {
-                              "type": "string"
-                            },
-                            "StorageAccountResourceGroupName": {
                               "type": "string"
                             },
                             "Tags": {
@@ -4619,12 +4658,12 @@
                                 "autoUpgradeMinorVersion": true,
                                 "settings": {
                                   "fileUris": [
-                                    "[format('{0}New-DomainJoinStorageAccount.ps1{1}', parameters('ScriptsUri'), parameters('SasToken'))]"
+                                    "[format('{0}Set-NtfsPermissions.ps1{1}', parameters('ScriptsUri'), parameters('SasToken'))]"
                                   ],
                                   "timestamp": "[parameters('Timestamp')]"
                                 },
                                 "protectedSettings": {
-                                  "commandToExecute": "[format('powershell -ExecutionPolicy Unrestricted -File New-DomainJoinStorageAccount.ps1 -DomainJoinPassword \"{0}\" -DomainJoinUserPrincipalName {1} -DomainServices {2} -Environment {3} -KerberosEncryptionType {4} -Netbios {5} -OuPath \"{6}\" -SecurityPrincipalNames \"{7}\" -StorageCount {8} -StorageIndex {9} -StorageAccountPrefix {10} -StorageAccountResourceGroupName {11} -StorageSuffix {12} -SubscriptionId {13} -TenantId {14}', parameters('DomainJoinPassword'), parameters('DomainJoinUserPrincipalName'), parameters('DomainServices'), environment().name, parameters('KerberosEncryptionType'), parameters('Netbios'), parameters('OuPath'), parameters('SecurityPrincipalNames'), parameters('StorageCount'), parameters('StorageIndex'), parameters('StorageAccountPrefix'), parameters('StorageAccountResourceGroupName'), environment().suffixes.storage, subscription().subscriptionId, subscription().tenantId)]"
+                                  "commandToExecute": "[parameters('CommandToExecute')]"
                                 }
                               }
                             }
@@ -4646,9 +4685,9 @@
             }
           ],
           "outputs": {
-            "netAppShare": {
-              "type": "string",
-              "value": "[if(equals(parameters('StorageSolution'), 'AzureNetAppFiles'), reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('ResourceGroups')[3]), 'Microsoft.Resources/deployments', format('AzureNetAppFiles_{0}', parameters('Timestamp'))), '2020-10-01').outputs.fileShare.value, 'None')]"
+            "netAppShares": {
+              "type": "array",
+              "value": "[if(equals(parameters('StorageSolution'), 'AzureNetAppFiles'), reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('ResourceGroups')[3]), 'Microsoft.Resources/deployments', format('AzureNetAppFiles_{0}', parameters('Timestamp'))), '2020-10-01').outputs.fileShares.value, createArray('None'))]"
             }
           }
         }
@@ -4761,8 +4800,8 @@
           "NamingStandard": {
             "value": "[variables('NamingStandard')]"
           },
-          "NetAppFileShare": {
-            "value": "[if(variables('Fslogix'), reference(subscriptionResourceId('Microsoft.Resources/deployments', format('FSLogix_{0}', parameters('Timestamp'))), '2020-10-01').outputs.netAppShare.value, 'None')]"
+          "NetAppFileShares": {
+            "value": "[if(variables('Fslogix'), reference(subscriptionResourceId('Microsoft.Resources/deployments', format('FSLogix_{0}', parameters('Timestamp'))), '2020-10-01').outputs.netAppShares.value, createArray('None'))]"
           },
           "NetworkSecurityGroupName": {
             "value": "[variables('NetworkSecurityGroupName')]"
@@ -4850,7 +4889,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.6.18.56646",
-              "templateHash": "9156394704463386906"
+              "templateHash": "3930335700136158192"
             }
           },
           "parameters": {
@@ -4947,8 +4986,8 @@
             "NetworkSecurityGroupName": {
               "type": "string"
             },
-            "NetAppFileShare": {
-              "type": "string"
+            "NetAppFileShares": {
+              "type": "array"
             },
             "OuPath": {
               "type": "string"
@@ -5255,8 +5294,8 @@
                   "NetworkSecurityGroupName": {
                     "value": "[parameters('NetworkSecurityGroupName')]"
                   },
-                  "NetAppFileShare": {
-                    "value": "[parameters('NetAppFileShare')]"
+                  "NetAppFileShares": {
+                    "value": "[parameters('NetAppFileShares')]"
                   },
                   "OuPath": {
                     "value": "[parameters('OuPath')]"
@@ -5332,7 +5371,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.6.18.56646",
-                      "templateHash": "15289510305792265400"
+                      "templateHash": "10499159936268686108"
                     }
                   },
                   "parameters": {
@@ -5420,8 +5459,8 @@
                     "NetworkSecurityGroupName": {
                       "type": "string"
                     },
-                    "NetAppFileShare": {
-                      "type": "string"
+                    "NetAppFileShares": {
+                      "type": "array"
                     },
                     "OuPath": {
                       "type": "string"
@@ -5702,7 +5741,7 @@
                           "timestamp": "[parameters('Timestamp')]"
                         },
                         "protectedSettings": {
-                          "commandToExecute": "[format('powershell -ExecutionPolicy Unrestricted -File Set-SessionHostConfiguration.ps1 -AmdVmSize {0} -DisaStigCompliance {1} -DomainName {2} -DomainServices {3} -Environment {4} -FSLogix {5} -FslogixSolution {6} -HostPoolName {7} -HostPoolRegistrationToken {8} -ImageOffer {9} -ImagePublisher {10} -NetAppFileShare {11} -NvidiaVmSize {12} -PooledHostPool {13} -RdpShortPath {14} -ScreenCaptureProtection {15} -StorageAccountPrefix {16} -StorageCount {17} -StorageIndex {18} -StorageSolution {19} -StorageSuffix {20}', variables('AmdVmSize'), parameters('DisaStigCompliance'), parameters('DomainName'), parameters('DomainServices'), environment().name, parameters('Fslogix'), parameters('FslogixSolution'), parameters('HostPoolName'), reference(resourceId(variables('ManagementResourceGroup'), 'Microsoft.DesktopVirtualization/hostpools', parameters('HostPoolName')), '2019-12-10-preview').registrationInfo.token, parameters('ImageOffer'), parameters('ImagePublisher'), parameters('NetAppFileShare'), variables('NvidiaVmSize'), variables('PooledHostPool'), parameters('RdpShortPath'), parameters('ScreenCaptureProtection'), parameters('StorageAccountPrefix'), parameters('StorageCount'), parameters('StorageIndex'), parameters('StorageSolution'), parameters('StorageSuffix'))]"
+                          "commandToExecute": "[format('powershell -ExecutionPolicy Unrestricted -File Set-SessionHostConfiguration.ps1 -AmdVmSize {0} -DisaStigCompliance {1} -DomainName {2} -DomainServices {3} -Environment {4} -FSLogix {5} -FslogixSolution {6} -HostPoolName {7} -HostPoolRegistrationToken {8} -ImageOffer {9} -ImagePublisher {10} -NetAppFileShares {11} -NvidiaVmSize {12} -PooledHostPool {13} -RdpShortPath {14} -ScreenCaptureProtection {15} -StorageAccountPrefix {16} -StorageCount {17} -StorageIndex {18} -StorageSolution {19} -StorageSuffix {20}', variables('AmdVmSize'), parameters('DisaStigCompliance'), parameters('DomainName'), parameters('DomainServices'), environment().name, parameters('Fslogix'), parameters('FslogixSolution'), parameters('HostPoolName'), reference(resourceId(variables('ManagementResourceGroup'), 'Microsoft.DesktopVirtualization/hostpools', parameters('HostPoolName')), '2019-12-10-preview').registrationInfo.token, parameters('ImageOffer'), parameters('ImagePublisher'), parameters('NetAppFileShares'), variables('NvidiaVmSize'), variables('PooledHostPool'), parameters('RdpShortPath'), parameters('ScreenCaptureProtection'), parameters('StorageAccountPrefix'), parameters('StorageCount'), parameters('StorageIndex'), parameters('StorageSolution'), parameters('StorageSuffix'))]"
                         }
                       },
                       "dependsOn": [

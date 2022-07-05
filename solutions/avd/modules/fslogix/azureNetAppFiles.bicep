@@ -5,18 +5,20 @@ param DnsServers string
 param DomainJoinPassword string
 param DomainJoinUserPrincipalName string
 param DomainName string
-param HostPoolName string
+param FileShares array
+param FslogixSolution string
 param Location string
 param ManagementVmName string
 param NetAppAccountName string
 param NetAppCapacityPoolName string
 param OuPath string
-param NamingStandard string
+param ResourceGroups array
 param SasToken string
 param ScriptsUri string
 param SecurityPrincipalNames array
 param SmbServerLocation string
 param StorageSku string
+param StorageSolution string
 param Tags object
 param Timestamp string
 
@@ -57,9 +59,9 @@ resource capacityPool 'Microsoft.NetApp/netAppAccounts/capacityPools@2021-06-01'
   }
 }
 
-resource volume 'Microsoft.NetApp/netAppAccounts/capacityPools/volumes@2021-06-01' = {
+resource volumes 'Microsoft.NetApp/netAppAccounts/capacityPools/volumes@2021-06-01' = [for i in range(0, length(FileShares)): {
   parent: capacityPool
-  name: HostPoolName
+  name: FileShares[i]
   location: Location
   tags: Tags
   properties: {
@@ -67,7 +69,7 @@ resource volume 'Microsoft.NetApp/netAppAccounts/capacityPools/volumes@2021-06-0
     // backupId: 'string'
     coolAccess: false
     // coolnessPeriod: int
-    creationToken: HostPoolName
+    creationToken: FileShares[i]
     // dataProtection: {
     //   backup: {
     //     backupEnabled: bool
@@ -127,30 +129,28 @@ resource volume 'Microsoft.NetApp/netAppAccounts/capacityPools/volumes@2021-06-0
     usageThreshold: 107374182400
     // volumeType: 'string'
   }
-}
+}]
 
-resource customScriptExtension 'Microsoft.Compute/virtualMachines/extensions@2020-12-01' = {
-  name: '${ManagementVmName}/CustomScriptExtension'
-  location: Location
-  tags: Tags
-  properties: {
-    publisher: 'Microsoft.Compute'
-    type: 'CustomScriptExtension'
-    typeHandlerVersion: '1.10'
-    autoUpgradeMinorVersion: true
-    settings: {
-      fileUris: [
-        '${ScriptsUri}Set-NetAppNtfsPermissions.ps1${SasToken}'
-      ]
-      timestamp: Timestamp
-    }
-    protectedSettings: {
-      commandToExecute: 'powershell -ExecutionPolicy Unrestricted -File Set-NetAppNtfsPermissions.ps1 -DomainJoinPassword "${DomainJoinPassword}" -DomainJoinUserPrincipalName ${DomainJoinUserPrincipalName} -HostPoolName ${HostPoolName} -NamingStandard ${NamingStandard} -SecurityPrincipalNames "${SecurityPrincipalNames}" -SmbServerLocation ${SmbServerLocation}'
-    }
+module ntfsPermissions 'ntfsPermissions.bicep' = {
+  name: 'FslogixNtfsPermissions_${Timestamp}'
+  scope: resourceGroup(ResourceGroups[0]) // Deployment Resource Group
+  params: {
+    CommandToExecute: 'powershell -ExecutionPolicy Unrestricted -File Set-NetAppNtfsPermissions.ps1 -DomainJoinPassword "${DomainJoinPassword}" -DomainJoinUserPrincipalName ${DomainJoinUserPrincipalName} -FslogixSolution ${FslogixSolution} -SecurityPrincipalNames "${SecurityPrincipalNames}" -SmbServerLocation ${SmbServerLocation} -StorageSolution ${StorageSolution}'
+    Location: Location
+    ManagementVmName: ManagementVmName
+    SasToken: SasToken
+    ScriptsUri: ScriptsUri
+    Tags: Tags
+    Timestamp: Timestamp
   }
   dependsOn: [
-    volume
+    volumes
   ]
 }
 
-output fileShare string = volume.properties.mountTargets[0].smbServerFqdn
+output fileShares array = contains(FslogixSolution, 'Office') ? [
+  volumes[0].properties.mountTargets[0].smbServerFqdn
+  volumes[1].properties.mountTargets[0].smbServerFqdn
+] : [
+  volumes[0].properties.mountTargets[0].smbServerFqdn
+]

@@ -46,7 +46,7 @@ Param(
 
     [parameter(Mandatory)]
     [string]
-    $NetAppFileShare,
+    $NetAppFileShares,
 
     [parameter(Mandatory)]
     [string]
@@ -134,6 +134,12 @@ function Get-WebFile
 
 try 
 {
+    # Convert NetAppFiles share names from a JSON array to a PowerShell array
+    [array]$NetAppFileShares = $NetAppFileShares.Replace("'",'"') | ConvertFrom-Json
+    Write-Log -Message "Azure NetApp Files, Shares:" -Type 'INFO'
+    $NetAppFileShares | Add-Content -Path 'C:\cse.txt' -Force
+
+
     ##############################################################
     #  DISA STIG Compliance
     ##############################################################
@@ -246,14 +252,13 @@ try
                     $CloudCacheProfileContainers += 'type=smb,connectionString=\\' + $StorageAccountPrefix + $i.ToString().PadLeft(2,'0') + $FilesSuffix + '\profilecontainers;'
                     $OfficeContainers += '\\' + $StorageAccountPrefix + $i.ToString().PadLeft(2,'0') + $FilesSuffix + '\officecontainers'
                     $ProfileContainers += '\\' + $StorageAccountPrefix + $i.ToString().PadLeft(2,'0') + $FilesSuffix + '\profilecontainers'
-
                 }
             }
             'AzureNetAppFiles' {
-                $CloudCacheOfficeContainers += 'type=smb,connectionString=\\' + $NetAppFileShare + '\officecontainers;'
-                $CloudCacheProfileContainers += 'type=smb,connectionString=\\' + $NetAppFileShare + '\profilecontainers;'
-                $OfficeContainers += '\\' + $NetAppFileShare + '\officecontainers'
-                $ProfileContainers += '\\' + $NetAppFileShare + '\profilecontainers'
+                $CloudCacheOfficeContainers += 'type=smb,connectionString=\\' + $NetAppFileShares[0] + ';'
+                $CloudCacheProfileContainers += 'type=smb,connectionString=\\' + $NetAppFileShares[1] + ';'
+                $OfficeContainers += '\\' + $NetAppFileShares[0]
+                $ProfileContainers += '\\' + $NetAppFileShares[1]
             }
         }
         

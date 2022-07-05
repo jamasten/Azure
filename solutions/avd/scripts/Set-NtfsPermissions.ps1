@@ -177,22 +177,6 @@ try
         $Group = $Netbios + '\' + $SecurityPrincipalName
         Write-Log -Message "Group for NTFS Permissions = $Group" -Type 'INFO'
 
-        if($StorageSolution -eq 'AzureStorageAccount')
-        {
-            # Connects to Azure using a User Assigned Managed Identity
-            Connect-AzAccount -Identity -Environment $Environment -Tenant $TenantId -Subscription $SubscriptionId
-            Write-Log -Message "Authenticated to Azure" -Type 'INFO'
-
-            # Get the storage account key
-            $StorageKey = (Get-AzStorageAccountKey -ResourceGroupName $StorageAccountResourceGroupName -Name $StorageAccountName)[0].Value
-            Write-Log -Message "The GET operation for the Storage Account key on $StorageAccountName succeeded" -Type 'INFO'
-
-            # Create credential for accessing the storage account
-            $StorageUsername = 'Azure\' + $StorageAccountName
-            $StoragePassword = ConvertTo-SecureString -String "$($StorageKey)" -AsPlainText -Force
-            [pscredential]$StorageKeyCredential = New-Object System.Management.Automation.PSCredential ($StorageUsername, $StoragePassword)
-        }
-
         # Get storage resource details
         switch($StorageSolution)
         {
@@ -202,9 +186,23 @@ try
                 $FileServer = '\\' + $SmbServerName + '.' + $Domain.DNSRoot
             }
             'AzureStorageAccount' {
-                $Credential = $StorageKeyCredential
                 $StorageAccountName = $StorageAccountPrefix + $i.ToString().PadLeft(2,'0')
                 $FileServer = '\\' + $StorageAccountName + $FilesSuffix
+
+                # Connects to Azure using a User Assigned Managed Identity
+                Connect-AzAccount -Identity -Environment $Environment -Tenant $TenantId -Subscription $SubscriptionId
+                Write-Log -Message "Authenticated to Azure" -Type 'INFO'
+
+                # Get the storage account key
+                $StorageKey = (Get-AzStorageAccountKey -ResourceGroupName $StorageAccountResourceGroupName -Name $StorageAccountName)[0].Value
+                Write-Log -Message "The GET operation for the Storage Account key on $StorageAccountName succeeded" -Type 'INFO'
+
+                # Create credential for accessing the storage account
+                $StorageUsername = 'Azure\' + $StorageAccountName
+                $StoragePassword = ConvertTo-SecureString -String "$($StorageKey)" -AsPlainText -Force
+                [pscredential]$StorageKeyCredential = New-Object System.Management.Automation.PSCredential ($StorageUsername, $StoragePassword)
+                $Credential = $StorageKeyCredential
+
                 if($DomainServices -eq 'ActiveDirectory')
                 {
                     # Get / create kerberos key for Azure Storage Account

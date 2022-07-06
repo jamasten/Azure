@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.6.18.56646",
-      "templateHash": "1401679026569919059"
+      "templateHash": "7655709546116643146"
     }
   },
   "parameters": {
@@ -4889,7 +4889,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.6.18.56646",
-              "templateHash": "3930335700136158192"
+              "templateHash": "3199200636825594312"
             }
           },
           "parameters": {
@@ -5371,7 +5371,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.6.18.56646",
-                      "templateHash": "10499159936268686108"
+                      "templateHash": "1631268470559151349"
                     }
                   },
                   "parameters": {
@@ -5553,7 +5553,13 @@
                       "Standard_NC4as_T4_v3",
                       "Standard_NC8as_T4_v3",
                       "Standard_NC16as_T4_v3",
-                      "Standard_NC64as_T4_v3"
+                      "Standard_NC64as_T4_v3",
+                      "Standard_NV6ads_A10_v5",
+                      "Standard_NV12ads_A10_v5",
+                      "Standard_NV18ads_A10_v5",
+                      "Standard_NV36ads_A10_v5",
+                      "Standard_NV36adms_A10_v5",
+                      "Standard_NV72ads_A10_v5"
                     ],
                     "NvidiaVmSize": "[contains(variables('NvidiaVmSizes'), parameters('VmSize'))]",
                     "PooledHostPool": "[equals(split(parameters('HostPoolType'), ' ')[0], 'Pooled')]",

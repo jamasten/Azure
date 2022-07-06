@@ -658,4 +658,5 @@ try
 catch 
 {
     Write-Log -Message $_ -Type 'ERROR'
+    throw
 }

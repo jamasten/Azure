@@ -524,18 +524,29 @@ try
     # Set registry settings
     foreach($Setting in $Settings)
     {
+        # Create registry key(s) if necessary
+        if(!(Test-Path -Path $Setting.Path))
+        {
+            New-Item -Path $Setting.Path -Force
+        }
+
+        # Checks for existing registry setting
         $Value = Get-ItemProperty -Path $Setting.Path -Name $Setting.Name -ErrorAction 'SilentlyContinue'
         $LogOutputValue = 'Path: ' + $Setting.Path + ', Name: ' + $Setting.Name + ', PropertyType: ' + $Setting.PropertyType + ', Value: ' + $Setting.Value
+        
+        # Creates the registry setting when it does not exist
         if(!$Value)
         {
             New-ItemProperty -Path $Setting.Path -Name $Setting.Name -PropertyType $Setting.PropertyType -Value $Setting.Value -Force -ErrorAction 'Stop'
             Write-Log -Message "Added registry setting: $LogOutputValue" -Type 'INFO'
         }
+        # Updates the registry setting when it already exists
         elseif($Value.$($Setting.Name) -ne $Setting.Value)
         {
             Set-ItemProperty -Path $Setting.Path -Name $Setting.Name -Value $Setting.Value -Force -ErrorAction 'Stop'
             Write-Log -Message "Updated registry setting: $LogOutputValue" -Type 'INFO'
         }
+        # Writes log output when registry setting has the correct value
         else 
         {
             Write-Log -Message "Registry setting exists with correct value: $LogOutputValue" -Type 'INFO'    

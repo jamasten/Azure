@@ -132,6 +132,9 @@ function Get-WebFile
 }
 
 
+$ErrorActionPreference = 'Stop'
+
+
 try 
 {
     # Convert NetAppFiles share names from a JSON array to a PowerShell array
@@ -149,18 +152,18 @@ try
         # Download VDOT
         $URL = 'https://github.com/The-Virtual-Desktop-Team/Virtual-Desktop-Optimization-Tool/archive/refs/heads/main.zip'
         $ZIP = 'VDOT.zip'
-        Invoke-WebRequest -Uri $URL -OutFile $ZIP -ErrorAction 'Stop'
+        Invoke-WebRequest -Uri $URL -OutFile $ZIP
         
         # Extract VDOT from ZIP archive
-        Expand-Archive -LiteralPath $ZIP -Force -ErrorAction 'Stop'
+        Expand-Archive -LiteralPath $ZIP -Force
         
         # Fix to disable AppX Packages
         # As of 2/8/22, all AppX Packages are enabled by default
-        $Files = (Get-ChildItem -Path .\VDOT\Virtual-Desktop-Optimization-Tool-main -File -Recurse -Filter "AppxPackages.json" -ErrorAction 'Stop').FullName
+        $Files = (Get-ChildItem -Path .\VDOT\Virtual-Desktop-Optimization-Tool-main -File -Recurse -Filter "AppxPackages.json").FullName
         foreach($File in $Files)
         {
-            $Content = Get-Content -Path $File -ErrorAction 'Stop'
-            $Settings = $Content | ConvertFrom-Json -ErrorAction 'Stop'
+            $Content = Get-Content -Path $File
+            $Settings = $Content | ConvertFrom-Json
             $NewSettings = @()
             foreach($Setting in $Settings)
             {
@@ -172,8 +175,8 @@ try
                 }
             }
 
-            $JSON = $NewSettings | ConvertTo-Json -ErrorAction 'Stop'
-            $JSON | Out-File -FilePath $File -Force -ErrorAction 'Stop'
+            $JSON = $NewSettings | ConvertTo-Json
+            $JSON | Out-File -FilePath $File -Force
         }
 
         # Run VDOT
@@ -258,7 +261,7 @@ try
 
 
     ##############################################################
-    #  Add Screen Capture Protection
+    #  Add Screen Capture Protection Setting
     ##############################################################
     if($ScreenCaptureProtection -eq 'true')
     {
@@ -276,7 +279,7 @@ try
 
 
     ##############################################################
-    #  Add Fslogix Configurations
+    #  Add Fslogix Settings
     ##############################################################
     if($Fslogix -eq 'true')
     {
@@ -517,7 +520,7 @@ try
 
 
     ##############################################################
-    #  Add Azure AD Join Configuration
+    #  Add Azure AD Join Setting
     ##############################################################
     if($DomainServices -like "None*")
     {
@@ -579,13 +582,13 @@ try
         # Creates the registry setting when it does not exist
         if(!$Value)
         {
-            New-ItemProperty -Path $Setting.Path -Name $Setting.Name -PropertyType $Setting.PropertyType -Value $Setting.Value -Force -ErrorAction 'Stop'
+            New-ItemProperty -Path $Setting.Path -Name $Setting.Name -PropertyType $Setting.PropertyType -Value $Setting.Value -Force
             Write-Log -Message "Added registry setting: $LogOutputValue" -Type 'INFO'
         }
         # Updates the registry setting when it already exists
         elseif($Value.$($Setting.Name) -ne $Setting.Value)
         {
-            Set-ItemProperty -Path $Setting.Path -Name $Setting.Name -Value $Setting.Value -Force -ErrorAction 'Stop'
+            Set-ItemProperty -Path $Setting.Path -Name $Setting.Name -Value $Setting.Value -Force
             Write-Log -Message "Updated registry setting: $LogOutputValue" -Type 'INFO'
         }
         # Writes log output when registry setting has the correct value
@@ -632,7 +635,7 @@ try
 
         foreach($File in $Files)
         {
-            Add-MpPreference -ExclusionPath $File -ErrorAction 'Stop'
+            Add-MpPreference -ExclusionPath $File
         }
         Write-Log -Message 'Enabled Defender exlusions for FSLogix paths' -Type 'INFO'
 
@@ -644,7 +647,7 @@ try
 
         foreach($Process in $Processes)
         {
-            Add-MpPreference -ExclusionProcess $Process -ErrorAction 'Stop'
+            Add-MpPreference -ExclusionProcess $Process
         }
         Write-Log -Message 'Enabled Defender exlusions for FSLogix processes' -Type 'INFO'
     }
@@ -656,13 +659,13 @@ try
     # Disabling this method for installing the AVD agent until AAD Join can completed successfully
     $BootInstaller = 'AVD-Bootloader.msi'
     Get-WebFile -FileName $BootInstaller -URL 'https://query.prod.cms.rt.microsoft.com/cms/api/am/binary/RWrxrH'
-    Start-Process -FilePath 'msiexec.exe' -ArgumentList "/i $BootInstaller /quiet /qn /norestart /passive" -Wait -Passthru -ErrorAction 'Stop'
+    Start-Process -FilePath 'msiexec.exe' -ArgumentList "/i $BootInstaller /quiet /qn /norestart /passive" -Wait -Passthru
     Write-Log -Message 'Installed AVD Bootloader' -Type 'INFO'
     Start-Sleep -Seconds 5
 
     $AgentInstaller = 'AVD-Agent.msi'
     Get-WebFile -FileName $AgentInstaller -URL 'https://query.prod.cms.rt.microsoft.com/cms/api/am/binary/RWrmXv'
-    Start-Process -FilePath 'msiexec.exe' -ArgumentList "/i $AgentInstaller /quiet /qn /norestart /passive REGISTRATIONTOKEN=$HostPoolRegistrationToken" -Wait -PassThru -ErrorAction 'Stop'
+    Start-Process -FilePath 'msiexec.exe' -ArgumentList "/i $AgentInstaller /quiet /qn /norestart /passive REGISTRATIONTOKEN=$HostPoolRegistrationToken" -Wait -PassThru
     Write-Log -Message 'Installed AVD Agent' -Type 'INFO'
     Start-Sleep -Seconds 5
 }

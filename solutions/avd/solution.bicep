@@ -182,6 +182,7 @@ param ScalingTimeDifference string = '-5:00'
 @description('Determines whether the Screen Capture Protection feature is enabled.  As of 9/17/21 this is only supported in Azure Cloud. https://docs.microsoft.com/en-us/azure/virtual-desktop/screen-capture-protection')
 param ScreenCaptureProtection bool = false
 
+@secure()
 @description('The SAS Token for the scripts if they are stored on an Azure Storage Account.')
 param SasToken string = ''
 

@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.6.18.56646",
-      "templateHash": "7655709546116643146"
+      "templateHash": "14982038437451554134"
     }
   },
   "parameters": {
@@ -341,7 +341,7 @@
       }
     },
     "SasToken": {
-      "type": "string",
+      "type": "secureString",
       "defaultValue": "",
       "metadata": {
         "description": "The SAS Token for the scripts if they are stored on an Azure Storage Account."

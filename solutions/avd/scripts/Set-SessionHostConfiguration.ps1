@@ -147,7 +147,7 @@ try
     #  Run the Virtual Desktop Optimization Tool (VDOT)
     ##############################################################
     # https://github.com/The-Virtual-Desktop-Team/Virtual-Desktop-Optimization-Tool
-    if($ImagePublisher -eq 'MicrosoftWindowsDesktop' -and $ImageOffer -ne 'windows-7')
+<#     if($ImagePublisher -eq 'MicrosoftWindowsDesktop' -and $ImageOffer -ne 'windows-7')
     {
         # Download VDOT
         $URL = 'https://github.com/The-Virtual-Desktop-Team/Virtual-Desktop-Optimization-Tool/archive/refs/heads/main.zip'
@@ -182,7 +182,7 @@ try
         # Run VDOT
         & .\VDOT\Virtual-Desktop-Optimization-Tool-main\Windows_VDOT.ps1 -AcceptEULA
         Write-Log -Message 'Optimized the operating system using VDOT' -Type 'INFO'
-    }    
+    }     #>
 
     
     ##############################################################

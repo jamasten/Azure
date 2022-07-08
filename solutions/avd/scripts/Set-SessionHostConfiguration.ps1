@@ -668,6 +668,15 @@ try
     Start-Process -FilePath 'msiexec.exe' -ArgumentList "/i $AgentInstaller /quiet /qn /norestart /passive REGISTRATIONTOKEN=$HostPoolRegistrationToken" -Wait -PassThru
     Write-Log -Message 'Installed AVD Agent' -Type 'INFO'
     Start-Sleep -Seconds 5
+
+
+    ##############################################################
+    #  Restart VM
+    ##############################################################
+    if($DomainServices -like "None*" -and $AmdVmSize -eq 'false' -and $NvidiaVmSize -eq 'false')
+    {
+        Start-Process -FilePath 'shutdown' -ArgumentList '/r /t 30'
+    }
 }
 catch 
 {

@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.6.18.56646",
-      "templateHash": "6053166268292953649"
+      "templateHash": "11672773425495195157"
     }
   },
   "parameters": {
@@ -6050,7 +6050,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.6.18.56646",
-              "templateHash": "13791678506551836488"
+              "templateHash": "9246551541881955959"
             }
           },
           "parameters": {
@@ -6239,7 +6239,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.6.18.56646",
-                      "templateHash": "11878730130958577274"
+                      "templateHash": "1253983813695408570"
                     }
                   },
                   "parameters": {
@@ -6264,8 +6264,9 @@
                   },
                   "resources": [
                     {
+                      "condition": "[contains(parameters('FileShares')[copyIndex()], 'profile')]",
                       "copy": {
-                        "name": "protectedItems_FileShares",
+                        "name": "protectedItems_FileShare",
                         "count": "[length(parameters('FileShares'))]"
                       },
                       "type": "Microsoft.RecoveryServices/vaults/backupFabrics/protectionContainers/protectedItems",

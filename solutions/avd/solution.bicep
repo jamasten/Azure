@@ -738,19 +738,23 @@ module sessionHosts 'modules/sessionHosts/sessionHosts.bicep' = {
   ]
 }
 
-module backup 'modules/backup.bicep' = if(RecoveryServices) {
+module backup 'modules/backup/backup.bicep' = if(RecoveryServices) {
   name: 'Backup_${Timestamp}'
   scope: resourceGroup(ResourceGroups[2]) // Management Resource Group
   params: {
     DivisionRemainderValue: DivisionRemainderValue
-    HostPoolName: HostPoolName
-    HostPoolType: HostPoolType
+    FileShares: FileShares
+    Fslogix: Fslogix
     Location: Location
     MaxResourcesPerTemplateDeployment: MaxResourcesPerTemplateDeployment
     RecoveryServicesVaultName: RecoveryServicesVaultName
     SessionHostBatchCount: SessionHostBatchCount
     SessionHostIndex: SessionHostIndex
-    StorageAccountName: StorageAccountPrefix
+    StorageAccountPrefix: StorageAccountPrefix
+    StorageCount: StorageCount
+    StorageIndex: StorageIndex
+    StorageResourceGroupName: ResourceGroups[3] // Storage Resource Group
+    StorageSolution: StorageSolution
     Tags: Tags
     Timestamp: Timestamp
     TimeZone: TimeZones[Location]
@@ -784,7 +788,7 @@ module scale 'modules/scale/scale.bicep' = if(PooledHostPool) {
     SessionHostsResourceGroupName: ResourceGroups[1] // Hosts Resource Group
     SessionThresholdPerCPU: ScalingSessionThresholdPerCPU
     StorageAccountPrefix: StorageAccountPrefix
-    StorageResourceGroupName: ResourceGroups[3] // Hosts Resource Group
+    StorageResourceGroupName: ResourceGroups[3] // Storage Resource Group
     StorageCount: StorageCount
     StorageIndex: StorageIndex
     TimeDifference: ScalingTimeDifference

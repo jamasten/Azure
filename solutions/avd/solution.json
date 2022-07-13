@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.8.9.13224",
-      "templateHash": "7012479100678036821"
+      "templateHash": "3280504284010023592"
     }
   },
   "parameters": {
@@ -6057,7 +6057,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.8.9.13224",
-              "templateHash": "252209801655212300"
+              "templateHash": "9598720027404246943"
             }
           },
           "parameters": {
@@ -6209,11 +6209,11 @@
               "condition": "[and(parameters('Fslogix'), equals(parameters('StorageSolution'), 'AzureStorageAccount'))]",
               "copy": {
                 "name": "protectedItems_FileShares",
-                "count": "[length(range(parameters('StorageIndex'), parameters('StorageCount')))]"
+                "count": "[length(range(0, parameters('StorageCount')))]"
               },
               "type": "Microsoft.Resources/deployments",
               "apiVersion": "2020-10-01",
-              "name": "[format('BackupProtectedItems_FileShares_{0}_{1}', range(parameters('StorageIndex'), parameters('StorageCount'))[copyIndex()], parameters('Timestamp'))]",
+              "name": "[format('BackupProtectedItems_FileShares_{0}_{1}', add(range(0, parameters('StorageCount'))[copyIndex()], parameters('StorageIndex')), parameters('Timestamp'))]",
               "properties": {
                 "expressionEvaluationOptions": {
                   "scope": "inner"
@@ -6227,13 +6227,13 @@
                     "value": "[parameters('Location')]"
                   },
                   "ProtectionContainerName": {
-                    "value": "[format('{0}/Azure/storagecontainer;Storage;{1};{2}{3}', parameters('RecoveryServicesVaultName'), parameters('StorageResourceGroupName'), parameters('StorageAccountPrefix'), padLeft(range(parameters('StorageIndex'), parameters('StorageCount'))[range(parameters('StorageIndex'), parameters('StorageCount'))[copyIndex()]], 2, '0'))]"
+                    "value": "[format('{0}/Azure/storagecontainer;Storage;{1};{2}{3}', parameters('RecoveryServicesVaultName'), parameters('StorageResourceGroupName'), parameters('StorageAccountPrefix'), padLeft(range(parameters('StorageIndex'), parameters('StorageCount'))[range(0, parameters('StorageCount'))[copyIndex()]], 2, '0'))]"
                   },
                   "PolicyId": {
                     "value": "[resourceId('Microsoft.RecoveryServices/vaults/backupPolicies', parameters('RecoveryServicesVaultName'), 'AvdPolicyStorage')]"
                   },
                   "SourceResourceId": {
-                    "value": "[resourceId(parameters('StorageResourceGroupName'), 'Microsoft.Storage/storageAccounts', format('{0}{1}', parameters('StorageAccountPrefix'), padLeft(range(parameters('StorageIndex'), parameters('StorageCount'))[copyIndex()], 2, '0')))]"
+                    "value": "[resourceId(parameters('StorageResourceGroupName'), 'Microsoft.Storage/storageAccounts', format('{0}{1}', parameters('StorageAccountPrefix'), padLeft(range(0, parameters('StorageCount'))[copyIndex()], 2, '0')))]"
                   },
                   "Tags": {
                     "value": "[parameters('Tags')]"
@@ -6292,7 +6292,7 @@
               },
               "dependsOn": [
                 "[resourceId('Microsoft.RecoveryServices/vaults/backupPolicies', parameters('RecoveryServicesVaultName'), 'AvdPolicyStorage')]",
-                "[resourceId('Microsoft.RecoveryServices/vaults/backupFabrics/protectionContainers', split(format('{0}/Azure/storagecontainer;Storage;{1};{2}{3}', parameters('RecoveryServicesVaultName'), parameters('StorageResourceGroupName'), parameters('StorageAccountPrefix'), padLeft(range(parameters('StorageIndex'), parameters('StorageCount'))[range(parameters('StorageIndex'), parameters('StorageCount'))[copyIndex()]], 2, '0')), '/')[0], split(format('{0}/Azure/storagecontainer;Storage;{1};{2}{3}', parameters('RecoveryServicesVaultName'), parameters('StorageResourceGroupName'), parameters('StorageAccountPrefix'), padLeft(range(parameters('StorageIndex'), parameters('StorageCount'))[range(parameters('StorageIndex'), parameters('StorageCount'))[copyIndex()]], 2, '0')), '/')[1], split(format('{0}/Azure/storagecontainer;Storage;{1};{2}{3}', parameters('RecoveryServicesVaultName'), parameters('StorageResourceGroupName'), parameters('StorageAccountPrefix'), padLeft(range(parameters('StorageIndex'), parameters('StorageCount'))[range(parameters('StorageIndex'), parameters('StorageCount'))[copyIndex()]], 2, '0')), '/')[2])]"
+                "[resourceId('Microsoft.RecoveryServices/vaults/backupFabrics/protectionContainers', split(format('{0}/Azure/storagecontainer;Storage;{1};{2}{3}', parameters('RecoveryServicesVaultName'), parameters('StorageResourceGroupName'), parameters('StorageAccountPrefix'), padLeft(range(parameters('StorageIndex'), parameters('StorageCount'))[range(0, parameters('StorageCount'))[copyIndex()]], 2, '0')), '/')[0], split(format('{0}/Azure/storagecontainer;Storage;{1};{2}{3}', parameters('RecoveryServicesVaultName'), parameters('StorageResourceGroupName'), parameters('StorageAccountPrefix'), padLeft(range(parameters('StorageIndex'), parameters('StorageCount'))[range(0, parameters('StorageCount'))[copyIndex()]], 2, '0')), '/')[1], split(format('{0}/Azure/storagecontainer;Storage;{1};{2}{3}', parameters('RecoveryServicesVaultName'), parameters('StorageResourceGroupName'), parameters('StorageAccountPrefix'), padLeft(range(parameters('StorageIndex'), parameters('StorageCount'))[range(0, parameters('StorageCount'))[copyIndex()]], 2, '0')), '/')[2])]"
               ]
             },
             {

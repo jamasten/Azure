@@ -90,8 +90,8 @@ resource protectionContainers 'Microsoft.RecoveryServices/vaults/backupFabrics/p
   ]
 }]
 
-module protectedItems_FileShares 'backup_FileShares.bicep' = [for i in range(StorageIndex, StorageCount): if(Fslogix && StorageSolution == 'AzureStorageAccount') {
-  name: 'BackupProtectedItems_FileShares_${i}_${Timestamp}'
+module protectedItems_FileShares 'backup_FileShares.bicep' = [for i in range(0, StorageCount): if(Fslogix && StorageSolution == 'AzureStorageAccount') {
+  name: 'BackupProtectedItems_FileShares_${i + StorageIndex}_${Timestamp}'
   params: {
     FileShares: FileShares
     Location: Location

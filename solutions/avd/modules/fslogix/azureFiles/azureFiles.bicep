@@ -73,8 +73,8 @@ var VirtualNetworkRules = {
 }
 
 
-resource storageAccounts 'Microsoft.Storage/storageAccounts@2021-02-01' = [for i in range(StorageIndex, StorageCount): {
-  name: '${StorageAccountPrefix}${padLeft(i, 2, '0')}'
+resource storageAccounts 'Microsoft.Storage/storageAccounts@2021-02-01' = [for i in range(0, StorageCount): {
+  name: '${StorageAccountPrefix}${padLeft((i + StorageIndex), 2, '0')}'
   location: Location
   tags: Tags
   sku: {
@@ -108,7 +108,7 @@ resource storageAccounts 'Microsoft.Storage/storageAccounts@2021-02-01' = [for i
 
 // Assigns the Mgmt VM's managed identity to the storage account
 // This is needed so the custom script extension can domain join the storage account, change the Kerberos encryption if needed, and update the NTFS permissions
-resource roleAssignment_Vm 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = [for i in range(StorageIndex, StorageCount): {
+resource roleAssignment_Vm 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = [for i in range(0, StorageCount): {
   scope: storageAccounts[i]
   name: guid(storageAccounts[i].name, RoleDefinitionIds.contributor, ManagementVmName)
   properties: {
@@ -119,7 +119,7 @@ resource roleAssignment_Vm 'Microsoft.Authorization/roleAssignments@2020-04-01-p
 }]
 
 // Assigns the SMB Contributor role to the Storage Account so users can save their profiles to the file share using FSLogix
-resource roleAssignment_Users 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = [for i in range(StorageIndex, StorageCount): {
+resource roleAssignment_Users 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = [for i in range(0, StorageCount): {
   scope: storageAccounts[i]
   name: guid(SecurityPrincipalIds[i], RoleDefinitionIds.storageFileDataSMBShareContributor, storageAccounts[i].name)
   properties: {
@@ -131,7 +131,7 @@ resource roleAssignment_Users 'Microsoft.Authorization/roleAssignments@2020-04-0
   ]
 }]
 
-resource fileServices 'Microsoft.Storage/storageAccounts/fileServices@2021-02-01' = [for i in range(StorageIndex, StorageCount): {
+resource fileServices 'Microsoft.Storage/storageAccounts/fileServices@2021-02-01' = [for i in range(0, StorageCount): {
   parent: storageAccounts[i]
   name: 'default'
   properties: {
@@ -147,13 +147,13 @@ resource fileServices 'Microsoft.Storage/storageAccounts/fileServices@2021-02-01
   ]
 }]
 
-module shares 'shares.bicep' = [for i in range(StorageIndex, StorageCount): {
+module shares 'shares.bicep' = [for i in range(0, StorageCount): {
   name: 'FileShares_${i}_${Timestamp}'
   scope: resourceGroup(ResourceGroups[3]) // Storage Resource Group
   params: {
     FileShares: FileShares
     FslogixShareSizeInGB: FslogixShareSizeInGB
-    StorageAccountName: '${StorageAccountPrefix}${padLeft(i, 2, '0')}'
+    StorageAccountName: storageAccounts[i].name
     StorageSku: StorageSku
   }
   dependsOn: [
@@ -161,7 +161,7 @@ module shares 'shares.bicep' = [for i in range(StorageIndex, StorageCount): {
   ]
 }]
 
-module privateEndpoint 'privateEndpoint.bicep' = [for i in range(StorageIndex, StorageCount): if(PrivateEndpoint) {
+module privateEndpoint 'privateEndpoint.bicep' = [for i in range(0, StorageCount): if(PrivateEndpoint) {
   name: 'PrivateEndpoints_${i}_${Timestamp}'
   scope: resourceGroup(ResourceGroupName)
   params: {

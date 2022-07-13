@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.8.9.13224",
-      "templateHash": "3280504284010023592"
+      "templateHash": "14368712268021584907"
     }
   },
   "parameters": {
@@ -2720,7 +2720,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.8.9.13224",
-              "templateHash": "15167058831398190529"
+              "templateHash": "3902554489509588002"
             }
           },
           "parameters": {
@@ -3639,7 +3639,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.8.9.13224",
-                      "templateHash": "395368193870783161"
+                      "templateHash": "12435849253692863824"
                     }
                   },
                   "parameters": {
@@ -3807,11 +3807,11 @@
                     {
                       "copy": {
                         "name": "storageAccounts",
-                        "count": "[length(range(parameters('StorageIndex'), parameters('StorageCount')))]"
+                        "count": "[length(range(0, parameters('StorageCount')))]"
                       },
                       "type": "Microsoft.Storage/storageAccounts",
                       "apiVersion": "2021-02-01",
-                      "name": "[format('{0}{1}', parameters('StorageAccountPrefix'), padLeft(range(parameters('StorageIndex'), parameters('StorageCount'))[copyIndex()], 2, '0'))]",
+                      "name": "[format('{0}{1}', parameters('StorageAccountPrefix'), padLeft(add(range(0, parameters('StorageCount'))[copyIndex()], parameters('StorageIndex')), 2, '0'))]",
                       "location": "[parameters('Location')]",
                       "tags": "[parameters('Tags')]",
                       "sku": {
@@ -3845,49 +3845,49 @@
                     {
                       "copy": {
                         "name": "roleAssignment_Vm",
-                        "count": "[length(range(parameters('StorageIndex'), parameters('StorageCount')))]"
+                        "count": "[length(range(0, parameters('StorageCount')))]"
                       },
                       "type": "Microsoft.Authorization/roleAssignments",
                       "apiVersion": "2020-04-01-preview",
-                      "scope": "[format('Microsoft.Storage/storageAccounts/{0}', format('{0}{1}', parameters('StorageAccountPrefix'), padLeft(range(parameters('StorageIndex'), parameters('StorageCount'))[range(parameters('StorageIndex'), parameters('StorageCount'))[copyIndex()]], 2, '0')))]",
-                      "name": "[guid(format('{0}{1}', parameters('StorageAccountPrefix'), padLeft(range(parameters('StorageIndex'), parameters('StorageCount'))[range(parameters('StorageIndex'), parameters('StorageCount'))[copyIndex()]], 2, '0')), parameters('RoleDefinitionIds').contributor, parameters('ManagementVmName'))]",
+                      "scope": "[format('Microsoft.Storage/storageAccounts/{0}', format('{0}{1}', parameters('StorageAccountPrefix'), padLeft(add(range(0, parameters('StorageCount'))[range(0, parameters('StorageCount'))[copyIndex()]], parameters('StorageIndex')), 2, '0')))]",
+                      "name": "[guid(format('{0}{1}', parameters('StorageAccountPrefix'), padLeft(add(range(0, parameters('StorageCount'))[range(0, parameters('StorageCount'))[copyIndex()]], parameters('StorageIndex')), 2, '0')), parameters('RoleDefinitionIds').contributor, parameters('ManagementVmName'))]",
                       "properties": {
                         "roleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', parameters('RoleDefinitionIds').contributor)]",
                         "principalId": "[reference(resourceId(variables('DeploymentResourceGroup'), 'Microsoft.Compute/virtualMachines', parameters('ManagementVmName')), '2020-12-01', 'Full').identity.principalId]",
                         "principalType": "ServicePrincipal"
                       },
                       "dependsOn": [
-                        "[resourceId('Microsoft.Storage/storageAccounts', format('{0}{1}', parameters('StorageAccountPrefix'), padLeft(range(parameters('StorageIndex'), parameters('StorageCount'))[range(parameters('StorageIndex'), parameters('StorageCount'))[copyIndex()]], 2, '0')))]",
-                        "[resourceId('Microsoft.Storage/storageAccounts', format('{0}{1}', parameters('StorageAccountPrefix'), padLeft(range(parameters('StorageIndex'), parameters('StorageCount'))[range(parameters('StorageIndex'), parameters('StorageCount'))[copyIndex()]], 2, '0')))]"
+                        "[resourceId('Microsoft.Storage/storageAccounts', format('{0}{1}', parameters('StorageAccountPrefix'), padLeft(add(range(0, parameters('StorageCount'))[range(0, parameters('StorageCount'))[copyIndex()]], parameters('StorageIndex')), 2, '0')))]",
+                        "[resourceId('Microsoft.Storage/storageAccounts', format('{0}{1}', parameters('StorageAccountPrefix'), padLeft(add(range(0, parameters('StorageCount'))[range(0, parameters('StorageCount'))[copyIndex()]], parameters('StorageIndex')), 2, '0')))]"
                       ]
                     },
                     {
                       "copy": {
                         "name": "roleAssignment_Users",
-                        "count": "[length(range(parameters('StorageIndex'), parameters('StorageCount')))]"
+                        "count": "[length(range(0, parameters('StorageCount')))]"
                       },
                       "type": "Microsoft.Authorization/roleAssignments",
                       "apiVersion": "2020-04-01-preview",
-                      "scope": "[format('Microsoft.Storage/storageAccounts/{0}', format('{0}{1}', parameters('StorageAccountPrefix'), padLeft(range(parameters('StorageIndex'), parameters('StorageCount'))[range(parameters('StorageIndex'), parameters('StorageCount'))[copyIndex()]], 2, '0')))]",
-                      "name": "[guid(parameters('SecurityPrincipalIds')[range(parameters('StorageIndex'), parameters('StorageCount'))[copyIndex()]], parameters('RoleDefinitionIds').storageFileDataSMBShareContributor, format('{0}{1}', parameters('StorageAccountPrefix'), padLeft(range(parameters('StorageIndex'), parameters('StorageCount'))[range(parameters('StorageIndex'), parameters('StorageCount'))[copyIndex()]], 2, '0')))]",
+                      "scope": "[format('Microsoft.Storage/storageAccounts/{0}', format('{0}{1}', parameters('StorageAccountPrefix'), padLeft(add(range(0, parameters('StorageCount'))[range(0, parameters('StorageCount'))[copyIndex()]], parameters('StorageIndex')), 2, '0')))]",
+                      "name": "[guid(parameters('SecurityPrincipalIds')[range(0, parameters('StorageCount'))[copyIndex()]], parameters('RoleDefinitionIds').storageFileDataSMBShareContributor, format('{0}{1}', parameters('StorageAccountPrefix'), padLeft(add(range(0, parameters('StorageCount'))[range(0, parameters('StorageCount'))[copyIndex()]], parameters('StorageIndex')), 2, '0')))]",
                       "properties": {
                         "roleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', parameters('RoleDefinitionIds').storageFileDataSMBShareContributor)]",
-                        "principalId": "[parameters('SecurityPrincipalIds')[range(parameters('StorageIndex'), parameters('StorageCount'))[copyIndex()]]]"
+                        "principalId": "[parameters('SecurityPrincipalIds')[range(0, parameters('StorageCount'))[copyIndex()]]]"
                       },
                       "dependsOn": [
                         "roleAssignment_Vm",
-                        "[resourceId('Microsoft.Storage/storageAccounts', format('{0}{1}', parameters('StorageAccountPrefix'), padLeft(range(parameters('StorageIndex'), parameters('StorageCount'))[range(parameters('StorageIndex'), parameters('StorageCount'))[copyIndex()]], 2, '0')))]",
-                        "[resourceId('Microsoft.Storage/storageAccounts', format('{0}{1}', parameters('StorageAccountPrefix'), padLeft(range(parameters('StorageIndex'), parameters('StorageCount'))[range(parameters('StorageIndex'), parameters('StorageCount'))[copyIndex()]], 2, '0')))]"
+                        "[resourceId('Microsoft.Storage/storageAccounts', format('{0}{1}', parameters('StorageAccountPrefix'), padLeft(add(range(0, parameters('StorageCount'))[range(0, parameters('StorageCount'))[copyIndex()]], parameters('StorageIndex')), 2, '0')))]",
+                        "[resourceId('Microsoft.Storage/storageAccounts', format('{0}{1}', parameters('StorageAccountPrefix'), padLeft(add(range(0, parameters('StorageCount'))[range(0, parameters('StorageCount'))[copyIndex()]], parameters('StorageIndex')), 2, '0')))]"
                       ]
                     },
                     {
                       "copy": {
                         "name": "fileServices",
-                        "count": "[length(range(parameters('StorageIndex'), parameters('StorageCount')))]"
+                        "count": "[length(range(0, parameters('StorageCount')))]"
                       },
                       "type": "Microsoft.Storage/storageAccounts/fileServices",
                       "apiVersion": "2021-02-01",
-                      "name": "[format('{0}/{1}', format('{0}{1}', parameters('StorageAccountPrefix'), padLeft(range(parameters('StorageIndex'), parameters('StorageCount'))[range(parameters('StorageIndex'), parameters('StorageCount'))[copyIndex()]], 2, '0')), 'default')]",
+                      "name": "[format('{0}/{1}', format('{0}{1}', parameters('StorageAccountPrefix'), padLeft(add(range(0, parameters('StorageCount'))[range(0, parameters('StorageCount'))[copyIndex()]], parameters('StorageIndex')), 2, '0')), 'default')]",
                       "properties": {
                         "protocolSettings": {
                           "smb": "[if(equals(parameters('StorageSku'), 'Standard'), variables('SmbSettings'), union(variables('SmbSettings'), variables('SmbMultiChannel')))]"
@@ -3898,17 +3898,17 @@
                       },
                       "dependsOn": [
                         "roleAssignment_Vm",
-                        "[resourceId('Microsoft.Storage/storageAccounts', format('{0}{1}', parameters('StorageAccountPrefix'), padLeft(range(parameters('StorageIndex'), parameters('StorageCount'))[range(parameters('StorageIndex'), parameters('StorageCount'))[copyIndex()]], 2, '0')))]"
+                        "[resourceId('Microsoft.Storage/storageAccounts', format('{0}{1}', parameters('StorageAccountPrefix'), padLeft(add(range(0, parameters('StorageCount'))[range(0, parameters('StorageCount'))[copyIndex()]], parameters('StorageIndex')), 2, '0')))]"
                       ]
                     },
                     {
                       "copy": {
                         "name": "shares",
-                        "count": "[length(range(parameters('StorageIndex'), parameters('StorageCount')))]"
+                        "count": "[length(range(0, parameters('StorageCount')))]"
                       },
                       "type": "Microsoft.Resources/deployments",
                       "apiVersion": "2020-10-01",
-                      "name": "[format('FileShares_{0}_{1}', range(parameters('StorageIndex'), parameters('StorageCount'))[copyIndex()], parameters('Timestamp'))]",
+                      "name": "[format('FileShares_{0}_{1}', range(0, parameters('StorageCount'))[copyIndex()], parameters('Timestamp'))]",
                       "resourceGroup": "[parameters('ResourceGroups')[3]]",
                       "properties": {
                         "expressionEvaluationOptions": {
@@ -3923,7 +3923,7 @@
                             "value": "[parameters('FslogixShareSizeInGB')]"
                           },
                           "StorageAccountName": {
-                            "value": "[format('{0}{1}', parameters('StorageAccountPrefix'), padLeft(range(parameters('StorageIndex'), parameters('StorageCount'))[copyIndex()], 2, '0'))]"
+                            "value": "[format('{0}{1}', parameters('StorageAccountPrefix'), padLeft(add(range(0, parameters('StorageCount'))[range(0, parameters('StorageCount'))[copyIndex()]], parameters('StorageIndex')), 2, '0'))]"
                           },
                           "StorageSku": {
                             "value": "[parameters('StorageSku')]"
@@ -3972,18 +3972,19 @@
                         }
                       },
                       "dependsOn": [
-                        "roleAssignment_Users"
+                        "roleAssignment_Users",
+                        "[resourceId('Microsoft.Storage/storageAccounts', format('{0}{1}', parameters('StorageAccountPrefix'), padLeft(add(range(0, parameters('StorageCount'))[range(0, parameters('StorageCount'))[copyIndex()]], parameters('StorageIndex')), 2, '0')))]"
                       ]
                     },
                     {
                       "condition": "[parameters('PrivateEndpoint')]",
                       "copy": {
                         "name": "privateEndpoint",
-                        "count": "[length(range(parameters('StorageIndex'), parameters('StorageCount')))]"
+                        "count": "[length(range(0, parameters('StorageCount')))]"
                       },
                       "type": "Microsoft.Resources/deployments",
                       "apiVersion": "2020-10-01",
-                      "name": "[format('PrivateEndpoints_{0}_{1}', range(parameters('StorageIndex'), parameters('StorageCount'))[copyIndex()], parameters('Timestamp'))]",
+                      "name": "[format('PrivateEndpoints_{0}_{1}', range(0, parameters('StorageCount'))[copyIndex()], parameters('Timestamp'))]",
                       "resourceGroup": "[variables('ResourceGroupName')]",
                       "properties": {
                         "expressionEvaluationOptions": {
@@ -3998,10 +3999,10 @@
                             "value": "[parameters('PrivateDnsZoneName')]"
                           },
                           "StorageAccountId": {
-                            "value": "[resourceId('Microsoft.Storage/storageAccounts', format('{0}{1}', parameters('StorageAccountPrefix'), padLeft(range(parameters('StorageIndex'), parameters('StorageCount'))[range(parameters('StorageIndex'), parameters('StorageCount'))[copyIndex()]], 2, '0')))]"
+                            "value": "[resourceId('Microsoft.Storage/storageAccounts', format('{0}{1}', parameters('StorageAccountPrefix'), padLeft(add(range(0, parameters('StorageCount'))[range(0, parameters('StorageCount'))[copyIndex()]], parameters('StorageIndex')), 2, '0')))]"
                           },
                           "StorageAccountName": {
-                            "value": "[format('{0}{1}', parameters('StorageAccountPrefix'), padLeft(range(parameters('StorageIndex'), parameters('StorageCount'))[range(parameters('StorageIndex'), parameters('StorageCount'))[copyIndex()]], 2, '0'))]"
+                            "value": "[format('{0}{1}', parameters('StorageAccountPrefix'), padLeft(add(range(0, parameters('StorageCount'))[range(0, parameters('StorageCount'))[copyIndex()]], parameters('StorageIndex')), 2, '0'))]"
                           },
                           "Subnet": {
                             "value": "[parameters('Subnet')]"
@@ -4126,8 +4127,8 @@
                         }
                       },
                       "dependsOn": [
-                        "[resourceId('Microsoft.Storage/storageAccounts', format('{0}{1}', parameters('StorageAccountPrefix'), padLeft(range(parameters('StorageIndex'), parameters('StorageCount'))[range(parameters('StorageIndex'), parameters('StorageCount'))[copyIndex()]], 2, '0')))]",
-                        "[resourceId('Microsoft.Storage/storageAccounts', format('{0}{1}', parameters('StorageAccountPrefix'), padLeft(range(parameters('StorageIndex'), parameters('StorageCount'))[range(parameters('StorageIndex'), parameters('StorageCount'))[copyIndex()]], 2, '0')))]"
+                        "[resourceId('Microsoft.Storage/storageAccounts', format('{0}{1}', parameters('StorageAccountPrefix'), padLeft(add(range(0, parameters('StorageCount'))[range(0, parameters('StorageCount'))[copyIndex()]], parameters('StorageIndex')), 2, '0')))]",
+                        "[resourceId('Microsoft.Storage/storageAccounts', format('{0}{1}', parameters('StorageAccountPrefix'), padLeft(add(range(0, parameters('StorageCount'))[range(0, parameters('StorageCount'))[copyIndex()]], parameters('StorageIndex')), 2, '0')))]"
                       ]
                     },
                     {

@@ -61,7 +61,7 @@ resource variable 'Microsoft.Automation/automationAccounts/variables@2019-06-01'
 }
 
 // Gives the Automation Account Contributor rights on the Hosts and Management resource groups for scaling
-module roleAssignments'./scale_RoleAssignments.bicep' = [for i in range(0, length(RoleAssignmentResourceGroups)): {
+module roleAssignments 'roleAssignments.bicep' = [for i in range(0, length(RoleAssignmentResourceGroups)): {
   name: 'RoleAssignment_${RoleAssignmentResourceGroups[i]}'
   scope: resourceGroup(RoleAssignmentResourceGroups[i])
   params: {

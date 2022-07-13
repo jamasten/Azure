@@ -52,7 +52,7 @@ resource variable 'Microsoft.Automation/automationAccounts/variables@2019-06-01'
 }
 
 // Gives the Automation Account Contributor rights on the Storage resource group for scaling
-module roleAssignments'./scale_RoleAssignments.bicep' = {
+module roleAssignments 'roleAssignments.bicep' = {
   name: 'RoleAssignment_${StorageResourceGroupName}'
   scope: resourceGroup(StorageResourceGroupName)
   params: {

@@ -4,8 +4,8 @@
   "metadata": {
     "_generator": {
       "name": "bicep",
-      "version": "0.6.18.56646",
-      "templateHash": "4901139244576897445"
+      "version": "0.8.9.13224",
+      "templateHash": "16329751590868625825"
     }
   },
   "parameters": {
@@ -324,6 +324,13 @@
       "defaultValue": "1",
       "metadata": {
         "description": "The maximum number of sessions per CPU that will be used as a threshold to determine when new session host VMs need to be started during peak hours"
+      }
+    },
+    "ScalingTool": {
+      "type": "bool",
+      "defaultValue": true,
+      "metadata": {
+        "description": "Deploys the required resources for the Scaling Tool. https://docs.microsoft.com/en-us/azure/virtual-desktop/scaling-automation-logic-apps"
       }
     },
     "ScalingTimeDifference": {
@@ -705,8 +712,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.6.18.56646",
-              "templateHash": "2239238266289019320"
+              "version": "0.8.9.13224",
+              "templateHash": "9143273379841834096"
             }
           },
           "parameters": {
@@ -815,8 +822,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.6.18.56646",
-                      "templateHash": "2099432671293021930"
+                      "version": "0.8.9.13224",
+                      "templateHash": "3338655709824755661"
                     }
                   },
                   "parameters": {
@@ -898,8 +905,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.6.18.56646",
-                      "templateHash": "2214852005921199781"
+                      "version": "0.8.9.13224",
+                      "templateHash": "4770029456087304010"
                     }
                   },
                   "parameters": {
@@ -1048,8 +1055,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.6.18.56646",
-              "templateHash": "16512241964463451708"
+              "version": "0.8.9.13224",
+              "templateHash": "8987223433386566338"
             }
           },
           "parameters": {
@@ -1223,8 +1230,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.6.18.56646",
-              "templateHash": "16172395441924815376"
+              "version": "0.8.9.13224",
+              "templateHash": "18280818291439641456"
             }
           },
           "parameters": {
@@ -1297,8 +1304,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.6.18.56646",
-              "templateHash": "12453266114269160029"
+              "version": "0.8.9.13224",
+              "templateHash": "4035637226956266630"
             }
           },
           "parameters": {
@@ -1391,8 +1398,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.6.18.56646",
-              "templateHash": "10955339227929811282"
+              "version": "0.8.9.13224",
+              "templateHash": "2068591772526333142"
             }
           },
           "parameters": {
@@ -1568,8 +1575,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.6.18.56646",
-              "templateHash": "2487077078142829699"
+              "version": "0.8.9.13224",
+              "templateHash": "2622203234206925867"
             }
           },
           "parameters": {
@@ -2190,8 +2197,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.6.18.56646",
-              "templateHash": "3530909959540836667"
+              "version": "0.8.9.13224",
+              "templateHash": "16853287083771322503"
             }
           },
           "parameters": {
@@ -2294,8 +2301,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.6.18.56646",
-                      "templateHash": "4601776957987619522"
+                      "version": "0.8.9.13224",
+                      "templateHash": "10994893533624106080"
                     }
                   },
                   "parameters": {
@@ -2393,8 +2400,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.6.18.56646",
-              "templateHash": "8652271499282772204"
+              "version": "0.8.9.13224",
+              "templateHash": "5672721634298093951"
             }
           },
           "parameters": {
@@ -2712,8 +2719,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.6.18.56646",
-              "templateHash": "616152227730439109"
+              "version": "0.8.9.13224",
+              "templateHash": "15167058831398190529"
             }
           },
           "parameters": {
@@ -2942,8 +2949,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.6.18.56646",
-                      "templateHash": "3741876369891514816"
+                      "version": "0.8.9.13224",
+                      "templateHash": "1875336338262258595"
                     }
                   },
                   "parameters": {
@@ -3233,8 +3240,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.6.18.56646",
-                      "templateHash": "10477232110699447577"
+                      "version": "0.8.9.13224",
+                      "templateHash": "13865508233813922108"
                     }
                   },
                   "parameters": {
@@ -3410,8 +3417,8 @@
                           "metadata": {
                             "_generator": {
                               "name": "bicep",
-                              "version": "0.6.18.56646",
-                              "templateHash": "9959386390090423777"
+                              "version": "0.8.9.13224",
+                              "templateHash": "6306658740250475068"
                             }
                           },
                           "parameters": {
@@ -3631,8 +3638,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.6.18.56646",
-                      "templateHash": "1357338143156973080"
+                      "version": "0.8.9.13224",
+                      "templateHash": "395368193870783161"
                     }
                   },
                   "parameters": {
@@ -3928,8 +3935,8 @@
                           "metadata": {
                             "_generator": {
                               "name": "bicep",
-                              "version": "0.6.18.56646",
-                              "templateHash": "16669082103725186238"
+                              "version": "0.8.9.13224",
+                              "templateHash": "8600951038835449855"
                             }
                           },
                           "parameters": {
@@ -4015,8 +4022,8 @@
                           "metadata": {
                             "_generator": {
                               "name": "bicep",
-                              "version": "0.6.18.56646",
-                              "templateHash": "5308930885733199198"
+                              "version": "0.8.9.13224",
+                              "templateHash": "2355911049691790346"
                             }
                           },
                           "parameters": {
@@ -4214,8 +4221,8 @@
                           "metadata": {
                             "_generator": {
                               "name": "bicep",
-                              "version": "0.6.18.56646",
-                              "templateHash": "1723813284651791591"
+                              "version": "0.8.9.13224",
+                              "templateHash": "7879971973998737203"
                             }
                           },
                           "parameters": {
@@ -4519,8 +4526,8 @@
                                   "metadata": {
                                     "_generator": {
                                       "name": "bicep",
-                                      "version": "0.6.18.56646",
-                                      "templateHash": "4558971688714966977"
+                                      "version": "0.8.9.13224",
+                                      "templateHash": "11897562292217701556"
                                     }
                                   },
                                   "parameters": {
@@ -4617,8 +4624,8 @@
                           "metadata": {
                             "_generator": {
                               "name": "bicep",
-                              "version": "0.6.18.56646",
-                              "templateHash": "9959386390090423777"
+                              "version": "0.8.9.13224",
+                              "templateHash": "6306658740250475068"
                             }
                           },
                           "parameters": {
@@ -4888,8 +4895,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.6.18.56646",
-              "templateHash": "3199200636825594312"
+              "version": "0.8.9.13224",
+              "templateHash": "15125073007972566980"
             }
           },
           "parameters": {
@@ -5097,8 +5104,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.6.18.56646",
-                      "templateHash": "719510960122291250"
+                      "version": "0.8.9.13224",
+                      "templateHash": "12570412805759161972"
                     }
                   },
                   "parameters": {
@@ -5163,8 +5170,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.6.18.56646",
-                      "templateHash": "17865967807680741208"
+                      "version": "0.8.9.13224",
+                      "templateHash": "10022945616360699246"
                     }
                   },
                   "parameters": {
@@ -5370,8 +5377,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.6.18.56646",
-                      "templateHash": "1631268470559151349"
+                      "version": "0.8.9.13224",
+                      "templateHash": "1500776531550237719"
                     }
                   },
                   "parameters": {
@@ -6049,8 +6056,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.6.18.56646",
-              "templateHash": "9246551541881955959"
+              "version": "0.8.9.13224",
+              "templateHash": "252209801655212300"
             }
           },
           "parameters": {
@@ -6238,8 +6245,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.6.18.56646",
-                      "templateHash": "1253983813695408570"
+                      "version": "0.8.9.13224",
+                      "templateHash": "10601048268434752606"
                     }
                   },
                   "parameters": {
@@ -6335,8 +6342,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.6.18.56646",
-                      "templateHash": "18375057239687615318"
+                      "version": "0.8.9.13224",
+                      "templateHash": "10446624907551428901"
                     }
                   },
                   "parameters": {
@@ -6403,10 +6410,10 @@
       ]
     },
     {
-      "condition": "[variables('PooledHostPool')]",
+      "condition": "[and(parameters('ScalingTool'), variables('PooledHostPool'))]",
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2020-10-01",
-      "name": "[format('Scale_{0}', parameters('Timestamp'))]",
+      "name": "[format('ScalingTool_{0}', parameters('Timestamp'))]",
       "resourceGroup": "[variables('ResourceGroups')[2]]",
       "properties": {
         "expressionEvaluationOptions": {
@@ -6423,12 +6430,6 @@
           "EndPeakTime": {
             "value": "[parameters('ScalingEndPeakTime')]"
           },
-          "FslogixSolution": {
-            "value": "[parameters('FslogixSolution')]"
-          },
-          "FslogixStorage": {
-            "value": "[parameters('FslogixStorage')]"
-          },
           "HostPoolName": {
             "value": "[variables('HostPoolName')]"
           },
@@ -6443,6 +6444,9 @@
           },
           "LogicAppPrefix": {
             "value": "[variables('LogicAppPrefix')]"
+          },
+          "ManagementResourceGroupName": {
+            "value": "[variables('ResourceGroups')[2]]"
           },
           "MinimumNumberOfRdsh": {
             "value": "[parameters('ScalingMinimumNumberOfRdsh')]"
@@ -6459,23 +6463,8 @@
           "SessionThresholdPerCPU": {
             "value": "[parameters('ScalingSessionThresholdPerCPU')]"
           },
-          "StorageAccountPrefix": {
-            "value": "[variables('StorageAccountPrefix')]"
-          },
-          "StorageResourceGroupName": {
-            "value": "[variables('ResourceGroups')[3]]"
-          },
-          "StorageCount": {
-            "value": "[parameters('StorageCount')]"
-          },
-          "StorageIndex": {
-            "value": "[parameters('StorageIndex')]"
-          },
           "TimeDifference": {
             "value": "[parameters('ScalingTimeDifference')]"
-          },
-          "Timestamp": {
-            "value": "[parameters('Timestamp')]"
           }
         },
         "template": {
@@ -6484,8 +6473,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.6.18.56646",
-              "templateHash": "17875859087866528425"
+              "version": "0.8.9.13224",
+              "templateHash": "5261668281100522471"
             }
           },
           "parameters": {
@@ -6496,12 +6485,6 @@
               "type": "string"
             },
             "EndPeakTime": {
-              "type": "string"
-            },
-            "FslogixSolution": {
-              "type": "string"
-            },
-            "FslogixStorage": {
               "type": "string"
             },
             "HostPoolName": {
@@ -6519,6 +6502,9 @@
             "LogicAppPrefix": {
               "type": "string"
             },
+            "ManagementResourceGroupName": {
+              "type": "string"
+            },
             "MinimumNumberOfRdsh": {
               "type": "string"
             },
@@ -6534,6 +6520,251 @@
             "SessionThresholdPerCPU": {
               "type": "string"
             },
+            "TimeDifference": {
+              "type": "string"
+            },
+            "Timestamp": {
+              "type": "string",
+              "defaultValue": "[utcNow('u')]",
+              "metadata": {
+                "description": "ISO 8601 timestamp used to determine the webhook expiration date.  The webhook is hardcoded to expire 5 years after the timestamp."
+              }
+            }
+          },
+          "variables": {
+            "RoleAssignmentResourceGroups": [
+              "[parameters('ManagementResourceGroupName')]",
+              "[parameters('SessionHostsResourceGroupName')]"
+            ]
+          },
+          "resources": [
+            {
+              "type": "Microsoft.Automation/automationAccounts/runbooks",
+              "apiVersion": "2019-06-01",
+              "name": "[format('{0}/AvdScaleHostPool', parameters('AutomationAccountName'))]",
+              "location": "[parameters('Location')]",
+              "properties": {
+                "runbookType": "PowerShell",
+                "logProgress": false,
+                "logVerbose": false,
+                "publishContentLink": {
+                  "uri": "[format('{0}Set-HostPoolScaling.ps1{1}', parameters('ScriptsUri'), parameters('SasToken'))]",
+                  "version": "1.0.0.0"
+                }
+              }
+            },
+            {
+              "type": "Microsoft.Automation/automationAccounts/webhooks",
+              "apiVersion": "2015-10-31",
+              "name": "[format('{0}/AvdScaleHostPool_{1}', parameters('AutomationAccountName'), dateTimeAdd(parameters('Timestamp'), 'PT0H', 'yyyyMMddhhmmss'))]",
+              "properties": {
+                "isEnabled": true,
+                "expiryTime": "[dateTimeAdd(parameters('Timestamp'), 'P5Y')]",
+                "runbook": {
+                  "name": "AvdScaleHostPool"
+                }
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Automation/automationAccounts/runbooks', split(format('{0}/AvdScaleHostPool', parameters('AutomationAccountName')), '/')[0], split(format('{0}/AvdScaleHostPool', parameters('AutomationAccountName')), '/')[1])]"
+              ]
+            },
+            {
+              "type": "Microsoft.Automation/automationAccounts/variables",
+              "apiVersion": "2019-06-01",
+              "name": "[format('{0}/WebhookURI_AvdScaleHostPool', parameters('AutomationAccountName'))]",
+              "properties": {
+                "value": "[format('\"{0}\"', reference(resourceId('Microsoft.Automation/automationAccounts/webhooks', split(format('{0}/AvdScaleHostPool_{1}', parameters('AutomationAccountName'), dateTimeAdd(parameters('Timestamp'), 'PT0H', 'yyyyMMddhhmmss')), '/')[0], split(format('{0}/AvdScaleHostPool_{1}', parameters('AutomationAccountName'), dateTimeAdd(parameters('Timestamp'), 'PT0H', 'yyyyMMddhhmmss')), '/')[1])).uri)]",
+                "isEncrypted": false
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Automation/automationAccounts/webhooks', split(format('{0}/AvdScaleHostPool_{1}', parameters('AutomationAccountName'), dateTimeAdd(parameters('Timestamp'), 'PT0H', 'yyyyMMddhhmmss')), '/')[0], split(format('{0}/AvdScaleHostPool_{1}', parameters('AutomationAccountName'), dateTimeAdd(parameters('Timestamp'), 'PT0H', 'yyyyMMddhhmmss')), '/')[1])]"
+              ]
+            },
+            {
+              "type": "Microsoft.Logic/workflows",
+              "apiVersion": "2016-06-01",
+              "name": "[format('{0}-scaleHostPool', parameters('LogicAppPrefix'))]",
+              "location": "[parameters('Location')]",
+              "properties": {
+                "state": "Enabled",
+                "definition": {
+                  "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+                  "actions": {
+                    "HTTP": {
+                      "type": "Http",
+                      "inputs": {
+                        "method": "POST",
+                        "uri": "[replace(reference(resourceId('Microsoft.Automation/automationAccounts/variables', split(format('{0}/WebhookURI_AvdScaleHostPool', parameters('AutomationAccountName')), '/')[0], split(format('{0}/WebhookURI_AvdScaleHostPool', parameters('AutomationAccountName')), '/')[1])).value, '\"', '')]",
+                        "body": {
+                          "AADTenantId": "[subscription().tenantId]",
+                          "SubscriptionId": "[subscription().subscriptionId]",
+                          "EnvironmentName": "[environment().name]",
+                          "ResourceGroupName": "[parameters('HostPoolResourceGroupName')]",
+                          "HostPoolName": "[parameters('HostPoolName')]",
+                          "MaintenanceTagName": "Maintenance",
+                          "TimeDifference": "[parameters('TimeDifference')]",
+                          "BeginPeakTime": "[parameters('BeginPeakTime')]",
+                          "EndPeakTime": "[parameters('EndPeakTime')]",
+                          "SessionThresholdPerCPU": "[parameters('SessionThresholdPerCPU')]",
+                          "MinimumNumberOfRDSH": "[parameters('MinimumNumberOfRdsh')]",
+                          "LimitSecondsToForceLogOffUser": "[parameters('LimitSecondsToForceLogOffUser')]",
+                          "LogOffMessageTitle": "Machine is about to shutdown.",
+                          "LogOffMessageBody": "Your session will be logged off. Please save and close everything."
+                        }
+                      }
+                    }
+                  },
+                  "triggers": {
+                    "Recurrence": {
+                      "type": "Recurrence",
+                      "recurrence": {
+                        "frequency": "Minute",
+                        "interval": 15
+                      }
+                    }
+                  }
+                }
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Automation/automationAccounts/variables', split(format('{0}/WebhookURI_AvdScaleHostPool', parameters('AutomationAccountName')), '/')[0], split(format('{0}/WebhookURI_AvdScaleHostPool', parameters('AutomationAccountName')), '/')[1])]"
+              ]
+            },
+            {
+              "copy": {
+                "name": "roleAssignments",
+                "count": "[length(range(0, length(variables('RoleAssignmentResourceGroups'))))]"
+              },
+              "type": "Microsoft.Resources/deployments",
+              "apiVersion": "2020-10-01",
+              "name": "[format('RoleAssignment_{0}', variables('RoleAssignmentResourceGroups')[range(0, length(variables('RoleAssignmentResourceGroups')))[copyIndex()]])]",
+              "resourceGroup": "[variables('RoleAssignmentResourceGroups')[range(0, length(variables('RoleAssignmentResourceGroups')))[copyIndex()]]]",
+              "properties": {
+                "expressionEvaluationOptions": {
+                  "scope": "inner"
+                },
+                "mode": "Incremental",
+                "parameters": {
+                  "AutomationAccountId": {
+                    "value": "[reference(resourceId('Microsoft.Automation/automationAccounts', parameters('AutomationAccountName')), '2021-06-22', 'Full').identity.principalId]"
+                  }
+                },
+                "template": {
+                  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                  "contentVersion": "1.0.0.0",
+                  "metadata": {
+                    "_generator": {
+                      "name": "bicep",
+                      "version": "0.8.9.13224",
+                      "templateHash": "2904172551923665478"
+                    }
+                  },
+                  "parameters": {
+                    "AutomationAccountId": {
+                      "type": "string"
+                    }
+                  },
+                  "resources": [
+                    {
+                      "type": "Microsoft.Authorization/roleAssignments",
+                      "apiVersion": "2018-09-01-preview",
+                      "name": "[guid(parameters('AutomationAccountId'), 'ScalingContributor', resourceGroup().id)]",
+                      "properties": {
+                        "roleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', 'b24988ac-6180-42a0-ab88-20f7382dd24c')]",
+                        "principalId": "[parameters('AutomationAccountId')]",
+                        "principalType": "ServicePrincipal"
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          ]
+        }
+      },
+      "dependsOn": [
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroups')[2]), 'Microsoft.Resources/deployments', format('AutomationAccount_{0}', parameters('Timestamp')))]",
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroups')[2]), 'Microsoft.Resources/deployments', format('Backup_{0}', parameters('Timestamp')))]",
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroups')[1]), 'Microsoft.Resources/deployments', format('SessionHosts_{0}', parameters('Timestamp')))]"
+      ]
+    },
+    {
+      "condition": "[contains(parameters('FslogixStorage'), 'AzureStorageAccount Premium')]",
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2020-10-01",
+      "name": "[format('AutoIncreasePremiumFileShareQuota_{0}', parameters('Timestamp'))]",
+      "resourceGroup": "[variables('ResourceGroups')[2]]",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "AutomationAccountName": {
+            "value": "[variables('AutomationAccountName')]"
+          },
+          "FslogixSolution": {
+            "value": "[parameters('FslogixSolution')]"
+          },
+          "FslogixStorage": {
+            "value": "[parameters('FslogixStorage')]"
+          },
+          "Location": {
+            "value": "[parameters('Location')]"
+          },
+          "LogicAppPrefix": {
+            "value": "[variables('LogicAppPrefix')]"
+          },
+          "SasToken": {
+            "value": "[parameters('SasToken')]"
+          },
+          "ScriptsUri": {
+            "value": "[variables('ScriptsUri')]"
+          },
+          "StorageAccountPrefix": {
+            "value": "[variables('StorageAccountPrefix')]"
+          },
+          "StorageCount": {
+            "value": "[parameters('StorageCount')]"
+          },
+          "StorageIndex": {
+            "value": "[parameters('StorageIndex')]"
+          },
+          "StorageResourceGroupName": {
+            "value": "[variables('ResourceGroups')[3]]"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "0.8.9.13224",
+              "templateHash": "18124469969663613817"
+            }
+          },
+          "parameters": {
+            "AutomationAccountName": {
+              "type": "string"
+            },
+            "FslogixSolution": {
+              "type": "string"
+            },
+            "FslogixStorage": {
+              "type": "string"
+            },
+            "Location": {
+              "type": "string"
+            },
+            "LogicAppPrefix": {
+              "type": "string"
+            },
+            "SasToken": {
+              "type": "secureString"
+            },
+            "ScriptsUri": {
+              "type": "string"
+            },
             "StorageAccountPrefix": {
               "type": "string"
             },
@@ -6546,333 +6777,165 @@
             "StorageResourceGroupName": {
               "type": "string"
             },
-            "TimeDifference": {
-              "type": "string"
-            },
             "Timestamp": {
-              "type": "string"
+              "type": "string",
+              "defaultValue": "[utcNow('u')]",
+              "metadata": {
+                "description": "ISO 8601 timestamp used to determine the webhook expiration date.  The webhook is hardcoded to expire 5 years after the timestamp."
+              }
             }
           },
           "variables": {
-            "ManagementResourceGroupName": "[resourceGroup().name]"
+            "Environment": "[environment().name]",
+            "SubscriptionId": "[subscription().subscriptionId]"
           },
           "resources": [
             {
-              "type": "Microsoft.Resources/deployments",
-              "apiVersion": "2020-10-01",
-              "name": "[format('Scale_HostPool_{0}', parameters('Timestamp'))]",
-              "resourceGroup": "[variables('ManagementResourceGroupName')]",
+              "type": "Microsoft.Automation/automationAccounts/runbooks",
+              "apiVersion": "2019-06-01",
+              "name": "[format('{0}/AvdScaleFileShareQuota', parameters('AutomationAccountName'))]",
+              "location": "[parameters('Location')]",
               "properties": {
-                "expressionEvaluationOptions": {
-                  "scope": "inner"
-                },
-                "mode": "Incremental",
-                "parameters": {
-                  "AutomationAccountName": {
-                    "value": "[parameters('AutomationAccountName')]"
-                  },
-                  "BeginPeakTime": {
-                    "value": "[parameters('BeginPeakTime')]"
-                  },
-                  "EndPeakTime": {
-                    "value": "[parameters('EndPeakTime')]"
-                  },
-                  "HostPoolName": {
-                    "value": "[parameters('HostPoolName')]"
-                  },
-                  "HostPoolResourceGroupName": {
-                    "value": "[parameters('HostPoolResourceGroupName')]"
-                  },
-                  "LimitSecondsToForceLogOffUser": {
-                    "value": "[parameters('LimitSecondsToForceLogOffUser')]"
-                  },
-                  "Location": {
-                    "value": "[parameters('Location')]"
-                  },
-                  "LogicAppPrefix": {
-                    "value": "[parameters('LogicAppPrefix')]"
-                  },
-                  "ManagementResourceGroupName": {
-                    "value": "[variables('ManagementResourceGroupName')]"
-                  },
-                  "MinimumNumberOfRdsh": {
-                    "value": "[parameters('MinimumNumberOfRdsh')]"
-                  },
-                  "SasToken": {
-                    "value": "[parameters('SasToken')]"
-                  },
-                  "ScriptsUri": {
-                    "value": "[parameters('ScriptsUri')]"
-                  },
-                  "SessionHostsResourceGroupName": {
-                    "value": "[parameters('SessionHostsResourceGroupName')]"
-                  },
-                  "SessionThresholdPerCPU": {
-                    "value": "[parameters('SessionThresholdPerCPU')]"
-                  },
-                  "TimeDifference": {
-                    "value": "[parameters('TimeDifference')]"
-                  }
-                },
-                "template": {
-                  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-                  "contentVersion": "1.0.0.0",
-                  "metadata": {
-                    "_generator": {
-                      "name": "bicep",
-                      "version": "0.6.18.56646",
-                      "templateHash": "1802041261014187552"
-                    }
-                  },
-                  "parameters": {
-                    "AutomationAccountName": {
-                      "type": "string"
-                    },
-                    "BeginPeakTime": {
-                      "type": "string"
-                    },
-                    "EndPeakTime": {
-                      "type": "string"
-                    },
-                    "HostPoolName": {
-                      "type": "string"
-                    },
-                    "HostPoolResourceGroupName": {
-                      "type": "string"
-                    },
-                    "LimitSecondsToForceLogOffUser": {
-                      "type": "string"
-                    },
-                    "Location": {
-                      "type": "string"
-                    },
-                    "LogicAppPrefix": {
-                      "type": "string"
-                    },
-                    "ManagementResourceGroupName": {
-                      "type": "string"
-                    },
-                    "MinimumNumberOfRdsh": {
-                      "type": "string"
-                    },
-                    "SasToken": {
-                      "type": "secureString"
-                    },
-                    "ScriptsUri": {
-                      "type": "string"
-                    },
-                    "SessionHostsResourceGroupName": {
-                      "type": "string"
-                    },
-                    "SessionThresholdPerCPU": {
-                      "type": "string"
-                    },
-                    "TimeDifference": {
-                      "type": "string"
-                    },
-                    "Timestamp": {
-                      "type": "string",
-                      "defaultValue": "[utcNow('u')]",
-                      "metadata": {
-                        "description": "ISO 8601 timestamp used to determine the webhook expiration date.  The webhook is hardcoded to expire 5 years after the timestamp."
-                      }
-                    }
-                  },
-                  "variables": {
-                    "RoleAssignmentResourceGroups": [
-                      "[parameters('ManagementResourceGroupName')]",
-                      "[parameters('SessionHostsResourceGroupName')]"
-                    ]
-                  },
-                  "resources": [
-                    {
-                      "type": "Microsoft.Automation/automationAccounts/runbooks",
-                      "apiVersion": "2019-06-01",
-                      "name": "[format('{0}/AvdScaleHostPool', parameters('AutomationAccountName'))]",
-                      "location": "[parameters('Location')]",
-                      "properties": {
-                        "runbookType": "PowerShell",
-                        "logProgress": false,
-                        "logVerbose": false,
-                        "publishContentLink": {
-                          "uri": "[format('{0}Set-HostPoolScaling.ps1{1}', parameters('ScriptsUri'), parameters('SasToken'))]",
-                          "version": "1.0.0.0"
-                        }
-                      }
-                    },
-                    {
-                      "type": "Microsoft.Automation/automationAccounts/webhooks",
-                      "apiVersion": "2015-10-31",
-                      "name": "[format('{0}/AvdScaleHostPool_{1}', parameters('AutomationAccountName'), dateTimeAdd(parameters('Timestamp'), 'PT0H', 'yyyyMMddhhmmss'))]",
-                      "properties": {
-                        "isEnabled": true,
-                        "expiryTime": "[dateTimeAdd(parameters('Timestamp'), 'P5Y')]",
-                        "runbook": {
-                          "name": "AvdScaleHostPool"
-                        }
-                      },
-                      "dependsOn": [
-                        "[resourceId('Microsoft.Automation/automationAccounts/runbooks', split(format('{0}/AvdScaleHostPool', parameters('AutomationAccountName')), '/')[0], split(format('{0}/AvdScaleHostPool', parameters('AutomationAccountName')), '/')[1])]"
-                      ]
-                    },
-                    {
-                      "type": "Microsoft.Automation/automationAccounts/variables",
-                      "apiVersion": "2019-06-01",
-                      "name": "[format('{0}/WebhookURI_AvdScaleHostPool', parameters('AutomationAccountName'))]",
-                      "properties": {
-                        "value": "[format('\"{0}\"', reference(resourceId('Microsoft.Automation/automationAccounts/webhooks', split(format('{0}/AvdScaleHostPool_{1}', parameters('AutomationAccountName'), dateTimeAdd(parameters('Timestamp'), 'PT0H', 'yyyyMMddhhmmss')), '/')[0], split(format('{0}/AvdScaleHostPool_{1}', parameters('AutomationAccountName'), dateTimeAdd(parameters('Timestamp'), 'PT0H', 'yyyyMMddhhmmss')), '/')[1])).uri)]",
-                        "isEncrypted": false
-                      },
-                      "dependsOn": [
-                        "[resourceId('Microsoft.Automation/automationAccounts/webhooks', split(format('{0}/AvdScaleHostPool_{1}', parameters('AutomationAccountName'), dateTimeAdd(parameters('Timestamp'), 'PT0H', 'yyyyMMddhhmmss')), '/')[0], split(format('{0}/AvdScaleHostPool_{1}', parameters('AutomationAccountName'), dateTimeAdd(parameters('Timestamp'), 'PT0H', 'yyyyMMddhhmmss')), '/')[1])]"
-                      ]
-                    },
-                    {
-                      "type": "Microsoft.Logic/workflows",
-                      "apiVersion": "2016-06-01",
-                      "name": "[format('{0}-scaleHostPool', parameters('LogicAppPrefix'))]",
-                      "location": "[parameters('Location')]",
-                      "properties": {
-                        "state": "Enabled",
-                        "definition": {
-                          "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
-                          "actions": {
-                            "HTTP": {
-                              "type": "Http",
-                              "inputs": {
-                                "method": "POST",
-                                "uri": "[replace(reference(resourceId('Microsoft.Automation/automationAccounts/variables', split(format('{0}/WebhookURI_AvdScaleHostPool', parameters('AutomationAccountName')), '/')[0], split(format('{0}/WebhookURI_AvdScaleHostPool', parameters('AutomationAccountName')), '/')[1])).value, '\"', '')]",
-                                "body": {
-                                  "AADTenantId": "[subscription().tenantId]",
-                                  "SubscriptionId": "[subscription().subscriptionId]",
-                                  "EnvironmentName": "[environment().name]",
-                                  "ResourceGroupName": "[parameters('HostPoolResourceGroupName')]",
-                                  "HostPoolName": "[parameters('HostPoolName')]",
-                                  "MaintenanceTagName": "Maintenance",
-                                  "TimeDifference": "[parameters('TimeDifference')]",
-                                  "BeginPeakTime": "[parameters('BeginPeakTime')]",
-                                  "EndPeakTime": "[parameters('EndPeakTime')]",
-                                  "SessionThresholdPerCPU": "[parameters('SessionThresholdPerCPU')]",
-                                  "MinimumNumberOfRDSH": "[parameters('MinimumNumberOfRdsh')]",
-                                  "LimitSecondsToForceLogOffUser": "[parameters('LimitSecondsToForceLogOffUser')]",
-                                  "LogOffMessageTitle": "Machine is about to shutdown.",
-                                  "LogOffMessageBody": "Your session will be logged off. Please save and close everything."
-                                }
-                              }
-                            }
-                          },
-                          "triggers": {
-                            "Recurrence": {
-                              "type": "Recurrence",
-                              "recurrence": {
-                                "frequency": "Minute",
-                                "interval": 15
-                              }
-                            }
-                          }
-                        }
-                      },
-                      "dependsOn": [
-                        "[resourceId('Microsoft.Automation/automationAccounts/variables', split(format('{0}/WebhookURI_AvdScaleHostPool', parameters('AutomationAccountName')), '/')[0], split(format('{0}/WebhookURI_AvdScaleHostPool', parameters('AutomationAccountName')), '/')[1])]"
-                      ]
-                    },
-                    {
-                      "copy": {
-                        "name": "roleAssignments",
-                        "count": "[length(range(0, length(variables('RoleAssignmentResourceGroups'))))]"
-                      },
-                      "type": "Microsoft.Resources/deployments",
-                      "apiVersion": "2020-10-01",
-                      "name": "[format('RoleAssignment_{0}', variables('RoleAssignmentResourceGroups')[range(0, length(variables('RoleAssignmentResourceGroups')))[copyIndex()]])]",
-                      "resourceGroup": "[variables('RoleAssignmentResourceGroups')[range(0, length(variables('RoleAssignmentResourceGroups')))[copyIndex()]]]",
-                      "properties": {
-                        "expressionEvaluationOptions": {
-                          "scope": "inner"
-                        },
-                        "mode": "Incremental",
-                        "parameters": {
-                          "AutomationAccountId": {
-                            "value": "[reference(resourceId('Microsoft.Automation/automationAccounts', parameters('AutomationAccountName')), '2021-06-22', 'Full').identity.principalId]"
-                          }
-                        },
-                        "template": {
-                          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-                          "contentVersion": "1.0.0.0",
-                          "metadata": {
-                            "_generator": {
-                              "name": "bicep",
-                              "version": "0.6.18.56646",
-                              "templateHash": "8824380161702543705"
-                            }
-                          },
-                          "parameters": {
-                            "AutomationAccountId": {
-                              "type": "string"
-                            }
-                          },
-                          "resources": [
-                            {
-                              "type": "Microsoft.Authorization/roleAssignments",
-                              "apiVersion": "2018-09-01-preview",
-                              "name": "[guid(parameters('AutomationAccountId'), 'ScalingContributor', resourceGroup().id)]",
-                              "properties": {
-                                "roleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', 'b24988ac-6180-42a0-ab88-20f7382dd24c')]",
-                                "principalId": "[parameters('AutomationAccountId')]",
-                                "principalType": "ServicePrincipal"
-                              }
-                            }
-                          ]
-                        }
-                      }
-                    }
-                  ]
+                "runbookType": "PowerShell",
+                "logProgress": false,
+                "logVerbose": false,
+                "publishContentLink": {
+                  "uri": "[format('{0}Set-FileShareScaling.ps1{1}', parameters('ScriptsUri'), parameters('SasToken'))]",
+                  "version": "1.0.0.0"
                 }
               }
             },
             {
+              "type": "Microsoft.Automation/automationAccounts/webhooks",
+              "apiVersion": "2015-10-31",
+              "name": "[format('{0}/{1}_{2}', parameters('AutomationAccountName'), format('{0}/AvdScaleFileShareQuota', parameters('AutomationAccountName')), dateTimeAdd(parameters('Timestamp'), 'PT0H', 'yyyyMMddhhmmss'))]",
+              "properties": {
+                "isEnabled": true,
+                "expiryTime": "[dateTimeAdd(parameters('Timestamp'), 'P5Y')]",
+                "runbook": {
+                  "name": "[format('{0}/AvdScaleFileShareQuota', parameters('AutomationAccountName'))]"
+                }
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Automation/automationAccounts/runbooks', split(format('{0}/AvdScaleFileShareQuota', parameters('AutomationAccountName')), '/')[0], split(format('{0}/AvdScaleFileShareQuota', parameters('AutomationAccountName')), '/')[1])]"
+              ]
+            },
+            {
+              "type": "Microsoft.Automation/automationAccounts/variables",
+              "apiVersion": "2019-06-01",
+              "name": "[format('{0}/WebhookURI_{1}', parameters('AutomationAccountName'), format('{0}/AvdScaleFileShareQuota', parameters('AutomationAccountName')))]",
+              "properties": {
+                "value": "[format('\"{0}\"', reference(resourceId('Microsoft.Automation/automationAccounts/webhooks', split(format('{0}/{1}_{2}', parameters('AutomationAccountName'), format('{0}/AvdScaleFileShareQuota', parameters('AutomationAccountName')), dateTimeAdd(parameters('Timestamp'), 'PT0H', 'yyyyMMddhhmmss')), '/')[0], split(format('{0}/{1}_{2}', parameters('AutomationAccountName'), format('{0}/AvdScaleFileShareQuota', parameters('AutomationAccountName')), dateTimeAdd(parameters('Timestamp'), 'PT0H', 'yyyyMMddhhmmss')), '/')[1])).uri)]",
+                "isEncrypted": false
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Automation/automationAccounts/runbooks', split(format('{0}/AvdScaleFileShareQuota', parameters('AutomationAccountName')), '/')[0], split(format('{0}/AvdScaleFileShareQuota', parameters('AutomationAccountName')), '/')[1])]",
+                "[resourceId('Microsoft.Automation/automationAccounts/webhooks', split(format('{0}/{1}_{2}', parameters('AutomationAccountName'), format('{0}/AvdScaleFileShareQuota', parameters('AutomationAccountName')), dateTimeAdd(parameters('Timestamp'), 'PT0H', 'yyyyMMddhhmmss')), '/')[0], split(format('{0}/{1}_{2}', parameters('AutomationAccountName'), format('{0}/AvdScaleFileShareQuota', parameters('AutomationAccountName')), dateTimeAdd(parameters('Timestamp'), 'PT0H', 'yyyyMMddhhmmss')), '/')[1])]"
+              ]
+            },
+            {
+              "condition": "[contains(parameters('FslogixSolution'), 'Office')]",
+              "copy": {
+                "name": "logicApp_ScaleFileShares_OfficeContainers",
+                "count": "[length(range(0, parameters('StorageCount')))]"
+              },
+              "type": "Microsoft.Logic/workflows",
+              "apiVersion": "2016-06-01",
+              "name": "[format('{0}-{1}{2}-officecontainers', parameters('LogicAppPrefix'), parameters('StorageAccountPrefix'), padLeft(add(range(0, parameters('StorageCount'))[copyIndex()], parameters('StorageIndex')), 2, '0'))]",
+              "location": "[parameters('Location')]",
+              "properties": {
+                "state": "Enabled",
+                "definition": {
+                  "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+                  "actions": {
+                    "HTTP": {
+                      "type": "Http",
+                      "inputs": {
+                        "method": "POST",
+                        "uri": "[replace(reference(resourceId('Microsoft.Automation/automationAccounts/variables', split(format('{0}/WebhookURI_{1}', parameters('AutomationAccountName'), format('{0}/AvdScaleFileShareQuota', parameters('AutomationAccountName'))), '/')[0], split(format('{0}/WebhookURI_{1}', parameters('AutomationAccountName'), format('{0}/AvdScaleFileShareQuota', parameters('AutomationAccountName'))), '/')[1])).value, '\"', '')]",
+                        "body": {
+                          "Environment": "[variables('Environment')]",
+                          "FileShareName": "officecontainers",
+                          "ResourceGroupName": "[parameters('StorageResourceGroupName')]",
+                          "StorageAccountName": "[format('{0}{1}', parameters('StorageAccountPrefix'), padLeft(add(range(0, parameters('StorageCount'))[copyIndex()], parameters('StorageIndex')), 2, '0'))]",
+                          "SubscriptionId": "[variables('SubscriptionId')]"
+                        }
+                      }
+                    }
+                  },
+                  "triggers": {
+                    "Recurrence": {
+                      "type": "Recurrence",
+                      "recurrence": {
+                        "frequency": "Minute",
+                        "interval": 15
+                      }
+                    }
+                  }
+                }
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Automation/automationAccounts/variables', split(format('{0}/WebhookURI_{1}', parameters('AutomationAccountName'), format('{0}/AvdScaleFileShareQuota', parameters('AutomationAccountName'))), '/')[0], split(format('{0}/WebhookURI_{1}', parameters('AutomationAccountName'), format('{0}/AvdScaleFileShareQuota', parameters('AutomationAccountName'))), '/')[1])]"
+              ]
+            },
+            {
               "condition": "[contains(parameters('FslogixStorage'), 'AzureStorageAccount Premium')]",
+              "copy": {
+                "name": "logicApp_ScaleFileShares_ProfileContainers",
+                "count": "[length(range(0, parameters('StorageCount')))]"
+              },
+              "type": "Microsoft.Logic/workflows",
+              "apiVersion": "2016-06-01",
+              "name": "[format('{0}-{1}{2}-profilecontainers', parameters('LogicAppPrefix'), parameters('StorageAccountPrefix'), padLeft(add(range(0, parameters('StorageCount'))[copyIndex()], parameters('StorageIndex')), 2, '0'))]",
+              "location": "[parameters('Location')]",
+              "properties": {
+                "state": "Enabled",
+                "definition": {
+                  "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+                  "actions": {
+                    "HTTP": {
+                      "type": "Http",
+                      "inputs": {
+                        "method": "POST",
+                        "uri": "[replace(reference(resourceId('Microsoft.Automation/automationAccounts/variables', split(format('{0}/WebhookURI_{1}', parameters('AutomationAccountName'), format('{0}/AvdScaleFileShareQuota', parameters('AutomationAccountName'))), '/')[0], split(format('{0}/WebhookURI_{1}', parameters('AutomationAccountName'), format('{0}/AvdScaleFileShareQuota', parameters('AutomationAccountName'))), '/')[1])).value, '\"', '')]",
+                        "body": {
+                          "Environment": "[variables('Environment')]",
+                          "FileShareName": "profilecontainers",
+                          "ResourceGroupName": "[parameters('StorageResourceGroupName')]",
+                          "StorageAccountName": "[format('{0}{1}', parameters('StorageAccountPrefix'), padLeft(add(range(0, parameters('StorageCount'))[copyIndex()], parameters('StorageIndex')), 2, '0'))]",
+                          "SubscriptionId": "[variables('SubscriptionId')]"
+                        }
+                      }
+                    }
+                  },
+                  "triggers": {
+                    "Recurrence": {
+                      "type": "Recurrence",
+                      "recurrence": {
+                        "frequency": "Minute",
+                        "interval": 15
+                      }
+                    }
+                  }
+                }
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Automation/automationAccounts/variables', split(format('{0}/WebhookURI_{1}', parameters('AutomationAccountName'), format('{0}/AvdScaleFileShareQuota', parameters('AutomationAccountName'))), '/')[0], split(format('{0}/WebhookURI_{1}', parameters('AutomationAccountName'), format('{0}/AvdScaleFileShareQuota', parameters('AutomationAccountName'))), '/')[1])]"
+              ]
+            },
+            {
               "type": "Microsoft.Resources/deployments",
               "apiVersion": "2020-10-01",
-              "name": "[format('Scale_AzureFilesPremium_{0}', parameters('Timestamp'))]",
-              "resourceGroup": "[variables('ManagementResourceGroupName')]",
+              "name": "[format('RoleAssignment_{0}', parameters('StorageResourceGroupName'))]",
+              "resourceGroup": "[parameters('StorageResourceGroupName')]",
               "properties": {
                 "expressionEvaluationOptions": {
                   "scope": "inner"
                 },
                 "mode": "Incremental",
                 "parameters": {
-                  "AutomationAccountName": {
-                    "value": "[parameters('AutomationAccountName')]"
-                  },
-                  "FslogixSolution": {
-                    "value": "[parameters('FslogixSolution')]"
-                  },
-                  "FslogixStorage": {
-                    "value": "[parameters('FslogixStorage')]"
-                  },
-                  "Location": {
-                    "value": "[parameters('Location')]"
-                  },
-                  "LogicAppPrefix": {
-                    "value": "[parameters('LogicAppPrefix')]"
-                  },
-                  "SasToken": {
-                    "value": "[parameters('SasToken')]"
-                  },
-                  "ScriptsUri": {
-                    "value": "[parameters('ScriptsUri')]"
-                  },
-                  "StorageAccountPrefix": {
-                    "value": "[parameters('StorageAccountPrefix')]"
-                  },
-                  "StorageCount": {
-                    "value": "[parameters('StorageCount')]"
-                  },
-                  "StorageIndex": {
-                    "value": "[parameters('StorageIndex')]"
-                  },
-                  "StorageResourceGroupName": {
-                    "value": "[parameters('StorageResourceGroupName')]"
+                  "AutomationAccountId": {
+                    "value": "[reference(resourceId('Microsoft.Automation/automationAccounts', parameters('AutomationAccountName')), '2021-06-22', 'Full').identity.principalId]"
                   }
                 },
                 "template": {
@@ -6881,233 +6944,24 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.6.18.56646",
-                      "templateHash": "5004301594656522587"
+                      "version": "0.8.9.13224",
+                      "templateHash": "2904172551923665478"
                     }
                   },
                   "parameters": {
-                    "AutomationAccountName": {
+                    "AutomationAccountId": {
                       "type": "string"
-                    },
-                    "FslogixSolution": {
-                      "type": "string"
-                    },
-                    "FslogixStorage": {
-                      "type": "string"
-                    },
-                    "Location": {
-                      "type": "string"
-                    },
-                    "LogicAppPrefix": {
-                      "type": "string"
-                    },
-                    "SasToken": {
-                      "type": "secureString"
-                    },
-                    "ScriptsUri": {
-                      "type": "string"
-                    },
-                    "StorageAccountPrefix": {
-                      "type": "string"
-                    },
-                    "StorageCount": {
-                      "type": "int"
-                    },
-                    "StorageIndex": {
-                      "type": "int"
-                    },
-                    "StorageResourceGroupName": {
-                      "type": "string"
-                    },
-                    "Timestamp": {
-                      "type": "string",
-                      "defaultValue": "[utcNow('u')]",
-                      "metadata": {
-                        "description": "ISO 8601 timestamp used to determine the webhook expiration date.  The webhook is hardcoded to expire 5 years after the timestamp."
-                      }
                     }
-                  },
-                  "variables": {
-                    "Environment": "[environment().name]",
-                    "SubscriptionId": "[subscription().subscriptionId]"
                   },
                   "resources": [
                     {
-                      "type": "Microsoft.Automation/automationAccounts/runbooks",
-                      "apiVersion": "2019-06-01",
-                      "name": "[format('{0}/AvdScaleFileShareQuota', parameters('AutomationAccountName'))]",
-                      "location": "[parameters('Location')]",
+                      "type": "Microsoft.Authorization/roleAssignments",
+                      "apiVersion": "2018-09-01-preview",
+                      "name": "[guid(parameters('AutomationAccountId'), 'ScalingContributor', resourceGroup().id)]",
                       "properties": {
-                        "runbookType": "PowerShell",
-                        "logProgress": false,
-                        "logVerbose": false,
-                        "publishContentLink": {
-                          "uri": "[format('{0}Set-FileShareScaling.ps1{1}', parameters('ScriptsUri'), parameters('SasToken'))]",
-                          "version": "1.0.0.0"
-                        }
-                      }
-                    },
-                    {
-                      "type": "Microsoft.Automation/automationAccounts/webhooks",
-                      "apiVersion": "2015-10-31",
-                      "name": "[format('{0}/{1}_{2}', parameters('AutomationAccountName'), format('{0}/AvdScaleFileShareQuota', parameters('AutomationAccountName')), dateTimeAdd(parameters('Timestamp'), 'PT0H', 'yyyyMMddhhmmss'))]",
-                      "properties": {
-                        "isEnabled": true,
-                        "expiryTime": "[dateTimeAdd(parameters('Timestamp'), 'P5Y')]",
-                        "runbook": {
-                          "name": "[format('{0}/AvdScaleFileShareQuota', parameters('AutomationAccountName'))]"
-                        }
-                      },
-                      "dependsOn": [
-                        "[resourceId('Microsoft.Automation/automationAccounts/runbooks', split(format('{0}/AvdScaleFileShareQuota', parameters('AutomationAccountName')), '/')[0], split(format('{0}/AvdScaleFileShareQuota', parameters('AutomationAccountName')), '/')[1])]"
-                      ]
-                    },
-                    {
-                      "type": "Microsoft.Automation/automationAccounts/variables",
-                      "apiVersion": "2019-06-01",
-                      "name": "[format('{0}/WebhookURI_{1}', parameters('AutomationAccountName'), format('{0}/AvdScaleFileShareQuota', parameters('AutomationAccountName')))]",
-                      "properties": {
-                        "value": "[format('\"{0}\"', reference(resourceId('Microsoft.Automation/automationAccounts/webhooks', split(format('{0}/{1}_{2}', parameters('AutomationAccountName'), format('{0}/AvdScaleFileShareQuota', parameters('AutomationAccountName')), dateTimeAdd(parameters('Timestamp'), 'PT0H', 'yyyyMMddhhmmss')), '/')[0], split(format('{0}/{1}_{2}', parameters('AutomationAccountName'), format('{0}/AvdScaleFileShareQuota', parameters('AutomationAccountName')), dateTimeAdd(parameters('Timestamp'), 'PT0H', 'yyyyMMddhhmmss')), '/')[1])).uri)]",
-                        "isEncrypted": false
-                      },
-                      "dependsOn": [
-                        "[resourceId('Microsoft.Automation/automationAccounts/runbooks', split(format('{0}/AvdScaleFileShareQuota', parameters('AutomationAccountName')), '/')[0], split(format('{0}/AvdScaleFileShareQuota', parameters('AutomationAccountName')), '/')[1])]",
-                        "[resourceId('Microsoft.Automation/automationAccounts/webhooks', split(format('{0}/{1}_{2}', parameters('AutomationAccountName'), format('{0}/AvdScaleFileShareQuota', parameters('AutomationAccountName')), dateTimeAdd(parameters('Timestamp'), 'PT0H', 'yyyyMMddhhmmss')), '/')[0], split(format('{0}/{1}_{2}', parameters('AutomationAccountName'), format('{0}/AvdScaleFileShareQuota', parameters('AutomationAccountName')), dateTimeAdd(parameters('Timestamp'), 'PT0H', 'yyyyMMddhhmmss')), '/')[1])]"
-                      ]
-                    },
-                    {
-                      "condition": "[contains(parameters('FslogixSolution'), 'Office')]",
-                      "copy": {
-                        "name": "logicApp_ScaleFileShares_OfficeContainers",
-                        "count": "[length(range(0, parameters('StorageCount')))]"
-                      },
-                      "type": "Microsoft.Logic/workflows",
-                      "apiVersion": "2016-06-01",
-                      "name": "[format('{0}-{1}{2}-officecontainers', parameters('LogicAppPrefix'), parameters('StorageAccountPrefix'), padLeft(add(range(0, parameters('StorageCount'))[copyIndex()], parameters('StorageIndex')), 2, '0'))]",
-                      "location": "[parameters('Location')]",
-                      "properties": {
-                        "state": "Enabled",
-                        "definition": {
-                          "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
-                          "actions": {
-                            "HTTP": {
-                              "type": "Http",
-                              "inputs": {
-                                "method": "POST",
-                                "uri": "[replace(reference(resourceId('Microsoft.Automation/automationAccounts/variables', split(format('{0}/WebhookURI_{1}', parameters('AutomationAccountName'), format('{0}/AvdScaleFileShareQuota', parameters('AutomationAccountName'))), '/')[0], split(format('{0}/WebhookURI_{1}', parameters('AutomationAccountName'), format('{0}/AvdScaleFileShareQuota', parameters('AutomationAccountName'))), '/')[1])).value, '\"', '')]",
-                                "body": {
-                                  "Environment": "[variables('Environment')]",
-                                  "FileShareName": "officecontainers",
-                                  "ResourceGroupName": "[parameters('StorageResourceGroupName')]",
-                                  "StorageAccountName": "[format('{0}{1}', parameters('StorageAccountPrefix'), padLeft(add(range(0, parameters('StorageCount'))[copyIndex()], parameters('StorageIndex')), 2, '0'))]",
-                                  "SubscriptionId": "[variables('SubscriptionId')]"
-                                }
-                              }
-                            }
-                          },
-                          "triggers": {
-                            "Recurrence": {
-                              "type": "Recurrence",
-                              "recurrence": {
-                                "frequency": "Minute",
-                                "interval": 15
-                              }
-                            }
-                          }
-                        }
-                      },
-                      "dependsOn": [
-                        "[resourceId('Microsoft.Automation/automationAccounts/variables', split(format('{0}/WebhookURI_{1}', parameters('AutomationAccountName'), format('{0}/AvdScaleFileShareQuota', parameters('AutomationAccountName'))), '/')[0], split(format('{0}/WebhookURI_{1}', parameters('AutomationAccountName'), format('{0}/AvdScaleFileShareQuota', parameters('AutomationAccountName'))), '/')[1])]"
-                      ]
-                    },
-                    {
-                      "condition": "[contains(parameters('FslogixStorage'), 'AzureStorageAccount Premium')]",
-                      "copy": {
-                        "name": "logicApp_ScaleFileShares_ProfileContainers",
-                        "count": "[length(range(0, parameters('StorageCount')))]"
-                      },
-                      "type": "Microsoft.Logic/workflows",
-                      "apiVersion": "2016-06-01",
-                      "name": "[format('{0}-{1}{2}-profilecontainers', parameters('LogicAppPrefix'), parameters('StorageAccountPrefix'), padLeft(add(range(0, parameters('StorageCount'))[copyIndex()], parameters('StorageIndex')), 2, '0'))]",
-                      "location": "[parameters('Location')]",
-                      "properties": {
-                        "state": "Enabled",
-                        "definition": {
-                          "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
-                          "actions": {
-                            "HTTP": {
-                              "type": "Http",
-                              "inputs": {
-                                "method": "POST",
-                                "uri": "[replace(reference(resourceId('Microsoft.Automation/automationAccounts/variables', split(format('{0}/WebhookURI_{1}', parameters('AutomationAccountName'), format('{0}/AvdScaleFileShareQuota', parameters('AutomationAccountName'))), '/')[0], split(format('{0}/WebhookURI_{1}', parameters('AutomationAccountName'), format('{0}/AvdScaleFileShareQuota', parameters('AutomationAccountName'))), '/')[1])).value, '\"', '')]",
-                                "body": {
-                                  "Environment": "[variables('Environment')]",
-                                  "FileShareName": "profilecontainers",
-                                  "ResourceGroupName": "[parameters('StorageResourceGroupName')]",
-                                  "StorageAccountName": "[format('{0}{1}', parameters('StorageAccountPrefix'), padLeft(add(range(0, parameters('StorageCount'))[copyIndex()], parameters('StorageIndex')), 2, '0'))]",
-                                  "SubscriptionId": "[variables('SubscriptionId')]"
-                                }
-                              }
-                            }
-                          },
-                          "triggers": {
-                            "Recurrence": {
-                              "type": "Recurrence",
-                              "recurrence": {
-                                "frequency": "Minute",
-                                "interval": 15
-                              }
-                            }
-                          }
-                        }
-                      },
-                      "dependsOn": [
-                        "[resourceId('Microsoft.Automation/automationAccounts/variables', split(format('{0}/WebhookURI_{1}', parameters('AutomationAccountName'), format('{0}/AvdScaleFileShareQuota', parameters('AutomationAccountName'))), '/')[0], split(format('{0}/WebhookURI_{1}', parameters('AutomationAccountName'), format('{0}/AvdScaleFileShareQuota', parameters('AutomationAccountName'))), '/')[1])]"
-                      ]
-                    },
-                    {
-                      "type": "Microsoft.Resources/deployments",
-                      "apiVersion": "2020-10-01",
-                      "name": "[format('RoleAssignment_{0}', parameters('StorageResourceGroupName'))]",
-                      "resourceGroup": "[parameters('StorageResourceGroupName')]",
-                      "properties": {
-                        "expressionEvaluationOptions": {
-                          "scope": "inner"
-                        },
-                        "mode": "Incremental",
-                        "parameters": {
-                          "AutomationAccountId": {
-                            "value": "[reference(resourceId('Microsoft.Automation/automationAccounts', parameters('AutomationAccountName')), '2021-06-22', 'Full').identity.principalId]"
-                          }
-                        },
-                        "template": {
-                          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-                          "contentVersion": "1.0.0.0",
-                          "metadata": {
-                            "_generator": {
-                              "name": "bicep",
-                              "version": "0.6.18.56646",
-                              "templateHash": "8824380161702543705"
-                            }
-                          },
-                          "parameters": {
-                            "AutomationAccountId": {
-                              "type": "string"
-                            }
-                          },
-                          "resources": [
-                            {
-                              "type": "Microsoft.Authorization/roleAssignments",
-                              "apiVersion": "2018-09-01-preview",
-                              "name": "[guid(parameters('AutomationAccountId'), 'ScalingContributor', resourceGroup().id)]",
-                              "properties": {
-                                "roleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', 'b24988ac-6180-42a0-ab88-20f7382dd24c')]",
-                                "principalId": "[parameters('AutomationAccountId')]",
-                                "principalType": "ServicePrincipal"
-                              }
-                            }
-                          ]
-                        }
+                        "roleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', 'b24988ac-6180-42a0-ab88-20f7382dd24c')]",
+                        "principalId": "[parameters('AutomationAccountId')]",
+                        "principalType": "ServicePrincipal"
                       }
                     }
                   ]
@@ -7169,8 +7023,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.6.18.56646",
-              "templateHash": "8515167579020826572"
+              "version": "0.8.9.13224",
+              "templateHash": "1645266996589630010"
             }
           },
           "parameters": {

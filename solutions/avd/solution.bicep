@@ -176,6 +176,9 @@ param ScalingMinimumNumberOfRdsh string = '0'
 @description('The maximum number of sessions per CPU that will be used as a threshold to determine when new session host VMs need to be started during peak hours')
 param ScalingSessionThresholdPerCPU string = '1'
 
+@description('Deploys the required resources for the Scaling Tool. https://docs.microsoft.com/en-us/azure/virtual-desktop/scaling-automation-logic-apps')
+param ScalingTool bool = true
+
 @description('Time zone off set for host pool location; Format 24 hours e.g. -4:00 for Eastern Daylight Time')
 param ScalingTimeDifference string = '-5:00'
 
@@ -767,32 +770,25 @@ module backup 'modules/backup/backup.bicep' = if(RecoveryServices) {
   ]
 }
 
-// Deploys scaling for the session hosts and Azure Files Premium, if applicable
-module scale 'modules/scale/scale.bicep' = if(PooledHostPool) {
-  name: 'Scale_${Timestamp}'
+module scalingTool 'modules/scalingTool.bicep' = if(ScalingTool && PooledHostPool) {
+  name: 'ScalingTool_${Timestamp}'
   scope: resourceGroup(ResourceGroups[2]) // Management Resource Group
   params: {
     AutomationAccountName: AutomationAccountName
     BeginPeakTime: ScalingBeginPeakTime
     EndPeakTime: ScalingEndPeakTime
-    FslogixSolution: FslogixSolution
-    FslogixStorage: FslogixStorage
     HostPoolName: HostPoolName
     HostPoolResourceGroupName: ResourceGroups[2] // Management Resource Group
     LimitSecondsToForceLogOffUser: ScalingLimitSecondsToForceLogOffUser
     Location: Location
     LogicAppPrefix: LogicAppPrefix
+    ManagementResourceGroupName: ResourceGroups[2] // Management Resource Group
     MinimumNumberOfRdsh: ScalingMinimumNumberOfRdsh
     SasToken: SasToken
-    ScriptsUri: ScriptsUri    
+    ScriptsUri: ScriptsUri
     SessionHostsResourceGroupName: ResourceGroups[1] // Hosts Resource Group
     SessionThresholdPerCPU: ScalingSessionThresholdPerCPU
-    StorageAccountPrefix: StorageAccountPrefix
-    StorageResourceGroupName: ResourceGroups[3] // Storage Resource Group
-    StorageCount: StorageCount
-    StorageIndex: StorageIndex
     TimeDifference: ScalingTimeDifference
-    Timestamp: Timestamp
   }
   dependsOn: [
     automationAccount
@@ -800,6 +796,30 @@ module scale 'modules/scale/scale.bicep' = if(PooledHostPool) {
     sessionHosts
   ]
 }
+
+module autoIncreasePremiumFileShareQuota 'modules/autoIncreasePremiumFileShareQuota.bicep' = if(contains(FslogixStorage, 'AzureStorageAccount Premium')) {
+  name: 'AutoIncreasePremiumFileShareQuota_${Timestamp}'
+  scope: resourceGroup(ResourceGroups[2]) // Management Resource Group
+  params: {
+    AutomationAccountName: AutomationAccountName
+    FslogixSolution: FslogixSolution
+    FslogixStorage: FslogixStorage
+    Location: Location
+    LogicAppPrefix: LogicAppPrefix
+    SasToken: SasToken
+    ScriptsUri: ScriptsUri
+    StorageAccountPrefix: StorageAccountPrefix
+    StorageCount: StorageCount
+    StorageIndex: StorageIndex
+    StorageResourceGroupName: ResourceGroups[3] // Storage Resource Group
+  }
+  dependsOn: [
+    automationAccount
+    backup
+    sessionHosts
+  ]
+} 
+
 
 // Enables drain mode on the session hosts so users cannot login
 module drainMode 'modules/drainMode.bicep' = if(DrainMode) {

@@ -797,13 +797,12 @@ module scalingTool 'modules/scalingTool.bicep' = if(ScalingTool && PooledHostPoo
   ]
 }
 
-module autoIncreasePremiumFileShareQuota 'modules/autoIncreasePremiumFileShareQuota.bicep' = if(contains(FslogixStorage, 'AzureStorageAccount Premium')) {
+module autoIncreasePremiumFileShareQuota 'modules/autoIncreasePremiumFileShareQuota.bicep' = if(contains(FslogixStorage, 'AzureStorageAccount Premium') && StorageCount > 0) {
   name: 'AutoIncreasePremiumFileShareQuota_${Timestamp}'
   scope: resourceGroup(ResourceGroups[2]) // Management Resource Group
   params: {
     AutomationAccountName: AutomationAccountName
     FslogixSolution: FslogixSolution
-    FslogixStorage: FslogixStorage
     Location: Location
     LogicAppPrefix: LogicAppPrefix
     SasToken: SasToken

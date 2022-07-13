@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.8.9.13224",
-      "templateHash": "16329751590868625825"
+      "templateHash": "7012479100678036821"
     }
   },
   "parameters": {
@@ -6688,7 +6688,7 @@
       ]
     },
     {
-      "condition": "[contains(parameters('FslogixStorage'), 'AzureStorageAccount Premium')]",
+      "condition": "[and(contains(parameters('FslogixStorage'), 'AzureStorageAccount Premium'), greater(parameters('StorageCount'), 0))]",
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2020-10-01",
       "name": "[format('AutoIncreasePremiumFileShareQuota_{0}', parameters('Timestamp'))]",
@@ -6704,9 +6704,6 @@
           },
           "FslogixSolution": {
             "value": "[parameters('FslogixSolution')]"
-          },
-          "FslogixStorage": {
-            "value": "[parameters('FslogixStorage')]"
           },
           "Location": {
             "value": "[parameters('Location')]"
@@ -6740,7 +6737,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.8.9.13224",
-              "templateHash": "18124469969663613817"
+              "templateHash": "14728305840333626094"
             }
           },
           "parameters": {
@@ -6748,9 +6745,6 @@
               "type": "string"
             },
             "FslogixSolution": {
-              "type": "string"
-            },
-            "FslogixStorage": {
               "type": "string"
             },
             "Location": {
@@ -6879,7 +6873,6 @@
               ]
             },
             {
-              "condition": "[contains(parameters('FslogixStorage'), 'AzureStorageAccount Premium')]",
               "copy": {
                 "name": "logicApp_ScaleFileShares_ProfileContainers",
                 "count": "[length(range(0, parameters('StorageCount')))]"

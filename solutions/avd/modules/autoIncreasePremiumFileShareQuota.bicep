@@ -1,6 +1,5 @@
 param AutomationAccountName string
 param FslogixSolution string
-param FslogixStorage string
 param Location string
 param LogicAppPrefix string
 @secure()
@@ -98,7 +97,7 @@ resource logicApp_ScaleFileShares_OfficeContainers 'Microsoft.Logic/workflows@20
 }]
 
 // Logic App to trigger scaling runbook for each "profilecontainers" file share 
-resource logicApp_ScaleFileShares_ProfileContainers 'Microsoft.Logic/workflows@2016-06-01' = [for i in range(0, StorageCount): if(contains(FslogixStorage, 'AzureStorageAccount Premium')) {
+resource logicApp_ScaleFileShares_ProfileContainers 'Microsoft.Logic/workflows@2016-06-01' = [for i in range(0, StorageCount): {
   name: '${LogicAppPrefix}-${StorageAccountPrefix}${padLeft((i + StorageIndex), 2, '0')}-profilecontainers'
   location: Location
   properties: {

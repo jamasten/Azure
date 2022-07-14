@@ -281,6 +281,10 @@ try
         {
             # Mount file share
             $FileShare = $FileServer + '\' + $Share
+            if(Test-Path "Z:\")
+            {
+                Remove-PSDrive -Name 'Z' -PSProvider 'FileSystem' -Force
+            }
             New-PSDrive -Name 'Z' -PSProvider 'FileSystem' -Root $FileShare -Credential $Credential -Persist
             Write-Log -Message "Mounting the Azure file share, $FileShare, succeeded" -Type 'INFO'
 

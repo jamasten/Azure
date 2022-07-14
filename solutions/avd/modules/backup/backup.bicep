@@ -78,12 +78,12 @@ resource backupPolicy_Vm 'Microsoft.RecoveryServices/vaults/backupPolicies@2022-
   }
 }
 
-resource protectionContainers 'Microsoft.RecoveryServices/vaults/backupFabrics/protectionContainers@2022-03-01' = [for i in range(StorageIndex, StorageCount): if(Fslogix && StorageSolution == 'AzureStorageAccount') {
-  name: '${vault.name}/Azure/storagecontainer;Storage;${StorageResourceGroupName};${StorageAccountPrefix}${padLeft(i, 2, '0')}'
+resource protectionContainers 'Microsoft.RecoveryServices/vaults/backupFabrics/protectionContainers@2022-03-01' = [for i in range(0, StorageCount): if(Fslogix && StorageSolution == 'AzureStorageAccount') {
+  name: '${vault.name}/Azure/storagecontainer;Storage;${StorageResourceGroupName};${StorageAccountPrefix}${padLeft((i + StorageIndex), 2, '0')}'
   properties: {
     backupManagementType: 'AzureStorage'
     containerType: 'StorageContainer'
-    sourceResourceId: resourceId(StorageResourceGroupName, 'Microsoft.Storage/storageAccounts', '${StorageAccountPrefix}${padLeft(i, 2, '0')}')
+    sourceResourceId: resourceId(StorageResourceGroupName, 'Microsoft.Storage/storageAccounts', '${StorageAccountPrefix}${padLeft((i + StorageIndex), 2, '0')}')
   }
   dependsOn: [
     backupPolicy_Storage
@@ -97,7 +97,7 @@ module protectedItems_FileShares 'backup_FileShares.bicep' = [for i in range(0, 
     Location: Location
     ProtectionContainerName: protectionContainers[i].name
     PolicyId: backupPolicy_Storage.id
-    SourceResourceId: resourceId(StorageResourceGroupName, 'Microsoft.Storage/storageAccounts', '${StorageAccountPrefix}${padLeft(i, 2, '0')}')
+    SourceResourceId: resourceId(StorageResourceGroupName, 'Microsoft.Storage/storageAccounts', '${StorageAccountPrefix}${padLeft((i + StorageIndex), 2, '0')}')
     Tags: Tags
   }
 }]

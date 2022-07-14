@@ -170,7 +170,7 @@ try
     ##############################################################
     #  Process Storage Resources
     ##############################################################
-    for($i = $StorageIndex; $i -lt ($StorageIndex + $StorageCount); $i++)
+    for($i = 0; $i -lt $StorageCount; $i++)
     {
         # Determine Principal for assignment
         $SecurityPrincipalName = $SecurityPrincipalNames[$i]
@@ -186,7 +186,7 @@ try
                 $FileServer = '\\' + $SmbServerName + '.' + $Domain.DNSRoot
             }
             'AzureStorageAccount' {
-                $StorageAccountName = $StorageAccountPrefix + $i.ToString().PadLeft(2,'0')
+                $StorageAccountName = $StorageAccountPrefix + ($i + $StorageIndex).ToString().PadLeft(2,'0')
                 $FileServer = '\\' + $StorageAccountName + $FilesSuffix
 
                 # Connects to Azure using a User Assigned Managed Identity

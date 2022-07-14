@@ -281,7 +281,7 @@ try
         {
             # Mount file share
             $FileShare = $FileServer + '\' + $Share
-            New-PSDrive -Name 'Z' -PSProvider 'FileSystem' -Root $FileShare -Credential $Credential -Persist
+            New-PSDrive -Name 'Z' -PSProvider 'FileSystem' -Root $FileShare -Credential $Credential
             Write-Log -Message "Mounting the Azure file share, $FileShare, succeeded" -Type 'INFO'
 
             # Set recommended NTFS permissions on the file share
@@ -301,6 +301,7 @@ try
 
             # Unmount file share
             Remove-PSDrive -Name 'Z' -PSProvider 'FileSystem' -Force
+            Start-Sleep -Seconds 5
             Write-Log -Message "Unmounting the Azure file share, $FileShare, succeeded" -Type 'INFO'
         }
     }

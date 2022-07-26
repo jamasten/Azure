@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.8.9.13224",
-      "templateHash": "15735271759372901499"
+      "templateHash": "2334391724793838486"
     }
   },
   "parameters": {
@@ -102,7 +102,7 @@
       "type": "string",
       "defaultValue": "",
       "metadata": {
-        "description": "OPTIONAL, The resource ID of the target Azure Subnet."
+        "description": "The subnet name for the custom virtual network."
       }
     },
     "Timestamp": {

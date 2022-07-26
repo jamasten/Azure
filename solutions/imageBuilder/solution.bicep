@@ -60,7 +60,7 @@ param ImageStorageAccountType string = 'Standard_LRS'
 ])
 param Location string
 
-@description('OPTIONAL, The resource ID of the target Azure Subnet.')
+@description('The subnet name for the custom virtual network.')
 param SubnetName string = ''
 
 @description('')

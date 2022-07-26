@@ -3,6 +3,15 @@ targetScope = 'subscription'
 @description('Determines whether the Image Builder VM will be deployed to custom Virtual Network or use the default Virtual Network.')
 param CustomVnet bool = false
 
+@allowed([
+  'd' // Development
+  'p' // Production
+  's' // Shared
+  't' // Test
+])
+@description('The target environment for the solution.')
+param Environment string = 'd'
+
 @description('The name of the Image Definition for the Shared Image Gallery.')
 param ImageDefinitionName string = 'Win10-20h2-Teams'
 
@@ -135,10 +144,9 @@ var LocationShortName = LocationShortNames[Location]
 
 
 resource resourceGroup 'Microsoft.Resources/resourceGroups@2019-10-01' = {
-  name: 'rg-imaging-d-${LocationShortName}'
+  name: 'rg-images-${Environment}-${LocationShortName}'
   location: Location
-  properties: {
-  }
+  properties: {}
 }
 
 resource roleDefinition_Image 'Microsoft.Authorization/roleDefinitions@2015-07-01' = {
@@ -192,6 +200,7 @@ module imageBuilder 'modules/imageBuilder.bicep' = {
   scope: resourceGroup
   params: {
     CustomVnet: CustomVnet
+    Environment: Environment
     ImageDefinitionName: ImageDefinitionName
     ImageDefinitionOffer: ImageDefinitionOffer
     ImageDefinitionPublisher: ImageDefinitionPublisher

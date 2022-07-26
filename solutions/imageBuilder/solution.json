@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.8.9.13224",
-      "templateHash": "2334391724793838486"
+      "templateHash": "6216758371240977915"
     }
   },
   "parameters": {
@@ -15,6 +15,19 @@
       "metadata": {
         "description": "Determines whether the Image Builder VM will be deployed to custom Virtual Network or use the default Virtual Network."
       }
+    },
+    "Environment": {
+      "type": "string",
+      "defaultValue": "d",
+      "metadata": {
+        "description": "The target environment for the solution."
+      },
+      "allowedValues": [
+        "d",
+        "p",
+        "s",
+        "t"
+      ]
     },
     "ImageDefinitionName": {
       "type": "string",
@@ -196,7 +209,7 @@
     {
       "type": "Microsoft.Resources/resourceGroups",
       "apiVersion": "2019-10-01",
-      "name": "[format('rg-imaging-d-{0}', variables('LocationShortName'))]",
+      "name": "[format('rg-images-{0}-{1}', parameters('Environment'), variables('LocationShortName'))]",
       "location": "[parameters('Location')]",
       "properties": {}
     },
@@ -253,7 +266,7 @@
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2020-10-01",
       "name": "[format('ImageBuilder_{0}', parameters('Timestamp'))]",
-      "resourceGroup": "[format('rg-imaging-d-{0}', variables('LocationShortName'))]",
+      "resourceGroup": "[format('rg-images-{0}-{1}', parameters('Environment'), variables('LocationShortName'))]",
       "properties": {
         "expressionEvaluationOptions": {
           "scope": "inner"
@@ -262,6 +275,9 @@
         "parameters": {
           "CustomVnet": {
             "value": "[parameters('CustomVnet')]"
+          },
+          "Environment": {
+            "value": "[parameters('Environment')]"
           },
           "ImageDefinitionName": {
             "value": "[parameters('ImageDefinitionName')]"
@@ -316,12 +332,15 @@
             "_generator": {
               "name": "bicep",
               "version": "0.8.9.13224",
-              "templateHash": "12866463705893056130"
+              "templateHash": "13162704502797135080"
             }
           },
           "parameters": {
             "CustomVnet": {
               "type": "bool"
+            },
+            "Environment": {
+              "type": "string"
             },
             "ImageDefinitionName": {
               "type": "string"
@@ -373,32 +392,32 @@
             {
               "type": "Microsoft.ManagedIdentity/userAssignedIdentities",
               "apiVersion": "2018-11-30",
-              "name": "[format('uami-imageBuilder-d-{0}', parameters('LocationShortName'))]",
+              "name": "[format('uami-imageBuilder-{0}-{1}', parameters('Environment'), parameters('LocationShortName'))]",
               "location": "[parameters('Location')]"
             },
             {
               "type": "Microsoft.Authorization/roleAssignments",
               "apiVersion": "2018-09-01-preview",
-              "name": "[guid(format('uami-imageBuilder-d-{0}', parameters('LocationShortName')), parameters('RoleImageContributor'), resourceGroup().id)]",
+              "name": "[guid(format('uami-imageBuilder-{0}-{1}', parameters('Environment'), parameters('LocationShortName')), parameters('RoleImageContributor'), resourceGroup().id)]",
               "properties": {
                 "roleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', parameters('RoleImageContributor'))]",
-                "principalId": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', format('uami-imageBuilder-d-{0}', parameters('LocationShortName'))), '2018-11-30', 'Full').properties.principalId]",
+                "principalId": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', format('uami-imageBuilder-{0}-{1}', parameters('Environment'), parameters('LocationShortName'))), '2018-11-30', 'Full').properties.principalId]",
                 "principalType": "ServicePrincipal"
               },
               "dependsOn": [
-                "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', format('uami-imageBuilder-d-{0}', parameters('LocationShortName')))]"
+                "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', format('uami-imageBuilder-{0}-{1}', parameters('Environment'), parameters('LocationShortName')))]"
               ]
             },
             {
               "type": "Microsoft.Compute/galleries",
               "apiVersion": "2019-03-01",
-              "name": "[format('sig_d_{0}', parameters('LocationShortName'))]",
+              "name": "[format('sig_{0}_{1}', parameters('Environment'), parameters('LocationShortName'))]",
               "location": "[parameters('Location')]"
             },
             {
               "type": "Microsoft.Compute/galleries/images",
               "apiVersion": "2019-03-01",
-              "name": "[format('{0}/{1}', format('sig_d_{0}', parameters('LocationShortName')), parameters('ImageDefinitionName'))]",
+              "name": "[format('{0}/{1}', format('sig_{0}_{1}', parameters('Environment'), parameters('LocationShortName')), parameters('ImageDefinitionName'))]",
               "location": "[parameters('Location')]",
               "properties": {
                 "osType": "Windows",
@@ -410,18 +429,18 @@
                 }
               },
               "dependsOn": [
-                "[resourceId('Microsoft.Compute/galleries', format('sig_d_{0}', parameters('LocationShortName')))]"
+                "[resourceId('Microsoft.Compute/galleries', format('sig_{0}_{1}', parameters('Environment'), parameters('LocationShortName')))]"
               ]
             },
             {
               "type": "Microsoft.VirtualMachineImages/imageTemplates",
               "apiVersion": "2020-02-14",
-              "name": "[format('imgt-{0}-d-{1}', toLower(parameters('ImageDefinitionName')), parameters('LocationShortName'))]",
+              "name": "[format('imgt-{0}-{1}-{2}', toLower(parameters('ImageDefinitionName')), parameters('Environment'), parameters('LocationShortName'))]",
               "location": "[parameters('Location')]",
               "identity": {
                 "type": "UserAssigned",
                 "userAssignedIdentities": {
-                  "[format('{0}', resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', format('uami-imageBuilder-d-{0}', parameters('LocationShortName'))))]": {}
+                  "[format('{0}', resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', format('uami-imageBuilder-{0}-{1}', parameters('Environment'), parameters('LocationShortName'))))]": {}
                 }
               },
               "properties": {
@@ -462,7 +481,7 @@
                 "distribute": [
                   {
                     "type": "SharedImage",
-                    "galleryImageId": "[resourceId('Microsoft.Compute/galleries/images', format('sig_d_{0}', parameters('LocationShortName')), parameters('ImageDefinitionName'))]",
+                    "galleryImageId": "[resourceId('Microsoft.Compute/galleries/images', format('sig_{0}_{1}', parameters('Environment'), parameters('LocationShortName')), parameters('ImageDefinitionName'))]",
                     "runOutputName": "[parameters('Timestamp')]",
                     "artifactTags": {},
                     "replicationRegions": [
@@ -473,8 +492,8 @@
                 ]
               },
               "dependsOn": [
-                "[resourceId('Microsoft.Compute/galleries/images', format('sig_d_{0}', parameters('LocationShortName')), parameters('ImageDefinitionName'))]",
-                "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', format('uami-imageBuilder-d-{0}', parameters('LocationShortName')))]"
+                "[resourceId('Microsoft.Compute/galleries/images', format('sig_{0}_{1}', parameters('Environment'), parameters('LocationShortName')), parameters('ImageDefinitionName'))]",
+                "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', format('uami-imageBuilder-{0}-{1}', parameters('Environment'), parameters('LocationShortName')))]"
               ]
             },
             {
@@ -490,7 +509,7 @@
                 "mode": "Incremental",
                 "parameters": {
                   "IdentityName": {
-                    "value": "[format('uami-imageBuilder-d-{0}', parameters('LocationShortName'))]"
+                    "value": "[format('uami-imageBuilder-{0}-{1}', parameters('Environment'), parameters('LocationShortName'))]"
                   },
                   "ImagingResourceGroupName": {
                     "value": "[resourceGroup().name]"
@@ -535,15 +554,15 @@
                 }
               },
               "dependsOn": [
-                "[resourceId('Microsoft.Authorization/roleAssignments', guid(format('uami-imageBuilder-d-{0}', parameters('LocationShortName')), parameters('RoleImageContributor'), resourceGroup().id))]",
-                "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', format('uami-imageBuilder-d-{0}', parameters('LocationShortName')))]"
+                "[resourceId('Microsoft.Authorization/roleAssignments', guid(format('uami-imageBuilder-{0}-{1}', parameters('Environment'), parameters('LocationShortName')), parameters('RoleImageContributor'), resourceGroup().id))]",
+                "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', format('uami-imageBuilder-{0}-{1}', parameters('Environment'), parameters('LocationShortName')))]"
               ]
             }
           ]
         }
       },
       "dependsOn": [
-        "[subscriptionResourceId('Microsoft.Resources/resourceGroups', format('rg-imaging-d-{0}', variables('LocationShortName')))]",
+        "[subscriptionResourceId('Microsoft.Resources/resourceGroups', format('rg-images-{0}-{1}', parameters('Environment'), variables('LocationShortName')))]",
         "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', guid(subscription().id, 'ImageContributor'))]",
         "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', guid(subscription().id, 'VnetJoin'))]"
       ]

@@ -1,4 +1,5 @@
 param CustomVnet bool
+param Environment string
 param ImageDefinitionName string
 param ImageDefinitionOffer string
 param ImageDefinitionPublisher string
@@ -17,7 +18,7 @@ param VirtualNetworkResourceGroupName string
 
 
 resource userAssignedIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2018-11-30' = {
-  name: 'uami-imageBuilder-d-${LocationShortName}'
+  name: 'uami-imageBuilder-${Environment}-${LocationShortName}'
   location: Location
 }
 
@@ -44,7 +45,7 @@ module network 'network.bicep' = if (CustomVnet) {
 }
 
 resource gallery 'Microsoft.Compute/galleries@2019-03-01' = {
-  name: 'sig_d_${LocationShortName}'
+  name: 'sig_${Environment}_${LocationShortName}'
   location: Location
 }
 
@@ -64,7 +65,7 @@ resource image 'Microsoft.Compute/galleries/images@2019-03-01' = {
 }
 
 resource imageTemplate 'Microsoft.VirtualMachineImages/imageTemplates@2020-02-14' = {
-  name: 'imgt-${toLower(ImageDefinitionName)}-d-${LocationShortName}'
+  name: 'imgt-${toLower(ImageDefinitionName)}-${Environment}-${LocationShortName}'
   location: Location
   identity: {
     type: 'UserAssigned'

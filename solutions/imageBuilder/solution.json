@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.8.9.13224",
-      "templateHash": "6216758371240977915"
+      "templateHash": "6181220599812475467"
     }
   },
   "parameters": {
@@ -332,7 +332,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.8.9.13224",
-              "templateHash": "13162704502797135080"
+              "templateHash": "15110333176589328791"
             }
           },
           "parameters": {
@@ -411,13 +411,13 @@
             {
               "type": "Microsoft.Compute/galleries",
               "apiVersion": "2019-03-01",
-              "name": "[format('sig_{0}_{1}', parameters('Environment'), parameters('LocationShortName'))]",
+              "name": "[format('cg_{0}_{1}', parameters('Environment'), parameters('LocationShortName'))]",
               "location": "[parameters('Location')]"
             },
             {
               "type": "Microsoft.Compute/galleries/images",
               "apiVersion": "2019-03-01",
-              "name": "[format('{0}/{1}', format('sig_{0}_{1}', parameters('Environment'), parameters('LocationShortName')), parameters('ImageDefinitionName'))]",
+              "name": "[format('{0}/{1}', format('cg_{0}_{1}', parameters('Environment'), parameters('LocationShortName')), parameters('ImageDefinitionName'))]",
               "location": "[parameters('Location')]",
               "properties": {
                 "osType": "Windows",
@@ -429,7 +429,7 @@
                 }
               },
               "dependsOn": [
-                "[resourceId('Microsoft.Compute/galleries', format('sig_{0}_{1}', parameters('Environment'), parameters('LocationShortName')))]"
+                "[resourceId('Microsoft.Compute/galleries', format('cg_{0}_{1}', parameters('Environment'), parameters('LocationShortName')))]"
               ]
             },
             {
@@ -481,7 +481,7 @@
                 "distribute": [
                   {
                     "type": "SharedImage",
-                    "galleryImageId": "[resourceId('Microsoft.Compute/galleries/images', format('sig_{0}_{1}', parameters('Environment'), parameters('LocationShortName')), parameters('ImageDefinitionName'))]",
+                    "galleryImageId": "[resourceId('Microsoft.Compute/galleries/images', format('cg_{0}_{1}', parameters('Environment'), parameters('LocationShortName')), parameters('ImageDefinitionName'))]",
                     "runOutputName": "[parameters('Timestamp')]",
                     "artifactTags": {},
                     "replicationRegions": [
@@ -492,7 +492,7 @@
                 ]
               },
               "dependsOn": [
-                "[resourceId('Microsoft.Compute/galleries/images', format('sig_{0}_{1}', parameters('Environment'), parameters('LocationShortName')), parameters('ImageDefinitionName'))]",
+                "[resourceId('Microsoft.Compute/galleries/images', format('cg_{0}_{1}', parameters('Environment'), parameters('LocationShortName')), parameters('ImageDefinitionName'))]",
                 "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', format('uami-imageBuilder-{0}-{1}', parameters('Environment'), parameters('LocationShortName')))]"
               ]
             },

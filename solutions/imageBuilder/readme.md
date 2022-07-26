@@ -1,6 +1,6 @@
 # Azure Image Builder
 
-This solution will deploy all the resources needed to build an image with Azure Image Builder.  The Image Template is currently configured to add Microsoft Teams, reboot, and update the operating system.  The deployment will store the image in a Shared Image Gallery.
+This solution will deploy all the resources needed to build an image with Azure Image Builder.  The Image Template is currently configured to add Microsoft Teams, reboot, and update the operating system.  The deployment will store the image in an Azure Compute Gallery.
 
 ## Prerequisites
 

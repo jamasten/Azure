@@ -16,18 +16,6 @@ param VirtualNetworkName string
 param VirtualNetworkResourceGroupName string
 
 
-var VmProfileWithoutVnet = {
-  vmSize: VirtualMachineSize
-}
-var VmProfileWithVnet = {
-  vmSize: VirtualMachineSize
-  vnetConfig: {
-    subnetId: resourceId(subscription().subscriptionId, VirtualNetworkResourceGroupName, 'Microsoft.Network/virtualNetworks/subnets', VirtualNetworkName, SubnetName)
-  }
-}
-var VmProfile = ((SubnetName == '') ? VmProfileWithoutVnet : VmProfileWithVnet)
-
-
 resource userAssignedIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2018-11-30' = {
   name: 'uami-imageBuilder-d-${LocationShortName}'
   location: Location
@@ -58,10 +46,6 @@ module network 'network.bicep' = if (CustomVnet) {
 resource gallery 'Microsoft.Compute/galleries@2019-03-01' = {
   name: 'sig_d_${LocationShortName}'
   location: Location
-  properties: {
-    description: ''
-    identifier: {}
-  }
 }
 
 resource image 'Microsoft.Compute/galleries/images@2019-03-01' = {
@@ -79,7 +63,7 @@ resource image 'Microsoft.Compute/galleries/images@2019-03-01' = {
   }
 }
 
-resource imgt_ImageDefinitionName_d_LocationShort 'Microsoft.VirtualMachineImages/imageTemplates@2020-02-14' = {
+resource imageTemplate 'Microsoft.VirtualMachineImages/imageTemplates@2020-02-14' = {
   name: 'imgt-${toLower(ImageDefinitionName)}-d-${LocationShortName}'
   location: Location
   identity: {
@@ -91,7 +75,12 @@ resource imgt_ImageDefinitionName_d_LocationShort 'Microsoft.VirtualMachineImage
   }
   properties: {
     buildTimeoutInMinutes: 300
-    vmProfile: VmProfile
+    vmProfile: {
+      vmSize: VirtualMachineSize
+      vnetConfig: SubnetName == '' ? {
+        subnetId: resourceId(subscription().subscriptionId, VirtualNetworkResourceGroupName, 'Microsoft.Network/virtualNetworks/subnets', VirtualNetworkName, SubnetName)
+      } : null
+    }
     source: {
       type: 'PlatformImage'
       publisher: ImageDefinitionPublisher
@@ -126,8 +115,7 @@ resource imgt_ImageDefinitionName_d_LocationShort 'Microsoft.VirtualMachineImage
         type: 'SharedImage'
         galleryImageId: image.id
         runOutputName: Timestamp
-        artifactTags: {
-        }
+        artifactTags: {}
         replicationRegions: [
           Location
         ]

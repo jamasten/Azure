@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.8.9.13224",
-      "templateHash": "1481196155427427465"
+      "templateHash": "2434960695555476727"
     }
   },
   "parameters": {
@@ -192,10 +192,10 @@
       "ukwest": "uw",
       "usdodcentral": "uc",
       "usdodeast": "ue",
-      "usgovarizona": "ua",
-      "usgoviowa": "ui",
-      "usgovtexas": "ut",
-      "usgovvirginia": "uv",
+      "usgovarizona": "az",
+      "usgoviowa": "io",
+      "usgovtexas": "tx",
+      "usgovvirginia": "va",
       "westcentralus": "wcu",
       "westeurope": "we",
       "westindia": "wi",

@@ -78,7 +78,7 @@ resource imageTemplate 'Microsoft.VirtualMachineImages/imageTemplates@2020-02-14
     buildTimeoutInMinutes: 300
     vmProfile: {
       vmSize: VirtualMachineSize
-      vnetConfig: SubnetName == '' ? {
+      vnetConfig: !empty(SubnetName) ? {
         subnetId: resourceId(VirtualNetworkResourceGroupName, 'Microsoft.Network/virtualNetworks/subnets', VirtualNetworkName, SubnetName)
       } : null
     }

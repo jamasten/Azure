@@ -28,17 +28,35 @@ param ImageStorageAccountType string = 'Standard_LRS'
 @allowed([
   'australiaeast'
   'australiasoutheast'
+  'brazilsouth'
+  'canadacentral'
+  'centralindia'
+  'centralus'
+  'eastasia'
   'eastus'
   'eastus2'
+  'francecentral'
+  'germanywestcentral'
+  'japaneast'
+  'jioindiawest'
+  'koreacentral'
+  'northcentralus'
   'northeurope'
+  'norwayeast'
+  'southafricanorth'
   'southcentralus'
   'southeastasia'
+  'switzerlandnorth'
+  'uaenorth'
   'uksouth'
   'ukwest'
+  'usgovarizona'
+  'usgovvirginia'
   'westcentralus'
   'westeurope'
   'westus'
   'westus2'
+  'westus3'
 ])
 param Location string
 
@@ -170,7 +188,7 @@ resource roleDefinition_Network 'Microsoft.Authorization/roleDefinitions@2015-07
 }
 
 module imageBuilder 'modules/imageBuilder.bicep' = {
-  name: 'imageBuilder_${Timestamp}'
+  name: 'ImageBuilder_${Timestamp}'
   scope: resourceGroup
   params: {
     CustomVnet: CustomVnet

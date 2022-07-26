@@ -1,5 +1,11 @@
 # Azure Image Builder
 
+This solution will deploy all the resources needed to build an image with Azure Image Builder.  The Image Template is currently configured to add Microsoft Teams, reboot, and update the operating system.  The deployment will store the image in a Shared Image Gallery.
+
+## Prerequisites
+
+Refer to the official Azure Image Builder Docs page for the current prerequisites: [https://docs.microsoft.com/en-us/azure/virtual-machines/image-builder-overview](https://docs.microsoft.com/en-us/azure/virtual-machines/image-builder-overview)
+
 ## Deployment Options
 
 ### Azure Portal
@@ -23,11 +29,3 @@ az deployment sub create \
     --location '<Azure location>' \
     --template-uri 'https://github.com/jamasten/Azure/blob/master/solutions/imageBuilder/solution.json'
 ````
-
-## Description
-
-This solution will deploy all the resources needed to build an image with Azure Image Builder.  The Image Template is currently configured to add Microsoft Teams, reboot, and update the operating system.  The deployment will store the image in a Shared Image Gallery.
-
-## Prerequisites
-
-Refer to the official Azure Image Builder Docs page for current prerequisites: [https://docs.microsoft.com/en-us/azure/virtual-machines/image-builder-overview](https://docs.microsoft.com/en-us/azure/virtual-machines/image-builder-overview) 

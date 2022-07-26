@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.8.9.13224",
-      "templateHash": "6181220599812475467"
+      "templateHash": "3295355888648706506"
     }
   },
   "parameters": {
@@ -332,7 +332,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.8.9.13224",
-              "templateHash": "15110333176589328791"
+              "templateHash": "3526166201369273256"
             }
           },
           "parameters": {
@@ -447,7 +447,7 @@
                 "buildTimeoutInMinutes": 300,
                 "vmProfile": {
                   "vmSize": "[parameters('VirtualMachineSize')]",
-                  "vnetConfig": "[if(equals(parameters('SubnetName'), ''), createObject('subnetId', resourceId(subscription().subscriptionId, parameters('VirtualNetworkResourceGroupName'), 'Microsoft.Network/virtualNetworks/subnets', parameters('VirtualNetworkName'), parameters('SubnetName'))), null())]"
+                  "vnetConfig": "[if(equals(parameters('SubnetName'), ''), createObject('subnetId', resourceId(parameters('VirtualNetworkResourceGroupName'), 'Microsoft.Network/virtualNetworks/subnets', parameters('VirtualNetworkName'), parameters('SubnetName'))), null())]"
                 },
                 "source": {
                   "type": "PlatformImage",

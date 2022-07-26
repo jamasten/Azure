@@ -79,7 +79,7 @@ resource imageTemplate 'Microsoft.VirtualMachineImages/imageTemplates@2020-02-14
     vmProfile: {
       vmSize: VirtualMachineSize
       vnetConfig: SubnetName == '' ? {
-        subnetId: resourceId(subscription().subscriptionId, VirtualNetworkResourceGroupName, 'Microsoft.Network/virtualNetworks/subnets', VirtualNetworkName, SubnetName)
+        subnetId: resourceId(VirtualNetworkResourceGroupName, 'Microsoft.Network/virtualNetworks/subnets', VirtualNetworkName, SubnetName)
       } : null
     }
     source: {

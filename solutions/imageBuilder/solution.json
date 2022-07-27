@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.8.9.13224",
-      "templateHash": "17885615453408143305"
+      "templateHash": "1664085311574636020"
     }
   },
   "parameters": {
@@ -303,7 +303,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.8.9.13224",
-              "templateHash": "2635524151610677995"
+              "templateHash": "14625663415362673648"
             }
           },
           "parameters": {
@@ -415,7 +415,7 @@
                 }
               },
               "properties": {
-                "stagingResourceGroup": "[resourceGroup().id]",
+                "stagingResourceGroup": "[format('/subscriptions/{0}/resourceGroups/rg-staging-{1}-{2}', subscription().subscriptionId, parameters('Environment'), parameters('LocationShortName'))]",
                 "buildTimeoutInMinutes": 300,
                 "vmProfile": {
                   "vmSize": "[parameters('VirtualMachineSize')]",

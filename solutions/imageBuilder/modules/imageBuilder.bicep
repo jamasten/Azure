@@ -45,7 +45,7 @@ module network 'network.bicep' = if(CustomVnet) {
 }
 
 resource gallery 'Microsoft.Compute/galleries@2019-03-01' = {
-  name: 'cg_${Environment}_${LocationShortName}'
+  name: 'cg_aib_${Environment}_${LocationShortName}'
   location: Location
 }
 

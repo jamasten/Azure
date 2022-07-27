@@ -64,7 +64,7 @@ resource image 'Microsoft.Compute/galleries/images@2019-03-01' = {
   }
 }
 
-resource imageTemplate 'Microsoft.VirtualMachineImages/imageTemplates@2021-10-01' = {
+resource imageTemplate 'Microsoft.VirtualMachineImages/imageTemplates@2022-02-14' = {
   name: 'imgt-${toLower(ImageDefinitionName)}-${Environment}-${LocationShortName}'
   location: Location
   identity: {

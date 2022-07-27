@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.8.9.13224",
-      "templateHash": "4925158166770549227"
+      "templateHash": "3477391546560018992"
     }
   },
   "parameters": {
@@ -303,7 +303,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.8.9.13224",
-              "templateHash": "14202413472712243473"
+              "templateHash": "18169249398615496786"
             }
           },
           "parameters": {
@@ -405,7 +405,7 @@
             },
             {
               "type": "Microsoft.VirtualMachineImages/imageTemplates",
-              "apiVersion": "2021-10-01",
+              "apiVersion": "2022-02-14",
               "name": "[format('imgt-{0}-{1}-{2}', toLower(parameters('ImageDefinitionName')), parameters('Environment'), parameters('LocationShortName'))]",
               "location": "[parameters('Location')]",
               "identity": {

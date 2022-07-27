@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.8.9.13224",
-      "templateHash": "3477391546560018992"
+      "templateHash": "5145761870688967667"
     }
   },
   "parameters": {
@@ -180,7 +180,7 @@
     {
       "type": "Microsoft.Resources/resourceGroups",
       "apiVersion": "2019-10-01",
-      "name": "[format('rg-images-{0}-{1}', parameters('Environment'), variables('LocationShortName'))]",
+      "name": "[format('rg-aib-{0}-{1}', parameters('Environment'), variables('LocationShortName'))]",
       "location": "[parameters('Location')]",
       "properties": {}
     },
@@ -237,7 +237,7 @@
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2020-10-01",
       "name": "[format('ImageBuilder_{0}', parameters('Timestamp'))]",
-      "resourceGroup": "[format('rg-images-{0}-{1}', parameters('Environment'), variables('LocationShortName'))]",
+      "resourceGroup": "[format('rg-aib-{0}-{1}', parameters('Environment'), variables('LocationShortName'))]",
       "properties": {
         "expressionEvaluationOptions": {
           "scope": "inner"
@@ -303,7 +303,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.8.9.13224",
-              "templateHash": "18169249398615496786"
+              "templateHash": "3844249189444801315"
             }
           },
           "parameters": {
@@ -415,7 +415,7 @@
                 }
               },
               "properties": {
-                "stagingResourceGroup": "[format('/subscriptions/{0}/resourceGroups/rg-staging-{1}-{2}', subscription().subscriptionId, parameters('Environment'), parameters('LocationShortName'))]",
+                "stagingResourceGroup": "[format('/subscriptions/{0}/resourceGroups/rg-aib-staging-{1}-{2}', subscription().subscriptionId, parameters('Environment'), parameters('LocationShortName'))]",
                 "buildTimeoutInMinutes": 300,
                 "vmProfile": {
                   "vmSize": "[parameters('VirtualMachineSize')]",
@@ -534,7 +534,7 @@
         }
       },
       "dependsOn": [
-        "[subscriptionResourceId('Microsoft.Resources/resourceGroups', format('rg-images-{0}-{1}', parameters('Environment'), variables('LocationShortName')))]",
+        "[subscriptionResourceId('Microsoft.Resources/resourceGroups', format('rg-aib-{0}-{1}', parameters('Environment'), variables('LocationShortName')))]",
         "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', guid(subscription().id, 'ImageContributor'))]",
         "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', guid(subscription().id, 'VnetJoin'))]"
       ]

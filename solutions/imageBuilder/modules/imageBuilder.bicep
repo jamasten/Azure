@@ -75,7 +75,7 @@ resource imageTemplate 'Microsoft.VirtualMachineImages/imageTemplates@2022-02-14
     }
   }
   properties: {
-    stagingResourceGroup: '/subscriptions/${subscription().subscriptionId}/resourceGroups/rg-staging-${Environment}-${LocationShortName}'
+    stagingResourceGroup: '/subscriptions/${subscription().subscriptionId}/resourceGroups/rg-aib-staging-${Environment}-${LocationShortName}'
     buildTimeoutInMinutes: 300
     vmProfile: {
       vmSize: VirtualMachineSize

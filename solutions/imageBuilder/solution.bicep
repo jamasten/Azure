@@ -112,7 +112,7 @@ var LocationShortName = LocationShortNames[Location]
 
 
 resource resourceGroup 'Microsoft.Resources/resourceGroups@2019-10-01' = {
-  name: 'rg-images-${Environment}-${LocationShortName}'
+  name: 'rg-aib-${Environment}-${LocationShortName}'
   location: Location
   properties: {}
 }

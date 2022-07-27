@@ -34,40 +34,8 @@ param ImageDefinitionVersion string = 'latest'
 ])
 param ImageStorageAccountType string = 'Standard_LRS'
 
-@allowed([
-  'australiaeast'
-  'australiasoutheast'
-  'brazilsouth'
-  'canadacentral'
-  'centralindia'
-  'centralus'
-  'eastasia'
-  'eastus'
-  'eastus2'
-  'francecentral'
-  'germanywestcentral'
-  'japaneast'
-  'jioindiawest'
-  'koreacentral'
-  'northcentralus'
-  'northeurope'
-  'norwayeast'
-  'southafricanorth'
-  'southcentralus'
-  'southeastasia'
-  'switzerlandnorth'
-  'uaenorth'
-  'uksouth'
-  'ukwest'
-  'usgovarizona'
-  'usgovvirginia'
-  'westcentralus'
-  'westeurope'
-  'westus'
-  'westus2'
-  'westus3'
-])
-param Location string
+@description('The location for the resources deployed in this solution.')
+param Location string = deployment().location
 
 @description('The subnet name for the custom virtual network.')
 param SubnetName string = ''

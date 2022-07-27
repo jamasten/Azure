@@ -18,7 +18,7 @@ param VirtualNetworkResourceGroupName string
 
 
 resource userAssignedIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2018-11-30' = {
-  name: 'uami-imageBuilder-${Environment}-${LocationShortName}'
+  name: 'uai-imageBuilder-${Environment}-${LocationShortName}'
   location: Location
 }
 
@@ -31,7 +31,7 @@ resource roleAssignment 'Microsoft.Authorization/roleAssignments@2018-09-01-prev
   }
 }
 
-module network 'network.bicep' = if (CustomVnet) {
+module network 'network.bicep' = if(CustomVnet) {
   name: 'Network_${Timestamp}'
   scope: resourceGroup(VirtualNetworkResourceGroupName)
   params: {
@@ -64,7 +64,7 @@ resource image 'Microsoft.Compute/galleries/images@2019-03-01' = {
   }
 }
 
-resource imageTemplate 'Microsoft.VirtualMachineImages/imageTemplates@2020-02-14' = {
+resource imageTemplate 'Microsoft.VirtualMachineImages/imageTemplates@2021-10-01' = {
   name: 'imgt-${toLower(ImageDefinitionName)}-${Environment}-${LocationShortName}'
   location: Location
   identity: {
@@ -75,6 +75,7 @@ resource imageTemplate 'Microsoft.VirtualMachineImages/imageTemplates@2020-02-14
     }
   }
   properties: {
+    stagingResourceGroup: resourceGroup().id
     buildTimeoutInMinutes: 300
     vmProfile: {
       vmSize: VirtualMachineSize

@@ -13,7 +13,7 @@ param CustomVnet bool = false
 param Environment string = 'd'
 
 @description('The name of the Image Definition for the Shared Image Gallery.')
-param ImageDefinitionName string = 'Win11-21h2-VDOT'
+param ImageDefinitionName string = 'Win10-21h2-VDOT'
 
 @description('The offer of the marketplace image.')
 param ImageOffer string = 'office-365'
@@ -22,7 +22,7 @@ param ImageOffer string = 'office-365'
 param ImagePublisher string = 'microsoftwindowsdesktop'
 
 @description('The SKU of the marketplace image.')
-param ImageSku string = 'win11-21h2-avd-m365'
+param ImageSku string = 'win10-21h2-avd-m365-g2'
 
 @description('The version of the marketplace image.')
 param ImageVersion string = 'latest'

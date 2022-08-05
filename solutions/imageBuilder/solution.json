@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.8.9.13224",
-      "templateHash": "7221608470033272735"
+      "templateHash": "4717357460913773868"
     }
   },
   "parameters": {
@@ -31,7 +31,7 @@
     },
     "ImageDefinitionName": {
       "type": "string",
-      "defaultValue": "Win11-21h2-VDOT",
+      "defaultValue": "Win10-21h2-VDOT",
       "metadata": {
         "description": "The name of the Image Definition for the Shared Image Gallery."
       }
@@ -52,7 +52,7 @@
     },
     "ImageSku": {
       "type": "string",
-      "defaultValue": "win11-21h2-avd-m365",
+      "defaultValue": "win10-21h2-avd-m365-g2",
       "metadata": {
         "description": "The SKU of the marketplace image."
       }

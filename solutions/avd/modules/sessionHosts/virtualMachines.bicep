@@ -205,10 +205,10 @@ resource virtualMachine 'Microsoft.Compute/virtualMachines@2021-03-01' = [for i 
       ]
     }
     securityProfile: {
-      uefiSettings: {
-        secureBootEnabled: TrustedLaunch == 'true' ? true : false
-        vTpmEnabled: TrustedLaunch == 'true' ? true : false
-      }
+      uefiSettings: TrustedLaunch == 'true' ? {
+        secureBootEnabled: true
+        vTpmEnabled: true
+      } : null
       securityType: TrustedLaunch == 'true' ? 'TrustedLaunch' : null
     }
     diagnosticsProfile: {

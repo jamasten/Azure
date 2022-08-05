@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.8.9.13224",
-      "templateHash": "18002663064082838063"
+      "templateHash": "5639872535879477891"
     }
   },
   "parameters": {
@@ -4904,7 +4904,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.8.9.13224",
-              "templateHash": "15508299062734713059"
+              "templateHash": "13573083279279272577"
             }
           },
           "parameters": {
@@ -5392,7 +5392,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.8.9.13224",
-                      "templateHash": "6435267095977622995"
+                      "templateHash": "4273343011408004990"
                     }
                   },
                   "parameters": {
@@ -5713,10 +5713,7 @@
                           ]
                         },
                         "securityProfile": {
-                          "uefiSettings": {
-                            "secureBootEnabled": "[if(equals(parameters('TrustedLaunch'), 'true'), true(), false())]",
-                            "vTpmEnabled": "[if(equals(parameters('TrustedLaunch'), 'true'), true(), false())]"
-                          },
+                          "uefiSettings": "[if(equals(parameters('TrustedLaunch'), 'true'), createObject('secureBootEnabled', true(), 'vTpmEnabled', true()), null())]",
                           "securityType": "[if(equals(parameters('TrustedLaunch'), 'true'), 'TrustedLaunch', null())]"
                         },
                         "diagnosticsProfile": {

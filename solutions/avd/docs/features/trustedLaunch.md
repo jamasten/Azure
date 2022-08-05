@@ -25,11 +25,11 @@
 
 ### Trusted Launch
 
-This feature is enabled when the following conditions are met:
+This feature is enabled automatically when the following conditions are met:
 
-- "g2" image SKU is selected
+- a generation 2, "g2", image SKU is selected
 - the VM size supports the feature
-- supported Azure cloud is selected
+- a supported Azure cloud is selected; currently "AzureCloud" only
 
 It is a security best practice to enable this feature to protect your virtual machines from:
 

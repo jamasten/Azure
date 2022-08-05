@@ -60,3 +60,4 @@ output anfSubnetId string = deploymentScript.properties.outputs.anfSubnetId
 output dnsForwarders array = deploymentScript.properties.outputs.dnsForwarders
 output dnsServerSize string = deploymentScript.properties.outputs.dnsServerSize
 output ephemeralOsDisk string = deploymentScript.properties.outputs.ephemeralOsDisk
+output trustedLaunch string = deploymentScript.properties.outputs.trustedLaunch

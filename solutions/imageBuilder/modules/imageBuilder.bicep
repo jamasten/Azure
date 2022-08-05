@@ -44,18 +44,19 @@ module network 'network.bicep' = if(CustomVnet) {
   ]
 }
 
-resource gallery 'Microsoft.Compute/galleries@2019-03-01' = {
+resource gallery 'Microsoft.Compute/galleries@2022-01-03' = {
   name: 'cg_aib_${Environment}_${LocationShortName}'
   location: Location
 }
 
-resource image 'Microsoft.Compute/galleries/images@2019-03-01' = {
+resource image 'Microsoft.Compute/galleries/images@2022-01-03' = {
   parent: gallery
   name: ImageDefinitionName
   location: Location
   properties: {
     osType: 'Windows'
     osState: 'Generalized'
+    hyperVGeneration: contains(ImageDefinitionSku, '-g2') ? 'V2' : 'V1'
     identifier: {
       publisher: ImageDefinitionPublisher
       offer: ImageDefinitionOffer

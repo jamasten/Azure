@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.8.9.13224",
-      "templateHash": "5145761870688967667"
+      "templateHash": "12852439271938040895"
     }
   },
   "parameters": {
@@ -303,7 +303,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.8.9.13224",
-              "templateHash": "3844249189444801315"
+              "templateHash": "1388090772766760354"
             }
           },
           "parameters": {
@@ -381,18 +381,19 @@
             },
             {
               "type": "Microsoft.Compute/galleries",
-              "apiVersion": "2019-03-01",
+              "apiVersion": "2022-01-03",
               "name": "[format('cg_aib_{0}_{1}', parameters('Environment'), parameters('LocationShortName'))]",
               "location": "[parameters('Location')]"
             },
             {
               "type": "Microsoft.Compute/galleries/images",
-              "apiVersion": "2019-03-01",
+              "apiVersion": "2022-01-03",
               "name": "[format('{0}/{1}', format('cg_aib_{0}_{1}', parameters('Environment'), parameters('LocationShortName')), parameters('ImageDefinitionName'))]",
               "location": "[parameters('Location')]",
               "properties": {
                 "osType": "Windows",
                 "osState": "Generalized",
+                "hyperVGeneration": "[if(contains(parameters('ImageDefinitionSku'), '-g2'), 'V2', 'V1')]",
                 "identifier": {
                   "publisher": "[parameters('ImageDefinitionPublisher')]",
                   "offer": "[parameters('ImageDefinitionOffer')]",

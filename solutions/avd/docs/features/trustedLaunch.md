@@ -31,6 +31,12 @@ This feature is enabled when the following conditions are met:
 - the VM size supports the feature
 - supported Azure cloud is selected
 
+It is a security best practice to enable this feature to protect your virtual machines from:
+
+- boot kits
+- rootkits
+- kernel-level malware
+
 **Reference:** [Trusted Launch - Microsoft Docs](https://docs.microsoft.com/en-us/azure/virtual-machines/trusted-launch)
 
 **Deployed Resources:**

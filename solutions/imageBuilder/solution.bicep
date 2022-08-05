@@ -13,19 +13,19 @@ param CustomVnet bool = false
 param Environment string = 'd'
 
 @description('The name of the Image Definition for the Shared Image Gallery.')
-param ImageDefinitionName string = 'Win10-20h2-Teams'
+param ImageDefinitionName string = 'Win11-21h2-VDOT'
 
-@description('The offer of the Image Definition for the Shared Image Gallery.')
-param ImageDefinitionOffer string = 'windows-10'
+@description('The offer of the marketplace image.')
+param ImageOffer string = 'office-365'
 
-@description('The publisher of the Image Definition for the Shared Image Gallery.')
-param ImageDefinitionPublisher string = 'microsoftwindowsdesktop'
+@description('The publisher of the marketplace image.')
+param ImagePublisher string = 'microsoftwindowsdesktop'
 
-@description('The SKU of the Image Definition for the Shared Image Gallery.')
-param ImageDefinitionSku string = '20h2-evd'
+@description('The SKU of the marketplace image.')
+param ImageSku string = 'win11-21h2-avd-m365'
 
-@description('The version of the Image Definition in the Shared Image Gallery.')
-param ImageDefinitionVersion string = 'latest'
+@description('The version of the marketplace image.')
+param ImageVersion string = 'latest'
 
 @description('The storage SKU for the image version replica in the Shared Image Gallery.')
 @allowed([
@@ -44,7 +44,7 @@ param SubnetName string = ''
 param Timestamp string = utcNow('yyyyMMddhhmmss')
 
 @description('The size of the virtual machine used for creating the image.  The recommendation is to use a \'Standard_D2_v2\' size or greater for AVD. https://github.com/danielsollondon/azvmimagebuilder/tree/master/solutions/14_Building_Images_WVD')
-param VirtualMachineSize string = 'Standard_D2_v2'
+param VirtualMachineSize string = 'Standard_DS2_v2'
 
 @description('The name for the custom virtual network.')
 param VirtualNetworkName string = ''
@@ -170,10 +170,10 @@ module imageBuilder 'modules/imageBuilder.bicep' = {
     CustomVnet: CustomVnet
     Environment: Environment
     ImageDefinitionName: ImageDefinitionName
-    ImageDefinitionOffer: ImageDefinitionOffer
-    ImageDefinitionPublisher: ImageDefinitionPublisher
-    ImageDefinitionSku: ImageDefinitionSku
-    ImageDefinitionVersion: ImageDefinitionVersion
+    ImageOffer: ImageOffer
+    ImagePublisher: ImagePublisher
+    ImageSku: ImageSku
+    ImageVersion: ImageVersion
     ImageStorageAccountType: ImageStorageAccountType
     Location: Location
     LocationShortName: LocationShortName

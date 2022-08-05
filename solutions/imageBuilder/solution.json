@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.8.9.13224",
-      "templateHash": "12852439271938040895"
+      "templateHash": "7221608470033272735"
     }
   },
   "parameters": {
@@ -31,37 +31,37 @@
     },
     "ImageDefinitionName": {
       "type": "string",
-      "defaultValue": "Win10-20h2-Teams",
+      "defaultValue": "Win11-21h2-VDOT",
       "metadata": {
         "description": "The name of the Image Definition for the Shared Image Gallery."
       }
     },
-    "ImageDefinitionOffer": {
+    "ImageOffer": {
       "type": "string",
-      "defaultValue": "windows-10",
+      "defaultValue": "office-365",
       "metadata": {
-        "description": "The offer of the Image Definition for the Shared Image Gallery."
+        "description": "The offer of the marketplace image."
       }
     },
-    "ImageDefinitionPublisher": {
+    "ImagePublisher": {
       "type": "string",
       "defaultValue": "microsoftwindowsdesktop",
       "metadata": {
-        "description": "The publisher of the Image Definition for the Shared Image Gallery."
+        "description": "The publisher of the marketplace image."
       }
     },
-    "ImageDefinitionSku": {
+    "ImageSku": {
       "type": "string",
-      "defaultValue": "20h2-evd",
+      "defaultValue": "win11-21h2-avd-m365",
       "metadata": {
-        "description": "The SKU of the Image Definition for the Shared Image Gallery."
+        "description": "The SKU of the marketplace image."
       }
     },
-    "ImageDefinitionVersion": {
+    "ImageVersion": {
       "type": "string",
       "defaultValue": "latest",
       "metadata": {
-        "description": "The version of the Image Definition in the Shared Image Gallery."
+        "description": "The version of the marketplace image."
       }
     },
     "ImageStorageAccountType": {
@@ -98,7 +98,7 @@
     },
     "VirtualMachineSize": {
       "type": "string",
-      "defaultValue": "Standard_D2_v2",
+      "defaultValue": "Standard_DS2_v2",
       "metadata": {
         "description": "The size of the virtual machine used for creating the image.  The recommendation is to use a 'Standard_D2_v2' size or greater for AVD. https://github.com/danielsollondon/azvmimagebuilder/tree/master/solutions/14_Building_Images_WVD"
       }
@@ -253,17 +253,17 @@
           "ImageDefinitionName": {
             "value": "[parameters('ImageDefinitionName')]"
           },
-          "ImageDefinitionOffer": {
-            "value": "[parameters('ImageDefinitionOffer')]"
+          "ImageOffer": {
+            "value": "[parameters('ImageOffer')]"
           },
-          "ImageDefinitionPublisher": {
-            "value": "[parameters('ImageDefinitionPublisher')]"
+          "ImagePublisher": {
+            "value": "[parameters('ImagePublisher')]"
           },
-          "ImageDefinitionSku": {
-            "value": "[parameters('ImageDefinitionSku')]"
+          "ImageSku": {
+            "value": "[parameters('ImageSku')]"
           },
-          "ImageDefinitionVersion": {
-            "value": "[parameters('ImageDefinitionVersion')]"
+          "ImageVersion": {
+            "value": "[parameters('ImageVersion')]"
           },
           "ImageStorageAccountType": {
             "value": "[parameters('ImageStorageAccountType')]"
@@ -303,7 +303,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.8.9.13224",
-              "templateHash": "1388090772766760354"
+              "templateHash": "8594848297290452376"
             }
           },
           "parameters": {
@@ -316,19 +316,19 @@
             "ImageDefinitionName": {
               "type": "string"
             },
-            "ImageDefinitionOffer": {
+            "ImageOffer": {
               "type": "string"
             },
-            "ImageDefinitionPublisher": {
+            "ImagePublisher": {
               "type": "string"
             },
-            "ImageDefinitionSku": {
-              "type": "string"
-            },
-            "ImageDefinitionVersion": {
+            "ImageSku": {
               "type": "string"
             },
             "ImageStorageAccountType": {
+              "type": "string"
+            },
+            "ImageVersion": {
               "type": "string"
             },
             "Location": {
@@ -393,11 +393,11 @@
               "properties": {
                 "osType": "Windows",
                 "osState": "Generalized",
-                "hyperVGeneration": "[if(contains(parameters('ImageDefinitionSku'), '-g2'), 'V2', 'V1')]",
+                "hyperVGeneration": "[if(contains(parameters('ImageSku'), '-g2'), 'V2', 'V1')]",
                 "identifier": {
-                  "publisher": "[parameters('ImageDefinitionPublisher')]",
-                  "offer": "[parameters('ImageDefinitionOffer')]",
-                  "sku": "[parameters('ImageDefinitionSku')]"
+                  "publisher": "[parameters('ImagePublisher')]",
+                  "offer": "[parameters('ImageOffer')]",
+                  "sku": "[parameters('ImageSku')]"
                 }
               },
               "dependsOn": [
@@ -424,10 +424,10 @@
                 },
                 "source": {
                   "type": "PlatformImage",
-                  "publisher": "[parameters('ImageDefinitionPublisher')]",
-                  "offer": "[parameters('ImageDefinitionOffer')]",
-                  "sku": "[parameters('ImageDefinitionSku')]",
-                  "version": "[parameters('ImageDefinitionVersion')]"
+                  "publisher": "[parameters('ImagePublisher')]",
+                  "offer": "[parameters('ImageOffer')]",
+                  "sku": "[parameters('ImageSku')]",
+                  "version": "[parameters('ImageVersion')]"
                 },
                 "customize": [
                   {

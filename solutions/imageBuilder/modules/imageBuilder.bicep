@@ -1,11 +1,11 @@
 param CustomVnet bool
 param Environment string
 param ImageDefinitionName string
-param ImageDefinitionOffer string
-param ImageDefinitionPublisher string
-param ImageDefinitionSku string
-param ImageDefinitionVersion string
+param ImageOffer string
+param ImagePublisher string
+param ImageSku string
 param ImageStorageAccountType string
+param ImageVersion string
 param Location string
 param LocationShortName string
 param RoleImageContributor string
@@ -56,11 +56,11 @@ resource image 'Microsoft.Compute/galleries/images@2022-01-03' = {
   properties: {
     osType: 'Windows'
     osState: 'Generalized'
-    hyperVGeneration: contains(ImageDefinitionSku, '-g2') ? 'V2' : 'V1'
+    hyperVGeneration: contains(ImageSku, '-g2') ? 'V2' : 'V1'
     identifier: {
-      publisher: ImageDefinitionPublisher
-      offer: ImageDefinitionOffer
-      sku: ImageDefinitionSku
+      publisher: ImagePublisher
+      offer: ImageOffer
+      sku: ImageSku
     }
   }
 }
@@ -86,10 +86,10 @@ resource imageTemplate 'Microsoft.VirtualMachineImages/imageTemplates@2022-02-14
     }
     source: {
       type: 'PlatformImage'
-      publisher: ImageDefinitionPublisher
-      offer: ImageDefinitionOffer
-      sku: ImageDefinitionSku
-      version: ImageDefinitionVersion
+      publisher: ImagePublisher
+      offer: ImageOffer
+      sku: ImageSku
+      version: ImageVersion
     }
     customize: [
       {

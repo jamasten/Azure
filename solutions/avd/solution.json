@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.8.9.13224",
-      "templateHash": "15767675707651748788"
+      "templateHash": "18002663064082838063"
     }
   },
   "parameters": {
@@ -1056,7 +1056,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.8.9.13224",
-              "templateHash": "8987223433386566338"
+              "templateHash": "14643037435992345607"
             }
           },
           "parameters": {
@@ -1163,7 +1163,7 @@
               "properties": {
                 "forceUpdateTag": "[parameters('Timestamp')]",
                 "azPowerShellVersion": "5.4",
-                "arguments": "[format('-Availability {0} -DiskEncryption {1} -DiskSku {2} -DomainName {3} -DomainServices {4} -EphemeralOsDisk {5} -ImageSku {6} -KerberosEncryption {7} -Location {8} -PooledHostPool {9} -RecoveryServices {10} -SecurityPrincipalIdsCount {11} -SecurityPrincipalNamesCount {12} -SessionHostCount {13} -SessionHostIndex {14} -StartVmOnConnect {15} -StorageCount {16} -StorageSolution {17} -VmSize {18} -VnetName {19} -VnetResourceGroupName {20}', parameters('Availability'), parameters('DiskEncryption'), parameters('DiskSku'), parameters('DomainName'), parameters('DomainServices'), parameters('EphemeralOsDisk'), parameters('ImageSku'), parameters('KerberosEncryption'), parameters('Location'), parameters('PooledHostPool'), parameters('RecoveryServices'), variables('SecurityPrincipalIdsCount'), variables('SecurityPrincipalNamesCount'), parameters('SessionHostCount'), parameters('SessionHostIndex'), parameters('StartVmOnConnect'), parameters('StorageCount'), parameters('StorageSolution'), parameters('VmSize'), parameters('VirtualNetwork'), parameters('VirtualNetworkResourceGroup'))]",
+                "arguments": "[format('-Availability {0} -DiskEncryption {1} -DiskSku {2} -DomainName {3} -DomainServices {4} -Environment {5} -EphemeralOsDisk {6} -ImageSku {7} -KerberosEncryption {8} -Location {9} -PooledHostPool {10} -RecoveryServices {11} -SecurityPrincipalIdsCount {12} -SecurityPrincipalNamesCount {13} -SessionHostCount {14} -SessionHostIndex {15} -StartVmOnConnect {16} -StorageCount {17} -StorageSolution {18} -VmSize {19} -VnetName {20} -VnetResourceGroupName {21}', parameters('Availability'), parameters('DiskEncryption'), parameters('DiskSku'), parameters('DomainName'), parameters('DomainServices'), environment().name, parameters('EphemeralOsDisk'), parameters('ImageSku'), parameters('KerberosEncryption'), parameters('Location'), parameters('PooledHostPool'), parameters('RecoveryServices'), variables('SecurityPrincipalIdsCount'), variables('SecurityPrincipalNamesCount'), parameters('SessionHostCount'), parameters('SessionHostIndex'), parameters('StartVmOnConnect'), parameters('StorageCount'), parameters('StorageSolution'), parameters('VmSize'), parameters('VirtualNetwork'), parameters('VirtualNetworkResourceGroup'))]",
                 "primaryScriptUri": "[format('{0}Get-Validation.ps1{1}', parameters('ScriptsUri'), parameters('SasToken'))]",
                 "timeout": "PT2H",
                 "cleanupPreference": "OnSuccess",
@@ -1199,6 +1199,10 @@
             "ephemeralOsDisk": {
               "type": "string",
               "value": "[reference(resourceId('Microsoft.Resources/deploymentScripts', format('ds-{0}-validation', parameters('NamingStandard')))).outputs.ephemeralOsDisk]"
+            },
+            "trustedLaunch": {
+              "type": "string",
+              "value": "[reference(resourceId('Microsoft.Resources/deploymentScripts', format('ds-{0}-validation', parameters('NamingStandard')))).outputs.trustedLaunch]"
             }
           }
         }
@@ -4871,6 +4875,9 @@
           "Timestamp": {
             "value": "[parameters('Timestamp')]"
           },
+          "TrustedLaunch": {
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroups')[0]), 'Microsoft.Resources/deployments', format('Validation_{0}', parameters('Timestamp')))).outputs.trustedLaunch.value]"
+          },
           "VirtualNetwork": {
             "value": "[parameters('VirtualNetwork')]"
           },
@@ -4897,7 +4904,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.8.9.13224",
-              "templateHash": "15125073007972566980"
+              "templateHash": "15508299062734713059"
             }
           },
           "parameters": {
@@ -5052,6 +5059,9 @@
               "type": "object"
             },
             "Timestamp": {
+              "type": "string"
+            },
+            "TrustedLaunch": {
               "type": "string"
             },
             "VirtualNetwork": {
@@ -5353,6 +5363,9 @@
                   "Timestamp": {
                     "value": "[parameters('Timestamp')]"
                   },
+                  "TrustedLaunch": {
+                    "value": "[parameters('TrustedLaunch')]"
+                  },
                   "VirtualNetwork": {
                     "value": "[parameters('VirtualNetwork')]"
                   },
@@ -5379,7 +5392,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.8.9.13224",
-                      "templateHash": "1500776531550237719"
+                      "templateHash": "6435267095977622995"
                     }
                   },
                   "parameters": {
@@ -5516,6 +5529,9 @@
                       "type": "object"
                     },
                     "Timestamp": {
+                      "type": "string"
+                    },
+                    "TrustedLaunch": {
                       "type": "string"
                     },
                     "UserAssignedIdentity": {
@@ -5695,6 +5711,13 @@
                               }
                             }
                           ]
+                        },
+                        "securityProfile": {
+                          "uefiSettings": {
+                            "secureBootEnabled": "[if(equals(parameters('TrustedLaunch'), 'true'), true(), false())]",
+                            "vTpmEnabled": "[if(equals(parameters('TrustedLaunch'), 'true'), true(), false())]"
+                          },
+                          "securityType": "[if(equals(parameters('TrustedLaunch'), 'true'), 'TrustedLaunch', null())]"
                         },
                         "diagnosticsProfile": {
                           "bootDiagnostics": {

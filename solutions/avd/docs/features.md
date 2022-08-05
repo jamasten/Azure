@@ -19,5 +19,6 @@
 - [**Security Technical Implementation Guides (STIG)**](./features/securityTechnicalImplementationGuides.md#security-technical-implementation-guides-stig)
 - [**SMB Multichannel**](./features/smbMultiChannel.md#smb-multichannel)
 - [**Start VM On Connect**](./features/startVmOnConnect.md#start-vm-on-connect)
+- [**Trusted Launch**](./features/trustedLaunch.md#trusted-launch)
 - [**Validation**](./features/validation.md#validation)
 - [**Virtual Desktop Optimization Tool**](./features/virtualDesktopOptimizationTool.md#virtual-desktop-optimization-tool-vdot)

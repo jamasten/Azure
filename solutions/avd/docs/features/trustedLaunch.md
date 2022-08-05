@@ -23,8 +23,16 @@
 - [**Validation**](./validation.md#validation)
 - [**Virtual Desktop Optimization Tool**](./virtualDesktopOptimizationTool.md#virtual-desktop-optimization-tool-vdot)
 
-### SMB Multichannel
+### Trusted Launch
 
-This feature is automatically enabled when Azure Files Premium is selected for FSLogix storage. This feature is only supported with Azure Files Premium and it allows multiple connections to an SMB share from an SMB client.
+This feature is enabled when the following conditions are met:
 
-**Reference:** [SMB Multichannel Performance - Microsoft Docs](https://docs.microsoft.com/en-us/azure/storage/files/storage-files-smb-multichannel-performance)
+- "g2" image SKU is selected
+- the VM size supports the feature
+- supported Azure cloud is selected
+
+**Reference:** [Trusted Launch - Microsoft Docs](https://docs.microsoft.com/en-us/azure/virtual-machines/trusted-launch)
+
+**Deployed Resources:**
+
+- None

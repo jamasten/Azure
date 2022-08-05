@@ -16,6 +16,9 @@ param(
     [string]$DomainServices,
 
     [parameter(Mandatory)]
+    [string]$Environment,
+
+    [parameter(Mandatory)]
     [string]$EphemeralOsDisk,
 
     [parameter(Mandatory)]
@@ -251,6 +254,18 @@ if(($StorageCount -ne $SecurityPrincipalIdsCount -or $StorageCount -ne $Security
 {
     Write-Error -Exception 'INVALID ARRAYS: The "SecurityPrinicaplIds" count, "SecurityPrincipalNames" count, and "StorageCount" value must be equal.'
 }
+
+
+# Trusted Launch validation
+if($ImageSku -like "*-g2" -and $null -eq ($Sku.capabilities | Where-Object {$_.name -eq 'TrustedLaunchDisabled'}).value -and $Environment -eq 'AzureCloud')
+{
+    $DeploymentScriptOutputs["trustedLaunch"] = 'true'
+}
+else
+{
+    $DeploymentScriptOutputs["trustedLaunch"] = 'false'
+}
+
 
 
 # vCPU Count Validation

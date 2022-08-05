@@ -726,6 +726,7 @@ module sessionHosts 'modules/sessionHosts/sessionHosts.bicep' = {
     Subnet: Subnet
     Tags: Tags
     Timestamp: Timestamp
+    TrustedLaunch: validation.outputs.trustedLaunch
     VirtualNetwork: VirtualNetwork
     VirtualNetworkResourceGroup: VirtualNetworkResourceGroup
     VmName: VmName

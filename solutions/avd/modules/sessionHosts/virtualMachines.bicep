@@ -44,6 +44,7 @@ param StorageSuffix string
 param Subnet string
 param Tags object
 param Timestamp string
+param TrustedLaunch string
 param UserAssignedIdentity string = ''
 param VirtualNetwork string
 param VirtualNetworkResourceGroup string
@@ -202,6 +203,13 @@ resource virtualMachine 'Microsoft.Compute/virtualMachines@2021-03-01' = [for i 
           }
         }
       ]
+    }
+    securityProfile: {
+      uefiSettings: {
+        secureBootEnabled: TrustedLaunch == 'true' ? true : false
+        vTpmEnabled: TrustedLaunch == 'true' ? true : false
+      }
+      securityType: TrustedLaunch == 'true' ? 'TrustedLaunch' : null
     }
     diagnosticsProfile: {
       bootDiagnostics: {

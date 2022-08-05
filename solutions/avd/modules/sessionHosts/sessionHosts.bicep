@@ -50,6 +50,7 @@ param StorageSuffix string
 param Subnet string
 param Tags object
 param Timestamp string
+param TrustedLaunch string
 param VirtualNetwork string
 param VirtualNetworkResourceGroup string
 param VmName string
@@ -131,6 +132,7 @@ module virtualMachines 'virtualMachines.bicep' = [for i in range(1, SessionHostB
     Subnet: Subnet
     Tags: Tags
     Timestamp: Timestamp
+    TrustedLaunch: TrustedLaunch
     VirtualNetwork: VirtualNetwork
     VirtualNetworkResourceGroup: VirtualNetworkResourceGroup
     VmName: VmName

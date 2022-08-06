@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.8.9.13224",
-      "templateHash": "12291234649497510296"
+      "templateHash": "7296075608982239650"
     }
   },
   "parameters": {
@@ -303,7 +303,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.8.9.13224",
-              "templateHash": "11962500260294273927"
+              "templateHash": "17952413600808689835"
             }
           },
           "parameters": {
@@ -432,14 +432,14 @@
                 "customize": [
                   {
                     "type": "PowerShell",
-                    "name": "Install Teams",
+                    "name": "Virtual Desktop Optimization Tool",
                     "runElevated": true,
                     "runAsSystem": true,
-                    "scriptUri": "https://raw.githubusercontent.com/jamasten/Azure/master/solutions/imageBuilder/scripts/1_installTeams.ps1"
+                    "scriptUri": "https://raw.githubusercontent.com/jamasten/Azure/main/solutions/imageBuilder/scripts/vdot.ps1"
                   },
                   {
                     "type": "WindowsRestart",
-                    "restartCheckCommand": "write-host 'restarting post Teams Install'",
+                    "restartCheckCommand": "write-host 'Restarting post VDOT'",
                     "restartTimeout": "5m"
                   },
                   {

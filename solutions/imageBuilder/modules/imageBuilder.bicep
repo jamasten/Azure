@@ -94,14 +94,14 @@ resource imageTemplate 'Microsoft.VirtualMachineImages/imageTemplates@2022-02-14
     customize: [
       {
         type: 'PowerShell'
-        name: 'Install Teams'
+        name: 'Virtual Desktop Optimization Tool'
         runElevated: true
         runAsSystem: true
-        scriptUri: 'https://raw.githubusercontent.com/jamasten/Azure/master/solutions/imageBuilder/scripts/1_installTeams.ps1'
+        scriptUri: 'https://raw.githubusercontent.com/jamasten/Azure/main/solutions/imageBuilder/scripts/vdot.ps1'
       }
       {
         type: 'WindowsRestart'
-        restartCheckCommand: 'write-host \'restarting post Teams Install\''
+        restartCheckCommand: 'write-host \'Restarting post VDOT\''
         restartTimeout: '5m'
       }
       {

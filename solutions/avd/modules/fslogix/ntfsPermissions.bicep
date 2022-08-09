@@ -2,7 +2,7 @@
 param CommandToExecute string
 param Location string
 param ManagementVmName string
-param SasToken string
+param _artifactsLocationSasToken string
 param ScriptsUri string
 param Tags object
 param Timestamp string
@@ -19,7 +19,7 @@ resource customScriptExtension 'Microsoft.Compute/virtualMachines/extensions@202
     autoUpgradeMinorVersion: true
     settings: {
       fileUris: [
-        '${ScriptsUri}Set-NtfsPermissions.ps1${SasToken}'
+        '${ScriptsUri}Set-NtfsPermissions.ps1${_artifactsLocationSasToken}'
       ]
       timestamp: Timestamp
     }

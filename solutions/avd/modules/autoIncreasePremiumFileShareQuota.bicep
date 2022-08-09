@@ -3,7 +3,7 @@ param FslogixSolution string
 param Location string
 param LogicAppPrefix string
 @secure()
-param SasToken string
+param _artifactsLocationSasToken string
 param ScriptsUri string
 param StorageAccountPrefix string
 param StorageCount int
@@ -25,7 +25,7 @@ resource runbook 'Microsoft.Automation/automationAccounts/runbooks@2019-06-01' =
     logProgress: false
     logVerbose: false
     publishContentLink: {
-      uri: '${ScriptsUri}Set-FileShareScaling.ps1${SasToken}'
+      uri: '${ScriptsUri}Set-FileShareScaling.ps1${_artifactsLocationSasToken}'
       version: '1.0.0.0'
     }
   }

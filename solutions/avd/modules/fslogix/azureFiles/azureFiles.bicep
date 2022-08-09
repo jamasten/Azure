@@ -25,7 +25,7 @@ param PrivateDnsZoneName string
 param PrivateEndpoint bool
 param ResourceGroups array
 param RoleDefinitionIds object
-param SasToken string
+param _artifactsLocationSasToken string
 param ScriptsUri string
 param SecurityPrincipalIds array
 param SecurityPrincipalNames array
@@ -193,7 +193,7 @@ module dnsForwarder 'dnsForwarder.bicep' = if(PrivateEndpoint) {
     LocationShortName: LocationShortName
     ManagedIdentityResourceId: ManagedIdentityResourceId
     NamingStandard: NamingStandard
-    SasToken: SasToken
+    _artifactsLocationSasToken: _artifactsLocationSasToken
     ScriptsUri: ScriptsUri
     StampIndexFull: StampIndexFull
     StorageSuffix: StorageSuffix
@@ -214,7 +214,7 @@ module ntfsPermissions '../ntfsPermissions.bicep' = if(!contains(DomainServices,
     CommandToExecute: 'powershell -ExecutionPolicy Unrestricted -File Set-NtfsPermissions.ps1 -DomainJoinPassword "${DomainJoinPassword}" -DomainJoinUserPrincipalName ${DomainJoinUserPrincipalName} -DomainServices ${DomainServices} -Environment ${environment().name} -FslogixSolution ${FslogixSolution} -KerberosEncryptionType ${KerberosEncryption} -Netbios ${Netbios} -OuPath "${OuPath}" -SecurityPrincipalNames "${SecurityPrincipalNames}" -StorageAccountPrefix ${StorageAccountPrefix} -StorageAccountResourceGroupName ${ResourceGroups[3]} -StorageCount ${StorageCount} -StorageIndex ${StorageIndex} -StorageSolution ${StorageSolution} -StorageSuffix ${environment().suffixes.storage} -SubscriptionId ${subscription().subscriptionId} -TenantId ${subscription().tenantId}'
     Location: Location
     ManagementVmName: ManagementVmName
-    SasToken: SasToken
+    _artifactsLocationSasToken: _artifactsLocationSasToken
     ScriptsUri: ScriptsUri
     Tags: Tags
     Timestamp: Timestamp

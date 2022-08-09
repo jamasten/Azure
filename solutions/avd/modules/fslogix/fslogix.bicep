@@ -33,7 +33,7 @@ param Netbios string
 param OuPath string
 param PrivateDnsZoneName string
 param PrivateEndpoint bool
-param SasToken string
+param _artifactsLocationSasToken string
 param ScriptsUri string
 param SecurityPrincipalIds array 
 param SecurityPrincipalNames array
@@ -102,7 +102,7 @@ module azureNetAppFiles 'azureNetAppFiles.bicep' = if(StorageSolution == 'AzureN
     NetAppCapacityPoolName: NetAppCapacityPoolName
     OuPath: OuPath
     ResourceGroups: ResourceGroups
-    SasToken: SasToken
+    _artifactsLocationSasToken: _artifactsLocationSasToken
     ScriptsUri: ScriptsUri
     SecurityPrincipalNames: SecurityPrincipalNames
     SmbServerLocation: SmbServerLocation
@@ -147,7 +147,7 @@ module azureFiles 'azureFiles/azureFiles.bicep' = if(StorageSolution == 'AzureSt
     PrivateEndpoint: PrivateEndpoint
     ResourceGroups: ResourceGroups
     RoleDefinitionIds: RoleDefinitionIds
-    SasToken: SasToken
+    _artifactsLocationSasToken: _artifactsLocationSasToken
     ScriptsUri: ScriptsUri
     SecurityPrincipalIds: SecurityPrincipalIds
     SecurityPrincipalNames: SecurityPrincipalNames

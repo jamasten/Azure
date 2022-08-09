@@ -13,7 +13,7 @@ param NetAppAccountName string
 param NetAppCapacityPoolName string
 param OuPath string
 param ResourceGroups array
-param SasToken string
+param _artifactsLocationSasToken string
 param ScriptsUri string
 param SecurityPrincipalNames array
 param SmbServerLocation string
@@ -138,7 +138,7 @@ module ntfsPermissions 'ntfsPermissions.bicep' = {
     CommandToExecute: 'powershell -ExecutionPolicy Unrestricted -File Set-NtfsPermissions.ps1 -DomainJoinPassword "${DomainJoinPassword}" -DomainJoinUserPrincipalName ${DomainJoinUserPrincipalName} -FslogixSolution ${FslogixSolution} -SecurityPrincipalNames "${SecurityPrincipalNames}" -SmbServerLocation ${SmbServerLocation} -StorageSolution ${StorageSolution}'
     Location: Location
     ManagementVmName: ManagementVmName
-    SasToken: SasToken
+    _artifactsLocationSasToken: _artifactsLocationSasToken
     ScriptsUri: ScriptsUri
     Tags: Tags
     Timestamp: Timestamp

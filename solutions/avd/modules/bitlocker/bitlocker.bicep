@@ -6,7 +6,7 @@ param ManagedIdentityPrincipalId string
 param ManagedIdentityResourceId string
 param NamingStandard string
 @secure()
-param SasToken string
+param _artifactsLocationSasToken string
 param ScriptsUri string
 param Timestamp string
 
@@ -58,7 +58,7 @@ module deploymentScript 'deploymentScript.bicep' = {
     Location: Location
     ManagedIdentityResourceId: ManagedIdentityResourceId
     NamingStandard: NamingStandard
-    SasToken: SasToken
+    _artifactsLocationSasToken: _artifactsLocationSasToken
     ScriptsUri: ScriptsUri
     Timestamp: Timestamp
   }

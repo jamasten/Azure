@@ -32,7 +32,7 @@ param OuPath string
 param RdpShortPath bool
 param ResourceGroups array
 param ScreenCaptureProtection bool
-param SasToken string
+param _artifactsLocationSasToken string
 param ScriptsUri string
 param SessionHostCount int
 param SessionHostIndex int
@@ -254,7 +254,7 @@ resource extension_CustomScriptExtension 'Microsoft.Compute/virtualMachines/exte
     autoUpgradeMinorVersion: true
     settings: {
       fileUris: [
-        '${ScriptsUri}Set-SessionHostConfiguration.ps1${SasToken}'
+        '${ScriptsUri}Set-SessionHostConfiguration.ps1${_artifactsLocationSasToken}'
       ]
       timestamp: Timestamp
     }

@@ -36,7 +36,7 @@ param PooledHostPool bool
 param RdpShortPath bool
 param ResourceGroups array
 param RoleDefinitionIds object
-param SasToken string
+param _artifactsLocationSasToken string
 param ScreenCaptureProtection bool
 param ScriptsUri string
 param SecurityPrincipalObjectIds array
@@ -120,7 +120,7 @@ module virtualMachines 'virtualMachines.bicep' = [for i in range(1, SessionHostB
     RdpShortPath: RdpShortPath
     ResourceGroups: ResourceGroups
     ScreenCaptureProtection: ScreenCaptureProtection
-    SasToken: SasToken
+    _artifactsLocationSasToken: _artifactsLocationSasToken
     ScriptsUri: ScriptsUri
     SessionHostCount: i == SessionHostBatchCount && DivisionRemainderValue > 0 ? DivisionRemainderValue : MaxResourcesPerTemplateDeployment
     SessionHostIndex: i == 1 ? SessionHostIndex : ((i - 1) * MaxResourcesPerTemplateDeployment) + SessionHostIndex

@@ -4,12 +4,12 @@
   "metadata": {
     "_generator": {
       "name": "bicep",
-      "version": "0.8.9.13224",
-      "templateHash": "1821619930459694293"
+      "version": "0.9.1.41621",
+      "templateHash": "16770633427320385424"
     }
   },
   "parameters": {
-    "ArtifactsLocation": {
+    "_artifactsLocation": {
       "type": "string",
       "defaultValue": "https://raw.githubusercontent.com/jamasten/Azure/master/solutions/avd/",
       "metadata": {
@@ -347,7 +347,7 @@
         "description": "Determines whether the Screen Capture Protection feature is enabled.  As of 9/17/21 this is only supported in Azure Cloud. https://docs.microsoft.com/en-us/azure/virtual-desktop/screen-capture-protection"
       }
     },
-    "SasToken": {
+    "_artifactsLocationSasToken": {
       "type": "secureString",
       "defaultValue": "",
       "metadata": {
@@ -487,7 +487,7 @@
     "AvailabilitySetPrefix": "[format('as-{0}', variables('NamingStandard'))]",
     "AutomationAccountName": "[format('aa-{0}', variables('NamingStandard'))]",
     "ConfigurationName": "Windows10",
-    "ConfigurationsUri": "[format('{0}configurations/', parameters('ArtifactsLocation'))]",
+    "ConfigurationsUri": "[format('{0}configurations/', parameters('_artifactsLocation'))]",
     "DiskName": "[format('disk-{0}', variables('NamingStandard'))]",
     "FileShareNames": {
       "CloudCacheProfileContainer": [
@@ -592,7 +592,7 @@
       "storageFileDataSMBShareContributor": "0c867c2a-1d8c-454a-a3db-ab2ea1bdc8bb",
       "virtualMachineUserLogin": "fb879df8-f326-4884-b1cf-06f3ad86be52"
     },
-    "ScriptsUri": "[format('{0}scripts/', parameters('ArtifactsLocation'))]",
+    "ScriptsUri": "[format('{0}scripts/', parameters('_artifactsLocation'))]",
     "StampIndexFull": "[padLeft(parameters('StampIndex'), 2, '0')]",
     "StorageAccountPrefix": "[format('st{0}{1}{2}{3}', parameters('Identifier'), parameters('Environment'), variables('LocationShortName'), variables('StampIndexFull'))]",
     "StorageSolution": "[split(parameters('FslogixStorage'), ' ')[0]]",
@@ -723,8 +723,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.8.9.13224",
-              "templateHash": "10205391803858534248"
+              "version": "0.9.1.41621",
+              "templateHash": "5489586931819818105"
             }
           },
           "parameters": {
@@ -833,8 +833,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.8.9.13224",
-                      "templateHash": "16436776967505676425"
+                      "version": "0.9.1.41621",
+                      "templateHash": "15339018699212123693"
                     }
                   },
                   "parameters": {
@@ -916,8 +916,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.8.9.13224",
-                      "templateHash": "8430810082763607429"
+                      "version": "0.9.1.41621",
+                      "templateHash": "3083499528430927464"
                     }
                   },
                   "parameters": {
@@ -1017,8 +1017,8 @@
           "RecoveryServices": {
             "value": "[parameters('RecoveryServices')]"
           },
-          "SasToken": {
-            "value": "[parameters('SasToken')]"
+          "_artifactsLocationSasToken": {
+            "value": "[parameters('_artifactsLocationSasToken')]"
           },
           "ScriptsUri": {
             "value": "[variables('ScriptsUri')]"
@@ -1066,8 +1066,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.8.9.13224",
-              "templateHash": "14643037435992345607"
+              "version": "0.9.1.41621",
+              "templateHash": "8586820732290081878"
             }
           },
           "parameters": {
@@ -1110,7 +1110,7 @@
             "RecoveryServices": {
               "type": "bool"
             },
-            "SasToken": {
+            "_artifactsLocationSasToken": {
               "type": "string"
             },
             "ScriptsUri": {
@@ -1175,7 +1175,7 @@
                 "forceUpdateTag": "[parameters('Timestamp')]",
                 "azPowerShellVersion": "5.4",
                 "arguments": "[format('-Availability {0} -DiskEncryption {1} -DiskSku {2} -DomainName {3} -DomainServices {4} -Environment {5} -EphemeralOsDisk {6} -ImageSku {7} -KerberosEncryption {8} -Location {9} -PooledHostPool {10} -RecoveryServices {11} -SecurityPrincipalIdsCount {12} -SecurityPrincipalNamesCount {13} -SessionHostCount {14} -SessionHostIndex {15} -StartVmOnConnect {16} -StorageCount {17} -StorageSolution {18} -VmSize {19} -VnetName {20} -VnetResourceGroupName {21}', parameters('Availability'), parameters('DiskEncryption'), parameters('DiskSku'), parameters('DomainName'), parameters('DomainServices'), environment().name, parameters('EphemeralOsDisk'), parameters('ImageSku'), parameters('KerberosEncryption'), parameters('Location'), parameters('PooledHostPool'), parameters('RecoveryServices'), variables('SecurityPrincipalIdsCount'), variables('SecurityPrincipalNamesCount'), parameters('SessionHostCount'), parameters('SessionHostIndex'), parameters('StartVmOnConnect'), parameters('StorageCount'), parameters('StorageSolution'), parameters('VmSize'), parameters('VirtualNetwork'), parameters('VirtualNetworkResourceGroup'))]",
-                "primaryScriptUri": "[format('{0}Get-Validation.ps1{1}', parameters('ScriptsUri'), parameters('SasToken'))]",
+                "primaryScriptUri": "[format('{0}Get-Validation.ps1{1}', parameters('ScriptsUri'), parameters('_artifactsLocationSasToken'))]",
                 "timeout": "PT2H",
                 "cleanupPreference": "OnSuccess",
                 "retentionInterval": "P1D"
@@ -1248,8 +1248,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.8.9.13224",
-              "templateHash": "4035637226956266630"
+              "version": "0.9.1.41621",
+              "templateHash": "5726016800542249790"
             }
           },
           "parameters": {
@@ -1342,8 +1342,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.8.9.13224",
-              "templateHash": "235270193260937080"
+              "version": "0.9.1.41621",
+              "templateHash": "9750594388970653161"
             }
           },
           "parameters": {
@@ -1519,8 +1519,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.8.9.13224",
-              "templateHash": "2622203234206925867"
+              "version": "0.9.1.41621",
+              "templateHash": "18277459188333087959"
             }
           },
           "parameters": {
@@ -2125,8 +2125,8 @@
           "NamingStandard": {
             "value": "[variables('NamingStandard')]"
           },
-          "SasToken": {
-            "value": "[parameters('SasToken')]"
+          "_artifactsLocationSasToken": {
+            "value": "[parameters('_artifactsLocationSasToken')]"
           },
           "ScriptsUri": {
             "value": "[variables('ScriptsUri')]"
@@ -2141,8 +2141,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.8.9.13224",
-              "templateHash": "16853287083771322503"
+              "version": "0.9.1.41621",
+              "templateHash": "2804540475678473692"
             }
           },
           "parameters": {
@@ -2164,7 +2164,7 @@
             "NamingStandard": {
               "type": "string"
             },
-            "SasToken": {
+            "_artifactsLocationSasToken": {
               "type": "secureString"
             },
             "ScriptsUri": {
@@ -2229,8 +2229,8 @@
                   "NamingStandard": {
                     "value": "[parameters('NamingStandard')]"
                   },
-                  "SasToken": {
-                    "value": "[parameters('SasToken')]"
+                  "_artifactsLocationSasToken": {
+                    "value": "[parameters('_artifactsLocationSasToken')]"
                   },
                   "ScriptsUri": {
                     "value": "[parameters('ScriptsUri')]"
@@ -2245,8 +2245,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.8.9.13224",
-                      "templateHash": "10994893533624106080"
+                      "version": "0.9.1.41621",
+                      "templateHash": "7924566303465807618"
                     }
                   },
                   "parameters": {
@@ -2262,7 +2262,7 @@
                     "NamingStandard": {
                       "type": "string"
                     },
-                    "SasToken": {
+                    "_artifactsLocationSasToken": {
                       "type": "secureString"
                     },
                     "ScriptsUri": {
@@ -2289,7 +2289,7 @@
                       "properties": {
                         "azPowerShellVersion": "5.4",
                         "cleanupPreference": "OnSuccess",
-                        "primaryScriptUri": "[format('{0}New-AzureKeyEncryptionKey.ps1{1}', parameters('ScriptsUri'), parameters('SasToken'))]",
+                        "primaryScriptUri": "[format('{0}New-AzureKeyEncryptionKey.ps1{1}', parameters('ScriptsUri'), parameters('_artifactsLocationSasToken'))]",
                         "arguments": "[format(' -KeyVault {0}', parameters('KeyVaultName'))]",
                         "forceUpdateTag": "[parameters('Timestamp')]",
                         "retentionInterval": "P1D",
@@ -2344,8 +2344,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.8.9.13224",
-              "templateHash": "5672721634298093951"
+              "version": "0.9.1.41621",
+              "templateHash": "6192380872062382194"
             }
           },
           "parameters": {
@@ -2599,8 +2599,8 @@
           "RoleDefinitionIds": {
             "value": "[variables('RoleDefinitionIds')]"
           },
-          "SasToken": {
-            "value": "[parameters('SasToken')]"
+          "_artifactsLocationSasToken": {
+            "value": "[parameters('_artifactsLocationSasToken')]"
           },
           "ScriptsUri": {
             "value": "[variables('ScriptsUri')]"
@@ -2663,8 +2663,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.8.9.13224",
-              "templateHash": "10483658863528004127"
+              "version": "0.9.1.41621",
+              "templateHash": "16339616920500787979"
             }
           },
           "parameters": {
@@ -2761,7 +2761,7 @@
             "PrivateEndpoint": {
               "type": "bool"
             },
-            "SasToken": {
+            "_artifactsLocationSasToken": {
               "type": "string"
             },
             "ScriptsUri": {
@@ -2893,8 +2893,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.8.9.13224",
-                      "templateHash": "1875336338262258595"
+                      "version": "0.9.1.41621",
+                      "templateHash": "10700629440647397636"
                     }
                   },
                   "parameters": {
@@ -3153,8 +3153,8 @@
                   "ResourceGroups": {
                     "value": "[parameters('ResourceGroups')]"
                   },
-                  "SasToken": {
-                    "value": "[parameters('SasToken')]"
+                  "_artifactsLocationSasToken": {
+                    "value": "[parameters('_artifactsLocationSasToken')]"
                   },
                   "ScriptsUri": {
                     "value": "[parameters('ScriptsUri')]"
@@ -3184,8 +3184,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.8.9.13224",
-                      "templateHash": "13865508233813922108"
+                      "version": "0.9.1.41621",
+                      "templateHash": "13918851460803537747"
                     }
                   },
                   "parameters": {
@@ -3231,7 +3231,7 @@
                     "ResourceGroups": {
                       "type": "array"
                     },
-                    "SasToken": {
+                    "_artifactsLocationSasToken": {
                       "type": "string"
                     },
                     "ScriptsUri": {
@@ -3342,8 +3342,8 @@
                           "ManagementVmName": {
                             "value": "[parameters('ManagementVmName')]"
                           },
-                          "SasToken": {
-                            "value": "[parameters('SasToken')]"
+                          "_artifactsLocationSasToken": {
+                            "value": "[parameters('_artifactsLocationSasToken')]"
                           },
                           "ScriptsUri": {
                             "value": "[parameters('ScriptsUri')]"
@@ -3361,8 +3361,8 @@
                           "metadata": {
                             "_generator": {
                               "name": "bicep",
-                              "version": "0.8.9.13224",
-                              "templateHash": "6306658740250475068"
+                              "version": "0.9.1.41621",
+                              "templateHash": "10798891302730644898"
                             }
                           },
                           "parameters": {
@@ -3375,7 +3375,7 @@
                             "ManagementVmName": {
                               "type": "string"
                             },
-                            "SasToken": {
+                            "_artifactsLocationSasToken": {
                               "type": "string"
                             },
                             "ScriptsUri": {
@@ -3402,7 +3402,7 @@
                                 "autoUpgradeMinorVersion": true,
                                 "settings": {
                                   "fileUris": [
-                                    "[format('{0}Set-NtfsPermissions.ps1{1}', parameters('ScriptsUri'), parameters('SasToken'))]"
+                                    "[format('{0}Set-NtfsPermissions.ps1{1}', parameters('ScriptsUri'), parameters('_artifactsLocationSasToken'))]"
                                   ],
                                   "timestamp": "[parameters('Timestamp')]"
                                 },
@@ -3521,8 +3521,8 @@
                   "RoleDefinitionIds": {
                     "value": "[parameters('RoleDefinitionIds')]"
                   },
-                  "SasToken": {
-                    "value": "[parameters('SasToken')]"
+                  "_artifactsLocationSasToken": {
+                    "value": "[parameters('_artifactsLocationSasToken')]"
                   },
                   "ScriptsUri": {
                     "value": "[parameters('ScriptsUri')]"
@@ -3582,8 +3582,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.8.9.13224",
-                      "templateHash": "2106165572423098295"
+                      "version": "0.9.1.41621",
+                      "templateHash": "10737959365812739058"
                     }
                   },
                   "parameters": {
@@ -3665,7 +3665,7 @@
                     "RoleDefinitionIds": {
                       "type": "object"
                     },
-                    "SasToken": {
+                    "_artifactsLocationSasToken": {
                       "type": "string"
                     },
                     "ScriptsUri": {
@@ -3879,8 +3879,8 @@
                           "metadata": {
                             "_generator": {
                               "name": "bicep",
-                              "version": "0.8.9.13224",
-                              "templateHash": "8600951038835449855"
+                              "version": "0.9.1.41621",
+                              "templateHash": "17004525027973208084"
                             }
                           },
                           "parameters": {
@@ -3967,8 +3967,8 @@
                           "metadata": {
                             "_generator": {
                               "name": "bicep",
-                              "version": "0.8.9.13224",
-                              "templateHash": "2355911049691790346"
+                              "version": "0.9.1.41621",
+                              "templateHash": "7454334237083615110"
                             }
                           },
                           "parameters": {
@@ -4126,8 +4126,8 @@
                           "NamingStandard": {
                             "value": "[parameters('NamingStandard')]"
                           },
-                          "SasToken": {
-                            "value": "[parameters('SasToken')]"
+                          "_artifactsLocationSasToken": {
+                            "value": "[parameters('_artifactsLocationSasToken')]"
                           },
                           "ScriptsUri": {
                             "value": "[parameters('ScriptsUri')]"
@@ -4166,8 +4166,8 @@
                           "metadata": {
                             "_generator": {
                               "name": "bicep",
-                              "version": "0.8.9.13224",
-                              "templateHash": "7879971973998737203"
+                              "version": "0.9.1.41621",
+                              "templateHash": "4530233298185911330"
                             }
                           },
                           "parameters": {
@@ -4210,7 +4210,7 @@
                             "NamingStandard": {
                               "type": "string"
                             },
-                            "SasToken": {
+                            "_artifactsLocationSasToken": {
                               "type": "string"
                             },
                             "ScriptsUri": {
@@ -4265,7 +4265,7 @@
                                 "forceUpdateTag": "[parameters('Timestamp')]",
                                 "azPowerShellVersion": "5.4",
                                 "arguments": "[format('-Subnet {0} -VirtualNetwork {1} -VirtualNetworkResourceGroup {2}', parameters('Subnet'), parameters('VirtualNetwork'), parameters('VirtualNetworkResourceGroup'))]",
-                                "primaryScriptUri": "[format('{0}Get-AzureVirtualNetworkDns.ps1{1}', parameters('ScriptsUri'), parameters('SasToken'))]",
+                                "primaryScriptUri": "[format('{0}Get-AzureVirtualNetworkDns.ps1{1}', parameters('ScriptsUri'), parameters('_artifactsLocationSasToken'))]",
                                 "timeout": "PT4H",
                                 "cleanupPreference": "OnSuccess",
                                 "retentionInterval": "P1D"
@@ -4386,7 +4386,7 @@
                                 "type": "DSC",
                                 "typeHandlerVersion": "2.77",
                                 "settings": {
-                                  "modulesUrl": "[format('{0}dnsForwarder.zip{1}', parameters('ConfigurationsUri'), parameters('SasToken'))]",
+                                  "modulesUrl": "[format('{0}dnsForwarder.zip{1}', parameters('ConfigurationsUri'), parameters('_artifactsLocationSasToken'))]",
                                   "configurationFunction": "dnsForwarder.ps1\\dnsForwarder",
                                   "configurationArguments": {
                                     "ActionAfterReboot": "ContinueConfiguration",
@@ -4429,7 +4429,7 @@
                                 "forceUpdateTag": "[parameters('Timestamp')]",
                                 "azPowerShellVersion": "5.4",
                                 "arguments": "[format('-Dns {0} -VirtualNetwork {1} -VirtualNetworkResourceGroup {2}', reference(resourceId('Microsoft.Network/networkInterfaces', format('nic-{0}-dns', parameters('NamingStandard')))).ipConfigurations[0].properties.privateIPAddress, parameters('VirtualNetwork'), parameters('VirtualNetworkResourceGroup'))]",
-                                "primaryScriptUri": "[format('{0}Set-AzureVirtualNetworkDns.ps1{1}', parameters('ScriptsUri'), parameters('SasToken'))]",
+                                "primaryScriptUri": "[format('{0}Set-AzureVirtualNetworkDns.ps1{1}', parameters('ScriptsUri'), parameters('_artifactsLocationSasToken'))]",
                                 "timeout": "PT4H",
                                 "cleanupPreference": "OnSuccess",
                                 "retentionInterval": "P1D"
@@ -4471,8 +4471,8 @@
                                   "metadata": {
                                     "_generator": {
                                       "name": "bicep",
-                                      "version": "0.8.9.13224",
-                                      "templateHash": "11897562292217701556"
+                                      "version": "0.9.1.41621",
+                                      "templateHash": "9115270675603616983"
                                     }
                                   },
                                   "parameters": {
@@ -4550,8 +4550,8 @@
                           "ManagementVmName": {
                             "value": "[parameters('ManagementVmName')]"
                           },
-                          "SasToken": {
-                            "value": "[parameters('SasToken')]"
+                          "_artifactsLocationSasToken": {
+                            "value": "[parameters('_artifactsLocationSasToken')]"
                           },
                           "ScriptsUri": {
                             "value": "[parameters('ScriptsUri')]"
@@ -4569,8 +4569,8 @@
                           "metadata": {
                             "_generator": {
                               "name": "bicep",
-                              "version": "0.8.9.13224",
-                              "templateHash": "6306658740250475068"
+                              "version": "0.9.1.41621",
+                              "templateHash": "10798891302730644898"
                             }
                           },
                           "parameters": {
@@ -4583,7 +4583,7 @@
                             "ManagementVmName": {
                               "type": "string"
                             },
-                            "SasToken": {
+                            "_artifactsLocationSasToken": {
                               "type": "string"
                             },
                             "ScriptsUri": {
@@ -4610,7 +4610,7 @@
                                 "autoUpgradeMinorVersion": true,
                                 "settings": {
                                   "fileUris": [
-                                    "[format('{0}Set-NtfsPermissions.ps1{1}', parameters('ScriptsUri'), parameters('SasToken'))]"
+                                    "[format('{0}Set-NtfsPermissions.ps1{1}', parameters('ScriptsUri'), parameters('_artifactsLocationSasToken'))]"
                                   ],
                                   "timestamp": "[parameters('Timestamp')]"
                                 },
@@ -4773,8 +4773,8 @@
           "RoleDefinitionIds": {
             "value": "[variables('RoleDefinitionIds')]"
           },
-          "SasToken": {
-            "value": "[parameters('SasToken')]"
+          "_artifactsLocationSasToken": {
+            "value": "[parameters('_artifactsLocationSasToken')]"
           },
           "ScreenCaptureProtection": {
             "value": "[parameters('ScreenCaptureProtection')]"
@@ -4843,8 +4843,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.8.9.13224",
-              "templateHash": "12337628722519635774"
+              "version": "0.9.1.41621",
+              "templateHash": "12456694041497965502"
             }
           },
           "parameters": {
@@ -4959,7 +4959,7 @@
             "RoleDefinitionIds": {
               "type": "object"
             },
-            "SasToken": {
+            "_artifactsLocationSasToken": {
               "type": "string"
             },
             "ScreenCaptureProtection": {
@@ -5055,8 +5055,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.8.9.13224",
-                      "templateHash": "12570412805759161972"
+                      "version": "0.9.1.41621",
+                      "templateHash": "4103909671455168335"
                     }
                   },
                   "parameters": {
@@ -5121,8 +5121,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.8.9.13224",
-                      "templateHash": "8460172323480549793"
+                      "version": "0.9.1.41621",
+                      "templateHash": "3085829759219156120"
                     }
                   },
                   "parameters": {
@@ -5267,8 +5267,8 @@
                   "ScreenCaptureProtection": {
                     "value": "[parameters('ScreenCaptureProtection')]"
                   },
-                  "SasToken": {
-                    "value": "[parameters('SasToken')]"
+                  "_artifactsLocationSasToken": {
+                    "value": "[parameters('_artifactsLocationSasToken')]"
                   },
                   "ScriptsUri": {
                     "value": "[parameters('ScriptsUri')]"
@@ -5331,8 +5331,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.8.9.13224",
-                      "templateHash": "4273343011408004990"
+                      "version": "0.9.1.41621",
+                      "templateHash": "13409685719771506302"
                     }
                   },
                   "parameters": {
@@ -5435,7 +5435,7 @@
                     "ScreenCaptureProtection": {
                       "type": "bool"
                     },
-                    "SasToken": {
+                    "_artifactsLocationSasToken": {
                       "type": "string"
                     },
                     "ScriptsUri": {
@@ -5710,7 +5710,7 @@
                         "autoUpgradeMinorVersion": true,
                         "settings": {
                           "fileUris": [
-                            "[format('{0}Set-SessionHostConfiguration.ps1{1}', parameters('ScriptsUri'), parameters('SasToken'))]"
+                            "[format('{0}Set-SessionHostConfiguration.ps1{1}', parameters('ScriptsUri'), parameters('_artifactsLocationSasToken'))]"
                           ],
                           "timestamp": "[parameters('Timestamp')]"
                         },
@@ -6017,8 +6017,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.8.9.13224",
-              "templateHash": "15723694409996044634"
+              "version": "0.9.1.41621",
+              "templateHash": "9245473634578526537"
             }
           },
           "parameters": {
@@ -6206,8 +6206,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.8.9.13224",
-                      "templateHash": "10601048268434752606"
+                      "version": "0.9.1.41621",
+                      "templateHash": "14266756628527206398"
                     }
                   },
                   "parameters": {
@@ -6303,8 +6303,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.8.9.13224",
-                      "templateHash": "10446624907551428901"
+                      "version": "0.9.1.41621",
+                      "templateHash": "14090897281958654845"
                     }
                   },
                   "parameters": {
@@ -6412,8 +6412,8 @@
           "MinimumNumberOfRdsh": {
             "value": "[parameters('ScalingMinimumNumberOfRdsh')]"
           },
-          "SasToken": {
-            "value": "[parameters('SasToken')]"
+          "_artifactsLocationSasToken": {
+            "value": "[parameters('_artifactsLocationSasToken')]"
           },
           "ScriptsUri": {
             "value": "[variables('ScriptsUri')]"
@@ -6434,8 +6434,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.8.9.13224",
-              "templateHash": "8200105386780291620"
+              "version": "0.9.1.41621",
+              "templateHash": "11271457951391943742"
             }
           },
           "parameters": {
@@ -6469,7 +6469,7 @@
             "MinimumNumberOfRdsh": {
               "type": "string"
             },
-            "SasToken": {
+            "_artifactsLocationSasToken": {
               "type": "secureString"
             },
             "ScriptsUri": {
@@ -6509,7 +6509,7 @@
                 "logProgress": false,
                 "logVerbose": false,
                 "publishContentLink": {
-                  "uri": "[format('{0}Set-HostPoolScaling.ps1{1}', parameters('ScriptsUri'), parameters('SasToken'))]",
+                  "uri": "[format('{0}Set-HostPoolScaling.ps1{1}', parameters('ScriptsUri'), parameters('_artifactsLocationSasToken'))]",
                   "version": "1.0.0.0"
                 }
               }
@@ -6615,8 +6615,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.8.9.13224",
-                      "templateHash": "16784792978377263141"
+                      "version": "0.9.1.41621",
+                      "templateHash": "10204467873394695430"
                     }
                   },
                   "parameters": {
@@ -6672,8 +6672,8 @@
           "LogicAppPrefix": {
             "value": "[variables('LogicAppPrefix')]"
           },
-          "SasToken": {
-            "value": "[parameters('SasToken')]"
+          "_artifactsLocationSasToken": {
+            "value": "[parameters('_artifactsLocationSasToken')]"
           },
           "ScriptsUri": {
             "value": "[variables('ScriptsUri')]"
@@ -6697,8 +6697,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.8.9.13224",
-              "templateHash": "644803386123777526"
+              "version": "0.9.1.41621",
+              "templateHash": "9430244337386335166"
             }
           },
           "parameters": {
@@ -6714,7 +6714,7 @@
             "LogicAppPrefix": {
               "type": "string"
             },
-            "SasToken": {
+            "_artifactsLocationSasToken": {
               "type": "secureString"
             },
             "ScriptsUri": {
@@ -6755,7 +6755,7 @@
                 "logProgress": false,
                 "logVerbose": false,
                 "publishContentLink": {
-                  "uri": "[format('{0}Set-FileShareScaling.ps1{1}', parameters('ScriptsUri'), parameters('SasToken'))]",
+                  "uri": "[format('{0}Set-FileShareScaling.ps1{1}', parameters('ScriptsUri'), parameters('_artifactsLocationSasToken'))]",
                   "version": "1.0.0.0"
                 }
               }
@@ -6898,8 +6898,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.8.9.13224",
-                      "templateHash": "16784792978377263141"
+                      "version": "0.9.1.41621",
+                      "templateHash": "10204467873394695430"
                     }
                   },
                   "parameters": {
@@ -6958,8 +6958,8 @@
           "NamingStandard": {
             "value": "[variables('NamingStandard')]"
           },
-          "SasToken": {
-            "value": "[parameters('SasToken')]"
+          "_artifactsLocationSasToken": {
+            "value": "[parameters('_artifactsLocationSasToken')]"
           },
           "ScriptsUri": {
             "value": "[variables('ScriptsUri')]"
@@ -6977,8 +6977,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.8.9.13224",
-              "templateHash": "1645266996589630010"
+              "version": "0.9.1.41621",
+              "templateHash": "2880049770944001235"
             }
           },
           "parameters": {
@@ -6997,7 +6997,7 @@
             "NamingStandard": {
               "type": "string"
             },
-            "SasToken": {
+            "_artifactsLocationSasToken": {
               "type": "string"
             },
             "ScriptsUri": {
@@ -7028,7 +7028,7 @@
                 "azPowerShellVersion": "5.4",
                 "cleanupPreference": "OnSuccess",
                 "arguments": "[format('-ResourceGroup {0} -HostPool {1}', parameters('HostPoolResourceGroupName'), parameters('HostPoolName'))]",
-                "primaryScriptUri": "[format('{0}Set-AzureAvdDrainMode.ps1{1}', parameters('ScriptsUri'), parameters('SasToken'))]",
+                "primaryScriptUri": "[format('{0}Set-AzureAvdDrainMode.ps1{1}', parameters('ScriptsUri'), parameters('_artifactsLocationSasToken'))]",
                 "forceUpdateTag": "[parameters('Timestamp')]",
                 "retentionInterval": "P1D",
                 "timeout": "PT30M"

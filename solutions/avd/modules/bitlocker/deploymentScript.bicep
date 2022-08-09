@@ -3,7 +3,7 @@ param Location string
 param ManagedIdentityResourceId string
 param NamingStandard string
 @secure()
-param SasToken string
+param _artifactsLocationSasToken string
 param ScriptsUri string
 param Timestamp string
 
@@ -21,7 +21,7 @@ resource deploymentScript 'Microsoft.Resources/deploymentScripts@2019-10-01-prev
   properties: {
     azPowerShellVersion: '5.4'
     cleanupPreference: 'OnSuccess'
-    primaryScriptUri: '${ScriptsUri}New-AzureKeyEncryptionKey.ps1${SasToken}'
+    primaryScriptUri: '${ScriptsUri}New-AzureKeyEncryptionKey.ps1${_artifactsLocationSasToken}'
     arguments: ' -KeyVault ${KeyVaultName}'
     forceUpdateTag: Timestamp
     retentionInterval: 'P1D'

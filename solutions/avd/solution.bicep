@@ -507,7 +507,7 @@ module validation 'modules/validation.bicep' = {
   ]
 }
 
-resource startVmOnConnect 'Microsoft.Authorization/roleAssignments@2018-01-01-preview' = if(StartVmOnConnect) {
+resource startVmOnConnect 'Microsoft.Authorization/roleAssignments@2022-04-01' = if(StartVmOnConnect) {
   name: guid(AvdObjectId, RoleDefinitionIds.desktopVirtualizationPowerOnContributor, subscription().id)
   properties: {
     roleDefinitionId: RoleDefinitionIds.desktopVirtualizationPowerOnContributor

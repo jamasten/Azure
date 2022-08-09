@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.8.9.13224",
-      "templateHash": "10469491507403995864"
+      "templateHash": "1821619930459694293"
     }
   },
   "parameters": {
@@ -674,7 +674,7 @@
     {
       "condition": "[parameters('StartVmOnConnect')]",
       "type": "Microsoft.Authorization/roleAssignments",
-      "apiVersion": "2018-01-01-preview",
+      "apiVersion": "2022-04-01",
       "name": "[guid(parameters('AvdObjectId'), variables('RoleDefinitionIds').desktopVirtualizationPowerOnContributor, subscription().id)]",
       "properties": {
         "roleDefinitionId": "[variables('RoleDefinitionIds').desktopVirtualizationPowerOnContributor]",
@@ -724,7 +724,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.8.9.13224",
-              "templateHash": "9143273379841834096"
+              "templateHash": "10205391803858534248"
             }
           },
           "parameters": {
@@ -795,7 +795,7 @@
             },
             {
               "type": "Microsoft.Authorization/roleAssignments",
-              "apiVersion": "2020-04-01-preview",
+              "apiVersion": "2022-04-01",
               "name": "[guid(parameters('ManagedIdentityName'), parameters('RoleDefinitionIds').reader, subscription().id)]",
               "properties": {
                 "roleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', parameters('RoleDefinitionIds').reader)]",
@@ -834,7 +834,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.8.9.13224",
-                      "templateHash": "3338655709824755661"
+                      "templateHash": "16436776967505676425"
                     }
                   },
                   "parameters": {
@@ -857,7 +857,7 @@
                     },
                     {
                       "type": "Microsoft.Authorization/roleAssignments",
-                      "apiVersion": "2020-04-01-preview",
+                      "apiVersion": "2022-04-01",
                       "name": "[guid(parameters('ManagedIdentityName'), parameters('RoleDefinitionId'), resourceGroup().id)]",
                       "properties": {
                         "roleDefinitionId": "[parameters('RoleDefinitionId')]",
@@ -917,7 +917,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.8.9.13224",
-                      "templateHash": "4770029456087304010"
+                      "templateHash": "8430810082763607429"
                     }
                   },
                   "parameters": {
@@ -935,7 +935,7 @@
                     {
                       "condition": "[parameters('Condition')]",
                       "type": "Microsoft.Authorization/roleAssignments",
-                      "apiVersion": "2020-04-01-preview",
+                      "apiVersion": "2022-04-01",
                       "name": "[guid(parameters('PrincipalId'), parameters('RoleDefinitionId'), resourceGroup().id)]",
                       "properties": {
                         "roleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', parameters('RoleDefinitionId'))]",
@@ -1343,7 +1343,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.8.9.13224",
-              "templateHash": "2068591772526333142"
+              "templateHash": "235270193260937080"
             }
           },
           "parameters": {
@@ -1440,7 +1440,7 @@
                 "count": "[length(range(0, length(parameters('SecurityPrincipalIds'))))]"
               },
               "type": "Microsoft.Authorization/roleAssignments",
-              "apiVersion": "2018-01-01-preview",
+              "apiVersion": "2022-04-01",
               "scope": "[format('Microsoft.DesktopVirtualization/applicationGroups/{0}', parameters('AppGroupName'))]",
               "name": "[guid(parameters('SecurityPrincipalIds')[range(0, length(parameters('SecurityPrincipalIds')))[copyIndex()]], parameters('RoleDefinitionIds').desktopVirtualizationUser, parameters('AppGroupName'))]",
               "properties": {
@@ -2664,7 +2664,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.8.9.13224",
-              "templateHash": "3902554489509588002"
+              "templateHash": "10483658863528004127"
             }
           },
           "parameters": {
@@ -3583,7 +3583,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.8.9.13224",
-                      "templateHash": "12435849253692863824"
+                      "templateHash": "2106165572423098295"
                     }
                   },
                   "parameters": {
@@ -3792,7 +3792,7 @@
                         "count": "[length(range(0, parameters('StorageCount')))]"
                       },
                       "type": "Microsoft.Authorization/roleAssignments",
-                      "apiVersion": "2020-04-01-preview",
+                      "apiVersion": "2022-04-01",
                       "scope": "[format('Microsoft.Storage/storageAccounts/{0}', format('{0}{1}', parameters('StorageAccountPrefix'), padLeft(add(range(0, parameters('StorageCount'))[range(0, parameters('StorageCount'))[copyIndex()]], parameters('StorageIndex')), 2, '0')))]",
                       "name": "[guid(format('{0}{1}', parameters('StorageAccountPrefix'), padLeft(add(range(0, parameters('StorageCount'))[range(0, parameters('StorageCount'))[copyIndex()]], parameters('StorageIndex')), 2, '0')), parameters('RoleDefinitionIds').contributor, parameters('ManagementVmName'))]",
                       "properties": {
@@ -3811,7 +3811,7 @@
                         "count": "[length(range(0, parameters('StorageCount')))]"
                       },
                       "type": "Microsoft.Authorization/roleAssignments",
-                      "apiVersion": "2020-04-01-preview",
+                      "apiVersion": "2022-04-01",
                       "scope": "[format('Microsoft.Storage/storageAccounts/{0}', format('{0}{1}', parameters('StorageAccountPrefix'), padLeft(add(range(0, parameters('StorageCount'))[range(0, parameters('StorageCount'))[copyIndex()]], parameters('StorageIndex')), 2, '0')))]",
                       "name": "[guid(parameters('SecurityPrincipalIds')[range(0, parameters('StorageCount'))[copyIndex()]], parameters('RoleDefinitionIds').storageFileDataSMBShareContributor, format('{0}{1}', parameters('StorageAccountPrefix'), padLeft(add(range(0, parameters('StorageCount'))[range(0, parameters('StorageCount'))[copyIndex()]], parameters('StorageIndex')), 2, '0')))]",
                       "properties": {
@@ -4844,7 +4844,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.8.9.13224",
-              "templateHash": "13573083279279272577"
+              "templateHash": "12337628722519635774"
             }
           },
           "parameters": {
@@ -5122,7 +5122,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.8.9.13224",
-                      "templateHash": "10022945616360699246"
+                      "templateHash": "8460172323480549793"
                     }
                   },
                   "parameters": {
@@ -5140,7 +5140,7 @@
                         "count": "[length(range(0, length(parameters('SecurityPrincipalIds'))))]"
                       },
                       "type": "Microsoft.Authorization/roleAssignments",
-                      "apiVersion": "2018-09-01-preview",
+                      "apiVersion": "2022-04-01",
                       "name": "[guid(string(range(0, length(parameters('SecurityPrincipalIds')))[copyIndex()]), parameters('RoleDefinitionId'), resourceGroup().id)]",
                       "properties": {
                         "roleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', parameters('RoleDefinitionId'))]",
@@ -6435,7 +6435,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.8.9.13224",
-              "templateHash": "5261668281100522471"
+              "templateHash": "8200105386780291620"
             }
           },
           "parameters": {
@@ -6616,7 +6616,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.8.9.13224",
-                      "templateHash": "2904172551923665478"
+                      "templateHash": "16784792978377263141"
                     }
                   },
                   "parameters": {
@@ -6627,7 +6627,7 @@
                   "resources": [
                     {
                       "type": "Microsoft.Authorization/roleAssignments",
-                      "apiVersion": "2018-09-01-preview",
+                      "apiVersion": "2022-04-01",
                       "name": "[guid(parameters('AutomationAccountId'), 'ScalingContributor', resourceGroup().id)]",
                       "properties": {
                         "roleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', 'b24988ac-6180-42a0-ab88-20f7382dd24c')]",
@@ -6698,7 +6698,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.8.9.13224",
-              "templateHash": "14728305840333626094"
+              "templateHash": "644803386123777526"
             }
           },
           "parameters": {
@@ -6899,7 +6899,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.8.9.13224",
-                      "templateHash": "2904172551923665478"
+                      "templateHash": "16784792978377263141"
                     }
                   },
                   "parameters": {
@@ -6910,7 +6910,7 @@
                   "resources": [
                     {
                       "type": "Microsoft.Authorization/roleAssignments",
-                      "apiVersion": "2018-09-01-preview",
+                      "apiVersion": "2022-04-01",
                       "name": "[guid(parameters('AutomationAccountId'), 'ScalingContributor', resourceGroup().id)]",
                       "properties": {
                         "roleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', 'b24988ac-6180-42a0-ab88-20f7382dd24c')]",

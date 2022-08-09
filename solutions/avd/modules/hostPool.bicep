@@ -50,7 +50,7 @@ resource appGroup 'Microsoft.DesktopVirtualization/applicationGroups@2021-03-09-
   }
 }
 
-resource appGroupAssignment 'Microsoft.Authorization/roleAssignments@2018-01-01-preview' = [for i in range(0, length(SecurityPrincipalIds)): {
+resource appGroupAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = [for i in range(0, length(SecurityPrincipalIds)): {
   scope: appGroup
   name: guid(SecurityPrincipalIds[i], RoleDefinitionIds.desktopVirtualizationUser, AppGroupName)
   properties: {

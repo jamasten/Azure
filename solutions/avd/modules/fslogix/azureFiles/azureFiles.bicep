@@ -108,7 +108,7 @@ resource storageAccounts 'Microsoft.Storage/storageAccounts@2021-02-01' = [for i
 
 // Assigns the Mgmt VM's managed identity to the storage account
 // This is needed so the custom script extension can domain join the storage account, change the Kerberos encryption if needed, and update the NTFS permissions
-resource roleAssignment_Vm 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = [for i in range(0, StorageCount): {
+resource roleAssignment_Vm 'Microsoft.Authorization/roleAssignments@2022-04-01' = [for i in range(0, StorageCount): {
   scope: storageAccounts[i]
   name: guid(storageAccounts[i].name, RoleDefinitionIds.contributor, ManagementVmName)
   properties: {
@@ -119,7 +119,7 @@ resource roleAssignment_Vm 'Microsoft.Authorization/roleAssignments@2020-04-01-p
 }]
 
 // Assigns the SMB Contributor role to the Storage Account so users can save their profiles to the file share using FSLogix
-resource roleAssignment_Users 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = [for i in range(0, StorageCount): {
+resource roleAssignment_Users 'Microsoft.Authorization/roleAssignments@2022-04-01' = [for i in range(0, StorageCount): {
   scope: storageAccounts[i]
   name: guid(SecurityPrincipalIds[i], RoleDefinitionIds.storageFileDataSMBShareContributor, storageAccounts[i].name)
   properties: {

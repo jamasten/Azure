@@ -22,7 +22,7 @@ resource userAssignedIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@
   location: Location
 }
 
-resource roleAssignment 'Microsoft.Authorization/roleAssignments@2018-09-01-preview' = {
+resource roleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
   name: guid(userAssignedIdentity.name, RoleImageContributor, resourceGroup().id)
   properties: {
     roleDefinitionId: resourceId('Microsoft.Authorization/roleDefinitions', RoleImageContributor)

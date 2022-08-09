@@ -9,7 +9,7 @@ resource userAssignedIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@
 
 // Role Assignment for Deployment Script Contributor
 // Allows least privilege for deploying deployment script resources
-resource roleAssignment 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = {
+resource roleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
   name: guid(ManagedIdentityName, RoleDefinitionId, resourceGroup().id)
   properties: {
     roleDefinitionId: RoleDefinitionId

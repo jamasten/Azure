@@ -365,6 +365,7 @@ var ResourceGroups = [
 ]
 var RoleDefinitionIds = {
   contributor: 'b24988ac-6180-42a0-ab88-20f7382dd24c'
+  desktopVirtualizationPowerOnContributor: '489581de-a3bd-480d-9518-53dea7416b33'
   desktopVirtualizationSessionHostOperator: '2ad6aaab-ead9-4eaa-8ac5-da422f562408'
   desktopVirtualizationUser: '1d18fff3-a72a-46b5-b4a9-0b38a3cd7e63'
   networkContributor: '4d97b98b-1d4f-4787-a291-c67834d212e7'
@@ -506,10 +507,11 @@ module validation 'modules/validation.bicep' = {
   ]
 }
 
-module startVmOnConnect 'modules/startVmOnConnect.bicep' = if(StartVmOnConnect) {
-  name: 'StartVmOnConnect_${Timestamp}'
-  params: {
-    PrincipalId: AvdObjectId
+resource startVmOnConnect 'Microsoft.Authorization/roleAssignments@2018-01-01-preview' = if(StartVmOnConnect) {
+  name: guid(AvdObjectId, RoleDefinitionIds.desktopVirtualizationPowerOnContributor, subscription().id)
+  properties: {
+    roleDefinitionId: RoleDefinitionIds.desktopVirtualizationPowerOnContributor
+    principalId: AvdObjectId
   }
 }
 

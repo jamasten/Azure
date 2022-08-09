@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.8.9.13224",
-      "templateHash": "5639872535879477891"
+      "templateHash": "10469491507403995864"
     }
   },
   "parameters": {
@@ -584,6 +584,7 @@
     ],
     "RoleDefinitionIds": {
       "contributor": "b24988ac-6180-42a0-ab88-20f7382dd24c",
+      "desktopVirtualizationPowerOnContributor": "489581de-a3bd-480d-9518-53dea7416b33",
       "desktopVirtualizationSessionHostOperator": "2ad6aaab-ead9-4eaa-8ac5-da422f562408",
       "desktopVirtualizationUser": "1d18fff3-a72a-46b5-b4a9-0b38a3cd7e63",
       "networkContributor": "4d97b98b-1d4f-4787-a291-c67834d212e7",
@@ -669,6 +670,16 @@
       "name": "[variables('ResourceGroups')[range(0, length(variables('ResourceGroups')))[copyIndex()]]]",
       "location": "[parameters('Location')]",
       "tags": "[parameters('Tags')]"
+    },
+    {
+      "condition": "[parameters('StartVmOnConnect')]",
+      "type": "Microsoft.Authorization/roleAssignments",
+      "apiVersion": "2018-01-01-preview",
+      "name": "[guid(parameters('AvdObjectId'), variables('RoleDefinitionIds').desktopVirtualizationPowerOnContributor, subscription().id)]",
+      "properties": {
+        "roleDefinitionId": "[variables('RoleDefinitionIds').desktopVirtualizationPowerOnContributor]",
+        "principalId": "[parameters('AvdObjectId')]"
+      }
     },
     {
       "type": "Microsoft.Resources/deployments",
@@ -1211,77 +1222,6 @@
         "[subscriptionResourceId('Microsoft.Resources/deployments', format('ManagedIdentity_{0}', parameters('Timestamp')))]",
         "resourceGroups"
       ]
-    },
-    {
-      "condition": "[parameters('StartVmOnConnect')]",
-      "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2020-10-01",
-      "name": "[format('StartVmOnConnect_{0}', parameters('Timestamp'))]",
-      "location": "[deployment().location]",
-      "properties": {
-        "expressionEvaluationOptions": {
-          "scope": "inner"
-        },
-        "mode": "Incremental",
-        "parameters": {
-          "PrincipalId": {
-            "value": "[parameters('AvdObjectId')]"
-          }
-        },
-        "template": {
-          "$schema": "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#",
-          "contentVersion": "1.0.0.0",
-          "metadata": {
-            "_generator": {
-              "name": "bicep",
-              "version": "0.8.9.13224",
-              "templateHash": "18280818291439641456"
-            }
-          },
-          "parameters": {
-            "PrincipalId": {
-              "type": "string"
-            }
-          },
-          "resources": [
-            {
-              "type": "Microsoft.Authorization/roleDefinitions",
-              "apiVersion": "2018-01-01-preview",
-              "name": "[guid('StartVmOnConnect', subscription().id)]",
-              "properties": {
-                "assignableScopes": [
-                  "[subscription().id]"
-                ],
-                "roleName": "[format('StartVmOnConnect_{0}', subscription().subscriptionId)]",
-                "description": "Allow AVD session hosts to be started when needed.",
-                "type": "customRole",
-                "permissions": [
-                  {
-                    "actions": [
-                      "Microsoft.Compute/virtualMachines/start/action",
-                      "Microsoft.Compute/virtualMachines/read",
-                      "Microsoft.Compute/virtualMachines/instanceView/read"
-                    ],
-                    "notActions": []
-                  }
-                ]
-              }
-            },
-            {
-              "type": "Microsoft.Authorization/roleAssignments",
-              "apiVersion": "2018-01-01-preview",
-              "name": "[guid('Azure Virtual Desktop', 'StartVmOnConnect', subscription().id)]",
-              "properties": {
-                "roleDefinitionId": "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', guid('StartVmOnConnect', subscription().id))]",
-                "principalId": "[parameters('PrincipalId')]"
-              },
-              "dependsOn": [
-                "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', guid('StartVmOnConnect', subscription().id))]"
-              ]
-            }
-          ]
-        }
-      }
     },
     {
       "condition": "[or(variables('PooledHostPool'), parameters('DisaStigCompliance'))]",

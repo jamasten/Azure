@@ -1,3 +1,6 @@
+param _artifactsLocation string
+@secure()
+param _artifactsLocationSasToken string
 param DeploymentResourceGroup string
 param KeyVaultName string
 param Location string
@@ -5,9 +8,6 @@ param Location string
 param ManagedIdentityPrincipalId string
 param ManagedIdentityResourceId string
 param NamingStandard string
-@secure()
-param _artifactsLocationSasToken string
-param ScriptsUri string
 param Timestamp string
 
 
@@ -54,12 +54,12 @@ module deploymentScript 'deploymentScript.bicep' = {
   name: 'DeploymentScript_${Timestamp}'
   scope: resourceGroup(DeploymentResourceGroup)
   params: {
+    _artifactsLocation: _artifactsLocation
+    _artifactsLocationSasToken: _artifactsLocationSasToken
     KeyVaultName: vault.name
     Location: Location
     ManagedIdentityResourceId: ManagedIdentityResourceId
     NamingStandard: NamingStandard
-    _artifactsLocationSasToken: _artifactsLocationSasToken
-    ScriptsUri: ScriptsUri
     Timestamp: Timestamp
   }
 /* dependsOn: [

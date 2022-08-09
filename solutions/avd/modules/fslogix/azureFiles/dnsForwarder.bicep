@@ -1,4 +1,6 @@
-param ConfigurationsUri string
+param _artifactsLocation string
+@secure()
+param _artifactsLocationSasToken string
 param DnsServerForwarderIPAddresses array
 param DnsServerSize string
 @secure()
@@ -12,8 +14,6 @@ param Location string
 param LocationShortName string
 param ManagedIdentityResourceId string
 param NamingStandard string
-param _artifactsLocationSasToken string
-param ScriptsUri string
 param StampIndexFull string
 param StorageSuffix string
 param Subnet string
@@ -44,7 +44,7 @@ resource deploymentScript_GetDns 'Microsoft.Resources/deploymentScripts@2020-10-
     forceUpdateTag: Timestamp
     azPowerShellVersion: '5.4'
     arguments: '-Subnet ${Subnet} -VirtualNetwork ${VirtualNetwork} -VirtualNetworkResourceGroup ${VirtualNetworkResourceGroup}'
-    primaryScriptUri: '${ScriptsUri}Get-AzureVirtualNetworkDns.ps1${_artifactsLocationSasToken}'
+    primaryScriptUri: '${_artifactsLocation}Get-AzureVirtualNetworkDns.ps1${_artifactsLocationSasToken}'
     timeout: 'PT4H'
     cleanupPreference: 'OnSuccess'
     retentionInterval: 'P1D'
@@ -168,7 +168,7 @@ resource dscExt 'Microsoft.Compute/virtualMachines/extensions@2019-07-01' = {
     type: 'DSC'
     typeHandlerVersion: '2.77'
     settings: {
-      modulesUrl: '${ConfigurationsUri}dnsForwarder.zip${_artifactsLocationSasToken}'
+      modulesUrl: '${_artifactsLocation}dnsForwarder.zip${_artifactsLocationSasToken}'
       configurationFunction: 'dnsForwarder.ps1\\dnsForwarder'
       configurationArguments: {
         ActionAfterReboot: 'ContinueConfiguration'
@@ -209,7 +209,7 @@ resource deploymentScript_SetDns 'Microsoft.Resources/deploymentScripts@2020-10-
     forceUpdateTag: Timestamp
     azPowerShellVersion: '5.4'
     arguments: '-Dns ${nic.properties.ipConfigurations[0].properties.privateIPAddress} -VirtualNetwork ${VirtualNetwork} -VirtualNetworkResourceGroup ${VirtualNetworkResourceGroup}'
-    primaryScriptUri: '${ScriptsUri}Set-AzureVirtualNetworkDns.ps1${_artifactsLocationSasToken}'
+    primaryScriptUri: '${_artifactsLocation}Set-AzureVirtualNetworkDns.ps1${_artifactsLocationSasToken}'
     timeout: 'PT4H'
     cleanupPreference: 'OnSuccess'
     retentionInterval: 'P1D'

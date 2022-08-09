@@ -1,3 +1,6 @@
+param _artifactsLocation string
+@secure()
+param _artifactsLocationSasToken string
 param AcceleratedNetworking string
 param AvailabilitySetPrefix string
 param AutomationAccountName string
@@ -32,8 +35,6 @@ param OuPath string
 param RdpShortPath bool
 param ResourceGroups array
 param ScreenCaptureProtection bool
-param _artifactsLocationSasToken string
-param ScriptsUri string
 param SessionHostCount int
 param SessionHostIndex int
 param StorageAccountPrefix string
@@ -254,7 +255,7 @@ resource extension_CustomScriptExtension 'Microsoft.Compute/virtualMachines/exte
     autoUpgradeMinorVersion: true
     settings: {
       fileUris: [
-        '${ScriptsUri}Set-SessionHostConfiguration.ps1${_artifactsLocationSasToken}'
+        '${_artifactsLocation}Set-SessionHostConfiguration.ps1${_artifactsLocationSasToken}'
       ]
       timestamp: Timestamp
     }

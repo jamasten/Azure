@@ -1,3 +1,6 @@
+param _artifactsLocation string
+@secure()
+param _artifactsLocationSasToken string
 param AcceleratedNetworking string
 param AvailabilitySetCount int
 param AvailabilitySetPrefix string
@@ -36,9 +39,7 @@ param PooledHostPool bool
 param RdpShortPath bool
 param ResourceGroups array
 param RoleDefinitionIds object
-param _artifactsLocationSasToken string
 param ScreenCaptureProtection bool
-param ScriptsUri string
 param SecurityPrincipalObjectIds array
 param SessionHostBatchCount int
 param SessionHostIndex int
@@ -87,6 +88,8 @@ module virtualMachines 'virtualMachines.bicep' = [for i in range(1, SessionHostB
   name: 'VirtualMachines_${i-1}_${Timestamp}'
   scope: resourceGroup(ResourceGroups[1]) // Hosts Resource Group
   params: {
+    _artifactsLocation: _artifactsLocation    
+    _artifactsLocationSasToken: _artifactsLocationSasToken
     AcceleratedNetworking: AcceleratedNetworking
     AutomationAccountName: AutomationAccountName
     Availability: Availability
@@ -120,8 +123,6 @@ module virtualMachines 'virtualMachines.bicep' = [for i in range(1, SessionHostB
     RdpShortPath: RdpShortPath
     ResourceGroups: ResourceGroups
     ScreenCaptureProtection: ScreenCaptureProtection
-    _artifactsLocationSasToken: _artifactsLocationSasToken
-    ScriptsUri: ScriptsUri
     SessionHostCount: i == SessionHostBatchCount && DivisionRemainderValue > 0 ? DivisionRemainderValue : MaxResourcesPerTemplateDeployment
     SessionHostIndex: i == 1 ? SessionHostIndex : ((i - 1) * MaxResourcesPerTemplateDeployment) + SessionHostIndex
     StorageAccountPrefix: StorageAccountPrefix

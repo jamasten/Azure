@@ -1,7 +1,11 @@
 targetScope = 'subscription'
 
 @description('The URL prefix for linked resources.')
-param _artifactsLocation string = 'https://raw.githubusercontent.com/jamasten/Azure/master/solutions/avd/'
+param _artifactsLocation string = 'https://raw.githubusercontent.com/jamasten/Azure/master/solutions/avd/artifacts/'
+
+@secure()
+@description('The SAS Token for the scripts if they are stored on an Azure Storage Account.')
+param _artifactsLocationSasToken string = ''
 
 @allowed([
   'AvailabilitySet'
@@ -185,10 +189,6 @@ param ScalingTimeDifference string = '-5:00'
 @description('Determines whether the Screen Capture Protection feature is enabled.  As of 9/17/21 this is only supported in Azure Cloud. https://docs.microsoft.com/en-us/azure/virtual-desktop/screen-capture-protection')
 param ScreenCaptureProtection bool = false
 
-@secure()
-@description('The SAS Token for the scripts if they are stored on an Azure Storage Account.')
-param _artifactsLocationSasToken string = ''
-
 @description('An array of Object IDs for the Security Principals to assign to the AVD Application Group and FSLogix Storage.')
 param SecurityPrincipalObjectIds array = []
 
@@ -268,7 +268,6 @@ var AppGroupName = 'dag-${NamingStandard}'
 var AvailabilitySetPrefix = 'as-${NamingStandard}'
 var AutomationAccountName = 'aa-${NamingStandard}'
 var ConfigurationName = 'Windows10'
-var ConfigurationsUri = '${_artifactsLocation}configurations/'
 var DiskName = 'disk-${NamingStandard}'
 var FileShareNames = {
   CloudCacheProfileContainer: [
@@ -373,7 +372,6 @@ var RoleDefinitionIds = {
   storageFileDataSMBShareContributor: '0c867c2a-1d8c-454a-a3db-ab2ea1bdc8bb'
   virtualMachineUserLogin: 'fb879df8-f326-4884-b1cf-06f3ad86be52'
 }
-var ScriptsUri = '${_artifactsLocation}scripts/'
 var StampIndexFull = padLeft(StampIndex, 2, '0')
 var StorageAccountPrefix = 'st${Identifier}${Environment}${LocationShortName}${StampIndexFull}'
 var StorageSolution = split(FslogixStorage, ' ')[0]
@@ -473,6 +471,8 @@ module validation 'modules/validation.bicep' = {
   name: 'Validation_${Timestamp}'
   scope: resourceGroup(ResourceGroups[0]) // Deployment Resource Group
   params: {
+    _artifactsLocation: _artifactsLocation    
+    _artifactsLocationSasToken: _artifactsLocationSasToken
     Availability: Availability
     DiskEncryption: DiskEncryption
     DiskSku: DiskSku
@@ -486,8 +486,6 @@ module validation 'modules/validation.bicep' = {
     NamingStandard: NamingStandard
     PooledHostPool: PooledHostPool
     RecoveryServices: RecoveryServices
-    _artifactsLocationSasToken: _artifactsLocationSasToken
-    ScriptsUri: ScriptsUri    
     SecurityPrincipalIds: SecurityPrincipalObjectIds
     SecurityPrincipalNames: SecurityPrincipalNames
     SessionHostCount: SessionHostCount
@@ -579,6 +577,8 @@ module bitLocker 'modules/bitlocker/bitLocker.bicep' = if(DiskEncryption) {
   name: 'BitLocker_${Timestamp}'
   scope: resourceGroup(ResourceGroups[2]) // Management Resource Group
   params: {
+    _artifactsLocation: _artifactsLocation    
+    _artifactsLocationSasToken: _artifactsLocationSasToken
     DeploymentResourceGroup: ResourceGroups[0] // Deployment Resource Group
     KeyVaultName: KeyVaultName
     Location: Location
@@ -586,8 +586,6 @@ module bitLocker 'modules/bitlocker/bitLocker.bicep' = if(DiskEncryption) {
     ManagedIdentityPrincipalId: managedIdentity.outputs.principalId
     ManagedIdentityResourceId: managedIdentity.outputs.resourceIdentifier
     NamingStandard: NamingStandard
-    _artifactsLocationSasToken: _artifactsLocationSasToken
-    ScriptsUri: ScriptsUri
     Timestamp: Timestamp
   }
 }
@@ -596,9 +594,10 @@ module stig 'modules/stig.bicep' = if(DisaStigCompliance) {
   name: 'STIG_${Timestamp}'
   scope: resourceGroup(ResourceGroups[2]) // Management Resource Group
   params: {
+    _artifactsLocation: _artifactsLocation    
+    _artifactsLocationSasToken: _artifactsLocationSasToken
     AutomationAccountName: AutomationAccountName
     ConfigurationName: ConfigurationName
-    ConfigurationsUri: ConfigurationsUri
     Location: Location
     Timestamp: Timestamp
   }
@@ -611,8 +610,9 @@ module stig 'modules/stig.bicep' = if(DisaStigCompliance) {
 module fslogix 'modules/fslogix/fslogix.bicep' = if(Fslogix) {
   name: 'FSLogix_${Timestamp}'
   params: {
+    _artifactsLocation: _artifactsLocation    
+    _artifactsLocationSasToken: _artifactsLocationSasToken
     ActiveDirectoryConnection: validation.outputs.anfActiveDirectory
-    ConfigurationsUri: ConfigurationsUri
     DelegatedSubnetId: validation.outputs.anfSubnetId
     DiskEncryption: DiskEncryption
     DnsServerForwarderIPAddresses: validation.outputs.dnsForwarders
@@ -644,8 +644,6 @@ module fslogix 'modules/fslogix/fslogix.bicep' = if(Fslogix) {
     PrivateEndpoint: PrivateEndpoint
     ResourceGroups: ResourceGroups
     RoleDefinitionIds: RoleDefinitionIds
-    _artifactsLocationSasToken: _artifactsLocationSasToken
-    ScriptsUri: ScriptsUri
     SecurityPrincipalIds: SecurityPrincipalObjectIds
     SecurityPrincipalNames: SecurityPrincipalNames
     SmbServerLocation: LocationShortName
@@ -675,6 +673,8 @@ module sessionHosts 'modules/sessionHosts/sessionHosts.bicep' = {
   name: 'SessionHosts_${Timestamp}'
   scope: resourceGroup(ResourceGroups[1]) // Hosts Resource Group
   params: {
+    _artifactsLocation: _artifactsLocation    
+    _artifactsLocationSasToken: _artifactsLocationSasToken
     AcceleratedNetworking: validation.outputs.acceleratedNetworking
     AutomationAccountName: AutomationAccountName
     Availability: Availability
@@ -714,9 +714,7 @@ module sessionHosts 'modules/sessionHosts/sessionHosts.bicep' = {
     RdpShortPath: RdpShortPath
     ResourceGroups: ResourceGroups
     RoleDefinitionIds: RoleDefinitionIds
-    _artifactsLocationSasToken: _artifactsLocationSasToken
     ScreenCaptureProtection: ScreenCaptureProtection
-    ScriptsUri: ScriptsUri
     SecurityPrincipalObjectIds: SecurityPrincipalObjectIds
     SessionHostBatchCount: SessionHostBatchCount
     SessionHostIndex: SessionHostIndex
@@ -777,6 +775,8 @@ module scalingTool 'modules/scalingTool.bicep' = if(ScalingTool && PooledHostPoo
   name: 'ScalingTool_${Timestamp}'
   scope: resourceGroup(ResourceGroups[2]) // Management Resource Group
   params: {
+    _artifactsLocation: _artifactsLocation    
+    _artifactsLocationSasToken: _artifactsLocationSasToken
     AutomationAccountName: AutomationAccountName
     BeginPeakTime: ScalingBeginPeakTime
     EndPeakTime: ScalingEndPeakTime
@@ -787,8 +787,6 @@ module scalingTool 'modules/scalingTool.bicep' = if(ScalingTool && PooledHostPoo
     LogicAppPrefix: LogicAppPrefix
     ManagementResourceGroupName: ResourceGroups[2] // Management Resource Group
     MinimumNumberOfRdsh: ScalingMinimumNumberOfRdsh
-    _artifactsLocationSasToken: _artifactsLocationSasToken
-    ScriptsUri: ScriptsUri
     SessionHostsResourceGroupName: ResourceGroups[1] // Hosts Resource Group
     SessionThresholdPerCPU: ScalingSessionThresholdPerCPU
     TimeDifference: ScalingTimeDifference
@@ -804,12 +802,12 @@ module autoIncreasePremiumFileShareQuota 'modules/autoIncreasePremiumFileShareQu
   name: 'AutoIncreasePremiumFileShareQuota_${Timestamp}'
   scope: resourceGroup(ResourceGroups[2]) // Management Resource Group
   params: {
+    _artifactsLocation: _artifactsLocation    
+    _artifactsLocationSasToken: _artifactsLocationSasToken
     AutomationAccountName: AutomationAccountName
     FslogixSolution: FslogixSolution
     Location: Location
     LogicAppPrefix: LogicAppPrefix
-    _artifactsLocationSasToken: _artifactsLocationSasToken
-    ScriptsUri: ScriptsUri
     StorageAccountPrefix: StorageAccountPrefix
     StorageCount: StorageCount
     StorageIndex: StorageIndex
@@ -828,13 +826,13 @@ module drainMode 'modules/drainMode.bicep' = if(DrainMode) {
   name: 'DrainMode_${Timestamp}'
   scope: resourceGroup(ResourceGroups[0]) // Deployment Resource Group
   params: {
+    _artifactsLocation: _artifactsLocation    
+    _artifactsLocationSasToken: _artifactsLocationSasToken
     HostPoolName: HostPoolName
     HostPoolResourceGroupName: ResourceGroups[2] // Management Resource Group
     Location: Location
     ManagedIdentityResourceId: managedIdentity.outputs.resourceIdentifier
     NamingStandard: NamingStandard
-    _artifactsLocationSasToken: _artifactsLocationSasToken
-    ScriptsUri: ScriptsUri
     Tags: Tags
     Timestamp: Timestamp
   }

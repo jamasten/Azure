@@ -1,4 +1,6 @@
-param ConfigurationsUri string
+param _artifactsLocation string
+@secure()
+param _artifactsLocationSasToken string
 param DnsServerForwarderIPAddresses array
 param DnsServerSize string
 @secure()
@@ -25,8 +27,6 @@ param PrivateDnsZoneName string
 param PrivateEndpoint bool
 param ResourceGroups array
 param RoleDefinitionIds object
-param _artifactsLocationSasToken string
-param ScriptsUri string
 param SecurityPrincipalIds array
 param SecurityPrincipalNames array
 param StampIndexFull string
@@ -180,7 +180,8 @@ module dnsForwarder 'dnsForwarder.bicep' = if(PrivateEndpoint) {
   name: 'DnsForwarder_${Timestamp}'
   scope: resourceGroup(ResourceGroupName)
   params: {
-    ConfigurationsUri: ConfigurationsUri
+    _artifactsLocation: _artifactsLocation    
+    _artifactsLocationSasToken: _artifactsLocationSasToken
     DnsServerForwarderIPAddresses: DnsServerForwarderIPAddresses
     DnsServerSize: DnsServerSize
     DomainJoinPassword: DomainJoinPassword
@@ -193,8 +194,6 @@ module dnsForwarder 'dnsForwarder.bicep' = if(PrivateEndpoint) {
     LocationShortName: LocationShortName
     ManagedIdentityResourceId: ManagedIdentityResourceId
     NamingStandard: NamingStandard
-    _artifactsLocationSasToken: _artifactsLocationSasToken
-    ScriptsUri: ScriptsUri
     StampIndexFull: StampIndexFull
     StorageSuffix: StorageSuffix
     Subnet: Subnet
@@ -211,11 +210,11 @@ module ntfsPermissions '../ntfsPermissions.bicep' = if(!contains(DomainServices,
   name: 'FslogixNtfsPermissions_${Timestamp}'
   scope: resourceGroup(ResourceGroups[0]) // Deployment Resource Group
   params: {
+    _artifactsLocation: _artifactsLocation    
+    _artifactsLocationSasToken: _artifactsLocationSasToken
     CommandToExecute: 'powershell -ExecutionPolicy Unrestricted -File Set-NtfsPermissions.ps1 -DomainJoinPassword "${DomainJoinPassword}" -DomainJoinUserPrincipalName ${DomainJoinUserPrincipalName} -DomainServices ${DomainServices} -Environment ${environment().name} -FslogixSolution ${FslogixSolution} -KerberosEncryptionType ${KerberosEncryption} -Netbios ${Netbios} -OuPath "${OuPath}" -SecurityPrincipalNames "${SecurityPrincipalNames}" -StorageAccountPrefix ${StorageAccountPrefix} -StorageAccountResourceGroupName ${ResourceGroups[3]} -StorageCount ${StorageCount} -StorageIndex ${StorageIndex} -StorageSolution ${StorageSolution} -StorageSuffix ${environment().suffixes.storage} -SubscriptionId ${subscription().subscriptionId} -TenantId ${subscription().tenantId}'
     Location: Location
     ManagementVmName: ManagementVmName
-    _artifactsLocationSasToken: _artifactsLocationSasToken
-    ScriptsUri: ScriptsUri
     Tags: Tags
     Timestamp: Timestamp
   }

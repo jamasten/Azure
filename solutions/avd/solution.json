@@ -5,15 +5,22 @@
     "_generator": {
       "name": "bicep",
       "version": "0.9.1.41621",
-      "templateHash": "16770633427320385424"
+      "templateHash": "10904023669833773783"
     }
   },
   "parameters": {
     "_artifactsLocation": {
       "type": "string",
-      "defaultValue": "https://raw.githubusercontent.com/jamasten/Azure/master/solutions/avd/",
+      "defaultValue": "https://raw.githubusercontent.com/jamasten/Azure/master/solutions/avd/artifacts/",
       "metadata": {
         "description": "The URL prefix for linked resources."
+      }
+    },
+    "_artifactsLocationSasToken": {
+      "type": "secureString",
+      "defaultValue": "",
+      "metadata": {
+        "description": "The SAS Token for the scripts if they are stored on an Azure Storage Account."
       }
     },
     "Availability": {
@@ -347,13 +354,6 @@
         "description": "Determines whether the Screen Capture Protection feature is enabled.  As of 9/17/21 this is only supported in Azure Cloud. https://docs.microsoft.com/en-us/azure/virtual-desktop/screen-capture-protection"
       }
     },
-    "_artifactsLocationSasToken": {
-      "type": "secureString",
-      "defaultValue": "",
-      "metadata": {
-        "description": "The SAS Token for the scripts if they are stored on an Azure Storage Account."
-      }
-    },
     "SecurityPrincipalObjectIds": {
       "type": "array",
       "defaultValue": [],
@@ -487,7 +487,6 @@
     "AvailabilitySetPrefix": "[format('as-{0}', variables('NamingStandard'))]",
     "AutomationAccountName": "[format('aa-{0}', variables('NamingStandard'))]",
     "ConfigurationName": "Windows10",
-    "ConfigurationsUri": "[format('{0}configurations/', parameters('_artifactsLocation'))]",
     "DiskName": "[format('disk-{0}', variables('NamingStandard'))]",
     "FileShareNames": {
       "CloudCacheProfileContainer": [
@@ -592,7 +591,6 @@
       "storageFileDataSMBShareContributor": "0c867c2a-1d8c-454a-a3db-ab2ea1bdc8bb",
       "virtualMachineUserLogin": "fb879df8-f326-4884-b1cf-06f3ad86be52"
     },
-    "ScriptsUri": "[format('{0}scripts/', parameters('_artifactsLocation'))]",
     "StampIndexFull": "[padLeft(parameters('StampIndex'), 2, '0')]",
     "StorageAccountPrefix": "[format('st{0}{1}{2}{3}', parameters('Identifier'), parameters('Environment'), variables('LocationShortName'), variables('StampIndexFull'))]",
     "StorageSolution": "[split(parameters('FslogixStorage'), ' ')[0]]",
@@ -978,6 +976,12 @@
         },
         "mode": "Incremental",
         "parameters": {
+          "_artifactsLocation": {
+            "value": "[parameters('_artifactsLocation')]"
+          },
+          "_artifactsLocationSasToken": {
+            "value": "[parameters('_artifactsLocationSasToken')]"
+          },
           "Availability": {
             "value": "[parameters('Availability')]"
           },
@@ -1016,12 +1020,6 @@
           },
           "RecoveryServices": {
             "value": "[parameters('RecoveryServices')]"
-          },
-          "_artifactsLocationSasToken": {
-            "value": "[parameters('_artifactsLocationSasToken')]"
-          },
-          "ScriptsUri": {
-            "value": "[variables('ScriptsUri')]"
           },
           "SecurityPrincipalIds": {
             "value": "[parameters('SecurityPrincipalObjectIds')]"
@@ -1067,10 +1065,16 @@
             "_generator": {
               "name": "bicep",
               "version": "0.9.1.41621",
-              "templateHash": "8586820732290081878"
+              "templateHash": "4909616721146041178"
             }
           },
           "parameters": {
+            "_artifactsLocation": {
+              "type": "string"
+            },
+            "_artifactsLocationSasToken": {
+              "type": "secureString"
+            },
             "Availability": {
               "type": "string"
             },
@@ -1109,12 +1113,6 @@
             },
             "RecoveryServices": {
               "type": "bool"
-            },
-            "_artifactsLocationSasToken": {
-              "type": "string"
-            },
-            "ScriptsUri": {
-              "type": "string"
             },
             "SecurityPrincipalIds": {
               "type": "array"
@@ -1175,7 +1173,7 @@
                 "forceUpdateTag": "[parameters('Timestamp')]",
                 "azPowerShellVersion": "5.4",
                 "arguments": "[format('-Availability {0} -DiskEncryption {1} -DiskSku {2} -DomainName {3} -DomainServices {4} -Environment {5} -EphemeralOsDisk {6} -ImageSku {7} -KerberosEncryption {8} -Location {9} -PooledHostPool {10} -RecoveryServices {11} -SecurityPrincipalIdsCount {12} -SecurityPrincipalNamesCount {13} -SessionHostCount {14} -SessionHostIndex {15} -StartVmOnConnect {16} -StorageCount {17} -StorageSolution {18} -VmSize {19} -VnetName {20} -VnetResourceGroupName {21}', parameters('Availability'), parameters('DiskEncryption'), parameters('DiskSku'), parameters('DomainName'), parameters('DomainServices'), environment().name, parameters('EphemeralOsDisk'), parameters('ImageSku'), parameters('KerberosEncryption'), parameters('Location'), parameters('PooledHostPool'), parameters('RecoveryServices'), variables('SecurityPrincipalIdsCount'), variables('SecurityPrincipalNamesCount'), parameters('SessionHostCount'), parameters('SessionHostIndex'), parameters('StartVmOnConnect'), parameters('StorageCount'), parameters('StorageSolution'), parameters('VmSize'), parameters('VirtualNetwork'), parameters('VirtualNetworkResourceGroup'))]",
-                "primaryScriptUri": "[format('{0}Get-Validation.ps1{1}', parameters('ScriptsUri'), parameters('_artifactsLocationSasToken'))]",
+                "primaryScriptUri": "[format('{0}Get-Validation.ps1{1}', parameters('_artifactsLocation'), parameters('_artifactsLocationSasToken'))]",
                 "timeout": "PT2H",
                 "cleanupPreference": "OnSuccess",
                 "retentionInterval": "P1D"
@@ -2107,6 +2105,12 @@
         },
         "mode": "Incremental",
         "parameters": {
+          "_artifactsLocation": {
+            "value": "[parameters('_artifactsLocation')]"
+          },
+          "_artifactsLocationSasToken": {
+            "value": "[parameters('_artifactsLocationSasToken')]"
+          },
           "DeploymentResourceGroup": {
             "value": "[variables('ResourceGroups')[0]]"
           },
@@ -2125,12 +2129,6 @@
           "NamingStandard": {
             "value": "[variables('NamingStandard')]"
           },
-          "_artifactsLocationSasToken": {
-            "value": "[parameters('_artifactsLocationSasToken')]"
-          },
-          "ScriptsUri": {
-            "value": "[variables('ScriptsUri')]"
-          },
           "Timestamp": {
             "value": "[parameters('Timestamp')]"
           }
@@ -2142,10 +2140,16 @@
             "_generator": {
               "name": "bicep",
               "version": "0.9.1.41621",
-              "templateHash": "2804540475678473692"
+              "templateHash": "10268409525092638875"
             }
           },
           "parameters": {
+            "_artifactsLocation": {
+              "type": "string"
+            },
+            "_artifactsLocationSasToken": {
+              "type": "secureString"
+            },
             "DeploymentResourceGroup": {
               "type": "string"
             },
@@ -2162,12 +2166,6 @@
               "type": "string"
             },
             "NamingStandard": {
-              "type": "string"
-            },
-            "_artifactsLocationSasToken": {
-              "type": "secureString"
-            },
-            "ScriptsUri": {
               "type": "string"
             },
             "Timestamp": {
@@ -2217,6 +2215,12 @@
                 },
                 "mode": "Incremental",
                 "parameters": {
+                  "_artifactsLocation": {
+                    "value": "[parameters('_artifactsLocation')]"
+                  },
+                  "_artifactsLocationSasToken": {
+                    "value": "[parameters('_artifactsLocationSasToken')]"
+                  },
                   "KeyVaultName": {
                     "value": "[parameters('KeyVaultName')]"
                   },
@@ -2229,12 +2233,6 @@
                   "NamingStandard": {
                     "value": "[parameters('NamingStandard')]"
                   },
-                  "_artifactsLocationSasToken": {
-                    "value": "[parameters('_artifactsLocationSasToken')]"
-                  },
-                  "ScriptsUri": {
-                    "value": "[parameters('ScriptsUri')]"
-                  },
                   "Timestamp": {
                     "value": "[parameters('Timestamp')]"
                   }
@@ -2246,10 +2244,16 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.9.1.41621",
-                      "templateHash": "7924566303465807618"
+                      "templateHash": "12830010894313543990"
                     }
                   },
                   "parameters": {
+                    "_artifactsLocation": {
+                      "type": "string"
+                    },
+                    "_artifactsLocationSasToken": {
+                      "type": "secureString"
+                    },
                     "KeyVaultName": {
                       "type": "string"
                     },
@@ -2260,12 +2264,6 @@
                       "type": "string"
                     },
                     "NamingStandard": {
-                      "type": "string"
-                    },
-                    "_artifactsLocationSasToken": {
-                      "type": "secureString"
-                    },
-                    "ScriptsUri": {
                       "type": "string"
                     },
                     "Timestamp": {
@@ -2289,7 +2287,7 @@
                       "properties": {
                         "azPowerShellVersion": "5.4",
                         "cleanupPreference": "OnSuccess",
-                        "primaryScriptUri": "[format('{0}New-AzureKeyEncryptionKey.ps1{1}', parameters('ScriptsUri'), parameters('_artifactsLocationSasToken'))]",
+                        "primaryScriptUri": "[format('{0}New-AzureKeyEncryptionKey.ps1{1}', parameters('_artifactsLocation'), parameters('_artifactsLocationSasToken'))]",
                         "arguments": "[format(' -KeyVault {0}', parameters('KeyVaultName'))]",
                         "forceUpdateTag": "[parameters('Timestamp')]",
                         "retentionInterval": "P1D",
@@ -2322,14 +2320,17 @@
         },
         "mode": "Incremental",
         "parameters": {
+          "_artifactsLocation": {
+            "value": "[parameters('_artifactsLocation')]"
+          },
+          "_artifactsLocationSasToken": {
+            "value": "[parameters('_artifactsLocationSasToken')]"
+          },
           "AutomationAccountName": {
             "value": "[variables('AutomationAccountName')]"
           },
           "ConfigurationName": {
             "value": "[variables('ConfigurationName')]"
-          },
-          "ConfigurationsUri": {
-            "value": "[variables('ConfigurationsUri')]"
           },
           "Location": {
             "value": "[parameters('Location')]"
@@ -2345,17 +2346,20 @@
             "_generator": {
               "name": "bicep",
               "version": "0.9.1.41621",
-              "templateHash": "6192380872062382194"
+              "templateHash": "13682602343527503773"
             }
           },
           "parameters": {
+            "_artifactsLocation": {
+              "type": "string"
+            },
+            "_artifactsLocationSasToken": {
+              "type": "secureString"
+            },
             "AutomationAccountName": {
               "type": "string"
             },
             "ConfigurationName": {
-              "type": "string"
-            },
-            "ConfigurationsUri": {
               "type": "string"
             },
             "Location": {
@@ -2455,7 +2459,7 @@
               "properties": {
                 "source": {
                   "type": "uri",
-                  "value": "[format('{0}Windows10.ps1', parameters('ConfigurationsUri'))]",
+                  "value": "[format('{0}Windows10.ps1{1}', parameters('_artifactsLocation'), parameters('_artifactsLocationSasToken'))]",
                   "version": "[parameters('Timestamp')]"
                 },
                 "parameters": {},
@@ -2500,11 +2504,14 @@
         },
         "mode": "Incremental",
         "parameters": {
+          "_artifactsLocation": {
+            "value": "[parameters('_artifactsLocation')]"
+          },
+          "_artifactsLocationSasToken": {
+            "value": "[parameters('_artifactsLocationSasToken')]"
+          },
           "ActiveDirectoryConnection": {
             "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroups')[0]), 'Microsoft.Resources/deployments', format('Validation_{0}', parameters('Timestamp')))).outputs.anfActiveDirectory.value]"
-          },
-          "ConfigurationsUri": {
-            "value": "[variables('ConfigurationsUri')]"
           },
           "DelegatedSubnetId": {
             "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroups')[0]), 'Microsoft.Resources/deployments', format('Validation_{0}', parameters('Timestamp')))).outputs.anfSubnetId.value]"
@@ -2599,12 +2606,6 @@
           "RoleDefinitionIds": {
             "value": "[variables('RoleDefinitionIds')]"
           },
-          "_artifactsLocationSasToken": {
-            "value": "[parameters('_artifactsLocationSasToken')]"
-          },
-          "ScriptsUri": {
-            "value": "[variables('ScriptsUri')]"
-          },
           "SecurityPrincipalIds": {
             "value": "[parameters('SecurityPrincipalObjectIds')]"
           },
@@ -2664,14 +2665,17 @@
             "_generator": {
               "name": "bicep",
               "version": "0.9.1.41621",
-              "templateHash": "16339616920500787979"
+              "templateHash": "4107587058720271067"
             }
           },
           "parameters": {
-            "ActiveDirectoryConnection": {
+            "_artifactsLocation": {
               "type": "string"
             },
-            "ConfigurationsUri": {
+            "_artifactsLocationSasToken": {
+              "type": "secureString"
+            },
+            "ActiveDirectoryConnection": {
               "type": "string"
             },
             "DelegatedSubnetId": {
@@ -2760,12 +2764,6 @@
             },
             "PrivateEndpoint": {
               "type": "bool"
-            },
-            "_artifactsLocationSasToken": {
-              "type": "string"
-            },
-            "ScriptsUri": {
-              "type": "string"
             },
             "SecurityPrincipalIds": {
               "type": "array"
@@ -3111,6 +3109,12 @@
                 },
                 "mode": "Incremental",
                 "parameters": {
+                  "_artifactsLocation": {
+                    "value": "[parameters('_artifactsLocation')]"
+                  },
+                  "_artifactsLocationSasToken": {
+                    "value": "[parameters('_artifactsLocationSasToken')]"
+                  },
                   "ActiveDirectoryConnection": {
                     "value": "[parameters('ActiveDirectoryConnection')]"
                   },
@@ -3153,12 +3157,6 @@
                   "ResourceGroups": {
                     "value": "[parameters('ResourceGroups')]"
                   },
-                  "_artifactsLocationSasToken": {
-                    "value": "[parameters('_artifactsLocationSasToken')]"
-                  },
-                  "ScriptsUri": {
-                    "value": "[parameters('ScriptsUri')]"
-                  },
                   "SecurityPrincipalNames": {
                     "value": "[parameters('SecurityPrincipalNames')]"
                   },
@@ -3185,10 +3183,16 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.9.1.41621",
-                      "templateHash": "13918851460803537747"
+                      "templateHash": "15685244221260848685"
                     }
                   },
                   "parameters": {
+                    "_artifactsLocation": {
+                      "type": "string"
+                    },
+                    "_artifactsLocationSasToken": {
+                      "type": "secureString"
+                    },
                     "ActiveDirectoryConnection": {
                       "type": "string"
                     },
@@ -3230,12 +3234,6 @@
                     },
                     "ResourceGroups": {
                       "type": "array"
-                    },
-                    "_artifactsLocationSasToken": {
-                      "type": "string"
-                    },
-                    "ScriptsUri": {
-                      "type": "string"
                     },
                     "SecurityPrincipalNames": {
                       "type": "array"
@@ -3333,6 +3331,12 @@
                         },
                         "mode": "Incremental",
                         "parameters": {
+                          "_artifactsLocation": {
+                            "value": "[parameters('_artifactsLocation')]"
+                          },
+                          "_artifactsLocationSasToken": {
+                            "value": "[parameters('_artifactsLocationSasToken')]"
+                          },
                           "CommandToExecute": {
                             "value": "[format('powershell -ExecutionPolicy Unrestricted -File Set-NtfsPermissions.ps1 -DomainJoinPassword \"{0}\" -DomainJoinUserPrincipalName {1} -FslogixSolution {2} -SecurityPrincipalNames \"{3}\" -SmbServerLocation {4} -StorageSolution {5}', parameters('DomainJoinPassword'), parameters('DomainJoinUserPrincipalName'), parameters('FslogixSolution'), parameters('SecurityPrincipalNames'), parameters('SmbServerLocation'), parameters('StorageSolution'))]"
                           },
@@ -3341,12 +3345,6 @@
                           },
                           "ManagementVmName": {
                             "value": "[parameters('ManagementVmName')]"
-                          },
-                          "_artifactsLocationSasToken": {
-                            "value": "[parameters('_artifactsLocationSasToken')]"
-                          },
-                          "ScriptsUri": {
-                            "value": "[parameters('ScriptsUri')]"
                           },
                           "Tags": {
                             "value": "[parameters('Tags')]"
@@ -3362,10 +3360,16 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "0.9.1.41621",
-                              "templateHash": "10798891302730644898"
+                              "templateHash": "13850445654345964029"
                             }
                           },
                           "parameters": {
+                            "_artifactsLocation": {
+                              "type": "string"
+                            },
+                            "_artifactsLocationSasToken": {
+                              "type": "secureString"
+                            },
                             "CommandToExecute": {
                               "type": "secureString"
                             },
@@ -3373,12 +3377,6 @@
                               "type": "string"
                             },
                             "ManagementVmName": {
-                              "type": "string"
-                            },
-                            "_artifactsLocationSasToken": {
-                              "type": "string"
-                            },
-                            "ScriptsUri": {
                               "type": "string"
                             },
                             "Tags": {
@@ -3402,7 +3400,7 @@
                                 "autoUpgradeMinorVersion": true,
                                 "settings": {
                                   "fileUris": [
-                                    "[format('{0}Set-NtfsPermissions.ps1{1}', parameters('ScriptsUri'), parameters('_artifactsLocationSasToken'))]"
+                                    "[format('{0}Set-NtfsPermissions.ps1{1}', parameters('_artifactsLocation'), parameters('_artifactsLocationSasToken'))]"
                                   ],
                                   "timestamp": "[parameters('Timestamp')]"
                                 },
@@ -3443,8 +3441,11 @@
                 },
                 "mode": "Incremental",
                 "parameters": {
-                  "ConfigurationsUri": {
-                    "value": "[parameters('ConfigurationsUri')]"
+                  "_artifactsLocation": {
+                    "value": "[parameters('_artifactsLocation')]"
+                  },
+                  "_artifactsLocationSasToken": {
+                    "value": "[parameters('_artifactsLocationSasToken')]"
                   },
                   "DnsServerForwarderIPAddresses": {
                     "value": "[parameters('DnsServerForwarderIPAddresses')]"
@@ -3521,12 +3522,6 @@
                   "RoleDefinitionIds": {
                     "value": "[parameters('RoleDefinitionIds')]"
                   },
-                  "_artifactsLocationSasToken": {
-                    "value": "[parameters('_artifactsLocationSasToken')]"
-                  },
-                  "ScriptsUri": {
-                    "value": "[parameters('ScriptsUri')]"
-                  },
                   "SecurityPrincipalIds": {
                     "value": "[parameters('SecurityPrincipalIds')]"
                   },
@@ -3583,12 +3578,15 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.9.1.41621",
-                      "templateHash": "10737959365812739058"
+                      "templateHash": "2207430509310698165"
                     }
                   },
                   "parameters": {
-                    "ConfigurationsUri": {
+                    "_artifactsLocation": {
                       "type": "string"
+                    },
+                    "_artifactsLocationSasToken": {
+                      "type": "secureString"
                     },
                     "DnsServerForwarderIPAddresses": {
                       "type": "array"
@@ -3664,12 +3662,6 @@
                     },
                     "RoleDefinitionIds": {
                       "type": "object"
-                    },
-                    "_artifactsLocationSasToken": {
-                      "type": "string"
-                    },
-                    "ScriptsUri": {
-                      "type": "string"
                     },
                     "SecurityPrincipalIds": {
                       "type": "array"
@@ -4087,8 +4079,11 @@
                         },
                         "mode": "Incremental",
                         "parameters": {
-                          "ConfigurationsUri": {
-                            "value": "[parameters('ConfigurationsUri')]"
+                          "_artifactsLocation": {
+                            "value": "[parameters('_artifactsLocation')]"
+                          },
+                          "_artifactsLocationSasToken": {
+                            "value": "[parameters('_artifactsLocationSasToken')]"
                           },
                           "DnsServerForwarderIPAddresses": {
                             "value": "[parameters('DnsServerForwarderIPAddresses')]"
@@ -4126,12 +4121,6 @@
                           "NamingStandard": {
                             "value": "[parameters('NamingStandard')]"
                           },
-                          "_artifactsLocationSasToken": {
-                            "value": "[parameters('_artifactsLocationSasToken')]"
-                          },
-                          "ScriptsUri": {
-                            "value": "[parameters('ScriptsUri')]"
-                          },
                           "StampIndexFull": {
                             "value": "[parameters('StampIndexFull')]"
                           },
@@ -4167,12 +4156,15 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "0.9.1.41621",
-                              "templateHash": "4530233298185911330"
+                              "templateHash": "8655644456865572034"
                             }
                           },
                           "parameters": {
-                            "ConfigurationsUri": {
+                            "_artifactsLocation": {
                               "type": "string"
+                            },
+                            "_artifactsLocationSasToken": {
+                              "type": "secureString"
                             },
                             "DnsServerForwarderIPAddresses": {
                               "type": "array"
@@ -4208,12 +4200,6 @@
                               "type": "string"
                             },
                             "NamingStandard": {
-                              "type": "string"
-                            },
-                            "_artifactsLocationSasToken": {
-                              "type": "string"
-                            },
-                            "ScriptsUri": {
                               "type": "string"
                             },
                             "StampIndexFull": {
@@ -4265,7 +4251,7 @@
                                 "forceUpdateTag": "[parameters('Timestamp')]",
                                 "azPowerShellVersion": "5.4",
                                 "arguments": "[format('-Subnet {0} -VirtualNetwork {1} -VirtualNetworkResourceGroup {2}', parameters('Subnet'), parameters('VirtualNetwork'), parameters('VirtualNetworkResourceGroup'))]",
-                                "primaryScriptUri": "[format('{0}Get-AzureVirtualNetworkDns.ps1{1}', parameters('ScriptsUri'), parameters('_artifactsLocationSasToken'))]",
+                                "primaryScriptUri": "[format('{0}Get-AzureVirtualNetworkDns.ps1{1}', parameters('_artifactsLocation'), parameters('_artifactsLocationSasToken'))]",
                                 "timeout": "PT4H",
                                 "cleanupPreference": "OnSuccess",
                                 "retentionInterval": "P1D"
@@ -4386,7 +4372,7 @@
                                 "type": "DSC",
                                 "typeHandlerVersion": "2.77",
                                 "settings": {
-                                  "modulesUrl": "[format('{0}dnsForwarder.zip{1}', parameters('ConfigurationsUri'), parameters('_artifactsLocationSasToken'))]",
+                                  "modulesUrl": "[format('{0}dnsForwarder.zip{1}', parameters('_artifactsLocation'), parameters('_artifactsLocationSasToken'))]",
                                   "configurationFunction": "dnsForwarder.ps1\\dnsForwarder",
                                   "configurationArguments": {
                                     "ActionAfterReboot": "ContinueConfiguration",
@@ -4429,7 +4415,7 @@
                                 "forceUpdateTag": "[parameters('Timestamp')]",
                                 "azPowerShellVersion": "5.4",
                                 "arguments": "[format('-Dns {0} -VirtualNetwork {1} -VirtualNetworkResourceGroup {2}', reference(resourceId('Microsoft.Network/networkInterfaces', format('nic-{0}-dns', parameters('NamingStandard')))).ipConfigurations[0].properties.privateIPAddress, parameters('VirtualNetwork'), parameters('VirtualNetworkResourceGroup'))]",
-                                "primaryScriptUri": "[format('{0}Set-AzureVirtualNetworkDns.ps1{1}', parameters('ScriptsUri'), parameters('_artifactsLocationSasToken'))]",
+                                "primaryScriptUri": "[format('{0}Set-AzureVirtualNetworkDns.ps1{1}', parameters('_artifactsLocation'), parameters('_artifactsLocationSasToken'))]",
                                 "timeout": "PT4H",
                                 "cleanupPreference": "OnSuccess",
                                 "retentionInterval": "P1D"
@@ -4541,6 +4527,12 @@
                         },
                         "mode": "Incremental",
                         "parameters": {
+                          "_artifactsLocation": {
+                            "value": "[parameters('_artifactsLocation')]"
+                          },
+                          "_artifactsLocationSasToken": {
+                            "value": "[parameters('_artifactsLocationSasToken')]"
+                          },
                           "CommandToExecute": {
                             "value": "[format('powershell -ExecutionPolicy Unrestricted -File Set-NtfsPermissions.ps1 -DomainJoinPassword \"{0}\" -DomainJoinUserPrincipalName {1} -DomainServices {2} -Environment {3} -FslogixSolution {4} -KerberosEncryptionType {5} -Netbios {6} -OuPath \"{7}\" -SecurityPrincipalNames \"{8}\" -StorageAccountPrefix {9} -StorageAccountResourceGroupName {10} -StorageCount {11} -StorageIndex {12} -StorageSolution {13} -StorageSuffix {14} -SubscriptionId {15} -TenantId {16}', parameters('DomainJoinPassword'), parameters('DomainJoinUserPrincipalName'), parameters('DomainServices'), environment().name, parameters('FslogixSolution'), parameters('KerberosEncryption'), parameters('Netbios'), parameters('OuPath'), parameters('SecurityPrincipalNames'), parameters('StorageAccountPrefix'), parameters('ResourceGroups')[3], parameters('StorageCount'), parameters('StorageIndex'), parameters('StorageSolution'), environment().suffixes.storage, subscription().subscriptionId, subscription().tenantId)]"
                           },
@@ -4549,12 +4541,6 @@
                           },
                           "ManagementVmName": {
                             "value": "[parameters('ManagementVmName')]"
-                          },
-                          "_artifactsLocationSasToken": {
-                            "value": "[parameters('_artifactsLocationSasToken')]"
-                          },
-                          "ScriptsUri": {
-                            "value": "[parameters('ScriptsUri')]"
                           },
                           "Tags": {
                             "value": "[parameters('Tags')]"
@@ -4570,10 +4556,16 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "0.9.1.41621",
-                              "templateHash": "10798891302730644898"
+                              "templateHash": "13850445654345964029"
                             }
                           },
                           "parameters": {
+                            "_artifactsLocation": {
+                              "type": "string"
+                            },
+                            "_artifactsLocationSasToken": {
+                              "type": "secureString"
+                            },
                             "CommandToExecute": {
                               "type": "secureString"
                             },
@@ -4581,12 +4573,6 @@
                               "type": "string"
                             },
                             "ManagementVmName": {
-                              "type": "string"
-                            },
-                            "_artifactsLocationSasToken": {
-                              "type": "string"
-                            },
-                            "ScriptsUri": {
                               "type": "string"
                             },
                             "Tags": {
@@ -4610,7 +4596,7 @@
                                 "autoUpgradeMinorVersion": true,
                                 "settings": {
                                   "fileUris": [
-                                    "[format('{0}Set-NtfsPermissions.ps1{1}', parameters('ScriptsUri'), parameters('_artifactsLocationSasToken'))]"
+                                    "[format('{0}Set-NtfsPermissions.ps1{1}', parameters('_artifactsLocation'), parameters('_artifactsLocationSasToken'))]"
                                   ],
                                   "timestamp": "[parameters('Timestamp')]"
                                 },
@@ -4662,6 +4648,12 @@
         },
         "mode": "Incremental",
         "parameters": {
+          "_artifactsLocation": {
+            "value": "[parameters('_artifactsLocation')]"
+          },
+          "_artifactsLocationSasToken": {
+            "value": "[parameters('_artifactsLocationSasToken')]"
+          },
           "AcceleratedNetworking": {
             "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroups')[0]), 'Microsoft.Resources/deployments', format('Validation_{0}', parameters('Timestamp')))).outputs.acceleratedNetworking.value]"
           },
@@ -4773,14 +4765,8 @@
           "RoleDefinitionIds": {
             "value": "[variables('RoleDefinitionIds')]"
           },
-          "_artifactsLocationSasToken": {
-            "value": "[parameters('_artifactsLocationSasToken')]"
-          },
           "ScreenCaptureProtection": {
             "value": "[parameters('ScreenCaptureProtection')]"
-          },
-          "ScriptsUri": {
-            "value": "[variables('ScriptsUri')]"
           },
           "SecurityPrincipalObjectIds": {
             "value": "[parameters('SecurityPrincipalObjectIds')]"
@@ -4844,10 +4830,16 @@
             "_generator": {
               "name": "bicep",
               "version": "0.9.1.41621",
-              "templateHash": "12456694041497965502"
+              "templateHash": "17248532605221934288"
             }
           },
           "parameters": {
+            "_artifactsLocation": {
+              "type": "string"
+            },
+            "_artifactsLocationSasToken": {
+              "type": "secureString"
+            },
             "AcceleratedNetworking": {
               "type": "string"
             },
@@ -4959,14 +4951,8 @@
             "RoleDefinitionIds": {
               "type": "object"
             },
-            "_artifactsLocationSasToken": {
-              "type": "string"
-            },
             "ScreenCaptureProtection": {
               "type": "bool"
-            },
-            "ScriptsUri": {
-              "type": "string"
             },
             "SecurityPrincipalObjectIds": {
               "type": "array"
@@ -5168,6 +5154,12 @@
                 },
                 "mode": "Incremental",
                 "parameters": {
+                  "_artifactsLocation": {
+                    "value": "[parameters('_artifactsLocation')]"
+                  },
+                  "_artifactsLocationSasToken": {
+                    "value": "[parameters('_artifactsLocationSasToken')]"
+                  },
                   "AcceleratedNetworking": {
                     "value": "[parameters('AcceleratedNetworking')]"
                   },
@@ -5267,12 +5259,6 @@
                   "ScreenCaptureProtection": {
                     "value": "[parameters('ScreenCaptureProtection')]"
                   },
-                  "_artifactsLocationSasToken": {
-                    "value": "[parameters('_artifactsLocationSasToken')]"
-                  },
-                  "ScriptsUri": {
-                    "value": "[parameters('ScriptsUri')]"
-                  },
                   "SessionHostCount": {
                     "value": "[if(and(equals(range(1, parameters('SessionHostBatchCount'))[copyIndex()], parameters('SessionHostBatchCount')), greater(parameters('DivisionRemainderValue'), 0)), parameters('DivisionRemainderValue'), parameters('MaxResourcesPerTemplateDeployment'))]"
                   },
@@ -5332,10 +5318,16 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.9.1.41621",
-                      "templateHash": "13409685719771506302"
+                      "templateHash": "7673074066449459130"
                     }
                   },
                   "parameters": {
+                    "_artifactsLocation": {
+                      "type": "string"
+                    },
+                    "_artifactsLocationSasToken": {
+                      "type": "secureString"
+                    },
                     "AcceleratedNetworking": {
                       "type": "string"
                     },
@@ -5434,12 +5426,6 @@
                     },
                     "ScreenCaptureProtection": {
                       "type": "bool"
-                    },
-                    "_artifactsLocationSasToken": {
-                      "type": "string"
-                    },
-                    "ScriptsUri": {
-                      "type": "string"
                     },
                     "SessionHostCount": {
                       "type": "int"
@@ -5710,7 +5696,7 @@
                         "autoUpgradeMinorVersion": true,
                         "settings": {
                           "fileUris": [
-                            "[format('{0}Set-SessionHostConfiguration.ps1{1}', parameters('ScriptsUri'), parameters('_artifactsLocationSasToken'))]"
+                            "[format('{0}Set-SessionHostConfiguration.ps1{1}', parameters('_artifactsLocation'), parameters('_artifactsLocationSasToken'))]"
                           ],
                           "timestamp": "[parameters('Timestamp')]"
                         },
@@ -6382,6 +6368,12 @@
         },
         "mode": "Incremental",
         "parameters": {
+          "_artifactsLocation": {
+            "value": "[parameters('_artifactsLocation')]"
+          },
+          "_artifactsLocationSasToken": {
+            "value": "[parameters('_artifactsLocationSasToken')]"
+          },
           "AutomationAccountName": {
             "value": "[variables('AutomationAccountName')]"
           },
@@ -6412,12 +6404,6 @@
           "MinimumNumberOfRdsh": {
             "value": "[parameters('ScalingMinimumNumberOfRdsh')]"
           },
-          "_artifactsLocationSasToken": {
-            "value": "[parameters('_artifactsLocationSasToken')]"
-          },
-          "ScriptsUri": {
-            "value": "[variables('ScriptsUri')]"
-          },
           "SessionHostsResourceGroupName": {
             "value": "[variables('ResourceGroups')[1]]"
           },
@@ -6435,10 +6421,16 @@
             "_generator": {
               "name": "bicep",
               "version": "0.9.1.41621",
-              "templateHash": "11271457951391943742"
+              "templateHash": "2008399291698601544"
             }
           },
           "parameters": {
+            "_artifactsLocation": {
+              "type": "string"
+            },
+            "_artifactsLocationSasToken": {
+              "type": "secureString"
+            },
             "AutomationAccountName": {
               "type": "string"
             },
@@ -6467,12 +6459,6 @@
               "type": "string"
             },
             "MinimumNumberOfRdsh": {
-              "type": "string"
-            },
-            "_artifactsLocationSasToken": {
-              "type": "secureString"
-            },
-            "ScriptsUri": {
               "type": "string"
             },
             "SessionHostsResourceGroupName": {
@@ -6509,7 +6495,7 @@
                 "logProgress": false,
                 "logVerbose": false,
                 "publishContentLink": {
-                  "uri": "[format('{0}Set-HostPoolScaling.ps1{1}', parameters('ScriptsUri'), parameters('_artifactsLocationSasToken'))]",
+                  "uri": "[format('{0}Set-HostPoolScaling.ps1{1}', parameters('_artifactsLocation'), parameters('_artifactsLocationSasToken'))]",
                   "version": "1.0.0.0"
                 }
               }
@@ -6660,6 +6646,12 @@
         },
         "mode": "Incremental",
         "parameters": {
+          "_artifactsLocation": {
+            "value": "[parameters('_artifactsLocation')]"
+          },
+          "_artifactsLocationSasToken": {
+            "value": "[parameters('_artifactsLocationSasToken')]"
+          },
           "AutomationAccountName": {
             "value": "[variables('AutomationAccountName')]"
           },
@@ -6671,12 +6663,6 @@
           },
           "LogicAppPrefix": {
             "value": "[variables('LogicAppPrefix')]"
-          },
-          "_artifactsLocationSasToken": {
-            "value": "[parameters('_artifactsLocationSasToken')]"
-          },
-          "ScriptsUri": {
-            "value": "[variables('ScriptsUri')]"
           },
           "StorageAccountPrefix": {
             "value": "[variables('StorageAccountPrefix')]"
@@ -6698,10 +6684,16 @@
             "_generator": {
               "name": "bicep",
               "version": "0.9.1.41621",
-              "templateHash": "9430244337386335166"
+              "templateHash": "9810423073972726109"
             }
           },
           "parameters": {
+            "_artifactsLocation": {
+              "type": "string"
+            },
+            "_artifactsLocationSasToken": {
+              "type": "secureString"
+            },
             "AutomationAccountName": {
               "type": "string"
             },
@@ -6712,12 +6704,6 @@
               "type": "string"
             },
             "LogicAppPrefix": {
-              "type": "string"
-            },
-            "_artifactsLocationSasToken": {
-              "type": "secureString"
-            },
-            "ScriptsUri": {
               "type": "string"
             },
             "StorageAccountPrefix": {
@@ -6755,7 +6741,7 @@
                 "logProgress": false,
                 "logVerbose": false,
                 "publishContentLink": {
-                  "uri": "[format('{0}Set-FileShareScaling.ps1{1}', parameters('ScriptsUri'), parameters('_artifactsLocationSasToken'))]",
+                  "uri": "[format('{0}Set-FileShareScaling.ps1{1}', parameters('_artifactsLocation'), parameters('_artifactsLocationSasToken'))]",
                   "version": "1.0.0.0"
                 }
               }
@@ -6943,6 +6929,12 @@
         },
         "mode": "Incremental",
         "parameters": {
+          "_artifactsLocation": {
+            "value": "[parameters('_artifactsLocation')]"
+          },
+          "_artifactsLocationSasToken": {
+            "value": "[parameters('_artifactsLocationSasToken')]"
+          },
           "HostPoolName": {
             "value": "[variables('HostPoolName')]"
           },
@@ -6958,12 +6950,6 @@
           "NamingStandard": {
             "value": "[variables('NamingStandard')]"
           },
-          "_artifactsLocationSasToken": {
-            "value": "[parameters('_artifactsLocationSasToken')]"
-          },
-          "ScriptsUri": {
-            "value": "[variables('ScriptsUri')]"
-          },
           "Tags": {
             "value": "[parameters('Tags')]"
           },
@@ -6978,10 +6964,16 @@
             "_generator": {
               "name": "bicep",
               "version": "0.9.1.41621",
-              "templateHash": "2880049770944001235"
+              "templateHash": "12210162514780065944"
             }
           },
           "parameters": {
+            "_artifactsLocation": {
+              "type": "string"
+            },
+            "_artifactsLocationSasToken": {
+              "type": "secureString"
+            },
             "HostPoolName": {
               "type": "string"
             },
@@ -6995,12 +6987,6 @@
               "type": "string"
             },
             "NamingStandard": {
-              "type": "string"
-            },
-            "_artifactsLocationSasToken": {
-              "type": "string"
-            },
-            "ScriptsUri": {
               "type": "string"
             },
             "Tags": {
@@ -7028,7 +7014,7 @@
                 "azPowerShellVersion": "5.4",
                 "cleanupPreference": "OnSuccess",
                 "arguments": "[format('-ResourceGroup {0} -HostPool {1}', parameters('HostPoolResourceGroupName'), parameters('HostPoolName'))]",
-                "primaryScriptUri": "[format('{0}Set-AzureAvdDrainMode.ps1{1}', parameters('ScriptsUri'), parameters('_artifactsLocationSasToken'))]",
+                "primaryScriptUri": "[format('{0}Set-AzureAvdDrainMode.ps1{1}', parameters('_artifactsLocation'), parameters('_artifactsLocationSasToken'))]",
                 "forceUpdateTag": "[parameters('Timestamp')]",
                 "retentionInterval": "P1D",
                 "timeout": "PT30M"

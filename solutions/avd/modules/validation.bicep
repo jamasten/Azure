@@ -1,3 +1,6 @@
+param _artifactsLocation string
+@secure()
+param _artifactsLocationSasToken string
 param Availability string
 param DiskEncryption bool
 param DiskSku string
@@ -11,8 +14,6 @@ param ManagedIdentityResourceId string
 param NamingStandard string
 param PooledHostPool bool
 param RecoveryServices bool
-param _artifactsLocationSasToken string
-param ScriptsUri string
 param SecurityPrincipalIds array
 param SecurityPrincipalNames array
 param SessionHostCount int
@@ -46,7 +47,7 @@ resource deploymentScript 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
     forceUpdateTag: Timestamp
     azPowerShellVersion: '5.4'
     arguments: '-Availability ${Availability} -DiskEncryption ${DiskEncryption} -DiskSku ${DiskSku} -DomainName ${DomainName} -DomainServices ${DomainServices} -Environment ${environment().name} -EphemeralOsDisk ${EphemeralOsDisk} -ImageSku ${ImageSku} -KerberosEncryption ${KerberosEncryption} -Location ${Location} -PooledHostPool ${PooledHostPool} -RecoveryServices ${RecoveryServices} -SecurityPrincipalIdsCount ${SecurityPrincipalIdsCount} -SecurityPrincipalNamesCount ${SecurityPrincipalNamesCount} -SessionHostCount ${SessionHostCount} -SessionHostIndex ${SessionHostIndex} -StartVmOnConnect ${StartVmOnConnect} -StorageCount ${StorageCount} -StorageSolution ${StorageSolution} -VmSize ${VmSize} -VnetName ${VirtualNetwork} -VnetResourceGroupName ${VirtualNetworkResourceGroup}'
-    primaryScriptUri: '${ScriptsUri}Get-Validation.ps1${_artifactsLocationSasToken}'
+    primaryScriptUri: '${_artifactsLocation}Get-Validation.ps1${_artifactsLocationSasToken}'
     timeout: 'PT2H'
     cleanupPreference: 'OnSuccess'
     retentionInterval: 'P1D'

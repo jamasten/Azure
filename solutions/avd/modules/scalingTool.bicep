@@ -1,3 +1,6 @@
+param _artifactsLocation string
+@secure()
+param _artifactsLocationSasToken string
 param AutomationAccountName string
 param BeginPeakTime string
 param EndPeakTime string
@@ -8,9 +11,6 @@ param Location string
 param LogicAppPrefix string
 param ManagementResourceGroupName string
 param MinimumNumberOfRdsh string
-@secure()
-param _artifactsLocationSasToken string
-param ScriptsUri string
 param SessionHostsResourceGroupName string
 param SessionThresholdPerCPU string
 param TimeDifference string
@@ -32,7 +32,7 @@ resource runbook 'Microsoft.Automation/automationAccounts/runbooks@2019-06-01' =
     logProgress: false
     logVerbose: false
     publishContentLink: {
-      uri: '${ScriptsUri}Set-HostPoolScaling.ps1${_artifactsLocationSasToken}'
+      uri: '${_artifactsLocation}Set-HostPoolScaling.ps1${_artifactsLocationSasToken}'
       version: '1.0.0.0'
     }
   }

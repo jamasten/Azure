@@ -1,3 +1,6 @@
+param _artifactsLocation string
+@secure()
+param _artifactsLocationSasToken string
 param ActiveDirectoryConnection string
 param DelegatedSubnetId string
 param DnsServers string
@@ -13,8 +16,6 @@ param NetAppAccountName string
 param NetAppCapacityPoolName string
 param OuPath string
 param ResourceGroups array
-param _artifactsLocationSasToken string
-param ScriptsUri string
 param SecurityPrincipalNames array
 param SmbServerLocation string
 param StorageSku string
@@ -135,11 +136,11 @@ module ntfsPermissions 'ntfsPermissions.bicep' = {
   name: 'FslogixNtfsPermissions_${Timestamp}'
   scope: resourceGroup(ResourceGroups[0]) // Deployment Resource Group
   params: {
+    _artifactsLocation: _artifactsLocation    
+    _artifactsLocationSasToken: _artifactsLocationSasToken
     CommandToExecute: 'powershell -ExecutionPolicy Unrestricted -File Set-NtfsPermissions.ps1 -DomainJoinPassword "${DomainJoinPassword}" -DomainJoinUserPrincipalName ${DomainJoinUserPrincipalName} -FslogixSolution ${FslogixSolution} -SecurityPrincipalNames "${SecurityPrincipalNames}" -SmbServerLocation ${SmbServerLocation} -StorageSolution ${StorageSolution}'
     Location: Location
     ManagementVmName: ManagementVmName
-    _artifactsLocationSasToken: _artifactsLocationSasToken
-    ScriptsUri: ScriptsUri
     Tags: Tags
     Timestamp: Timestamp
   }

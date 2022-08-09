@@ -1,8 +1,10 @@
 targetScope = 'subscription'
 
 
+param _artifactsLocation string
+@secure()
+param _artifactsLocationSasToken string
 param ActiveDirectoryConnection string
-param ConfigurationsUri string
 param DelegatedSubnetId string
 param DiskEncryption bool
 param DnsServerForwarderIPAddresses array
@@ -33,8 +35,6 @@ param Netbios string
 param OuPath string
 param PrivateDnsZoneName string
 param PrivateEndpoint bool
-param _artifactsLocationSasToken string
-param ScriptsUri string
 param SecurityPrincipalIds array 
 param SecurityPrincipalNames array
 param SmbServerLocation string
@@ -88,6 +88,8 @@ module azureNetAppFiles 'azureNetAppFiles.bicep' = if(StorageSolution == 'AzureN
   name: 'AzureNetAppFiles_${Timestamp}'
   scope: resourceGroup(ResourceGroups[3]) // Storage Resource Group
   params: {
+    _artifactsLocation: _artifactsLocation    
+    _artifactsLocationSasToken: _artifactsLocationSasToken
     ActiveDirectoryConnection: ActiveDirectoryConnection
     DelegatedSubnetId: DelegatedSubnetId
     DnsServers: DnsServers
@@ -102,8 +104,6 @@ module azureNetAppFiles 'azureNetAppFiles.bicep' = if(StorageSolution == 'AzureN
     NetAppCapacityPoolName: NetAppCapacityPoolName
     OuPath: OuPath
     ResourceGroups: ResourceGroups
-    _artifactsLocationSasToken: _artifactsLocationSasToken
-    ScriptsUri: ScriptsUri
     SecurityPrincipalNames: SecurityPrincipalNames
     SmbServerLocation: SmbServerLocation
     StorageSku: StorageSku
@@ -121,7 +121,8 @@ module azureFiles 'azureFiles/azureFiles.bicep' = if(StorageSolution == 'AzureSt
   name: 'AzureFiles_${Timestamp}'
   scope: resourceGroup(ResourceGroups[3]) // Storage Resource Group
   params: {
-    ConfigurationsUri: ConfigurationsUri
+    _artifactsLocation: _artifactsLocation    
+    _artifactsLocationSasToken: _artifactsLocationSasToken
     DnsServerForwarderIPAddresses: DnsServerForwarderIPAddresses
     DnsServerSize: DnsServerSize
     DomainJoinPassword: DomainJoinPassword
@@ -147,8 +148,6 @@ module azureFiles 'azureFiles/azureFiles.bicep' = if(StorageSolution == 'AzureSt
     PrivateEndpoint: PrivateEndpoint
     ResourceGroups: ResourceGroups
     RoleDefinitionIds: RoleDefinitionIds
-    _artifactsLocationSasToken: _artifactsLocationSasToken
-    ScriptsUri: ScriptsUri
     SecurityPrincipalIds: SecurityPrincipalIds
     SecurityPrincipalNames: SecurityPrincipalNames
     StampIndexFull: StampIndexFull

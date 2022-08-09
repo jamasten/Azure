@@ -1,6 +1,8 @@
+param _artifactsLocation string
+@secure()
+param _artifactsLocationSasToken string
 param AutomationAccountName string
 param ConfigurationName string
-param ConfigurationsUri string
 param Location string
 param Timestamp string
 
@@ -86,7 +88,7 @@ resource configuration 'Microsoft.Automation/automationAccounts/configurations@2
   properties: {
     source: {
       type: 'uri'
-      value: '${ConfigurationsUri}Windows10.ps1'
+      value: '${_artifactsLocation}Windows10.ps1${_artifactsLocationSasToken}'
       version: Timestamp
     }
     parameters: {}

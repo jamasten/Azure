@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.9.1.41621",
-      "templateHash": "3067036516864874851"
+      "templateHash": "12341318263025822108"
     }
   },
   "parameters": {
@@ -87,6 +87,13 @@
       "defaultValue": "rg-shd-svc-d-eu-000",
       "metadata": {
         "description": "The resource group name for the storage account containing the scripts & application installers."
+      }
+    },
+    "StorageContainerName": {
+      "type": "string",
+      "defaultValue": "artifacts",
+      "metadata": {
+        "description": "The name of the container in the storage account containing the scripts & application installers."
       }
     },
     "SubnetName": {
@@ -605,6 +612,12 @@
           "LocationShortName": {
             "value": "[variables('LocationShortName')]"
           },
+          "StorageAccountName": {
+            "value": "[parameters('StorageAccountName')]"
+          },
+          "StorageContainerName": {
+            "value": "[parameters('StorageContainerName')]"
+          },
           "SubnetName": {
             "value": "[parameters('SubnetName')]"
           },
@@ -631,7 +644,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.9.1.41621",
-              "templateHash": "18369103503594172325"
+              "templateHash": "7212758985043412110"
             }
           },
           "parameters": {
@@ -665,6 +678,12 @@
             "LocationShortName": {
               "type": "string"
             },
+            "StorageAccountName": {
+              "type": "string"
+            },
+            "StorageContainerName": {
+              "type": "string"
+            },
             "SubnetName": {
               "type": "string"
             },
@@ -683,6 +702,9 @@
             "VirtualNetworkResourceGroupName": {
               "type": "string"
             }
+          },
+          "variables": {
+            "StorageUri": "[format('https://{0}.{1}/{2}/', parameters('StorageAccountName'), environment().suffixes.storage, parameters('StorageContainerName'))]"
           },
           "resources": [
             {
@@ -716,7 +738,7 @@
                     "name": "Virtual Desktop Optimization Tool",
                     "runElevated": true,
                     "runAsSystem": true,
-                    "scriptUri": "https://raw.githubusercontent.com/jamasten/Azure/main/solutions/imageBuilder/scripts/vdot.ps1"
+                    "scriptUri": "[format('{0}vdot.ps1', variables('StorageUri'))]"
                   },
                   {
                     "type": "WindowsRestart",

@@ -41,6 +41,9 @@ param StorageAccountName string = 'stshdsvcdeu000'
 @description('The resource group name for the storage account containing the scripts & application installers.')
 param StorageAccountResourceGroupName string = 'rg-shd-svc-d-eu-000'
 
+@description('The name of the container in the storage account containing the scripts & application installers.')
+param StorageContainerName string = 'artifacts'
+
 @description('The subnet name for the custom virtual network.')
 param SubnetName string = 'Clients'
 
@@ -226,6 +229,8 @@ module imageTemplate 'modules/imageTemplate.bicep' = {
     ImageVersion: ImageVersion
     Location: Location
     LocationShortName: LocationShortName
+    StorageAccountName: StorageAccountName
+    StorageContainerName: StorageContainerName
     SubnetName: SubnetName
     Timestamp: Timestamp
     UserAssignedIdentityResourceId: userAssignedIdentity.outputs.userAssignedIdentityResourceId

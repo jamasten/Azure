@@ -8,12 +8,17 @@ param ImageStorageAccountType string
 param ImageVersion string
 param Location string
 param LocationShortName string
+param StorageAccountName string
+param StorageContainerName string
 param SubnetName string
 param Timestamp string
 param UserAssignedIdentityResourceId string
 param VirtualMachineSize string
 param VirtualNetworkName string
 param VirtualNetworkResourceGroupName string
+
+
+var StorageUri = 'https://${StorageAccountName}.${environment().suffixes.storage}/${StorageContainerName}/'
 
 
 resource imageTemplate 'Microsoft.VirtualMachineImages/imageTemplates@2022-02-14' = {
@@ -48,7 +53,7 @@ resource imageTemplate 'Microsoft.VirtualMachineImages/imageTemplates@2022-02-14
         name: 'Virtual Desktop Optimization Tool'
         runElevated: true
         runAsSystem: true
-        scriptUri: 'https://raw.githubusercontent.com/jamasten/Azure/main/solutions/imageBuilder/scripts/vdot.ps1'
+        scriptUri: '${StorageUri}vdot.ps1'
       }
       {
         type: 'WindowsRestart'

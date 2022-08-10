@@ -1,7 +1,5 @@
 targetScope = 'subscription'
 
-@description('Determines whether the Image Builder VM will be deployed to custom Virtual Network or use the default Virtual Network.')
-param CustomVnet bool = false
 
 @allowed([
   'd' // Development
@@ -37,8 +35,12 @@ param ImageStorageAccountType string = 'Standard_LRS'
 @description('The location for the resources deployed in this solution.')
 param Location string = deployment().location
 
+param StorageAccountName string
+
+param StorageAccountResourceGroupName string
+
 @description('The subnet name for the custom virtual network.')
-param SubnetName string = ''
+param SubnetName string
 
 @description('')
 param Timestamp string = utcNow('yyyyMMddhhmmss')
@@ -47,10 +49,10 @@ param Timestamp string = utcNow('yyyyMMddhhmmss')
 param VirtualMachineSize string = 'Standard_DS2_v2'
 
 @description('The name for the custom virtual network.')
-param VirtualNetworkName string = ''
+param VirtualNetworkName string
 
 @description('The resource group name for the custom virtual network.')
-param VirtualNetworkResourceGroupName string = ''
+param VirtualNetworkResourceGroupName string
 
 
 var LocationShortNames = {
@@ -109,18 +111,25 @@ var LocationShortNames = {
   westus3: 'wu3'
 }
 var LocationShortName = LocationShortNames[Location]
-
-
-resource resourceGroup 'Microsoft.Resources/resourceGroups@2019-10-01' = {
-  name: 'rg-aib-${Environment}-${LocationShortName}'
-  location: Location
-  properties: {}
-}
-
-resource roleDefinition_Image 'Microsoft.Authorization/roleDefinitions@2015-07-01' = {
-  name: guid(subscription().id, 'ImageContributor')
-  properties: {
-    roleName: 'Image Contributor'
+var ResourceGroup = 'rg-aib-${Environment}-${LocationShortName}'
+var Roles = [
+  {
+    resourceGroup: VirtualNetworkResourceGroupName
+    name: 'Virtual Network Join'
+    description: 'Allow resources to join a subnet'
+    permissions: [
+      {
+        actions: [
+          'Microsoft.Network/virtualNetworks/read'
+          'Microsoft.Network/virtualNetworks/subnets/read'
+          'Microsoft.Network/virtualNetworks/subnets/join/action'
+        ]
+      }
+    ]
+  }
+  {
+    resourceGroup: ResourceGroup
+    name: 'Image Template Contributor'
     description: 'Allow the creation and management of images'
     permissions: [
       {
@@ -133,56 +142,97 @@ resource roleDefinition_Image 'Microsoft.Authorization/roleDefinitions@2015-07-0
           'Microsoft.Compute/images/write'
           'Microsoft.Compute/images/delete'
         ]
-        notActions: []
       }
     ]
-    assignableScopes: [
-      subscription().id
-    ]
   }
+]
+
+
+resource rg 'Microsoft.Resources/resourceGroups@2019-10-01' = {
+  name: ResourceGroup
+  location: Location
+  properties: {}
 }
 
-resource roleDefinition_Network 'Microsoft.Authorization/roleDefinitions@2015-07-01' = if (CustomVnet) {
-  name: guid(subscription().id, 'VnetJoin')
+resource roleDefinitions 'Microsoft.Authorization/roleDefinitions@2015-07-01' = [for i in range(0, length(Roles)): {
+  name: guid(Roles[i].name, subscription().id)
   properties: {
-    roleName: 'VNET Join'
-    description: 'Allow resources to join a subnet'
-    permissions: [
-      {
-        actions: [
-          'Microsoft.Network/virtualNetworks/read'
-          'Microsoft.Network/virtualNetworks/subnets/read'
-          'Microsoft.Network/virtualNetworks/subnets/join/action'
-        ]
-        notActions: []
-      }
-    ]
+    roleName: Roles[i].name
+    description: Roles[i].description
+    permissions: Roles[i].permissions
     assignableScopes: [
       subscription().id
     ]
   }
+}]
+
+module userAssignedIdentity 'modules/userAssignedIdentity.bicep' = {
+  name: 'UserAssignedIdentity_${Timestamp}'
+  scope: rg
+  params: {
+    Environment: Environment
+    Location: Location
+    LocationShortName: LocationShortName
+  }
 }
 
-module imageBuilder 'modules/imageBuilder.bicep' = {
-  name: 'ImageBuilder_${Timestamp}'
-  scope: resourceGroup
+module roleAssignments 'modules/roleAssignments.bicep' = [for i in range(0, length(Roles)): {
+  name: 'RoleAssignments_${Roles[i].resourceGroup}_${Timestamp}'
+  scope: resourceGroup(Roles[i].resourceGroup)
   params: {
-    CustomVnet: CustomVnet
+    PrincipalId: userAssignedIdentity.outputs.userAssignedIdentityPrincipalId
+    RoleDefinitionId: roleDefinitions[i].id
+  }
+}]
+
+module roleAssignment 'modules/roleAssignments.bicep' = {
+  name: 'RoleAssignment_${StorageAccountName}_${Timestamp}'
+  scope: resourceGroup(StorageAccountResourceGroupName)
+  params: {
+    PrincipalId: userAssignedIdentity.outputs.userAssignedIdentityPrincipalId
+    RoleDefinitionId: resourceId('Microsoft.Authorization/roleDefinitions', '2a2b9908-6ea1-4ae2-8e65-a410df84e7d1') // Storage Blob Data Reader
+    StorageAccountName: StorageAccountName
+  }
+}
+
+module computeGallery 'modules/computeGallery.bicep' = {
+  name: 'ComputeGallery_${Timestamp}'
+  scope: rg
+  params: {
     Environment: Environment
     ImageDefinitionName: ImageDefinitionName
     ImageOffer: ImageOffer
     ImagePublisher: ImagePublisher
     ImageSku: ImageSku
-    ImageVersion: ImageVersion
-    ImageStorageAccountType: ImageStorageAccountType
     Location: Location
     LocationShortName: LocationShortName
-    RoleImageContributor: roleDefinition_Image.name
-    RoleVirtualNetworkJoin: roleDefinition_Network.name
+  }
+}
+
+
+module imageTemplate 'modules/imageTemplate.bicep' = {
+  name: 'ImageTemplate_${Timestamp}'
+  scope: rg
+  params: {
+    Environment: Environment
+    ImageDefinitionName: ImageDefinitionName
+    ImageDefinitionResourceId: computeGallery.outputs.ImageDefinitionResourceId
+    ImageOffer: ImageOffer
+    ImagePublisher: ImagePublisher
+    ImageSku: ImageSku
+    ImageStorageAccountType: ImageStorageAccountType
+    ImageVersion: ImageVersion
+    Location: Location
+    LocationShortName: LocationShortName
     SubnetName: SubnetName
     Timestamp: Timestamp
+    UserAssignedIdentityResourceId: userAssignedIdentity.outputs.userAssignedIdentityResourceId
     VirtualMachineSize: VirtualMachineSize
     VirtualNetworkName: VirtualNetworkName
     VirtualNetworkResourceGroupName: VirtualNetworkResourceGroupName
   }
+  dependsOn: [
+    roleAssignment
+    roleAssignments
+  ]
 }

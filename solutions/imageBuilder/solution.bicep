@@ -11,7 +11,7 @@ targetScope = 'subscription'
 param Environment string = 'd'
 
 @description('The name of the Image Definition for the Shared Image Gallery.')
-param ImageDefinitionName string = 'Win10-21h2-VDOT'
+param ImageDefinitionName string = 'Win10-21h2-VDOT-g2'
 
 @description('The offer of the marketplace image.')
 param ImageOffer string = 'office-365'
@@ -35,12 +35,14 @@ param ImageStorageAccountType string = 'Standard_LRS'
 @description('The location for the resources deployed in this solution.')
 param Location string = deployment().location
 
-param StorageAccountName string
+@description('The name for the storage account containing the scripts & application installers.')
+param StorageAccountName string = 'stshdsvcdeu000'
 
-param StorageAccountResourceGroupName string
+@description('The resource group name for the storage account containing the scripts & application installers.')
+param StorageAccountResourceGroupName string = 'rg-shd-svc-d-eu-000'
 
 @description('The subnet name for the custom virtual network.')
-param SubnetName string
+param SubnetName string = 'Clients'
 
 @description('')
 param Timestamp string = utcNow('yyyyMMddhhmmss')
@@ -49,10 +51,10 @@ param Timestamp string = utcNow('yyyyMMddhhmmss')
 param VirtualMachineSize string = 'Standard_DS2_v2'
 
 @description('The name for the custom virtual network.')
-param VirtualNetworkName string
+param VirtualNetworkName string = 'vnet-shd-net-d-eu-000'
 
 @description('The resource group name for the custom virtual network.')
-param VirtualNetworkResourceGroupName string
+param VirtualNetworkResourceGroupName string = 'rg-shd-net-d-eu-000'
 
 
 var LocationShortNames = {

@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.9.1.41621",
-      "templateHash": "5952004484399896213"
+      "templateHash": "3067036516864874851"
     }
   },
   "parameters": {
@@ -24,7 +24,7 @@
     },
     "ImageDefinitionName": {
       "type": "string",
-      "defaultValue": "Win10-21h2-VDOT",
+      "defaultValue": "Win10-21h2-VDOT-g2",
       "metadata": {
         "description": "The name of the Image Definition for the Shared Image Gallery."
       }
@@ -76,13 +76,22 @@
       }
     },
     "StorageAccountName": {
-      "type": "string"
+      "type": "string",
+      "defaultValue": "stshdsvcdeu000",
+      "metadata": {
+        "description": "The name for the storage account containing the scripts & application installers."
+      }
     },
     "StorageAccountResourceGroupName": {
-      "type": "string"
+      "type": "string",
+      "defaultValue": "rg-shd-svc-d-eu-000",
+      "metadata": {
+        "description": "The resource group name for the storage account containing the scripts & application installers."
+      }
     },
     "SubnetName": {
       "type": "string",
+      "defaultValue": "Clients",
       "metadata": {
         "description": "The subnet name for the custom virtual network."
       }
@@ -103,12 +112,14 @@
     },
     "VirtualNetworkName": {
       "type": "string",
+      "defaultValue": "vnet-shd-net-d-eu-000",
       "metadata": {
         "description": "The name for the custom virtual network."
       }
     },
     "VirtualNetworkResourceGroupName": {
       "type": "string",
+      "defaultValue": "rg-shd-net-d-eu-000",
       "metadata": {
         "description": "The resource group name for the custom virtual network."
       }

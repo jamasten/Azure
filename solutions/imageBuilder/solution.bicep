@@ -153,6 +153,24 @@ var Roles = [
       }
     ]
   }
+  {
+    resourceGroup: ResourceGroup
+    name: 'Deployment Script Contributor'
+    description: 'Allow Deployment Scripts to deploy required resources to run scripts'
+    permissions: [
+      {
+        actions: [
+          'Microsoft.Compute/galleries/read'
+          'Microsoft.Compute/galleries/images/read'
+          'Microsoft.Compute/galleries/images/versions/read'
+          'Microsoft.Compute/galleries/images/versions/write'
+          'Microsoft.Compute/images/read'
+          'Microsoft.Compute/images/write'
+          'Microsoft.Compute/images/delete'
+        ]
+      }
+    ]
+  }
 ]
 var StorageUri = 'https://${StorageAccountName}.${environment().suffixes.storage}/${StorageContainerName}/'
 
@@ -236,6 +254,10 @@ module networkPolicy 'modules/networkPolicy.bicep' = {
     VirtualNetworkName: VirtualNetworkName
     VirtualNetworkResourceGroupName: VirtualNetworkResourceGroupName
   }
+  dependsOn: [
+    roleAssignment
+    roleAssignments
+  ]
 }
 
 module imageTemplate 'modules/imageTemplate.bicep' = {

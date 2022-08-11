@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.9.1.41621",
-      "templateHash": "6771096902614896555"
+      "templateHash": "17305137320261191664"
     }
   },
   "parameters": {
@@ -214,6 +214,24 @@
         "resourceGroup": "[variables('ResourceGroup')]",
         "name": "Image Template Contributor",
         "description": "Allow the creation and management of images",
+        "permissions": [
+          {
+            "actions": [
+              "Microsoft.Compute/galleries/read",
+              "Microsoft.Compute/galleries/images/read",
+              "Microsoft.Compute/galleries/images/versions/read",
+              "Microsoft.Compute/galleries/images/versions/write",
+              "Microsoft.Compute/images/read",
+              "Microsoft.Compute/images/write",
+              "Microsoft.Compute/images/delete"
+            ]
+          }
+        ]
+      },
+      {
+        "resourceGroup": "[variables('ResourceGroup')]",
+        "name": "Deployment Script Contributor",
+        "description": "Allow Deployment Scripts to deploy required resources to run scripts",
         "permissions": [
           {
             "actions": [
@@ -706,6 +724,8 @@
       },
       "dependsOn": [
         "[subscriptionResourceId('Microsoft.Resources/resourceGroups', variables('ResourceGroup'))]",
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('StorageAccountResourceGroupName')), 'Microsoft.Resources/deployments', format('RoleAssignment_{0}_{1}', parameters('StorageAccountName'), parameters('Timestamp')))]",
+        "roleAssignments",
         "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroup')), 'Microsoft.Resources/deployments', format('UserAssignedIdentity_{0}', parameters('Timestamp')))]"
       ]
     },

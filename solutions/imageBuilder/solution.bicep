@@ -130,6 +130,7 @@ var Roles = [
           'Microsoft.Network/virtualNetworks/read'
           'Microsoft.Network/virtualNetworks/subnets/read'
           'Microsoft.Network/virtualNetworks/subnets/join/action'
+          'Microsoft.Network/virtualNetworks/subnets/write' // Required to update the private link network policy
         ]
       }
     ]

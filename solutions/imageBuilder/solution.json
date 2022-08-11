@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.9.1.41621",
-      "templateHash": "15775411499235652210"
+      "templateHash": "6771096902614896555"
     }
   },
   "parameters": {
@@ -204,7 +204,8 @@
             "actions": [
               "Microsoft.Network/virtualNetworks/read",
               "Microsoft.Network/virtualNetworks/subnets/read",
-              "Microsoft.Network/virtualNetworks/subnets/join/action"
+              "Microsoft.Network/virtualNetworks/subnets/join/action",
+              "Microsoft.Network/virtualNetworks/subnets/write"
             ]
           }
         ]

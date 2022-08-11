@@ -1,7 +1,6 @@
 param Environment string
 param Location string
 param LocationShortName string
-param StorageUri string
 param SubnetName string
 param Tags object
 param Timestamp string
@@ -25,7 +24,7 @@ resource deploymentScript 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
     forceUpdateTag: Timestamp
     azPowerShellVersion: '5.4'
     arguments: '-SubnetName ${SubnetName} -VirtualNetworkName ${VirtualNetworkName} -VirtualNetworkResourceGroupName ${VirtualNetworkResourceGroupName}'
-    primaryScriptUri: '${StorageUri}Disable-AzurePrivateLinkServiceNetworkPolicy.ps1'
+    primaryScriptUri: 'https://raw.githubusercontent.com/jamasten/Azure/main/solutions/imageBuilder/scripts/Disable-AzurePrivateLinkServiceNetworkPolicy.ps1'
     timeout: 'PT2H'
     cleanupPreference: 'OnSuccess'
     retentionInterval: 'P1D'

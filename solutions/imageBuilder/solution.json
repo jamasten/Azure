@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.9.1.41621",
-      "templateHash": "9320893827142000355"
+      "templateHash": "17793795808456025308"
     }
   },
   "parameters": {
@@ -633,9 +633,6 @@
           "LocationShortName": {
             "value": "[variables('LocationShortName')]"
           },
-          "StorageUri": {
-            "value": "[variables('StorageUri')]"
-          },
           "SubnetName": {
             "value": "[parameters('SubnetName')]"
           },
@@ -662,7 +659,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.9.1.41621",
-              "templateHash": "846545177981456288"
+              "templateHash": "3843068069037887798"
             }
           },
           "parameters": {
@@ -673,9 +670,6 @@
               "type": "string"
             },
             "LocationShortName": {
-              "type": "string"
-            },
-            "StorageUri": {
               "type": "string"
             },
             "SubnetName": {
@@ -715,7 +709,7 @@
                 "forceUpdateTag": "[parameters('Timestamp')]",
                 "azPowerShellVersion": "5.4",
                 "arguments": "[format('-SubnetName {0} -VirtualNetworkName {1} -VirtualNetworkResourceGroupName {2}', parameters('SubnetName'), parameters('VirtualNetworkName'), parameters('VirtualNetworkResourceGroupName'))]",
-                "primaryScriptUri": "[format('{0}Disable-AzurePrivateLinkServiceNetworkPolicy.ps1', parameters('StorageUri'))]",
+                "primaryScriptUri": "https://raw.githubusercontent.com/jamasten/Azure/main/solutions/imageBuilder/scripts/Disable-AzurePrivateLinkServiceNetworkPolicy.ps1",
                 "timeout": "PT2H",
                 "cleanupPreference": "OnSuccess",
                 "retentionInterval": "P1D"

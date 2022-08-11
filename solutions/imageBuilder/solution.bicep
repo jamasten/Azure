@@ -247,7 +247,6 @@ module networkPolicy 'modules/networkPolicy.bicep' = {
     Environment: Environment
     Location: Location
     LocationShortName: LocationShortName
-    StorageUri: StorageUri
     SubnetName: SubnetName
     Tags: Tags
     Timestamp: Timestamp

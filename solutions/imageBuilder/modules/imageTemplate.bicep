@@ -53,7 +53,7 @@ resource imageTemplate 'Microsoft.VirtualMachineImages/imageTemplates@2022-02-14
         runAsSystem: true
         scriptUri: '${StorageUri}vdot.ps1'
       }
-      {
+      /*{
         type: 'WindowsRestart'
         restartCheckCommand: 'write-host \'Restarting post VDOT\''
         restartTimeout: '5m'
@@ -65,7 +65,7 @@ resource imageTemplate 'Microsoft.VirtualMachineImages/imageTemplates@2022-02-14
           'exclude:$_.Title -like \'*Preview*\''
           'include:$true'
         ]
-      }
+      }*/
     ]
     distribute: [
       {

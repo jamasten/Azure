@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.9.1.41621",
-      "templateHash": "12341318263025822108"
+      "templateHash": "1997701555529709103"
     }
   },
   "parameters": {
@@ -102,6 +102,10 @@
       "metadata": {
         "description": "The subnet name for the custom virtual network."
       }
+    },
+    "Tags": {
+      "type": "object",
+      "defaultValue": {}
     },
     "Timestamp": {
       "type": "string",
@@ -223,7 +227,8 @@
           }
         ]
       }
-    ]
+    ],
+    "StorageUri": "[format('https://{0}.{1}/{2}/', parameters('StorageAccountName'), environment().suffixes.storage, parameters('StorageContainerName'))]"
   },
   "resources": [
     {
@@ -231,6 +236,7 @@
       "apiVersion": "2019-10-01",
       "name": "[variables('ResourceGroup')]",
       "location": "[parameters('Location')]",
+      "tags": "[parameters('Tags')]",
       "properties": {}
     },
     {
@@ -269,6 +275,9 @@
           },
           "LocationShortName": {
             "value": "[variables('LocationShortName')]"
+          },
+          "Tags": {
+            "value": "[parameters('Tags')]"
           }
         },
         "template": {
@@ -278,7 +287,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.9.1.41621",
-              "templateHash": "17009310437047113405"
+              "templateHash": "4172291898175823502"
             }
           },
           "parameters": {
@@ -290,6 +299,9 @@
             },
             "LocationShortName": {
               "type": "string"
+            },
+            "Tags": {
+              "type": "object"
             }
           },
           "resources": [
@@ -297,7 +309,8 @@
               "type": "Microsoft.ManagedIdentity/userAssignedIdentities",
               "apiVersion": "2018-11-30",
               "name": "[format('uai-aib-{0}-{1}', parameters('Environment'), parameters('LocationShortName'))]",
-              "location": "[parameters('Location')]"
+              "location": "[parameters('Location')]",
+              "tags": "[parameters('Tags')]"
             }
           ],
           "outputs": {
@@ -497,6 +510,9 @@
           },
           "LocationShortName": {
             "value": "[variables('LocationShortName')]"
+          },
+          "Tags": {
+            "value": "[parameters('Tags')]"
           }
         },
         "template": {
@@ -506,7 +522,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.9.1.41621",
-              "templateHash": "15512047473792183514"
+              "templateHash": "10064931249101746975"
             }
           },
           "parameters": {
@@ -530,6 +546,9 @@
             },
             "LocationShortName": {
               "type": "string"
+            },
+            "Tags": {
+              "type": "object"
             }
           },
           "resources": [
@@ -537,13 +556,15 @@
               "type": "Microsoft.Compute/galleries",
               "apiVersion": "2022-01-03",
               "name": "[format('cg_aib_{0}_{1}', parameters('Environment'), parameters('LocationShortName'))]",
-              "location": "[parameters('Location')]"
+              "location": "[parameters('Location')]",
+              "tags": "[parameters('Tags')]"
             },
             {
               "type": "Microsoft.Compute/galleries/images",
               "apiVersion": "2022-01-03",
               "name": "[format('{0}/{1}', format('cg_aib_{0}_{1}', parameters('Environment'), parameters('LocationShortName')), parameters('ImageDefinitionName'))]",
               "location": "[parameters('Location')]",
+              "tags": "[parameters('Tags')]",
               "properties": {
                 "osType": "Windows",
                 "osState": "Generalized",
@@ -569,6 +590,122 @@
       },
       "dependsOn": [
         "[subscriptionResourceId('Microsoft.Resources/resourceGroups', variables('ResourceGroup'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2020-10-01",
+      "name": "[format('NetworkPolicy_{0}', parameters('Timestamp'))]",
+      "resourceGroup": "[variables('ResourceGroup')]",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "Environment": {
+            "value": "[parameters('Environment')]"
+          },
+          "Location": {
+            "value": "[parameters('Location')]"
+          },
+          "LocationShortName": {
+            "value": "[variables('LocationShortName')]"
+          },
+          "StorageUri": {
+            "value": "[variables('StorageUri')]"
+          },
+          "SubnetName": {
+            "value": "[parameters('SubnetName')]"
+          },
+          "Tags": {
+            "value": "[parameters('Tags')]"
+          },
+          "Timestamp": {
+            "value": "[parameters('Timestamp')]"
+          },
+          "UserAssignedIdentityResourceId": {
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroup')), 'Microsoft.Resources/deployments', format('UserAssignedIdentity_{0}', parameters('Timestamp')))).outputs.userAssignedIdentityResourceId.value]"
+          },
+          "VirtualNetworkName": {
+            "value": "[parameters('VirtualNetworkName')]"
+          },
+          "VirtualNetworkResourceGroupName": {
+            "value": "[parameters('VirtualNetworkResourceGroupName')]"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "0.9.1.41621",
+              "templateHash": "846545177981456288"
+            }
+          },
+          "parameters": {
+            "Environment": {
+              "type": "string"
+            },
+            "Location": {
+              "type": "string"
+            },
+            "LocationShortName": {
+              "type": "string"
+            },
+            "StorageUri": {
+              "type": "string"
+            },
+            "SubnetName": {
+              "type": "string"
+            },
+            "Tags": {
+              "type": "object"
+            },
+            "Timestamp": {
+              "type": "string"
+            },
+            "UserAssignedIdentityResourceId": {
+              "type": "string"
+            },
+            "VirtualNetworkName": {
+              "type": "string"
+            },
+            "VirtualNetworkResourceGroupName": {
+              "type": "string"
+            }
+          },
+          "resources": [
+            {
+              "type": "Microsoft.Resources/deploymentScripts",
+              "apiVersion": "2020-10-01",
+              "name": "[format('ds-aib-{0}-{1}', parameters('Environment'), parameters('LocationShortName'))]",
+              "location": "[parameters('Location')]",
+              "tags": "[parameters('Tags')]",
+              "kind": "AzurePowerShell",
+              "identity": {
+                "type": "UserAssigned",
+                "userAssignedIdentities": {
+                  "[format('{0}', parameters('UserAssignedIdentityResourceId'))]": {}
+                }
+              },
+              "properties": {
+                "forceUpdateTag": "[parameters('Timestamp')]",
+                "azPowerShellVersion": "5.4",
+                "arguments": "[format('-SubnetName {0} -VirtualNetworkName {1} -VirtualNetworkResourceGroupName {2}', parameters('SubnetName'), parameters('VirtualNetworkName'), parameters('VirtualNetworkResourceGroupName'))]",
+                "primaryScriptUri": "[format('{0}Disable-AzurePrivateLinkServiceNetworkPolicy.ps1', parameters('StorageUri'))]",
+                "timeout": "PT2H",
+                "cleanupPreference": "OnSuccess",
+                "retentionInterval": "P1D"
+              }
+            }
+          ]
+        }
+      },
+      "dependsOn": [
+        "[subscriptionResourceId('Microsoft.Resources/resourceGroups', variables('ResourceGroup'))]",
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroup')), 'Microsoft.Resources/deployments', format('UserAssignedIdentity_{0}', parameters('Timestamp')))]"
       ]
     },
     {
@@ -612,14 +749,14 @@
           "LocationShortName": {
             "value": "[variables('LocationShortName')]"
           },
-          "StorageAccountName": {
-            "value": "[parameters('StorageAccountName')]"
-          },
-          "StorageContainerName": {
-            "value": "[parameters('StorageContainerName')]"
+          "StorageUri": {
+            "value": "[variables('StorageUri')]"
           },
           "SubnetName": {
             "value": "[parameters('SubnetName')]"
+          },
+          "Tags": {
+            "value": "[parameters('Tags')]"
           },
           "Timestamp": {
             "value": "[parameters('Timestamp')]"
@@ -644,7 +781,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.9.1.41621",
-              "templateHash": "7212758985043412110"
+              "templateHash": "5946933878883116844"
             }
           },
           "parameters": {
@@ -678,14 +815,14 @@
             "LocationShortName": {
               "type": "string"
             },
-            "StorageAccountName": {
-              "type": "string"
-            },
-            "StorageContainerName": {
+            "StorageUri": {
               "type": "string"
             },
             "SubnetName": {
               "type": "string"
+            },
+            "Tags": {
+              "type": "object"
             },
             "Timestamp": {
               "type": "string"
@@ -703,15 +840,13 @@
               "type": "string"
             }
           },
-          "variables": {
-            "StorageUri": "[format('https://{0}.{1}/{2}/', parameters('StorageAccountName'), environment().suffixes.storage, parameters('StorageContainerName'))]"
-          },
           "resources": [
             {
               "type": "Microsoft.VirtualMachineImages/imageTemplates",
               "apiVersion": "2022-02-14",
               "name": "[format('imgt-{0}-{1}-{2}', toLower(parameters('ImageDefinitionName')), parameters('Environment'), parameters('LocationShortName'))]",
               "location": "[parameters('Location')]",
+              "tags": "[parameters('Tags')]",
               "identity": {
                 "type": "UserAssigned",
                 "userAssignedIdentities": {
@@ -738,20 +873,7 @@
                     "name": "Virtual Desktop Optimization Tool",
                     "runElevated": true,
                     "runAsSystem": true,
-                    "scriptUri": "[format('{0}vdot.ps1', variables('StorageUri'))]"
-                  },
-                  {
-                    "type": "WindowsRestart",
-                    "restartCheckCommand": "write-host 'Restarting post VDOT'",
-                    "restartTimeout": "5m"
-                  },
-                  {
-                    "type": "WindowsUpdate",
-                    "searchCriteria": "IsInstalled=0",
-                    "filters": [
-                      "exclude:$_.Title -like '*Preview*'",
-                      "include:$true"
-                    ]
+                    "scriptUri": "[format('{0}vdot.ps1', parameters('StorageUri'))]"
                   }
                 ],
                 "distribute": [
@@ -773,6 +895,7 @@
       },
       "dependsOn": [
         "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroup')), 'Microsoft.Resources/deployments', format('ComputeGallery_{0}', parameters('Timestamp')))]",
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroup')), 'Microsoft.Resources/deployments', format('NetworkPolicy_{0}', parameters('Timestamp')))]",
         "[subscriptionResourceId('Microsoft.Resources/resourceGroups', variables('ResourceGroup'))]",
         "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('StorageAccountResourceGroupName')), 'Microsoft.Resources/deployments', format('RoleAssignment_{0}_{1}', parameters('StorageAccountName'), parameters('Timestamp')))]",
         "roleAssignments",

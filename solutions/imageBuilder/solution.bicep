@@ -261,6 +261,7 @@ module imageTemplate 'modules/imageTemplate.bicep' = {
     VirtualNetworkResourceGroupName: VirtualNetworkResourceGroupName
   }
   dependsOn: [
+    networkPolicy
     roleAssignment
     roleAssignments
   ]

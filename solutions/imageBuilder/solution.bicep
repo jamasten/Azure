@@ -205,8 +205,9 @@ module userAssignedIdentity 'modules/userAssignedIdentity.bicep' = {
   }
 }
 
+@batchSize(1)
 module roleAssignments 'modules/roleAssignments.bicep' = [for i in range(0, length(Roles)): {
-  name: 'RoleAssignments_${Roles[i].resourceGroup}_${Timestamp}'
+  name: 'RoleAssignments_${i}_${Timestamp}'
   scope: resourceGroup(Roles[i].resourceGroup)
   params: {
     PrincipalId: userAssignedIdentity.outputs.userAssignedIdentityPrincipalId

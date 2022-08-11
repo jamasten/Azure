@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.9.1.41621",
-      "templateHash": "17305137320261191664"
+      "templateHash": "9320893827142000355"
     }
   },
   "parameters": {
@@ -351,11 +351,13 @@
     {
       "copy": {
         "name": "roleAssignments",
-        "count": "[length(range(0, length(variables('Roles'))))]"
+        "count": "[length(range(0, length(variables('Roles'))))]",
+        "mode": "serial",
+        "batchSize": 1
       },
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2020-10-01",
-      "name": "[format('RoleAssignments_{0}_{1}', variables('Roles')[range(0, length(variables('Roles')))[copyIndex()]].resourceGroup, parameters('Timestamp'))]",
+      "name": "[format('RoleAssignments_{0}_{1}', range(0, length(variables('Roles')))[copyIndex()], parameters('Timestamp'))]",
       "resourceGroup": "[variables('Roles')[range(0, length(variables('Roles')))[copyIndex()]].resourceGroup]",
       "properties": {
         "expressionEvaluationOptions": {

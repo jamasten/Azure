@@ -22,7 +22,7 @@ resource image 'Microsoft.Compute/galleries/images@2022-01-03' = {
   properties: {
     osType: 'Windows'
     osState: 'Generalized'
-    hyperVGeneration: contains(ImageSku, '-g2') ? 'V2' : 'V1'
+    hyperVGeneration: contains(ImageSku, '-g2') || contains(ImageSku, 'win11-') ? 'V2' : 'V1'
     identifier: {
       publisher: ImagePublisher
       offer: ImageOffer

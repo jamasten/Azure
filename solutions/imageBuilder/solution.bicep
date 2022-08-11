@@ -20,7 +20,7 @@ param ImageOffer string = 'office-365'
 param ImagePublisher string = 'microsoftwindowsdesktop'
 
 @description('The SKU of the marketplace image.')
-param ImageSku string = 'win10-21h2-avd-m365-g2'
+param ImageSku string = 'win11-21h2-avd-m365'
 
 @description('The version of the marketplace image.')
 param ImageVersion string = 'latest'

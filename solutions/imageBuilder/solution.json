@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.9.1.41621",
-      "templateHash": "1997701555529709103"
+      "templateHash": "4303681155915715904"
     }
   },
   "parameters": {
@@ -45,7 +45,7 @@
     },
     "ImageSku": {
       "type": "string",
-      "defaultValue": "win10-21h2-avd-m365-g2",
+      "defaultValue": "win11-21h2-avd-m365",
       "metadata": {
         "description": "The SKU of the marketplace image."
       }
@@ -522,7 +522,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.9.1.41621",
-              "templateHash": "10064931249101746975"
+              "templateHash": "16281299943302846486"
             }
           },
           "parameters": {
@@ -568,7 +568,7 @@
               "properties": {
                 "osType": "Windows",
                 "osState": "Generalized",
-                "hyperVGeneration": "[if(contains(parameters('ImageSku'), '-g2'), 'V2', 'V1')]",
+                "hyperVGeneration": "[if(or(contains(parameters('ImageSku'), '-g2'), contains(parameters('ImageSku'), 'win11-')), 'V2', 'V1')]",
                 "identifier": {
                   "publisher": "[parameters('ImagePublisher')]",
                   "offer": "[parameters('ImageOffer')]",
@@ -781,7 +781,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.9.1.41621",
-              "templateHash": "5946933878883116844"
+              "templateHash": "6223893327007905649"
             }
           },
           "parameters": {
@@ -874,6 +874,13 @@
                     "runElevated": true,
                     "runAsSystem": true,
                     "scriptUri": "[format('{0}vdot.ps1', parameters('StorageUri'))]"
+                  },
+                  {
+                    "type": "PowerShell",
+                    "name": "Microsoft Project & Visio",
+                    "runElevated": true,
+                    "runAsSystem": true,
+                    "scriptUri": "[format('{0}projectVisio.ps1', parameters('StorageUri'))]"
                   }
                 ],
                 "distribute": [

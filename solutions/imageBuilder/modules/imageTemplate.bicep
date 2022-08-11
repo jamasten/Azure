@@ -53,6 +53,13 @@ resource imageTemplate 'Microsoft.VirtualMachineImages/imageTemplates@2022-02-14
         runAsSystem: true
         scriptUri: '${StorageUri}vdot.ps1'
       }
+      {
+        type: 'PowerShell'
+        name: 'Microsoft Project & Visio'
+        runElevated: true
+        runAsSystem: true
+        scriptUri: '${StorageUri}projectVisio.ps1'
+      }
       /*{
         type: 'WindowsRestart'
         restartCheckCommand: 'write-host \'Restarting post VDOT\''

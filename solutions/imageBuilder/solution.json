@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.9.1.41621",
-      "templateHash": "4303681155915715904"
+      "templateHash": "15775411499235652210"
     }
   },
   "parameters": {
@@ -24,7 +24,7 @@
     },
     "ImageDefinitionName": {
       "type": "string",
-      "defaultValue": "Win10-21h2-VDOT-g2",
+      "defaultValue": "OfficeWorkers-Win11-21h2-g2",
       "metadata": {
         "description": "The name of the Image Definition for the Shared Image Gallery."
       }

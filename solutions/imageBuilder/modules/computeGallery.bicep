@@ -5,17 +5,20 @@ param ImagePublisher string
 param ImageSku string
 param Location string
 param LocationShortName string
+param Tags object
 
 
 resource gallery 'Microsoft.Compute/galleries@2022-01-03' = {
   name: 'cg_aib_${Environment}_${LocationShortName}'
   location: Location
+  tags: Tags
 }
 
 resource image 'Microsoft.Compute/galleries/images@2022-01-03' = {
   parent: gallery
   name: ImageDefinitionName
   location: Location
+  tags: Tags
   properties: {
     osType: 'Windows'
     osState: 'Generalized'

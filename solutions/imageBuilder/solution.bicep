@@ -47,6 +47,8 @@ param StorageContainerName string = 'artifacts'
 @description('The subnet name for the custom virtual network.')
 param SubnetName string = 'Clients'
 
+param Tags object = {}
+
 @description('')
 param Timestamp string = utcNow('yyyyMMddhhmmss')
 
@@ -151,11 +153,13 @@ var Roles = [
     ]
   }
 ]
+var StorageUri = 'https://${StorageAccountName}.${environment().suffixes.storage}/${StorageContainerName}/'
 
 
 resource rg 'Microsoft.Resources/resourceGroups@2019-10-01' = {
   name: ResourceGroup
   location: Location
+  tags: Tags
   properties: {}
 }
 
@@ -178,6 +182,7 @@ module userAssignedIdentity 'modules/userAssignedIdentity.bicep' = {
     Environment: Environment
     Location: Location
     LocationShortName: LocationShortName
+    Tags: Tags
   }
 }
 
@@ -211,9 +216,26 @@ module computeGallery 'modules/computeGallery.bicep' = {
     ImageSku: ImageSku
     Location: Location
     LocationShortName: LocationShortName
+    Tags: Tags
   }
 }
 
+module networkPolicy 'modules/networkPolicy.bicep' = {
+  name: 'NetworkPolicy_${Timestamp}'
+  scope: rg
+  params: {
+    Environment: Environment
+    Location: Location
+    LocationShortName: LocationShortName
+    StorageUri: StorageUri
+    SubnetName: SubnetName
+    Tags: Tags
+    Timestamp: Timestamp
+    UserAssignedIdentityResourceId: userAssignedIdentity.outputs.userAssignedIdentityResourceId
+    VirtualNetworkName: VirtualNetworkName
+    VirtualNetworkResourceGroupName: VirtualNetworkResourceGroupName
+  }
+}
 
 module imageTemplate 'modules/imageTemplate.bicep' = {
   name: 'ImageTemplate_${Timestamp}'
@@ -229,9 +251,9 @@ module imageTemplate 'modules/imageTemplate.bicep' = {
     ImageVersion: ImageVersion
     Location: Location
     LocationShortName: LocationShortName
-    StorageAccountName: StorageAccountName
-    StorageContainerName: StorageContainerName
+    StorageUri: StorageUri
     SubnetName: SubnetName
+    Tags: Tags
     Timestamp: Timestamp
     UserAssignedIdentityResourceId: userAssignedIdentity.outputs.userAssignedIdentityResourceId
     VirtualMachineSize: VirtualMachineSize

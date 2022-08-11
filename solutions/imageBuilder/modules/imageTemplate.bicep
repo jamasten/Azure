@@ -8,9 +8,9 @@ param ImageStorageAccountType string
 param ImageVersion string
 param Location string
 param LocationShortName string
-param StorageAccountName string
-param StorageContainerName string
+param StorageUri string
 param SubnetName string
+param Tags object
 param Timestamp string
 param UserAssignedIdentityResourceId string
 param VirtualMachineSize string
@@ -18,12 +18,10 @@ param VirtualNetworkName string
 param VirtualNetworkResourceGroupName string
 
 
-var StorageUri = 'https://${StorageAccountName}.${environment().suffixes.storage}/${StorageContainerName}/'
-
-
 resource imageTemplate 'Microsoft.VirtualMachineImages/imageTemplates@2022-02-14' = {
   name: 'imgt-${toLower(ImageDefinitionName)}-${Environment}-${LocationShortName}'
   location: Location
+  tags: Tags
   identity: {
     type: 'UserAssigned'
     userAssignedIdentities: {

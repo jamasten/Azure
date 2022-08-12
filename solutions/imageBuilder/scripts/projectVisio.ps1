@@ -2,9 +2,11 @@ $ErrorActionPreference = 'Stop'
 
 try 
 {
-    Invoke-WebRequest -Uri 'https://stshdsvcdeu000.blob.core.windows.net/artifacts/office.zip' -OutFile 'Office.zip'
-    Expand-Archive -LiteralPath '.\Office.zip' -Force
-    Start-Process -FilePath '.\Office\setup.exe' -ArgumentList "/configure .\Office\configuration-Office365-x64.xml" -Wait -PassThru
+    Connect-AzAccount -Environment 'AzureCloud' -Identity
+    Get-AzStorageBlobContent -AbsoluteUri 'https://stshdsvcdeu000.blob.core.windows.net/artifacts/office.zip' -Destination 'office.zip'
+    #Invoke-WebRequest -Uri 'https://stshdsvcdeu000.blob.core.windows.net/artifacts/office.zip' -OutFile 'Office.zip'
+    Expand-Archive -LiteralPath '.\office.zip' -Force
+    Start-Process -FilePath '.\office\setup.exe' -ArgumentList "/configure .\office\configuration-Office365-x64.xml" -Wait -PassThru
 }
 catch 
 {

@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.9.1.41621",
-      "templateHash": "17793795808456025308"
+      "templateHash": "15753505815560748229"
     }
   },
   "parameters": {
@@ -247,7 +247,7 @@
         ]
       }
     ],
-    "StorageUri": "[format('https://{0}.{1}/{2}/', parameters('StorageAccountName'), environment().suffixes.storage, parameters('StorageContainerName'))]"
+    "StorageUri": "[format('https://{0}.blob.{1}/{2}/', parameters('StorageAccountName'), environment().suffixes.storage, parameters('StorageContainerName'))]"
   },
   "resources": [
     {
@@ -798,7 +798,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.9.1.41621",
-              "templateHash": "6223893327007905649"
+              "templateHash": "11205985042749087705"
             }
           },
           "parameters": {
@@ -874,6 +874,9 @@
                 "stagingResourceGroup": "[format('/subscriptions/{0}/resourceGroups/rg-aib-staging-{1}-{2}-{3}', subscription().subscriptionId, toLower(parameters('ImageDefinitionName')), parameters('Environment'), parameters('LocationShortName'))]",
                 "buildTimeoutInMinutes": 300,
                 "vmProfile": {
+                  "userAssignedIdentities": [
+                    "[parameters('UserAssignedIdentityResourceId')]"
+                  ],
                   "vmSize": "[parameters('VirtualMachineSize')]",
                   "vnetConfig": "[if(not(empty(parameters('SubnetName'))), createObject('subnetId', resourceId(parameters('VirtualNetworkResourceGroupName'), 'Microsoft.Network/virtualNetworks/subnets', parameters('VirtualNetworkName'), parameters('SubnetName'))), null())]"
                 },

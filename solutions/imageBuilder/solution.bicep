@@ -172,7 +172,7 @@ var Roles = [
     ]
   }
 ]
-var StorageUri = 'https://${StorageAccountName}.${environment().suffixes.storage}/${StorageContainerName}/'
+var StorageUri = 'https://${StorageAccountName}.blob.${environment().suffixes.storage}/${StorageContainerName}/'
 
 
 resource rg 'Microsoft.Resources/resourceGroups@2019-10-01' = {

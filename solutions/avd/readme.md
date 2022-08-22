@@ -2,7 +2,27 @@
 
 [**Home**](./readme.md) | [**Features**](./docs/features.md) | [**Design**](./docs/design.md) | [**Prerequisites**](./docs/prerequisites.md) | [**Post Deployment**](./docs/post.md) | [**Troubleshooting**](./docs/troubleshooting.md)
 
-This Azure Virtual Desktop (AVD) solution will deploy a fully operational [stamp](https://docs.microsoft.com/en-us/azure/architecture/patterns/deployment-stamp) in an Azure subscription. Many of the [features](./docs/features.md) used with AVD have been automated in this solution for your convenience.  This solution only contains features that are "generally available" in both Azure Cloud and Azure US Government.
+This Azure Virtual Desktop (AVD) solution will deploy a fully operational [stamp](https://docs.microsoft.com/en-us/azure/architecture/patterns/deployment-stamp) in an Azure subscription. Many of the [features](./docs/features.md) used with AVD have been automated in this solution for your convenience.  When deploying this solution be sure to read the descriptions for each parameter to the understand the consequences of your selection. To target the desired marketplace image for your session hosts, use the code below:
+
+```powershell
+# Determine the Publisher; input the location for your AVD deployment
+$Location = ''
+(Get-AzVMImagePublisher -Location $Location).PublisherName
+
+# Determine the Offer; common publisher is 'MicrosoftWindowsDesktop' for Win 10/11
+$Publisher = ''
+(Get-AzVMImageOffer -Location $Location -PublisherName $Publisher).Offer
+
+# Determine the SKU; common offers are 'Windows-10' for Win 10 and 'office-365' for the Win10/11 multi-session with M365 apps
+$Offer = ''
+(Get-AzVMImageSku -Location $Location -PublisherName $Publisher -Offer $Offer).Skus
+
+# Determine the Image Version; common offers are '21h1-evd-o365pp' and 'win11-21h2-avd-m365'
+$Sku = ''
+Get-AzVMImage -Location $Location -PublisherName $Publisher -Offer $Offer -Skus $Sku | Select-Object * | Format-List
+
+# Common version is 'latest'
+```
 
 ## Deployment Options
 

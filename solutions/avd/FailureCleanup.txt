@@ -1,0 +1,3 @@
+Revert the DNS settings on the VNET back to the DC
+Delete the Configuration and Compiled Job in State Configuration
+Delete the Mgmt VM and its role assignment on the storage account

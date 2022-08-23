@@ -35,6 +35,9 @@ param OuPath string
 param RdpShortPath bool
 param ResourceGroups array
 param ScreenCaptureProtection bool
+param Sentinel bool
+param SentinelWorkspaceId string
+param SentinelWorkspaceResourceId string
 param SessionHostCount int
 param SessionHostIndex int
 param StorageAccountPrefix string
@@ -86,6 +89,7 @@ var NvidiaVmSizes = [
 var NvidiaVmSize = contains(NvidiaVmSizes, VmSize)
 var PooledHostPool = (split(HostPoolType, ' ')[0] == 'Pooled')
 var ManagementResourceGroup = ResourceGroups[2] // Management Resource Group
+var SentinelWorkspaceKey = listKeys(SentinelWorkspaceResourceId, '2021-06-01').primarySharedKey
 var VmIdentityType = (contains(DomainServices, 'None') ? ((!empty(UserAssignedIdentity)) ? 'SystemAssigned, UserAssigned' : 'SystemAssigned') : ((!empty(UserAssignedIdentity)) ? 'UserAssigned' : 'None'))
 var VmIdentityTypeProperty = {
   type: VmIdentityType
@@ -260,11 +264,12 @@ resource extension_CustomScriptExtension 'Microsoft.Compute/virtualMachines/exte
       timestamp: Timestamp
     }
     protectedSettings: {
-      commandToExecute: 'powershell -ExecutionPolicy Unrestricted -File Set-SessionHostConfiguration.ps1 -AmdVmSize ${AmdVmSize} -DisaStigCompliance ${DisaStigCompliance} -DomainName ${DomainName} -DomainServices ${DomainServices} -Environment ${environment().name} -FSLogix ${Fslogix} -FslogixSolution ${FslogixSolution} -HostPoolName ${HostPoolName} -HostPoolRegistrationToken ${reference(resourceId(ManagementResourceGroup, 'Microsoft.DesktopVirtualization/hostpools', HostPoolName), '2019-12-10-preview').registrationInfo.token} -ImageOffer ${ImageOffer} -ImagePublisher ${ImagePublisher} -NetAppFileShares ${NetAppFileShares} -NvidiaVmSize ${NvidiaVmSize} -PooledHostPool ${PooledHostPool} -RdpShortPath ${RdpShortPath} -ScreenCaptureProtection ${ScreenCaptureProtection} -StorageAccountPrefix ${StorageAccountPrefix} -StorageCount ${StorageCount} -StorageIndex ${StorageIndex} -StorageSolution ${StorageSolution} -StorageSuffix ${StorageSuffix}'
+      commandToExecute: 'powershell -ExecutionPolicy Unrestricted -File Set-SessionHostConfiguration.ps1 -AmdVmSize ${AmdVmSize} -DisaStigCompliance ${DisaStigCompliance} -DomainName ${DomainName} -DomainServices ${DomainServices} -Environment ${environment().name} -FSLogix ${Fslogix} -FslogixSolution ${FslogixSolution} -HostPoolName ${HostPoolName} -HostPoolRegistrationToken ${reference(resourceId(ManagementResourceGroup, 'Microsoft.DesktopVirtualization/hostpools', HostPoolName), '2019-12-10-preview').registrationInfo.token} -ImageOffer ${ImageOffer} -ImagePublisher ${ImagePublisher} -NetAppFileShares ${NetAppFileShares} -NvidiaVmSize ${NvidiaVmSize} -PooledHostPool ${PooledHostPool} -RdpShortPath ${RdpShortPath} -ScreenCaptureProtection ${ScreenCaptureProtection} -Sentinel ${Sentinel} -SentinelWorkspaceId ${SentinelWorkspaceId} -SentinelWorkspaceKey ${SentinelWorkspaceKey} -StorageAccountPrefix ${StorageAccountPrefix} -StorageCount ${StorageCount} -StorageIndex ${StorageIndex} -StorageSolution ${StorageSolution} -StorageSuffix ${StorageSuffix}'
     }
   }
   dependsOn: [
     virtualMachine
+    extension_MicrosoftMonitoringAgent
   ]
 }]
 

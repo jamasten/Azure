@@ -41,6 +41,9 @@ param ResourceGroups array
 param RoleDefinitionIds object
 param ScreenCaptureProtection bool
 param SecurityPrincipalObjectIds array
+param Sentinel bool
+param SentinelWorkspaceId string
+param SentinelWorkspaceResourceId string
 param SessionHostBatchCount int
 param SessionHostIndex int
 param StorageAccountPrefix string
@@ -123,6 +126,9 @@ module virtualMachines 'virtualMachines.bicep' = [for i in range(1, SessionHostB
     RdpShortPath: RdpShortPath
     ResourceGroups: ResourceGroups
     ScreenCaptureProtection: ScreenCaptureProtection
+    Sentinel: Sentinel
+    SentinelWorkspaceId: SentinelWorkspaceId
+    SentinelWorkspaceResourceId: SentinelWorkspaceResourceId
     SessionHostCount: i == SessionHostBatchCount && DivisionRemainderValue > 0 ? DivisionRemainderValue : MaxResourcesPerTemplateDeployment
     SessionHostIndex: i == 1 ? SessionHostIndex : ((i - 1) * MaxResourcesPerTemplateDeployment) + SessionHostIndex
     StorageAccountPrefix: StorageAccountPrefix

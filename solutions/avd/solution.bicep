@@ -195,6 +195,15 @@ param SecurityPrincipalObjectIds array = []
 @description('The name for the Security Principal to assign NTFS permissions on the Azure File Share to support Fslogix.  Any value can be input in this field if performing a deployment update or choosing a personal host pool.')
 param SecurityPrincipalNames array = []
 
+@description('The name of the log analytics workspace used for Azure Sentinel.')
+param SentinelLogAnalyticsWorkspaceName string
+
+@description('The name of the resource group containing the log analytics workspace used for Azure Sentinel.')
+param SentinelLogAnalyticsWorkspaceResourceGroupName string
+
+@description('The ID of the subscription containing the log analytics workspace used for Azure Sentinel.')
+param SentinelLogAnalyticsWorkspaceSubscriptionId string = subscription().subscriptionId
+
 @description('The number of session hosts to deploy in the host pool.  The default values will allow you deploy 250 VMs using 4 nested deployments.  These integers may be modified to create a smaller deployment in a shard.')
 param SessionHostCount int = 2
 
@@ -372,6 +381,7 @@ var RoleDefinitionIds = {
   storageFileDataSMBShareContributor: '0c867c2a-1d8c-454a-a3db-ab2ea1bdc8bb'
   virtualMachineUserLogin: 'fb879df8-f326-4884-b1cf-06f3ad86be52'
 }
+var Sentinel = !empty(SentinelLogAnalyticsWorkspaceName) && !empty(SentinelLogAnalyticsWorkspaceResourceGroupName) ? true : false
 var StampIndexFull = padLeft(StampIndex, 2, '0')
 var StorageAccountPrefix = 'st${Identifier}${Environment}${LocationShortName}${StampIndexFull}'
 var StorageSolution = split(FslogixStorage, ' ')[0]
@@ -669,6 +679,15 @@ module fslogix 'modules/fslogix/fslogix.bicep' = if(Fslogix) {
   ]
 }
 
+module sentinel 'modules/sentinel.bicep' = if(Sentinel) {
+  name: 'Sentinel_${Timestamp}'
+  scope: resourceGroup(SentinelLogAnalyticsWorkspaceSubscriptionId, SentinelLogAnalyticsWorkspaceResourceGroupName)
+  params: {
+    SentinelLogAnalyticsWorkspaceName: SentinelLogAnalyticsWorkspaceName
+    SentinelLogAnalyticsWorkspaceResourceGroupName: SentinelLogAnalyticsWorkspaceResourceGroupName
+  }
+}
+
 module sessionHosts 'modules/sessionHosts/sessionHosts.bicep' = {
   name: 'SessionHosts_${Timestamp}'
   scope: resourceGroup(ResourceGroups[1]) // Hosts Resource Group
@@ -716,6 +735,9 @@ module sessionHosts 'modules/sessionHosts/sessionHosts.bicep' = {
     RoleDefinitionIds: RoleDefinitionIds
     ScreenCaptureProtection: ScreenCaptureProtection
     SecurityPrincipalObjectIds: SecurityPrincipalObjectIds
+    Sentinel: Sentinel
+    SentinelWorkspaceId: Sentinel ? sentinel.outputs.sentinelWorkspaceId : ''
+    SentinelWorkspaceResourceId: Sentinel ? sentinel.outputs.sentinelWorkspaceResourceId : ''
     SessionHostBatchCount: SessionHostBatchCount
     SessionHostIndex: SessionHostIndex
     StorageAccountPrefix: StorageAccountPrefix

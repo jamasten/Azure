@@ -66,6 +66,18 @@ Param(
 
     [parameter(Mandatory)]
     [string]
+    $Sentinel,
+
+    [parameter(Mandatory)]
+    [string]
+    $SentinelWorkspaceId,
+
+    [parameter(Mandatory)]
+    [string]
+    $SentinelWorkspaceKey,
+
+    [parameter(Mandatory)]
+    [string]
     $StorageAccountPrefix,
 
     [parameter(Mandatory)]
@@ -669,6 +681,16 @@ try
     Write-Log -Message 'Installed AVD Agent' -Type 'INFO'
     Start-Sleep -Seconds 5
 
+
+    ##############################################################
+    #  Dual-home Microsoft Monitoring Agent for Azure Sentinel
+    ##############################################################
+    if($Sentinel -eq 'true')
+    {
+        $mma = New-Object -ComObject 'AgentConfigManager.MgmtSvcCfg'
+        $mma.AddCloudWorkspace($SentinelWorkspaceId, $SentinelWorkspaceKey)
+        $mma.ReloadConfiguration()
+    }
 
     ##############################################################
     #  Restart VM

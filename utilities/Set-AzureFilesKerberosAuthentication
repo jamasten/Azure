@@ -1,9 +1,11 @@
+#Requires -Modules Az.Storage, Az.Accounts, ActiveDirectory
+[Cmdletbinding()]
 param 
 (
     [Parameter(Mandatory)]
     [SecureString]$DomainJoinPassword,
 
-    [Parameter(Mandatory)]
+    [Parameter(Mandatory=$false)]
     [String]$DomainJoinUserPrincipalName,
 
     [Parameter(Mandatory=$false)]
@@ -27,6 +29,7 @@ param
     [String]$StorageAccountResourceGroupName,
 
     [Parameter(Mandatory=$false)]
+    [ValidateSet("core.windows.net","core.usgovcloudapi.net")]
     [String]$StorageSuffix = 'core.windows.net',
 
     [Parameter(Mandatory=$false)]
@@ -44,8 +47,7 @@ $ErrorActionPreference = 'Stop'
 #  Variables
 ##############################################################
 # Create Domain credential
-$DomainUsername = $DomainJoinUserPrincipalName
-[pscredential]$DomainCredential = New-Object System.Management.Automation.PSCredential ($DomainUsername, $DomainJoinUserPrincipalName)
+[pscredential]$DomainCredential = New-Object System.Management.Automation.PSCredential ($DomainJoinUserPrincipalName, $DomainJoinPassword)
 
 # Get Domain information
 $Domain = Get-ADDomain -Credential $DomainCredential -Current 'LocalComputer'
@@ -56,7 +58,7 @@ $FilesSuffix = '.file.' + $StorageSuffix
 #  Process Storage Resources
 ##############################################################
 # Connects to Azure using a User Assigned Managed Identity
-Connect-AzAccount -Identity -Environment $Environment -Tenant $TenantId -Subscription $SubscriptionId
+Connect-AzAccount -Environment $Environment -Tenant $TenantId -Subscription $SubscriptionId
 
 # Get the storage account key
 $StorageKey = (Get-AzStorageAccountKey -ResourceGroupName $StorageAccountResourceGroupName -Name $StorageAccountName)[0].Value

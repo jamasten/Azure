@@ -7,12 +7,19 @@ Param(
 
     [parameter(Mandatory)]
     [string]
+    $KeyVaultName,
+
+    [parameter(Mandatory)]
+    [string]
     $StorageAccountNames,
 
     [parameter(Mandatory)]
     [string]
-    $StorageAccountSuffix
+    $StorageAccountSuffix,
 
+    [parameter(Mandatory)]
+    [string]
+    $UserAssignedIdentityClientId
 )
 
 
@@ -96,16 +103,16 @@ try
         Write-Log -Message "NuGet Package Provider already exists" -Type 'INFO'    
     }
     
-    # Install required Az.Storage module
-    $AzStorageModule = Get-Module -ListAvailable | Where-Object {$_.Name -eq 'Az.Storage'}
-    if(!$AzStorageModule)
+    # Install required Az.KeyVault module
+    $AzKeyVaultModule = Get-Module -ListAvailable | Where-Object {$_.Name -eq 'Az.KeyVault'}
+    if(!$AzKeyVaultModule)
     {
-        Install-Module -Name 'Az.Storage' -Repository 'PSGallery' -Force
-        Write-Log -Message "Installed the Az.Storage module successfully" -Type 'INFO'
+        Install-Module -Name 'Az.KeyVault' -Repository 'PSGallery' -Force
+        Write-Log -Message "Installed the Az.KeyVault module successfully" -Type 'INFO'
     }
     else 
     {
-        Write-Log -Message "Az.Storage module already exists" -Type 'INFO'
+        Write-Log -Message "Az.KeyVault module already exists" -Type 'INFO'
     }
 
 	# Download the tool
@@ -128,9 +135,9 @@ try
         $FileServer = '\\' + $StorageAccount + $FilesSuffix
 
         # Get the storage account key
-        Connect-AzAccount -Environment $Environment -Tenant $TenantId -Subscription $SubscriptionId -Identity
-        $StorageAccountKey = (Get-AzStorageAccountKey -ResourceGroupName $StorageAccountResourceGroupName -Name $StorageAccountName)[0].Value
-        Write-Log -Message "Acquired the Storage Account key on $StorageAccountName successfully" -Type 'INFO'
+        Connect-AzAccount -Environment $Environment -Tenant $TenantId -Subscription $SubscriptionId -Identity -AccountId $UserAssignedIdentityClientId
+        $StorageAccountKey = (Get-AzKeyVaultSecret -VaultName $KeyVaultName -Name $StorageAccount).SecretValue
+        Write-Log -Message "Acquired the Storage Account key for $StorageAccountName from the Key Vault successfully" -Type 'INFO'
 
         # Create credential for accessing the storage account
         $Username = 'Azure\' + $StorageAccount

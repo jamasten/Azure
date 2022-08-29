@@ -66,6 +66,7 @@ param VmUsername string
 
 
 var AutomationAccountName = 'aa-${NamingStandard}'
+var DiskName = 'disk-${NamingStandard}'
 var KeyVaultName = 'kv-${NamingStandard}'
 var LocationShortName = LocationShortNames[Location]
 var LocationShortNames = {
@@ -123,14 +124,17 @@ var LocationShortNames = {
 }
 var LogicAppName = 'la-${NamingStandard}'
 var NamingStandard = '${Identifier}-${Environment}-${LocationShortName}-${StampIndexFull}-fds'
+var NicName = 'nic-${NamingStandard}'
 var RoleAssignmentResourceGroups = union([
   VirtualNetworkResourceGroupName
 ], StorageAccountResourceGroupNames)
 var RunbookName = 'FslogixDiskShrink'
 var ScriptName = 'Set-FslogixDiskSize.ps1'
 var StampIndexFull = padLeft(StampIndex, 2, '0')
+var StorageAccountSuffix = environment().suffixes.storage
 var TemplateSpecName = 'ts-${NamingStandard}'
 var UserAssignedIdentityName = 'uai-${NamingStandard}'
+var VmName = 'vm${Identifier}${Environment}${LocationShortName}${StampIndexFull}fds'
 
 
 // The User Assigned Identity is attached to the virtual machine when its deployed so it has access to grab Key Vault secrets
@@ -234,6 +238,16 @@ resource keyVault 'Microsoft.KeyVault/vaults@2016-10-01' = {
     accessPolicies: [
       {
         tenantId: subscription().tenantId
+        objectId: reference(automationAccount.id, '2021-06-22').prinicalId
+        permissions: {
+          secrets: [
+            'get'
+            'list'
+          ]
+        }
+      }
+      {
+        tenantId: subscription().tenantId
         objectId: reference(userAssignedIdentity.id, '2018-11-30').principalId
         permissions: {
           secrets: [
@@ -248,6 +262,15 @@ resource keyVault 'Microsoft.KeyVault/vaults@2016-10-01' = {
     enabledForDiskEncryption: true
   }
   dependsOn: []
+}
+
+// Key Vault Secret for the SAS token on the storage account or container
+resource secret_SasToken 'Microsoft.KeyVault/vaults/secrets@2016-10-01' = if(!empty(_artifactsLocationSasToken)) {
+  parent: keyVault
+  name: 'SasToken'
+  properties: {
+    value: _artifactsLocationSasToken
+  }
 }
 
 // Key Vault Secrets for the Storage Account keys so the SMB share can be mounted as an admin on the virtual machine
@@ -295,17 +318,15 @@ resource logicApp 'Microsoft.Logic/workflows@2016-06-01' = {
             uri: replace(variable.properties.value, '"', '')
             body: {
               _artifactsLoction: _artifactsLocation
-              _artifactsLocationSasToken: _artifactsLocationSasToken
-              Environment: Environment
+              DiskName: DiskName
+              Environment: environment().name
               FileShareNames: FileShareNames
               HybridUseBenefit: HybridUseBenefit
-              Identifier: Identifier
               KeyVaultName: keyVault.name
-              LocationShortName: LocationShortName
               Location: Location
-              StampIndexFull: StampIndexFull
+              NicName: NicName
               StorageAccountNames: StorageAccountNames
-              StorageAccountResourceGroupNames: StorageAccountResourceGroupNames
+              StorageAccountSuffix: StorageAccountSuffix
               SubnetName: SubnetName
               SubscriptionId: subscription().subscriptionId
               Tags: Tags
@@ -315,6 +336,7 @@ resource logicApp 'Microsoft.Logic/workflows@2016-06-01' = {
               UserAssignedIdentityResourceId: userAssignedIdentity.id
               VirtualNetworkName: VirtualNetworkName
               VirtualNetworkResourceGroupName: VirtualNetworkResourceGroupName
+              VmName: VmName
               VmSize: VmSize
             }
           }

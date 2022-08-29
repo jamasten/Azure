@@ -1,3 +1,5 @@
+// This solution assumes the file share names are the same across all storage accounts
+
 @description('The URL prefix for linked resources.')
 param _artifactsLocation string = 'https://raw.githubusercontent.com/jamasten/Azure/master/solutions/avd/artifacts/'
 
@@ -119,8 +121,8 @@ var LocationShortNames = {
   westus2: 'wu2'
   westus3: 'wu3'
 }
-var LogicAppPrefix = 'la-${NamingStandard}'
-var NamingStandard = '${Identifier}-${Environment}-${LocationShortName}-${StampIndexFull}'
+var LogicAppName = 'la-${NamingStandard}'
+var NamingStandard = '${Identifier}-${Environment}-${LocationShortName}-${StampIndexFull}-fds'
 var RoleAssignmentResourceGroups = union([
   VirtualNetworkResourceGroupName
 ], StorageAccountResourceGroupNames)
@@ -128,8 +130,16 @@ var RunbookName = 'FslogixDiskShrink'
 var ScriptName = 'Set-FslogixDiskSize.ps1'
 var StampIndexFull = padLeft(StampIndex, 2, '0')
 var TemplateSpecName = 'ts-${NamingStandard}'
+var UserAssignedIdentityName = 'uai-${NamingStandard}'
 
 
+// The User Assigned Identity is attached to the virtual machine when its deployed so it has access to grab Key Vault secrets
+resource userAssignedIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2018-11-30' = {
+  name: UserAssignedIdentityName
+  location: Location
+}
+
+// The Template Spec is deployed by the Automation Runbook to create the virtual machine and run the tool
 resource templateSpec 'Microsoft.Resources/templateSpecs@2021-05-01' = {
   name: TemplateSpecName
   location: Location
@@ -148,6 +158,7 @@ resource templateSpecVersion 'Microsoft.Resources/templateSpecs/versions@2021-05
   }
 }
 
+// The Automation Account stores the runbook that kicks off the tool
 resource automationAccount 'Microsoft.Automation/automationAccounts@2021-06-22' = {
   name: AutomationAccountName
   location: Location
@@ -161,6 +172,7 @@ resource automationAccount 'Microsoft.Automation/automationAccounts@2021-06-22' 
   }
 }
 
+// The Runbook orchestrates the deployment and manages the resources to run the tool
 resource runbook 'Microsoft.Automation/automationAccounts/runbooks@2019-06-01' = {
   name: '${AutomationAccountName}/${RunbookName}'
   location: Location
@@ -175,6 +187,7 @@ resource runbook 'Microsoft.Automation/automationAccounts/runbooks@2019-06-01' =
   }
 }
 
+// The Webhook is called by a Logic App to trigger the Runbook
 resource webhook 'Microsoft.Automation/automationAccounts/webhooks@2015-10-31' = {
   name: '${AutomationAccountName}/${RunbookName}_${dateTimeAdd(Timestamp, 'PT0H', 'yyyyMMddhhmmss')}'
   properties: {
@@ -189,6 +202,7 @@ resource webhook 'Microsoft.Automation/automationAccounts/webhooks@2015-10-31' =
   ]
 }
 
+// The Variable stores the webhook since the value is only exposed when its created
 resource variable 'Microsoft.Automation/automationAccounts/variables@2019-06-01' = {
   name: '${AutomationAccountName}/WebhookURI_${RunbookName}'
   properties: {
@@ -207,6 +221,7 @@ module roleAssignments 'modules/roleAssignments.bicep' = [for i in range(0, leng
   }
 }]
 
+// The Key Vault stores the secrets to deploy virtual machine and mount the SMB share(s)
 resource keyVault 'Microsoft.KeyVault/vaults@2016-10-01' = {
   name: KeyVaultName
   location: Location
@@ -219,7 +234,7 @@ resource keyVault 'Microsoft.KeyVault/vaults@2016-10-01' = {
     accessPolicies: [
       {
         tenantId: subscription().tenantId
-        objectId: reference(resourceId('Microsoft.Automation/automationAccounts', AutomationAccountName), '2021-06-22', 'Full').identity.principalId
+        objectId: reference(userAssignedIdentity.id, '2018-11-30').principalId
         permissions: {
           secrets: [
             'get'
@@ -235,6 +250,18 @@ resource keyVault 'Microsoft.KeyVault/vaults@2016-10-01' = {
   dependsOn: []
 }
 
+// Key Vault Secrets for the Storage Account keys so the SMB share can be mounted as an admin on the virtual machine
+module secrets_StorageAccountKeys 'modules/storageAccountKeys.bicep' = [for i in range(0, length(StorageAccountNames)): {
+  name: 'KeyVaultSecret_${StorageAccountNames[i]}_${Timestamp}'
+  scope: resourceGroup(StorageAccountResourceGroupNames[i])
+  params: {
+    KeyVault: keyVault.name
+    StorageAccount: StorageAccountNames[i]
+    StorageAccountResourceGroup: StorageAccountResourceGroupNames[i]
+  }
+}]
+
+// Key Vault Secret for the local admin password on the virtual machine
 resource secret_VmPassword 'Microsoft.KeyVault/vaults/secrets@2016-10-01' = {
   parent: keyVault
   name: 'VmPassword'
@@ -243,6 +270,7 @@ resource secret_VmPassword 'Microsoft.KeyVault/vaults/secrets@2016-10-01' = {
   }
 }
 
+// Key Vault Secret for the local admin username on the virtual machine
 resource secret_VmUsername 'Microsoft.KeyVault/vaults/secrets@2016-10-01' = {
   parent: keyVault
   name: 'VmUsername'
@@ -253,7 +281,7 @@ resource secret_VmUsername 'Microsoft.KeyVault/vaults/secrets@2016-10-01' = {
 
 // Logic App to trigger scaling runbook for the AVD host pool
 resource logicApp 'Microsoft.Logic/workflows@2016-06-01' = {
-  name: '${LogicAppPrefix}-fds'
+  name: LogicAppName
   location: Location
   properties: {
     state: 'Enabled'
@@ -272,6 +300,7 @@ resource logicApp 'Microsoft.Logic/workflows@2016-06-01' = {
               FileShareNames: FileShareNames
               HybridUseBenefit: HybridUseBenefit
               Identifier: Identifier
+              KeyVaultName: keyVault.name
               LocationShortName: LocationShortName
               Location: Location
               StampIndexFull: StampIndexFull
@@ -282,6 +311,8 @@ resource logicApp 'Microsoft.Logic/workflows@2016-06-01' = {
               Tags: Tags
               TemplateSpecId: templateSpecVersion.id
               TenantId: subscription().tenantId
+              UserAssignedIdentityClientId: userAssignedIdentity.properties.clientId
+              UserAssignedIdentityResourceId: userAssignedIdentity.id
               VirtualNetworkName: VirtualNetworkName
               VirtualNetworkResourceGroupName: VirtualNetworkResourceGroupName
               VmSize: VmSize

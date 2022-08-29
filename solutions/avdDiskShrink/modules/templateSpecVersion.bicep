@@ -1,30 +1,27 @@
 param _artifactsLocation string
 @secure()
 param _artifactsLocationSasToken string
-param Environment string
+param DiskName string
 param FileShareNames array
 param HybridUseBenefit bool
-param Identifier string
-param LocationShortName string
+param KeyVaultName string
 param Location string
-param StampIndexFull string
+param NicName string
 param StorageAccountNames array
+param StorageAccountSuffix string
 param Subnet string
 param Tags object
 param Timestamp string = utcNow('yyyyMMddhhmmss')
+param UserAssignedIdentityClientId string
+param UserAssignedIdentityResourceId string
 param VirtualNetwork string
 param VirtualNetworkResourceGroup string
+param VmName string
 @secure()
 param VmPassword string
 param VmSize string
 @secure()
 param VmUsername string
-
-
-var NamingStandard = '${Identifier}-${Environment}-${LocationShortName}-${StampIndexFull}'
-var NicName = 'nic-${NamingStandard}-fds'
-var StorageAccountSuffix = environment().suffixes.storage
-var VmName = 'vm${Identifier}${Environment}${LocationShortName}${StampIndexFull}fds'
 
 
 resource networkInterface 'Microsoft.Network/networkInterfaces@2020-05-01' = {
@@ -54,6 +51,12 @@ resource virtualMachine 'Microsoft.Compute/virtualMachines@2021-11-01' = {
   name: VmName
   location: Location
   tags: Tags
+  identity: {
+    type: 'UserAssigned'
+    userAssignedIdentities: {
+      '${UserAssignedIdentityResourceId}' : {}
+    }
+}
   properties: {
     hardwareProfile: {
       vmSize: VmSize
@@ -73,7 +76,7 @@ resource virtualMachine 'Microsoft.Compute/virtualMachines@2021-11-01' = {
         managedDisk: {
           storageAccountType: 'Premium_LRS'
         }
-        name: 'disk-${NamingStandard}-dfs'
+        name: DiskName
       }
       dataDisks: []
     }
@@ -105,9 +108,6 @@ resource virtualMachine 'Microsoft.Compute/virtualMachines@2021-11-01' = {
     }
     licenseType: HybridUseBenefit ? 'Windows_Server' : null
   }
-  identity: {
-    type: 'SystemAssigned'
-  }
 }
 
 resource extension_CustomScriptExtension 'Microsoft.Compute/virtualMachines/extensions@2021-03-01' = {
@@ -127,7 +127,7 @@ resource extension_CustomScriptExtension 'Microsoft.Compute/virtualMachines/exte
       timestamp: Timestamp
     }
     protectedSettings: {
-      commandToExecute: 'powershell -ExecutionPolicy Unrestricted -File Set-FslogixDiskSize.ps1 -FileShareNames ${FileShareNames} -StorageAccountNames ${StorageAccountNames} -StorageAccountSuffix ${StorageAccountSuffix}'
+      commandToExecute: 'powershell -ExecutionPolicy Unrestricted -File Set-FslogixDiskSize.ps1 -FileShareNames ${FileShareNames} -KeyVaultName ${KeyVaultName} -StorageAccountNames ${StorageAccountNames} -StorageAccountSuffix ${StorageAccountSuffix} -UserAssignedIdentityClientId ${UserAssignedIdentityClientId}'
     }
   }
 }

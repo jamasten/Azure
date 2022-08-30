@@ -137,6 +137,7 @@ var LogicAppName = 'la-${NamingStandard}'
 var NamingStandard = '${Identifier}-${Environment}-${LocationShortName}-${StampIndexFull}-fds'
 var NicName = 'nic-${NamingStandard}'
 var RoleAssignmentResourceGroups = union([
+  resourceGroup().name
   VirtualNetworkResourceGroupName
 ], StorageAccountResourceGroupNames)
 var RoleDefinitionId_Reader = 'acdd72a7-3385-48ef-bd42-f606fba81ae7'

@@ -140,7 +140,10 @@ var RoleAssignmentResourceGroups = union([
   resourceGroup().name
   VirtualNetworkResourceGroupName
 ], StorageAccountResourceGroupNames)
-var RoleDefinitionId_Reader = 'acdd72a7-3385-48ef-bd42-f606fba81ae7'
+var RoleDefinitionIds = {
+  ManagedIdentityOperator: 'f1a07417-d97a-45cb-824c-7a7467783830'
+  Reader: 'acdd72a7-3385-48ef-bd42-f606fba81ae7'
+}
 var RunbookName = 'FslogixDiskShrink'
 var RunbookScriptName = 'Set-FslogixDiskShrinkVirtualMachine.ps1'
 var StampIndexFull = padLeft(StampIndex, 2, '0')
@@ -290,7 +293,7 @@ resource variable 'Microsoft.Automation/automationAccounts/variables@2019-06-01'
 
 // Gives the Managed Identity for the Automation Account rights to deploy the VM to shrink FSLogix disks
 @batchSize(1)
-module roleAssignments 'modules/roleAssignments.bicep' = [for i in range(0, length(RoleAssignmentResourceGroups)): {
+module roleAssignments_VirtualMachineContributor 'modules/roleAssignments.bicep' = [for i in range(0, length(RoleAssignmentResourceGroups)): {
   name: 'RoleAssignment_${RoleAssignmentResourceGroups[i]}'
   scope: resourceGroup(RoleAssignmentResourceGroups[i])
   params: {
@@ -299,10 +302,21 @@ module roleAssignments 'modules/roleAssignments.bicep' = [for i in range(0, leng
 }]
 
 // Gives the Managed Identity for the Automation Account rights to deploy the Template Spec
-resource roleAssignment 'Microsoft.Authorization/roleAssignments@2020-10-01-preview' = {
-  name: guid(automationAccount.id, RoleDefinitionId_Reader, resourceGroup().id)
+resource roleAssignment_Reader 'Microsoft.Authorization/roleAssignments@2020-10-01-preview' = {
+  name: guid(automationAccount.id, RoleDefinitionIds.Reader, resourceGroup().id)
   properties: {
-    roleDefinitionId: resourceId('Microsoft.Authorization/roleDefinitions', RoleDefinitionId_Reader)
+    roleDefinitionId: resourceId('Microsoft.Authorization/roleDefinitions', RoleDefinitionIds.Reader)
+    principalId: automationAccount.identity.principalId
+    principalType: 'ServicePrincipal'
+  }
+  dependsOn: []
+}
+
+// Gives the Managed Identity for the Automation Account rights to add the User Assigned Idenity to the virtual machine
+resource roleAssignment_ManagedIdentityOperator 'Microsoft.Authorization/roleAssignments@2020-10-01-preview' = {
+  name: guid(automationAccount.id, RoleDefinitionIds.ManagedIdentityOperator, resourceGroup().id)
+  properties: {
+    roleDefinitionId: resourceId('Microsoft.Authorization/roleDefinitions', RoleDefinitionIds.ManagedIdentityOperator)
     principalId: automationAccount.identity.principalId
     principalType: 'ServicePrincipal'
   }

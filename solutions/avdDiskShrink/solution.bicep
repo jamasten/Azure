@@ -1,7 +1,7 @@
 // This solution assumes the file share names are the same across all storage accounts
 
 @description('The URL prefix for linked resources.')
-param _artifactsLocation string = 'https://raw.githubusercontent.com/jamasten/Azure/master/solutions/avd/artifacts/'
+param _artifactsLocation string = 'https://raw.githubusercontent.com/jamasten/Azure/master/solutions/avdDiskShrink/artifacts/'
 
 @secure()
 @description('The SAS Token for the scripts if they are stored on an Azure Storage Account.')
@@ -23,7 +23,7 @@ param FileShareNames array = [
 ]
 
 @description('Choose whether to enable the Hybrid Use Benefit on the virtual machine.  This is only valid you have appropriate licensing with Software Assurance. https://docs.microsoft.com/en-us/windows-server/get-started/azure-hybrid-benefit')
-param HybridUseBenefit bool
+param HybridUseBenefit bool = false
 
 @maxLength(3)
 @description('The unique identifier between each business unit or project supporting AVD in your tenant. This is the unique naming component between each AVD stamp.')
@@ -31,38 +31,49 @@ param Identifier string = 'avd'
 
 param Location string = resourceGroup().location
 
+
+@description('The date and time the tool should run weekly. Ideally select a time when most or all users will offline.')
+param RecurrenceDateTime string = '2022-08-27T23:00:00'
+
 @description('The stamp index specifies the AVD stamp within an Azure environment.')
 param StampIndex int = 0
 
 @description('The names of the Azure Storage Accounts containing the file shares for FSLogix.')
-param StorageAccountNames array
+param StorageAccountNames array = [
+  'stfspeovad0000'
+]
 
 @description('The names of the Azure Resource Groups containing the Azure Storage Accounts. A resource group must be listed for each Storage Account even if the same Resource Group is listed multiple times.')
-param StorageAccountResourceGroupNames array
+param StorageAccountResourceGroupNames array = [
+  'rg-fs-peo-va-d-storage-00'
+]
 
 @description('The subnet for the AVD session hosts.')
-param SubnetName string
+param SubnetName string = 'Clients'
 
 param Tags object = {
-
+  Purpose: 'Fslogix Disk Shrink tool'
 }
 
-@description('ISO 8601 timestamp used to determine the webhook expiration date.  The webhook is hardcoded to expire 5 years after the timestamp.')
-param Timestamp string = utcNow('u')
+@description('DO NOT MODIFY THIS VALUE! The timestamp is needed to differentiate deployments for certain Azure resources and must be set using a parameter.')
+param Timestamp string = utcNow('yyyyMMddhhmmss')
 
-@description('Virtual network for the AVD sessions hosts')
-param VirtualNetworkName string
+@description('Virtual network for the virtual machine to run the tool.')
+param VirtualNetworkName string = 'vnet-shd-net-d-va'
 
-@description('Virtual network resource group for the AVD sessions hosts')
-param VirtualNetworkResourceGroupName string
+@description('Virtual network resource group for the virtual machine to run the tool.')
+param VirtualNetworkResourceGroupName string = 'rg-shd-net-d-va'
 
 @secure()
 param VmPassword string
 
-param VmSize string
+param VmSize string = 'Standard_D4s_v4'
 
 @secure()
 param VmUsername string
+
+@description('ISO 8601 timestamp used to determine the webhook expiration date.  The webhook is hardcoded to expire 5 years after the timestamp.')
+param WebhookTimestamp string = utcNow('u')
 
 
 var AutomationAccountName = 'aa-${NamingStandard}'
@@ -128,11 +139,69 @@ var NicName = 'nic-${NamingStandard}'
 var RoleAssignmentResourceGroups = union([
   VirtualNetworkResourceGroupName
 ], StorageAccountResourceGroupNames)
+var RoleDefinitionId_Reader = 'acdd72a7-3385-48ef-bd42-f606fba81ae7'
 var RunbookName = 'FslogixDiskShrink'
-var ScriptName = 'Set-FslogixDiskSize.ps1'
+var RunbookScriptName = 'Set-FslogixDiskShrinkVirtualMachine.ps1'
 var StampIndexFull = padLeft(StampIndex, 2, '0')
 var StorageAccountSuffix = environment().suffixes.storage
 var TemplateSpecName = 'ts-${NamingStandard}'
+var TimeZones = {
+  australiacentral: 'AUS Eastern Standard Time'
+  australiacentral2: 'AUS Eastern Standard Time'
+  australiaeast: 'AUS Eastern Standard Time'
+  australiasoutheast: 'AUS Eastern Standard Time'
+  brazilsouth: 'E. South America Standard Time'
+  brazilsoutheast: 'E. South America Standard Time'
+  canadacentral: 'Eastern Standard Time'
+  canadaeast: 'Eastern Standard Time'
+  centralindia: 'India Standard Time'
+  centralus: 'Central Standard Time'
+  chinaeast: 'China Standard Time'
+  chinaeast2: 'China Standard Time'
+  chinanorth: 'China Standard Time'
+  chinanorth2: 'China Standard Time'
+  eastasia: 'China Standard Time'
+  eastus: 'Eastern Standard Time'
+  eastus2: 'Eastern Standard Time'
+  francecentral: 'Central Europe Standard Time'
+  francesouth: 'Central Europe Standard Time'
+  germanynorth: 'Central Europe Standard Time'
+  germanywestcentral: 'Central Europe Standard Time'
+  japaneast: 'Tokyo Standard Time'
+  japanwest: 'Tokyo Standard Time'
+  jioindiacentral: 'India Standard Time'
+  jioindiawest: 'India Standard Time'
+  koreacentral: 'Korea Standard Time'
+  koreasouth: 'Korea Standard Time'
+  northcentralus: 'Central Standard Time'
+  northeurope: 'GMT Standard Time'
+  norwayeast: 'Central Europe Standard Time'
+  norwaywest: 'Central Europe Standard Time'
+  southafricanorth: 'South Africa Standard Time'
+  southafricawest: 'South Africa Standard Time'
+  southcentralus: 'Central Standard Time'
+  southindia: 'India Standard Time'
+  southeastasia: 'Singapore Standard Time'
+  swedencentral: 'Central Europe Standard Time'
+  switzerlandnorth: 'Central Europe Standard Time'
+  switzerlandwest: 'Central Europe Standard Time'
+  uaecentral: 'Arabian Standard Time'
+  uaenorth: 'Arabian Standard Time'
+  uksouth: 'GMT Standard Time'
+  ukwest: 'GMT Standard Time'
+  usdodcentral: 'Central Standard Time'
+  usdodeast: 'Eastern Standard Time'
+  usgovarizona: 'Mountain Standard Time'
+  usgoviowa: 'Central Standard Time'
+  usgovtexas: 'Central Standard Time'
+  usgovvirginia: 'Eastern Standard Time'
+  westcentralus: 'Mountain Standard Time'
+  westeurope: 'Central Europe Standard Time'
+  westindia: 'India Standard Time'
+  westus: 'Pacific Standard Time'
+  westus2: 'Pacific Standard Time'
+  westus3: 'Mountain Standard Time'
+}
 var UserAssignedIdentityName = 'uai-${NamingStandard}'
 var VmName = 'vm${Identifier}${Environment}${LocationShortName}${StampIndexFull}fds'
 
@@ -178,14 +247,15 @@ resource automationAccount 'Microsoft.Automation/automationAccounts@2021-06-22' 
 
 // The Runbook orchestrates the deployment and manages the resources to run the tool
 resource runbook 'Microsoft.Automation/automationAccounts/runbooks@2019-06-01' = {
-  name: '${AutomationAccountName}/${RunbookName}'
+  parent: automationAccount
+  name: RunbookName
   location: Location
   properties: {
     runbookType: 'PowerShell'
     logProgress: false
     logVerbose: false
     publishContentLink: {
-      uri: '${_artifactsLocation}${ScriptName}${_artifactsLocationSasToken}'
+      uri: '${_artifactsLocation}${RunbookScriptName}${_artifactsLocationSasToken}'
       version: '1.0.0.0'
     }
   }
@@ -193,10 +263,11 @@ resource runbook 'Microsoft.Automation/automationAccounts/runbooks@2019-06-01' =
 
 // The Webhook is called by a Logic App to trigger the Runbook
 resource webhook 'Microsoft.Automation/automationAccounts/webhooks@2015-10-31' = {
-  name: '${AutomationAccountName}/${RunbookName}_${dateTimeAdd(Timestamp, 'PT0H', 'yyyyMMddhhmmss')}'
+  parent: automationAccount
+  name: '${RunbookName}_${dateTimeAdd(WebhookTimestamp, 'PT0H', 'yyyyMMddhhmmss')}'
   properties: {
     isEnabled: true
-    expiryTime: dateTimeAdd(Timestamp, 'P5Y')
+    expiryTime: dateTimeAdd(WebhookTimestamp, 'P5Y')
     runbook: {
       name: RunbookName
     }
@@ -208,7 +279,8 @@ resource webhook 'Microsoft.Automation/automationAccounts/webhooks@2015-10-31' =
 
 // The Variable stores the webhook since the value is only exposed when its created
 resource variable 'Microsoft.Automation/automationAccounts/variables@2019-06-01' = {
-  name: '${AutomationAccountName}/WebhookURI_${RunbookName}'
+  parent: automationAccount
+  name: 'WebhookURI_${RunbookName}'
   properties: {
     value: '"${webhook.properties.uri}"'
     isEncrypted: false
@@ -221,9 +293,20 @@ module roleAssignments 'modules/roleAssignments.bicep' = [for i in range(0, leng
   name: 'RoleAssignment_${RoleAssignmentResourceGroups[i]}'
   scope: resourceGroup(RoleAssignmentResourceGroups[i])
   params: {
-    AutomationAccountId: reference(resourceId('Microsoft.Automation/automationAccounts', AutomationAccountName), '2021-06-22', 'Full').identity.principalId
+    AutomationAccountId: automationAccount.identity.principalId
   }
 }]
+
+// Gives the Managed Identity for the Automation Account rights to deploy the Template Spec
+resource roleAssignment 'Microsoft.Authorization/roleAssignments@2020-10-01-preview' = {
+  name: guid(automationAccount.id, RoleDefinitionId_Reader, resourceGroup().id)
+  properties: {
+    roleDefinitionId: resourceId('Microsoft.Authorization/roleDefinitions', RoleDefinitionId_Reader)
+    principalId: automationAccount.identity.principalId
+    principalType: 'ServicePrincipal'
+  }
+  dependsOn: []
+}
 
 // The Key Vault stores the secrets to deploy virtual machine and mount the SMB share(s)
 resource keyVault 'Microsoft.KeyVault/vaults@2016-10-01' = {
@@ -238,7 +321,7 @@ resource keyVault 'Microsoft.KeyVault/vaults@2016-10-01' = {
     accessPolicies: [
       {
         tenantId: subscription().tenantId
-        objectId: reference(automationAccount.id, '2021-06-22').prinicalId
+        objectId: automationAccount.identity.principalId
         permissions: {
           secrets: [
             'get'
@@ -248,7 +331,7 @@ resource keyVault 'Microsoft.KeyVault/vaults@2016-10-01' = {
       }
       {
         tenantId: subscription().tenantId
-        objectId: reference(userAssignedIdentity.id, '2018-11-30').principalId
+        objectId: userAssignedIdentity.properties.principalId
         permissions: {
           secrets: [
             'get'
@@ -276,9 +359,9 @@ resource secret_SasToken 'Microsoft.KeyVault/vaults/secrets@2016-10-01' = if(!em
 // Key Vault Secrets for the Storage Account keys so the SMB share can be mounted as an admin on the virtual machine
 module secrets_StorageAccountKeys 'modules/storageAccountKeys.bicep' = [for i in range(0, length(StorageAccountNames)): {
   name: 'KeyVaultSecret_${StorageAccountNames[i]}_${Timestamp}'
-  scope: resourceGroup(StorageAccountResourceGroupNames[i])
+  //scope: resourceGroup(StorageAccountResourceGroupNames[i])
   params: {
-    KeyVault: keyVault.name
+    KeyVaultName: keyVault.name
     StorageAccount: StorageAccountNames[i]
     StorageAccountResourceGroup: StorageAccountResourceGroupNames[i]
   }
@@ -320,12 +403,13 @@ resource logicApp 'Microsoft.Logic/workflows@2016-06-01' = {
               _artifactsLoction: _artifactsLocation
               DiskName: DiskName
               Environment: environment().name
-              FileShareNames: FileShareNames
+              FileShareNames: join(FileShareNames, ',')
               HybridUseBenefit: HybridUseBenefit
               KeyVaultName: keyVault.name
               Location: Location
               NicName: NicName
-              StorageAccountNames: StorageAccountNames
+              ResourceGroupName: resourceGroup().name
+              StorageAccountNames: join(StorageAccountNames, ',')
               StorageAccountSuffix: StorageAccountSuffix
               SubnetName: SubnetName
               SubscriptionId: subscription().subscriptionId
@@ -346,8 +430,16 @@ resource logicApp 'Microsoft.Logic/workflows@2016-06-01' = {
         Recurrence: {
           type: 'Recurrence'
           recurrence: {
-            frequency: 'Minute'
-            interval: 15
+            frequency: 'Week'
+            interval: 1
+            startTime: RecurrenceDateTime
+            timezone: TimeZones[Location]
+          }
+          evaluatedRecurrence: {
+            frequency: 'Week'
+            interval: 1
+            startTime: RecurrenceDateTime
+            timezone: TimeZones[Location]
           }
         }
       }

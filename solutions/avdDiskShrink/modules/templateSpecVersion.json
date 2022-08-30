@@ -4,8 +4,8 @@
   "metadata": {
     "_generator": {
       "name": "bicep",
-      "version": "0.8.9.13224",
-      "templateHash": "13338732089176884604"
+      "version": "0.9.1.41621",
+      "templateHash": "4528293148152760588"
     }
   },
   "parameters": {
@@ -13,28 +13,32 @@
       "type": "string"
     },
     "_artifactsLocationSasToken": {
-      "type": "secureString"
+      "type": "secureString",
+      "defaultValue": ""
     },
-    "Environment": {
+    "DiskName": {
       "type": "string"
+    },
+    "FileShareNames": {
+      "type": "array"
     },
     "HybridUseBenefit": {
       "type": "bool"
     },
-    "Identifier": {
-      "type": "string"
-    },
-    "LocationShortName": {
+    "KeyVaultName": {
       "type": "string"
     },
     "Location": {
       "type": "string"
     },
-    "StampIndexFull": {
+    "NicName": {
       "type": "string"
     },
     "StorageAccountNames": {
       "type": "array"
+    },
+    "StorageAccountSuffix": {
+      "type": "string"
     },
     "Subnet": {
       "type": "string"
@@ -43,12 +47,22 @@
       "type": "object"
     },
     "Timestamp": {
+      "type": "string",
+      "defaultValue": "[utcNow('yyyyMMddhhmmss')]"
+    },
+    "UserAssignedIdentityClientId": {
+      "type": "string"
+    },
+    "UserAssignedIdentityResourceId": {
       "type": "string"
     },
     "VirtualNetwork": {
       "type": "string"
     },
     "VirtualNetworkResourceGroup": {
+      "type": "string"
+    },
+    "VmName": {
       "type": "string"
     },
     "VmPassword": {
@@ -61,17 +75,11 @@
       "type": "secureString"
     }
   },
-  "variables": {
-    "NamingStandard": "[format('{0}-{1}-{2}-{3}', parameters('Identifier'), parameters('Environment'), parameters('LocationShortName'), parameters('StampIndexFull'))]",
-    "NicName": "[format('nic-{0}-fds', variables('NamingStandard'))]",
-    "StorageAccountSuffix": "[environment().suffixes.storage]",
-    "VmName": "[format('vm{0}{1}{2}{3}fds', parameters('Identifier'), parameters('Environment'), parameters('LocationShortName'), parameters('StampIndexFull'))]"
-  },
   "resources": [
     {
       "type": "Microsoft.Network/networkInterfaces",
       "apiVersion": "2020-05-01",
-      "name": "[variables('NicName')]",
+      "name": "[parameters('NicName')]",
       "location": "[parameters('Location')]",
       "tags": "[parameters('Tags')]",
       "properties": {
@@ -95,9 +103,15 @@
     {
       "type": "Microsoft.Compute/virtualMachines",
       "apiVersion": "2021-11-01",
-      "name": "[variables('VmName')]",
+      "name": "[parameters('VmName')]",
       "location": "[parameters('Location')]",
       "tags": "[parameters('Tags')]",
+      "identity": {
+        "type": "UserAssigned",
+        "userAssignedIdentities": {
+          "[format('{0}', parameters('UserAssignedIdentityResourceId'))]": {}
+        }
+      },
       "properties": {
         "hardwareProfile": {
           "vmSize": "[parameters('VmSize')]"
@@ -117,12 +131,12 @@
             "managedDisk": {
               "storageAccountType": "Premium_LRS"
             },
-            "name": "[format('disk-{0}-dfs', variables('NamingStandard'))]"
+            "name": "[parameters('DiskName')]"
           },
           "dataDisks": []
         },
         "osProfile": {
-          "computerName": "[variables('VmName')]",
+          "computerName": "[parameters('VmName')]",
           "adminUsername": "[parameters('VmUsername')]",
           "adminPassword": "[parameters('VmPassword')]",
           "windowsConfiguration": {
@@ -135,7 +149,7 @@
         "networkProfile": {
           "networkInterfaces": [
             {
-              "id": "[resourceId('Microsoft.Network/networkInterfaces', variables('NicName'))]",
+              "id": "[resourceId('Microsoft.Network/networkInterfaces', parameters('NicName'))]",
               "properties": {
                 "deleteOption": "Delete"
               }
@@ -149,17 +163,14 @@
         },
         "licenseType": "[if(parameters('HybridUseBenefit'), 'Windows_Server', null())]"
       },
-      "identity": {
-        "type": "SystemAssigned"
-      },
       "dependsOn": [
-        "[resourceId('Microsoft.Network/networkInterfaces', variables('NicName'))]"
+        "[resourceId('Microsoft.Network/networkInterfaces', parameters('NicName'))]"
       ]
     },
     {
       "type": "Microsoft.Compute/virtualMachines/extensions",
       "apiVersion": "2021-03-01",
-      "name": "[format('{0}/{1}', variables('VmName'), 'CustomScriptExtension')]",
+      "name": "[format('{0}/{1}', parameters('VmName'), 'CustomScriptExtension')]",
       "location": "[parameters('Location')]",
       "tags": "[parameters('Tags')]",
       "properties": {
@@ -174,11 +185,11 @@
           "timestamp": "[parameters('Timestamp')]"
         },
         "protectedSettings": {
-          "commandToExecute": "[format('powershell -ExecutionPolicy Unrestricted -File Set-FslogixDiskSize.ps1 -StorageAccountNames {0} -StorageAccountSuffix {1}', parameters('StorageAccountNames'), variables('StorageAccountSuffix'))]"
+          "commandToExecute": "[format('powershell -ExecutionPolicy Unrestricted -File Set-FslogixDiskSize.ps1 -FileShareNames {0} -KeyVaultName {1} -StorageAccountNames {2} -StorageAccountSuffix {3} -UserAssignedIdentityClientId {4}', parameters('FileShareNames'), parameters('KeyVaultName'), parameters('StorageAccountNames'), parameters('StorageAccountSuffix'), parameters('UserAssignedIdentityClientId'))]"
         }
       },
       "dependsOn": [
-        "[resourceId('Microsoft.Compute/virtualMachines', variables('VmName'))]"
+        "[resourceId('Microsoft.Compute/virtualMachines', parameters('VmName'))]"
       ]
     }
   ]

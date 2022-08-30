@@ -1,6 +1,6 @@
 param _artifactsLocation string
 @secure()
-param _artifactsLocationSasToken string
+param _artifactsLocationSasToken string = ''
 param DiskName string
 param FileShareNames array
 param HybridUseBenefit bool

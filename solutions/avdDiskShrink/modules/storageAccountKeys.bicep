@@ -1,4 +1,4 @@
-param KeyVault string
+param KeyVaultName string
 param StorageAccount string
 param StorageAccountResourceGroup string
 
@@ -8,7 +8,7 @@ resource storageAccount 'Microsoft.Storage/storageAccounts@2021-02-01' existing 
 }
 
 resource keyVault 'Microsoft.KeyVault/vaults@2016-10-01' existing = {
-  name: KeyVault
+  name: KeyVaultName
 }
 
 resource secret_VmPassword 'Microsoft.KeyVault/vaults/secrets@2016-10-01' = {

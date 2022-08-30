@@ -88,13 +88,13 @@ try
 	$FilesSuffix = '.file.' + $StorageAccountSuffix
 	Write-Log -Message "Azure Files Suffix = $FilesSuffix" -Type 'INFO'
 
-    # Convert FileShareNames from a JSON array to a PowerShell array
-    [array]$Shares = $FileShareNames.Replace("'",'"') | ConvertFrom-Json
+    # Convert FileShareNames from a string array to a PowerShell array
+    [array]$Shares = $FileShareNames -split ','
     Write-Log -Message "File Shares:" -Type 'INFO'
     $Shares | Add-Content -Path 'C:\cse.txt' -Force
 
-    # Convert StorageAccountNames from a JSON array to a PowerShell array
-    [array]$StorageAccounts = $StorageAccountNames.Replace("'",'"') | ConvertFrom-Json
+    # Convert StorageAccountNames from a string array to a PowerShell array
+    [array]$StorageAccounts = $StorageAccountNames -split ','
     Write-Log -Message "File Shares:" -Type 'INFO'
     $StorageAccounts | Add-Content -Path 'C:\cse.txt' -Force
 

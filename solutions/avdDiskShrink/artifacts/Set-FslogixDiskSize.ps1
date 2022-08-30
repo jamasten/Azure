@@ -152,8 +152,7 @@ try
 
         # Create credential for accessing the storage account
         $Username = 'Azure\' + $StorageAccount
-        $Password = ConvertTo-SecureString -String "$($StorageAccountKey)" -AsPlainText -Force
-        [pscredential]$Credential = New-Object System.Management.Automation.PSCredential ($Username, $Password)
+        [pscredential]$Credential = New-Object System.Management.Automation.PSCredential ($Username, $StorageAccountKey)
 
         
         foreach($Share in $Shares)

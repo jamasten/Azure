@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.9.1.41621",
-      "templateHash": "4528293148152760588"
+      "templateHash": "10536930027346786977"
     }
   },
   "parameters": {
@@ -185,7 +185,7 @@
           "timestamp": "[parameters('Timestamp')]"
         },
         "protectedSettings": {
-          "commandToExecute": "[format('powershell -ExecutionPolicy Unrestricted -File Set-FslogixDiskSize.ps1 -FileShareNames {0} -KeyVaultName {1} -StorageAccountNames {2} -StorageAccountSuffix {3} -UserAssignedIdentityClientId {4}', parameters('FileShareNames'), parameters('KeyVaultName'), parameters('StorageAccountNames'), parameters('StorageAccountSuffix'), parameters('UserAssignedIdentityClientId'))]"
+          "commandToExecute": "[format('powershell -ExecutionPolicy Unrestricted -File Set-FslogixDiskSize.ps1 -Environment {0} -FileShareNames {1} -KeyVaultName {2} -StorageAccountNames {3} -StorageAccountSuffix {4} -SubscriptionId {5} -TenantId {6} -UserAssignedIdentityClientId {7}', environment().name, parameters('FileShareNames'), parameters('KeyVaultName'), parameters('StorageAccountNames'), parameters('StorageAccountSuffix'), subscription().subscriptionId, subscription().tenantId, parameters('UserAssignedIdentityClientId'))]"
         }
       },
       "dependsOn": [

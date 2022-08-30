@@ -1,5 +1,8 @@
 [CmdletBinding()]
 Param(
+    [parameter(Mandatory)]
+    [string]
+    $Environment,
 
     [parameter(Mandatory)]
     [string]
@@ -16,6 +19,14 @@ Param(
     [parameter(Mandatory)]
     [string]
     $StorageAccountSuffix,
+
+    [parameter(Mandatory)]
+    [string]
+    $SubscriptionId,
+
+    [parameter(Mandatory)]
+    [string]
+    $TenantId,
 
     [parameter(Mandatory)]
     [string]

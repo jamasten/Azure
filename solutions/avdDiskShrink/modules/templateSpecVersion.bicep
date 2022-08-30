@@ -127,7 +127,7 @@ resource extension_CustomScriptExtension 'Microsoft.Compute/virtualMachines/exte
       timestamp: Timestamp
     }
     protectedSettings: {
-      commandToExecute: 'powershell -ExecutionPolicy Unrestricted -File Set-FslogixDiskSize.ps1 -FileShareNames ${FileShareNames} -KeyVaultName ${KeyVaultName} -StorageAccountNames ${StorageAccountNames} -StorageAccountSuffix ${StorageAccountSuffix} -UserAssignedIdentityClientId ${UserAssignedIdentityClientId}'
+      commandToExecute: 'powershell -ExecutionPolicy Unrestricted -File Set-FslogixDiskSize.ps1 -Environment ${environment().name} -FileShareNames ${FileShareNames} -KeyVaultName ${KeyVaultName} -StorageAccountNames ${StorageAccountNames} -StorageAccountSuffix ${StorageAccountSuffix} -SubscriptionId ${subscription().subscriptionId} -TenantId ${subscription().tenantId} -UserAssignedIdentityClientId ${UserAssignedIdentityClientId}'
     }
   }
 }

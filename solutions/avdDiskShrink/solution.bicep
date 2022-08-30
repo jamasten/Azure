@@ -461,6 +461,6 @@ resource logicApp 'Microsoft.Logic/workflows@2016-06-01' = {
     }
   }
   dependsOn: [
-    roleAssignments
+    roleAssignments_VirtualMachineContributor
   ]
 }

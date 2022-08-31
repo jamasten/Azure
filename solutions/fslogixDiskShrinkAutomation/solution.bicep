@@ -1,7 +1,7 @@
 // This solution assumes the file share names are the same across all storage accounts
 
 @description('The URL prefix for linked resources.')
-param _artifactsLocation string = 'https://raw.githubusercontent.com/jamasten/Azure/master/solutions/avdDiskShrink/artifacts/'
+param _artifactsLocation string = 'https://raw.githubusercontent.com/jamasten/Azure/master/solutions/fslogixDiskShrinkAutomation/artifacts/'
 
 @secure()
 @description('The SAS Token for the scripts if they are stored on an Azure Storage Account.')
@@ -256,9 +256,11 @@ resource runbook 'Microsoft.Automation/automationAccounts/runbooks@2019-06-01' =
   name: RunbookName
   location: Location
   properties: {
+    description: 'FSLogix Disk Shrink Automation'
     runbookType: 'PowerShell'
     logProgress: false
     logVerbose: false
+    logActivityTrace: 0
     publishContentLink: {
       uri: '${_artifactsLocation}${RunbookScriptName}${_artifactsLocationSasToken}'
       version: '1.0.0.0'
@@ -336,7 +338,6 @@ resource keyVault 'Microsoft.KeyVault/vaults@2021-10-01' = {
     enabledForTemplateDeployment: true
     enabledForDiskEncryption: false
     enableRbacAuthorization: true
-    enablePurgeProtection: false
     enableSoftDelete: false
     publicNetworkAccess: 'Enabled'
   }

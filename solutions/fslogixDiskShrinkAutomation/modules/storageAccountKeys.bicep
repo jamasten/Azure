@@ -7,11 +7,11 @@ resource storageAccount 'Microsoft.Storage/storageAccounts@2021-02-01' existing 
   scope: resourceGroup(StorageAccountResourceGroup)
 }
 
-resource keyVault 'Microsoft.KeyVault/vaults@2016-10-01' existing = {
+resource keyVault 'Microsoft.KeyVault/vaults@2021-10-01' existing = {
   name: KeyVaultName
 }
 
-resource secret_VmPassword 'Microsoft.KeyVault/vaults/secrets@2016-10-01' = {
+resource secret_VmPassword 'Microsoft.KeyVault/vaults/secrets@2021-10-01' = {
   parent: keyVault
   name: StorageAccount
   properties: {

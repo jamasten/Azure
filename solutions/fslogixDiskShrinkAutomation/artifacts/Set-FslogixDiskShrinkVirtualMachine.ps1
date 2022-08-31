@@ -73,7 +73,7 @@ try
 	Write-Output 'Deployed virtual machine successfully'
 
 	# Delete the virtual machine
-	Remove-AzVM -ResourceGroupName $ResourceGroupName -Name $VmName
+	Remove-AzVM -ResourceGroupName $ResourceGroupName -Name $VmName -Force
 	Write-Output 'Removed virtual machine successfully'
 }
 catch

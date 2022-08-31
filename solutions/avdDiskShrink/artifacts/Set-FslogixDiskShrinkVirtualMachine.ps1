@@ -23,6 +23,7 @@ try
 	$Tags = $Parameters.PSObject.Properties['Tags'].Value
 	$TemplateSpecId = $Parameters.PSObject.Properties['TemplateSpecId'].Value
 	$TenantId = $Parameters.PSObject.Properties['TenantId'].Value
+	$VmName = $Parameters.PSObject.Properties['VmName'].Value
 
 	# Convert Tags from PSCustomObject to HashTable
 	$FixedTags = @{}
@@ -47,7 +48,7 @@ try
 		UserAssignedIdentityResourceId = $Parameters.PSObject.Properties['UserAssignedIdentityResourceId'].Value
 		VirtualNetwork = $Parameters.PSObject.Properties['VirtualNetworkName'].Value
 		VirtualNetworkResourceGroup = $Parameters.PSObject.Properties['VirtualNetworkResourceGroupName'].Value
-		VmName = $Parameters.PSObject.Properties['VmName'].Value
+		VmName = $VmName
 		VmSize = $Parameters.PSObject.Properties['VmSize'].Value
 	}
 

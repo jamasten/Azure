@@ -12,3 +12,5 @@ This solution will deploy a virtual machine weekly and run the [Invoke-FslShrink
   * Secrets
 * Logic App
 * Role Assignments
+* Template Spec
+* User Assigned Identity

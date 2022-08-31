@@ -89,12 +89,14 @@ try
 	Write-Log -Message "Azure Files Suffix = $FilesSuffix" -Type 'INFO'
 
     # Convert FileShareNames from a string array to a PowerShell array
-    [array]$Shares = $FileShareNames -split ','
+    $SharesStringArray = $FileShareNames.Replace("'",'"') | ConvertFrom-Json
+    $Shares = $SharesStringArray -split ','
     Write-Log -Message "File Shares:" -Type 'INFO'
     $Shares | Add-Content -Path 'C:\cse.txt' -Force
 
     # Convert StorageAccountNames from a string array to a PowerShell array
-    [array]$StorageAccounts = $StorageAccountNames -split ','
+    $StorageAccountsStringArray = $StorageAccountNames.Replace("'",'"') | ConvertFrom-Json
+    $StorageAccounts = $StorageAccountsStringArray -split ','
     Write-Log -Message "File Shares:" -Type 'INFO'
     $StorageAccounts | Add-Content -Path 'C:\cse.txt' -Force
 

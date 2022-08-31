@@ -141,6 +141,7 @@ var RoleAssignmentResourceGroups = union([
   VirtualNetworkResourceGroupName
 ], StorageAccountResourceGroupNames)
 var RoleDefinitionIds = {
+  KeyVaultSecretsUser: '4633458b-17de-408a-b874-0445c86b69e6'
   ManagedIdentityOperator: 'f1a07417-d97a-45cb-824c-7a7467783830'
   Reader: 'acdd72a7-3385-48ef-bd42-f606fba81ae7'
 }
@@ -309,7 +310,6 @@ resource roleAssignment_Reader 'Microsoft.Authorization/roleAssignments@2020-10-
     principalId: automationAccount.identity.principalId
     principalType: 'ServicePrincipal'
   }
-  dependsOn: []
 }
 
 // Gives the Managed Identity for the Automation Account rights to add the User Assigned Idenity to the virtual machine
@@ -320,11 +320,10 @@ resource roleAssignment_ManagedIdentityOperator 'Microsoft.Authorization/roleAss
     principalId: automationAccount.identity.principalId
     principalType: 'ServicePrincipal'
   }
-  dependsOn: []
 }
 
 // The Key Vault stores the secrets to deploy virtual machine and mount the SMB share(s)
-resource keyVault 'Microsoft.KeyVault/vaults@2016-10-01' = {
+resource keyVault 'Microsoft.KeyVault/vaults@2021-10-01' = {
   name: KeyVaultName
   location: Location
   properties: {
@@ -333,37 +332,19 @@ resource keyVault 'Microsoft.KeyVault/vaults@2016-10-01' = {
       family: 'A'
       name: 'standard'
     }
-    accessPolicies: [
-      {
-        tenantId: subscription().tenantId
-        objectId: automationAccount.identity.principalId
-        permissions: {
-          secrets: [
-            'get'
-            'list'
-          ]
-        }
-      }
-      {
-        tenantId: subscription().tenantId
-        objectId: userAssignedIdentity.properties.principalId
-        permissions: {
-          secrets: [
-            'get'
-            'list'
-          ]
-        }
-      }
-    ]
     enabledForDeployment: true
     enabledForTemplateDeployment: true
-    enabledForDiskEncryption: true
+    enabledForDiskEncryption: false
+    enableRbacAuthorization: true
+    enablePurgeProtection: false
+    enableSoftDelete: false
+    publicNetworkAccess: 'Enabled'
   }
   dependsOn: []
 }
 
 // Key Vault Secret for the SAS token on the storage account or container
-resource secret_SasToken 'Microsoft.KeyVault/vaults/secrets@2016-10-01' = if(!empty(_artifactsLocationSasToken)) {
+resource secret_SasToken 'Microsoft.KeyVault/vaults/secrets@2021-10-01' = if(!empty(_artifactsLocationSasToken)) {
   parent: keyVault
   name: 'SasToken'
   properties: {
@@ -383,7 +364,7 @@ module secrets_StorageAccountKeys 'modules/storageAccountKeys.bicep' = [for i in
 }]
 
 // Key Vault Secret for the local admin password on the virtual machine
-resource secret_VmPassword 'Microsoft.KeyVault/vaults/secrets@2016-10-01' = {
+resource secret_VmPassword 'Microsoft.KeyVault/vaults/secrets@2021-10-01' = {
   parent: keyVault
   name: 'VmPassword'
   properties: {
@@ -392,11 +373,33 @@ resource secret_VmPassword 'Microsoft.KeyVault/vaults/secrets@2016-10-01' = {
 }
 
 // Key Vault Secret for the local admin username on the virtual machine
-resource secret_VmUsername 'Microsoft.KeyVault/vaults/secrets@2016-10-01' = {
+resource secret_VmUsername 'Microsoft.KeyVault/vaults/secrets@2021-10-01' = {
   parent: keyVault
   name: 'VmUsername'
   properties: {
     value: VmUsername
+  }
+}
+
+// Gives the Managed Identity for the Automation Account rights to get key vault secrects
+resource roleAssignment_KeyVaultSecretsUser01 'Microsoft.Authorization/roleAssignments@2020-10-01-preview' = {
+  name: guid(automationAccount.id, RoleDefinitionIds.KeyVaultSecretsUser, resourceGroup().id)
+  scope: keyVault
+  properties: {
+    roleDefinitionId: resourceId('Microsoft.Authorization/roleDefinitions', RoleDefinitionIds.KeyVaultSecretsUser)
+    principalId: automationAccount.identity.principalId
+    principalType: 'ServicePrincipal'
+  }
+}
+
+// Gives the User Assigned Identity rights to get key vault secrets
+resource roleAssignment_KeyVaultSecretsUser02 'Microsoft.Authorization/roleAssignments@2020-10-01-preview' = {
+  name: guid(userAssignedIdentity.id, RoleDefinitionIds.KeyVaultSecretsUser, resourceGroup().id)
+  scope: keyVault
+  properties: {
+    roleDefinitionId: resourceId('Microsoft.Authorization/roleDefinitions', RoleDefinitionIds.KeyVaultSecretsUser)
+    principalId: userAssignedIdentity.properties.principalId
+    principalType: 'ServicePrincipal'
   }
 }
 

@@ -27,7 +27,7 @@ try
 
 	# Convert Tags from PSCustomObject to HashTable
 	$FixedTags = @{}
-	$Tags.psobject.properties | Foreach { $FixedTags[$_.Name] = $_.Value }
+	$Tags.psobject.properties | ForEach-Object { $FixedTags[$_.Name] = $_.Value }
 	Write-Output 'Fixed tags successfully'
 
 	$Params = @{

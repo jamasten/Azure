@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.9.1.41621",
-      "templateHash": "10915846091232723630"
+      "templateHash": "4536831244463983609"
     }
   },
   "parameters": {
@@ -566,6 +566,7 @@
       },
       "dependsOn": [
         "[resourceId('Microsoft.Automation/automationAccounts', variables('AutomationAccountName'))]",
+        "[resourceId('Microsoft.Automation/automationAccounts/runbooks', variables('AutomationAccountName'), variables('RunbookName'))]",
         "[resourceId('Microsoft.Automation/automationAccounts/webhooks', variables('AutomationAccountName'), format('{0}_{1}', variables('RunbookName'), dateTimeAdd(parameters('WebhookTimestamp'), 'PT0H', 'yyyyMMddhhmmss')))]"
       ]
     },

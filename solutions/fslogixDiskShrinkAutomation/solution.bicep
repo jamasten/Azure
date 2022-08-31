@@ -271,23 +271,20 @@ resource runbook 'Microsoft.Automation/automationAccounts/runbooks@2019-06-01' =
 // The Webhook is called by a Logic App to trigger the Runbook
 resource webhook 'Microsoft.Automation/automationAccounts/webhooks@2015-10-31' = {
   parent: automationAccount
-  name: '${RunbookName}_${dateTimeAdd(WebhookTimestamp, 'PT0H', 'yyyyMMddhhmmss')}'
+  name: '${runbook.name}_${dateTimeAdd(WebhookTimestamp, 'PT0H', 'yyyyMMddhhmmss')}'
   properties: {
     isEnabled: true
     expiryTime: dateTimeAdd(WebhookTimestamp, 'P5Y')
     runbook: {
-      name: RunbookName
+      name: runbook.name
     }
   }
-  dependsOn:[
-    runbook
-  ]
 }
 
 // The Variable stores the webhook since the value is only exposed when its created
 resource variable 'Microsoft.Automation/automationAccounts/variables@2019-06-01' = {
   parent: automationAccount
-  name: 'WebhookURI_${RunbookName}'
+  name: 'WebhookURI_${runbook.name}'
   properties: {
     value: '"${webhook.properties.uri}"'
     isEncrypted: false

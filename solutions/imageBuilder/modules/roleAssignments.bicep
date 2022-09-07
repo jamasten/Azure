@@ -17,7 +17,7 @@ resource roleAssignment_stg 'Microsoft.Authorization/roleAssignments@2020-10-01-
   }
 }
 
-resource roleAssignment_rg 'Microsoft.Authorization/roleAssignments@2022-04-01' = if(empty(StorageAccountName)) {
+resource roleAssignment_rg 'Microsoft.Authorization/roleAssignments@2020-10-01-preview' = if(empty(StorageAccountName)) {
   name: guid(PrincipalId, RoleDefinitionId, resourceGroup().id)
   properties: {
     roleDefinitionId: RoleDefinitionId

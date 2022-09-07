@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.9.1.41621",
-      "templateHash": "13350450198147111358"
+      "templateHash": "5964915710673915841"
     }
   },
   "parameters": {
@@ -379,7 +379,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.9.1.41621",
-              "templateHash": "3650947858120910035"
+              "templateHash": "9160172160246315815"
             }
           },
           "parameters": {
@@ -398,7 +398,7 @@
             {
               "condition": "[not(empty(parameters('StorageAccountName')))]",
               "type": "Microsoft.Authorization/roleAssignments",
-              "apiVersion": "2022-04-01",
+              "apiVersion": "2020-10-01-preview",
               "scope": "[format('Microsoft.Storage/storageAccounts/{0}', parameters('StorageAccountName'))]",
               "name": "[guid(parameters('PrincipalId'), parameters('RoleDefinitionId'), resourceGroup().id)]",
               "properties": {
@@ -410,7 +410,7 @@
             {
               "condition": "[empty(parameters('StorageAccountName'))]",
               "type": "Microsoft.Authorization/roleAssignments",
-              "apiVersion": "2022-04-01",
+              "apiVersion": "2020-10-01-preview",
               "name": "[guid(parameters('PrincipalId'), parameters('RoleDefinitionId'), resourceGroup().id)]",
               "properties": {
                 "roleDefinitionId": "[parameters('RoleDefinitionId')]",
@@ -454,7 +454,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.9.1.41621",
-              "templateHash": "3650947858120910035"
+              "templateHash": "9160172160246315815"
             }
           },
           "parameters": {
@@ -473,7 +473,7 @@
             {
               "condition": "[not(empty(parameters('StorageAccountName')))]",
               "type": "Microsoft.Authorization/roleAssignments",
-              "apiVersion": "2022-04-01",
+              "apiVersion": "2020-10-01-preview",
               "scope": "[format('Microsoft.Storage/storageAccounts/{0}', parameters('StorageAccountName'))]",
               "name": "[guid(parameters('PrincipalId'), parameters('RoleDefinitionId'), resourceGroup().id)]",
               "properties": {
@@ -485,7 +485,7 @@
             {
               "condition": "[empty(parameters('StorageAccountName'))]",
               "type": "Microsoft.Authorization/roleAssignments",
-              "apiVersion": "2022-04-01",
+              "apiVersion": "2020-10-01-preview",
               "name": "[guid(parameters('PrincipalId'), parameters('RoleDefinitionId'), resourceGroup().id)]",
               "properties": {
                 "roleDefinitionId": "[parameters('RoleDefinitionId')]",

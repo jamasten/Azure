@@ -192,7 +192,9 @@ try
         }
 
         # Run VDOT
-        & .\VDOT\Virtual-Desktop-Optimization-Tool-main\Windows_VDOT.ps1 -AcceptEULA
+        & .\VDOT\Virtual-Desktop-Optimization-Tool-main\Windows_VDOT.ps1 -Optimizations 'All' -AdvancedOptimizations 'Edge,RemoveLegacyIE' -AcceptEULA
+
+
         Write-Log -Message 'Optimized the operating system using VDOT' -Type 'INFO'
     }    
 

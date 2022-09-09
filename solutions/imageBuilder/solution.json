@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.9.1.41621",
-      "templateHash": "5964915710673915841"
+      "templateHash": "2763247737147108845"
     }
   },
   "parameters": {
@@ -798,7 +798,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.9.1.41621",
-              "templateHash": "6223893327007905649"
+              "templateHash": "16850256464455342454"
             }
           },
           "parameters": {
@@ -887,17 +887,60 @@
                 "customize": [
                   {
                     "type": "PowerShell",
-                    "name": "Virtual Desktop Optimization Tool",
+                    "name": "Create TEMP Directory",
+                    "runElevated": true,
+                    "runAsSystem": true,
+                    "inline": [
+                      "New-Item -Path \"C:\\\" -Name \"temp\" -ItemType \"Directory\""
+                    ]
+                  },
+                  {
+                    "type": "PowerShell",
+                    "name": "Download & Run the Virtual Desktop Optimization Tool",
                     "runElevated": true,
                     "runAsSystem": true,
                     "scriptUri": "[format('{0}vdot.ps1', parameters('StorageUri'))]"
                   },
                   {
+                    "type": "WindowsRestart",
+                    "restartCheckCommand": "Write-Host \"Restarting Windows after running the Virtual Desktop Optimization Tool\"",
+                    "restartTimeout": "5m"
+                  },
+                  {
+                    "type": "File",
+                    "name": "Download the Office Deployment Tool with custom XML",
+                    "sourceUri": "[format('{0}office.zip', parameters('StorageUri'))]",
+                    "destination": "C:\\temp\\office.zip",
+                    "sha256Checksum": "[toLower('37d222cdf71e9519872e6c24fbc7c30fbd230419710c5a1d7ef3c227c261e41b')]"
+                  },
+                  {
                     "type": "PowerShell",
-                    "name": "Microsoft Project & Visio",
+                    "name": "Install Microsoft Project & Visio",
                     "runElevated": true,
                     "runAsSystem": true,
                     "scriptUri": "[format('{0}projectVisio.ps1', parameters('StorageUri'))]"
+                  },
+                  {
+                    "type": "PowerShell",
+                    "name": "Remove TEMP Directory",
+                    "runElevated": true,
+                    "runAsSystem": true,
+                    "inline": [
+                      "Removed-Item -Path \"C:\\temp\" -Recurse -Force"
+                    ]
+                  },
+                  {
+                    "type": "WindowsUpdate",
+                    "searchCriteria": "IsInstalled=0",
+                    "filters": [
+                      "exclude:$_.Title -like '*Preview*'",
+                      "include:$true"
+                    ]
+                  },
+                  {
+                    "type": "WindowsRestart",
+                    "restartCheckCommand": "Write-Host \"Restarting Windows after running the Virtual Desktop Optimization Tool\"",
+                    "restartTimeout": "5m"
                   }
                 ],
                 "distribute": [

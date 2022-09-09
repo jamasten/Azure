@@ -164,7 +164,7 @@ $OsDiskImage = @{Source = @{Id = $Disk.Id }}
 # Create a new Image Version using the Managed Disk
 New-AzGalleryImageVersion `
     -GalleryImageDefinitionName $ComputeGalleryDefinitionName `
-    -GalleryImageVersionName '1.0.0' `
+    -GalleryImageVersionName $ComputeGalleryVersion `
     -GalleryName $ComputeGalleryName `
     -ResourceGroupName $ComputeGalleryResourceGroupName `
     -Location $Location `

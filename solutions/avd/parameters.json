@@ -3,10 +3,10 @@
     "contentVersion": "1.0.0.0",
     "parameters": {
         "_artifactsLocation": {
-            "value": "https://raw.githubusercontent.com/jamasten/Azure/main/solutions/avd/"
+            "value": "https://raw.githubusercontent.com/jamasten/Azure/main/solutions/avd/artifacts/"
         },
         "availability": {
-            "value": "AvailabilitySet"
+            "value": "None"
         },
         "avdObjectId": {
             "value": "cdcfb416-e2fe-41e2-be12-33813c1cd427"
@@ -52,7 +52,7 @@
             "value": "d"
         },
         "ephemeralOsDisk": {
-            "value": false
+            "value": true
         },
         "fslogixShareSizeInGB": {
             "value": 100
@@ -70,7 +70,7 @@
             "value": false
         },
         "identifier": {
-            "value": "msf"
+            "value": "jnm"
         },
         "imageOffer": {
             "value": "office-365"

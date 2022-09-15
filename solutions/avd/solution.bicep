@@ -196,10 +196,10 @@ param SecurityPrincipalObjectIds array = []
 param SecurityPrincipalNames array = []
 
 @description('The name of the log analytics workspace used for Azure Sentinel.')
-param SentinelLogAnalyticsWorkspaceName string
+param SentinelLogAnalyticsWorkspaceName string = ''
 
 @description('The name of the resource group containing the log analytics workspace used for Azure Sentinel.')
-param SentinelLogAnalyticsWorkspaceResourceGroupName string
+param SentinelLogAnalyticsWorkspaceResourceGroupName string = ''
 
 @description('The ID of the subscription containing the log analytics workspace used for Azure Sentinel.')
 param SentinelLogAnalyticsWorkspaceSubscriptionId string = subscription().subscriptionId
@@ -518,7 +518,7 @@ module validation 'modules/validation.bicep' = {
 resource startVmOnConnect 'Microsoft.Authorization/roleAssignments@2022-04-01' = if(StartVmOnConnect) {
   name: guid(AvdObjectId, RoleDefinitionIds.desktopVirtualizationPowerOnContributor, subscription().id)
   properties: {
-    roleDefinitionId: RoleDefinitionIds.desktopVirtualizationPowerOnContributor
+    roleDefinitionId: resourceId('Microsoft.Authorization/roleDefinitions', RoleDefinitionIds.desktopVirtualizationPowerOnContributor)
     principalId: AvdObjectId
   }
 }

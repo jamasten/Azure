@@ -381,7 +381,8 @@ var RoleDefinitionIds = {
   storageFileDataSMBShareContributor: '0c867c2a-1d8c-454a-a3db-ab2ea1bdc8bb'
   virtualMachineUserLogin: 'fb879df8-f326-4884-b1cf-06f3ad86be52'
 }
-var Sentinel = !empty(SentinelLogAnalyticsWorkspaceName) && !empty(SentinelLogAnalyticsWorkspaceResourceGroupName) ? true : false
+var Sentinel = empty(SentinelLogAnalyticsWorkspaceName) || empty(SentinelLogAnalyticsWorkspaceResourceGroupName) ? false : true
+var SentinelResourceGroup = Sentinel ? SentinelLogAnalyticsWorkspaceResourceGroupName : ResourceGroups[2]
 var StampIndexFull = padLeft(StampIndex, 2, '0')
 var StorageAccountPrefix = 'st${Identifier}${Environment}${LocationShortName}${StampIndexFull}'
 var StorageSolution = split(FslogixStorage, ' ')[0]
@@ -679,10 +680,11 @@ module fslogix 'modules/fslogix/fslogix.bicep' = if(Fslogix) {
   ]
 }
 
-module sentinel 'modules/sentinel.bicep' = if(Sentinel) {
+module sentinel 'modules/sentinel.bicep' = {
   name: 'Sentinel_${Timestamp}'
-  scope: resourceGroup(SentinelLogAnalyticsWorkspaceSubscriptionId, SentinelLogAnalyticsWorkspaceResourceGroupName)
+  scope: resourceGroup(SentinelLogAnalyticsWorkspaceSubscriptionId, SentinelResourceGroup)
   params: {
+    Sentinel: Sentinel
     SentinelLogAnalyticsWorkspaceName: SentinelLogAnalyticsWorkspaceName
     SentinelLogAnalyticsWorkspaceResourceGroupName: SentinelLogAnalyticsWorkspaceResourceGroupName
   }
@@ -736,8 +738,8 @@ module sessionHosts 'modules/sessionHosts/sessionHosts.bicep' = {
     ScreenCaptureProtection: ScreenCaptureProtection
     SecurityPrincipalObjectIds: SecurityPrincipalObjectIds
     Sentinel: Sentinel
-    SentinelWorkspaceId: Sentinel ? sentinel.outputs.sentinelWorkspaceId : ''
-    SentinelWorkspaceResourceId: Sentinel ? sentinel.outputs.sentinelWorkspaceResourceId : ''
+    SentinelWorkspaceId: sentinel.outputs.sentinelWorkspaceId
+    SentinelWorkspaceResourceId: sentinel.outputs.sentinelWorkspaceResourceId
     SessionHostBatchCount: SessionHostBatchCount
     SessionHostIndex: SessionHostIndex
     StorageAccountPrefix: StorageAccountPrefix

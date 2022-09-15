@@ -89,7 +89,7 @@ var NvidiaVmSizes = [
 var NvidiaVmSize = contains(NvidiaVmSizes, VmSize)
 var PooledHostPool = (split(HostPoolType, ' ')[0] == 'Pooled')
 var ManagementResourceGroup = ResourceGroups[2] // Management Resource Group
-var SentinelWorkspaceKey = listKeys(SentinelWorkspaceResourceId, '2021-06-01').primarySharedKey
+var SentinelWorkspaceKey = Sentinel ? listKeys(SentinelWorkspaceResourceId, '2021-06-01').primarySharedKey : 'NotApplicable'
 var VmIdentityType = (contains(DomainServices, 'None') ? ((!empty(UserAssignedIdentity)) ? 'SystemAssigned, UserAssigned' : 'SystemAssigned') : ((!empty(UserAssignedIdentity)) ? 'UserAssigned' : 'None'))
 var VmIdentityTypeProperty = {
   type: VmIdentityType

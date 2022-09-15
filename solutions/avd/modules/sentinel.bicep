@@ -1,10 +1,11 @@
+param Sentinel bool
 param SentinelLogAnalyticsWorkspaceName string
 param SentinelLogAnalyticsWorkspaceResourceGroupName string
 
-resource logAnalyticsWorkspace 'Microsoft.OperationalInsights/workspaces@2021-06-01' existing = {
+resource logAnalyticsWorkspace 'Microsoft.OperationalInsights/workspaces@2021-06-01' existing = if(Sentinel) {
   name: SentinelLogAnalyticsWorkspaceName
   scope: resourceGroup(SentinelLogAnalyticsWorkspaceResourceGroupName)
 }
 
-output sentinelWorkspaceId string = logAnalyticsWorkspace.properties.customerId
-output sentinelWorkspaceResourceId string = logAnalyticsWorkspace.id
+output sentinelWorkspaceId string = Sentinel ? logAnalyticsWorkspace.properties.customerId : 'NotApplicable'
+output sentinelWorkspaceResourceId string = Sentinel ? logAnalyticsWorkspace.id : 'NotApplicable'

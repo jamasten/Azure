@@ -87,7 +87,7 @@ resource imageTemplate 'Microsoft.VirtualMachineImages/imageTemplates@2022-02-14
         runElevated: true
         runAsSystem: true
         inline: [
-          'Removed-Item -Path "C:\\temp" -Recurse -Force'
+          'Remove-Item -Path "C:\\temp" -Recurse -Force'
         ]
       }
       {

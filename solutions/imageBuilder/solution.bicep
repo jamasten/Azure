@@ -11,16 +11,16 @@ targetScope = 'subscription'
 param Environment string = 'd'
 
 @description('The name of the Image Definition for the Shared Image Gallery.')
-param ImageDefinitionName string = 'OfficeWorkers-Win11-21h2-g2'
+param ImageDefinitionName string = 'Win10-21h2-avd-g2'
 
 @description('The offer of the marketplace image.')
-param ImageOffer string = 'office-365'
+param ImageOffer string = 'windows-10'
 
 @description('The publisher of the marketplace image.')
 param ImagePublisher string = 'microsoftwindowsdesktop'
 
 @description('The SKU of the marketplace image.')
-param ImageSku string = 'win11-21h2-avd-m365'
+param ImageSku string = 'win10-21h2-avd-g2'
 
 @description('The version of the marketplace image.')
 param ImageVersion string = 'latest'

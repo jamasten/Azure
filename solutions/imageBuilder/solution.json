@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.11.1.770",
-      "templateHash": "2822945940392017928"
+      "templateHash": "14070542583454743274"
     }
   },
   "parameters": {
@@ -1112,7 +1112,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.11.1.770",
-              "templateHash": "4943836496349180781"
+              "templateHash": "17751009976493060242"
             }
           },
           "parameters": {
@@ -1221,7 +1221,7 @@
                 "logProgress": false,
                 "logVerbose": false,
                 "publishContentLink": {
-                  "uri": "https://raw.githubusercontent.com/jamasten/Azure/master/solutions/scalingAutomation/scale.ps1",
+                  "uri": "https://raw.githubusercontent.com/jamasten/Azure/main/solutions/imageBuilder/scripts/New-AzureImageBuilderBuild.ps1",
                   "version": "1.0.0.0"
                 }
               },

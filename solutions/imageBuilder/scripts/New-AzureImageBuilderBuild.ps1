@@ -27,11 +27,13 @@ try
     Connect-AzAccount -Environment $EnvironmentName -Subscription $SubscriptionId -Tenant $TenantId -Identity | Out-Null
     Write-Output 'Connected to Azure.'
 
-	# Get the date of the last AIB image template build
+	# Get the date / time and status of the last AIB Image Template build
 	$ImageBuild = Get-AzImageBuilderTemplate -ResourceGroupName $TemplateResourceGroupName -Name $TemplateName
-	$ImageBuildDate = $ImageBuild.LastRunStatusEndTime
-	Write-Output "Image Template, Last Build End Time: $ImageBuildDate."
+	$ImageBuildDate = $ImageBuild.LastRunStatusStartTime
+	Write-Output "Image Template, Last Build Start Time: $ImageBuildDate."
 	$ImageBuildStatus = $ImageBuild.LastRunStatusRunState
+	Write-Output "Image Template, Last Build Run State: $ImageBuildStatus."
+
 
 	# Get the date of the latest marketplace image version
 	$ImageVersionDateRaw = (Get-AzVMImage -Location $Location -PublisherName $ImagePublisher -Offer $ImageOffer -Skus $ImageSku | Sort-Object -Property 'Version' -Descending | Select-Object -First 1).Version.Split('.')[-1]
@@ -47,7 +49,7 @@ try
 		Write-Output 'Latest Image Template build failed. Review the build log and correct the issue.'
 		throw
 	}
-	# If the latest marketplace image version was released after the last AIB image template build trigger a new AIB image template build
+	# If the latest Marketplace Image Version was released after the last AIB Image Template build then trigger a new AIB Image Template build
 	elseif($ImageVersionDate -gt $ImageBuildDate)
 	{   
 		Write-Output "Image Template build initiated with new Marketplace Image Version."

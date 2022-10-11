@@ -5,6 +5,7 @@ param ImageOffer string
 param ImagePublisher string
 param ImageSku string
 param ImageStorageAccountType string
+param ImageTemplateName string
 param ImageVersion string
 param Location string
 param LocationShortName string
@@ -19,7 +20,7 @@ param VirtualNetworkResourceGroupName string
 
 
 resource imageTemplate 'Microsoft.VirtualMachineImages/imageTemplates@2022-02-14' = {
-  name: 'imgt-${toLower(ImageDefinitionName)}-${Environment}-${LocationShortName}'
+  name: ImageTemplateName
   location: Location
   tags: Tags
   identity: {

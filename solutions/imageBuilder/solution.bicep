@@ -170,13 +170,28 @@ var Roles = [
     permissions: [
       {
         actions: [
-          'Microsoft.Compute/galleries/read'
-          'Microsoft.Compute/galleries/images/read'
-          'Microsoft.Compute/galleries/images/versions/read'
-          'Microsoft.Compute/galleries/images/versions/write'
-          'Microsoft.Compute/images/read'
-          'Microsoft.Compute/images/write'
-          'Microsoft.Compute/images/delete'
+          'Microsoft.Storage/storageAccounts/*'
+          'Microsoft.ContainerInstance/containerGroups/*'
+          'Microsoft.Resources/deployments/*'
+          'Microsoft.Resources/deploymentScripts/*'
+          'Microsoft.ManagedIdentity/userAssignedIdentities/assign/action'
+        ]
+      }
+    ]
+  }
+  {
+    resourceGroup: ResourceGroup
+    name: 'Image Template Build Automation'
+    description: 'Allow Image Template build automation using a Managed Identity on an Automation Account.'
+    permissions: [
+      {
+        actions: [
+          'Microsoft.VirtualMachineImages/imageTemplates/run/action'
+          'Microsoft.VirtualMachineImages/imageTemplates/read'
+          'Microsoft.Compute/locations/publishers/artifacttypes/offers/skus/versions/read'
+          'Microsoft.Compute/locations/publishers/artifacttypes/offers/skus/read'
+          'Microsoft.Compute/locations/publishers/artifacttypes/offers/read'
+          'Microsoft.Compute/locations/publishers/read'
         ]
       }
     ]
@@ -253,7 +268,7 @@ resource rg 'Microsoft.Resources/resourceGroups@2019-10-01' = {
 resource roleDefinitions 'Microsoft.Authorization/roleDefinitions@2015-07-01' = [for i in range(0, length(Roles)): {
   name: guid(Roles[i].name, subscription().id)
   properties: {
-    roleName: Roles[i].name
+    roleName: '${Roles[i].name} (${subscription().subscriptionId})'
     description: Roles[i].description
     permissions: Roles[i].permissions
     assignableScopes: [

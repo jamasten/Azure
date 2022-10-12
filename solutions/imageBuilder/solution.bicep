@@ -2,7 +2,7 @@ targetScope = 'subscription'
 
 
 @description('Determine whether you want to enable build automation.  This feature will check daily if a new marketplace image exists and will initiate a build if the image date is newer than the last build date.')
-param EnableBuildAutomation bool
+param EnableBuildAutomation bool = true
 
 @allowed([
   'd' // Development
@@ -39,7 +39,7 @@ param ImageStorageAccountType string = 'Standard_LRS'
 param Location string = deployment().location
 
 @description('The resource ID for the Log Analytics Workspace to store runbook events for bulid automation.')
-param LogAnalyticsWorkspaceResourceId string = ''
+param LogAnalyticsWorkspaceResourceId string = '/subscriptions/3764b123-4849-4395-8e6e-ca6d68d8d4b4/resourcegroups/rg-shd-svc-d-eu-000/providers/microsoft.operationalinsights/workspaces/law-shd-net-d-eu-000'
 
 @description('The name for the storage account containing the scripts & application installers.')
 param StorageAccountName string = 'stshdsvcdeu000'
@@ -293,7 +293,7 @@ module roleAssignments 'modules/roleAssignments.bicep' = [for i in range(0, leng
   name: 'RoleAssignments_${i}_${Timestamp}'
   scope: resourceGroup(Roles[i].resourceGroup)
   params: {
-    PrincipalId: userAssignedIdentity.outputs.userAssignedIdentityPrincipalId
+    PrincipalId: Roles[i].name == 'Image Template Build Automation' ? buildAutomation.outputs.principalId : userAssignedIdentity.outputs.userAssignedIdentityPrincipalId
     RoleDefinitionId: roleDefinitions[i].id
   }
 }]

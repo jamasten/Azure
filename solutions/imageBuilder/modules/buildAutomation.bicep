@@ -149,3 +149,5 @@ resource logicApp 'Microsoft.Logic/workflows@2016-06-01' = {
     }
   }
 }
+
+output principalId string = automationAccount.identity.principalId

@@ -25,7 +25,7 @@ try
 
     # Connect to Azure using the Managed Identity
     Connect-AzAccount -Environment $EnvironmentName -Subscription $SubscriptionId -Tenant $TenantId -Identity | Out-Null
-    Write-Output 'Connected to Azure.'
+    Write-Output "$TemplateName | $TemplateResourceGroupName | Connected to Azure."
 
 	# Get the date / time and status of the last AIB Image Template build
 	$ImageBuild = Get-AzImageBuilderTemplate -ResourceGroupName $TemplateResourceGroupName -Name $TemplateName
@@ -76,6 +76,6 @@ try
 	}
 }
 catch {
-	Write-Output $_.Exception
+	Write-Output "$TemplateName | $TemplateResourceGroupName | $($_.Exception)"
 	throw
 }

@@ -21,7 +21,7 @@ try
 {
     # Import Modules
     Import-Module -Name 'Az.Accounts','Az.Compute','Az.ImageBuilder'
-    Write-Output 'Imported the required modules.'
+    Write-Output "$TemplateName | $TemplateResourceGroupName | Imported the required modules."
 
     # Connect to Azure using the Managed Identity
     Connect-AzAccount -Environment $EnvironmentName -Subscription $SubscriptionId -Tenant $TenantId -Identity | Out-Null
@@ -30,9 +30,23 @@ try
 	# Get the date / time and status of the last AIB Image Template build
 	$ImageBuild = Get-AzImageBuilderTemplate -ResourceGroupName $TemplateResourceGroupName -Name $TemplateName
 	$ImageBuildDate = $ImageBuild.LastRunStatusStartTime
-	Write-Output "Image Template, Last Build Start Time: $ImageBuildDate."
+	if(!$ImageBuildDate)
+	{
+		Write-Output "$TemplateName | $TemplateResourceGroupName | Last Build Start Time: None."
+	}
+	else 
+	{
+		Write-Output "$TemplateName | $TemplateResourceGroupName | Last Build Start Time: $ImageBuildDate."
+	}
 	$ImageBuildStatus = $ImageBuild.LastRunStatusRunState
-	Write-Output "Image Template, Last Build Run State: $ImageBuildStatus."
+	if(!$ImageBuildStatus)
+	{
+		Write-Output "$TemplateName | $TemplateResourceGroupName | Last Build Run State: None."
+	}
+	else 
+	{
+		Write-Output "$TemplateName | $TemplateResourceGroupName | Last Build Run State: $ImageBuildStatus."
+	}
 
 
 	# Get the date of the latest marketplace image version
@@ -41,24 +55,24 @@ try
 	$Month = $ImageVersionDateRaw.Substring(2,2)
 	$Day = $ImageVersionDateRaw.Substring(4,2)
 	$ImageVersionDate = Get-Date -Year $Year -Month $Month -Day $Day -Hour 00 -Minute 00 -Second 00
-	Write-Output "Marketplace Image, Latest Version Date: $ImageVersionDate."
+	Write-Output "$TemplateName | $TemplateResourceGroupName | Marketplace Image, Latest Version Date: $ImageVersionDate."
 
 	# If the latest Image Template build is in a failed state, output a message and throw an error
 	if($ImageBuildStatus -eq 'Failed')
 	{
-		Write-Output 'Latest Image Template build failed. Review the build log and correct the issue.'
+		Write-Output "$TemplateName | $TemplateResourceGroupName | Latest Image Template build failed. Review the build log and correct the issue."
 		throw
 	}
 	# If the latest Marketplace Image Version was released after the last AIB Image Template build then trigger a new AIB Image Template build
 	elseif($ImageVersionDate -gt $ImageBuildDate)
 	{   
-		Write-Output "Image Template build initiated with new Marketplace Image Version."
+		Write-Output "$TemplateName | $TemplateResourceGroupName | Image Template build initiated with new Marketplace Image Version."
 		Start-AzImageBuilderTemplate -ResourceGroupName $TemplateResourceGroupName -Name $TemplateName
-		Write-Output "Image Template build succeeded. New Image Version available in Compute Gallery."
+		Write-Output "$TemplateName | $TemplateResourceGroupName | Image Template build succeeded. New Image Version available in Compute Gallery."
 	}
 	else 
 	{
-		Write-Output "Image Template build not required. Marketplace Image Version is older than the latest Image Template build."
+		Write-Output "$TemplateName | $TemplateResourceGroupName | Image Template build not required. Marketplace Image Version is older than the latest Image Template build."
 	}
 }
 catch {

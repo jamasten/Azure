@@ -14,6 +14,15 @@
         "ScriptUri": {
             "value": ""
         },
+        "SentinelLogAnalyticsWorkspaceName": {
+            "value": ""
+        },
+        "SentinelLogAnalyticsWorkspaceResourceGroupName": {
+            "value": ""
+        },
+        "VirtualDesktopOptimizationToolUrl": {
+            "value": "https://github.com/The-Virtual-Desktop-Team/Virtual-Desktop-Optimization-Tool/archive/refs/heads/main.zip"
+        },
         "VirtualMachineIndex": {
             "value": 0
         }

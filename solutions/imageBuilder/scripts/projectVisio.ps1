@@ -2,9 +2,9 @@ $ErrorActionPreference = 'Stop'
 
 try 
 {
-    Invoke-WebRequest -Uri 'https://stshdsvcdeu000.blob.core.windows.net/artifacts/office.zip' -OutFile 'Office.zip'
-    Expand-Archive -LiteralPath '.\office.zip' -Force
-    Start-Process -FilePath '.\office\setup.exe' -ArgumentList "/configure .\office\configuration-Office365-x64.xml" -Wait -PassThru
+    Expand-Archive -LiteralPath 'C:\temp\office.zip' -DestinationPath 'C:\temp\office'  -Force
+    Start-Process -FilePath 'C:\temp\office\setup.exe' -ArgumentList "/configure C:\temp\office\configuration-Office365-x64.xml" -Wait -PassThru
+    Write-Host 'Installed Microsoft Project & Visio'
 }
 catch 
 {

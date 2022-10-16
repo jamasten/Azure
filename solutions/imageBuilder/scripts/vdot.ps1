@@ -9,17 +9,17 @@ try
 {
     # Download VDOT
     $URL = 'https://github.com/The-Virtual-Desktop-Team/Virtual-Desktop-Optimization-Tool/archive/refs/heads/main.zip'
-    $ZIP = 'VDOT.zip'
+    $ZIP = 'C:\temp\VDOT.zip'
     Invoke-WebRequest -Uri $URL -OutFile $ZIP
-    Write-Host 'Downloaded VDOT'
+    Write-Host 'Downloaded the GitHub repository for the Virtual Desktop Optimization Tool'
     
     # Extract VDOT from ZIP archive
-    Expand-Archive -LiteralPath $ZIP -Force
-    Write-Host 'Extracted VDOT'
+    Expand-Archive -LiteralPath $ZIP -DestinationPath 'C:\temp' -Force
+    Write-Host 'Expanded the archive of the Virtual Desktop Optimization Tool'
     
     # Fix to disable AppX Packages
     # As of 2/8/22, all AppX Packages are enabled by default
-    $Files = (Get-ChildItem -Path .\VDOT\Virtual-Desktop-Optimization-Tool-main -File -Recurse -Filter "AppxPackages.json").FullName
+    $Files = (Get-ChildItem -Path 'C:\temp\Virtual-Desktop-Optimization-Tool-main' -File -Recurse -Filter 'AppxPackages.json').FullName
     foreach($File in $Files)
     {
         $Content = Get-Content -Path $File
@@ -38,11 +38,11 @@ try
         $JSON = $NewSettings | ConvertTo-Json
         $JSON | Out-File -FilePath $File -Force
     }
-    Write-Host 'Set VDOT AppxPackage configuration files to "Disabled"'
+    Write-Host 'Disabled all Appx Packages in the configuration files for the Virtual Desktop Optimization Tool'
 
     # Run VDOT
-    & .\VDOT\Virtual-Desktop-Optimization-Tool-main\Windows_VDOT.ps1 -AcceptEULA
-    Write-Host 'Optimized the operating system using VDOT'
+    & C:\temp\Virtual-Desktop-Optimization-Tool-main\Windows_VDOT.ps1 -Optimizations 'All' -AdvancedOptimizations 'Edge','RemoveLegacyIE' -AcceptEULA
+    Write-Host 'Optimized the operating system using the Virtual Desktop Optimization Tool'
 }
 catch 
 {

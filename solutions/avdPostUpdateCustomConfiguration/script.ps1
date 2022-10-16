@@ -12,4 +12,4 @@ Invoke-WebRequest -Uri $URL -OutFile $ZIP -ErrorAction 'Stop'
 Expand-Archive -LiteralPath $ZIP -Force -ErrorAction 'Stop'
     
 # Run VDOT
-& .\VDOT\Virtual-Desktop-Optimization-Tool-main\Windows_VDOT.ps1 -AcceptEULA -Restart
+& .\VDOT\Virtual-Desktop-Optimization-Tool-main\Windows_VDOT.ps1 -Optimizations 'All' -AdvancedOptimizations 'Edge','RemoveLegacyIE' -AcceptEULA -Restart

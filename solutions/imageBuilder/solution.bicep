@@ -1,6 +1,9 @@
 targetScope = 'subscription'
 
 
+@description('Determine whether you want to enable build automation.  This feature will check daily if a new marketplace image exists and will initiate a build if the image date is newer than the last build date.')
+param EnableBuildAutomation bool = true
+
 @allowed([
   'd' // Development
   'p' // Production
@@ -11,16 +14,16 @@ targetScope = 'subscription'
 param Environment string = 'd'
 
 @description('The name of the Image Definition for the Shared Image Gallery.')
-param ImageDefinitionName string = 'OfficeWorkers-Win11-21h2-g2'
+param ImageDefinitionName string = 'Win10-21h2-avd-g2'
 
 @description('The offer of the marketplace image.')
-param ImageOffer string = 'office-365'
+param ImageOffer string = 'windows-10'
 
 @description('The publisher of the marketplace image.')
 param ImagePublisher string = 'microsoftwindowsdesktop'
 
 @description('The SKU of the marketplace image.')
-param ImageSku string = 'win11-21h2-avd-m365'
+param ImageSku string = 'win10-21h2-avd-g2'
 
 @description('The version of the marketplace image.')
 param ImageVersion string = 'latest'
@@ -34,6 +37,9 @@ param ImageStorageAccountType string = 'Standard_LRS'
 
 @description('The location for the resources deployed in this solution.')
 param Location string = deployment().location
+
+@description('The resource ID for the Log Analytics Workspace to store runbook events for bulid automation.')
+param LogAnalyticsWorkspaceResourceId string = '/subscriptions/3764b123-4849-4395-8e6e-ca6d68d8d4b4/resourcegroups/rg-shd-svc-d-eu-000/providers/microsoft.operationalinsights/workspaces/law-shd-net-d-eu-000'
 
 @description('The name for the storage account containing the scripts & application installers.')
 param StorageAccountName string = 'stshdsvcdeu000'
@@ -62,6 +68,7 @@ param VirtualNetworkName string = 'vnet-shd-net-d-eu-000'
 param VirtualNetworkResourceGroupName string = 'rg-shd-net-d-eu-000'
 
 
+var AutomationAccountName = 'aa-${NamingStandard}'
 var LocationShortNames = {
   australiacentral: 'ac'
   australiacentral2: 'ac2'
@@ -117,8 +124,11 @@ var LocationShortNames = {
   westus2: 'wu2'
   westus3: 'wu3'
 }
+var ImageTemplateName = 'imgt-${toLower(ImageDefinitionName)}-${Environment}-${LocationShortName}'
 var LocationShortName = LocationShortNames[Location]
-var ResourceGroup = 'rg-aib-${Environment}-${LocationShortName}'
+var LogicAppName = 'la-${NamingStandard}'
+var NamingStandard = 'aib-${Environment}-${LocationShortName}'
+var ResourceGroup = 'rg-${NamingStandard}'
 var Roles = [
   {
     resourceGroup: VirtualNetworkResourceGroupName
@@ -160,19 +170,92 @@ var Roles = [
     permissions: [
       {
         actions: [
-          'Microsoft.Compute/galleries/read'
-          'Microsoft.Compute/galleries/images/read'
-          'Microsoft.Compute/galleries/images/versions/read'
-          'Microsoft.Compute/galleries/images/versions/write'
-          'Microsoft.Compute/images/read'
-          'Microsoft.Compute/images/write'
-          'Microsoft.Compute/images/delete'
+          'Microsoft.Storage/storageAccounts/*'
+          'Microsoft.ContainerInstance/containerGroups/*'
+          'Microsoft.Resources/deployments/*'
+          'Microsoft.Resources/deploymentScripts/*'
+          'Microsoft.ManagedIdentity/userAssignedIdentities/assign/action'
+        ]
+      }
+    ]
+  }
+  {
+    resourceGroup: ResourceGroup
+    name: 'Image Template Build Automation'
+    description: 'Allow Image Template build automation using a Managed Identity on an Automation Account.'
+    permissions: [
+      {
+        actions: [
+          'Microsoft.VirtualMachineImages/imageTemplates/run/action'
+          'Microsoft.VirtualMachineImages/imageTemplates/read'
+          'Microsoft.Compute/locations/publishers/artifacttypes/offers/skus/versions/read'
+          'Microsoft.Compute/locations/publishers/artifacttypes/offers/skus/read'
+          'Microsoft.Compute/locations/publishers/artifacttypes/offers/read'
+          'Microsoft.Compute/locations/publishers/read'
         ]
       }
     ]
   }
 ]
 var StorageUri = 'https://${StorageAccountName}.blob.${environment().suffixes.storage}/${StorageContainerName}/'
+var TimeZone = TimeZones[Location]
+var TimeZones = {
+  australiacentral: 'AUS Eastern Standard Time'
+  australiacentral2: 'AUS Eastern Standard Time'
+  australiaeast: 'AUS Eastern Standard Time'
+  australiasoutheast: 'AUS Eastern Standard Time'
+  brazilsouth: 'E. South America Standard Time'
+  brazilsoutheast: 'E. South America Standard Time'
+  canadacentral: 'Eastern Standard Time'
+  canadaeast: 'Eastern Standard Time'
+  centralindia: 'India Standard Time'
+  centralus: 'Central Standard Time'
+  chinaeast: 'China Standard Time'
+  chinaeast2: 'China Standard Time'
+  chinanorth: 'China Standard Time'
+  chinanorth2: 'China Standard Time'
+  eastasia: 'China Standard Time'
+  eastus: 'Eastern Standard Time'
+  eastus2: 'Eastern Standard Time'
+  francecentral: 'Central Europe Standard Time'
+  francesouth: 'Central Europe Standard Time'
+  germanynorth: 'Central Europe Standard Time'
+  germanywestcentral: 'Central Europe Standard Time'
+  japaneast: 'Tokyo Standard Time'
+  japanwest: 'Tokyo Standard Time'
+  jioindiacentral: 'India Standard Time'
+  jioindiawest: 'India Standard Time'
+  koreacentral: 'Korea Standard Time'
+  koreasouth: 'Korea Standard Time'
+  northcentralus: 'Central Standard Time'
+  northeurope: 'GMT Standard Time'
+  norwayeast: 'Central Europe Standard Time'
+  norwaywest: 'Central Europe Standard Time'
+  southafricanorth: 'South Africa Standard Time'
+  southafricawest: 'South Africa Standard Time'
+  southcentralus: 'Central Standard Time'
+  southindia: 'India Standard Time'
+  southeastasia: 'Singapore Standard Time'
+  swedencentral: 'Central Europe Standard Time'
+  switzerlandnorth: 'Central Europe Standard Time'
+  switzerlandwest: 'Central Europe Standard Time'
+  uaecentral: 'Arabian Standard Time'
+  uaenorth: 'Arabian Standard Time'
+  uksouth: 'GMT Standard Time'
+  ukwest: 'GMT Standard Time'
+  usdodcentral: 'Central Standard Time'
+  usdodeast: 'Eastern Standard Time'
+  usgovarizona: 'Mountain Standard Time'
+  usgoviowa: 'Central Standard Time'
+  usgovtexas: 'Central Standard Time'
+  usgovvirginia: 'Eastern Standard Time'
+  westcentralus: 'Mountain Standard Time'
+  westeurope: 'Central Europe Standard Time'
+  westindia: 'India Standard Time'
+  westus: 'Pacific Standard Time'
+  westus2: 'Pacific Standard Time'
+  westus3: 'Mountain Standard Time'
+}
 
 
 resource rg 'Microsoft.Resources/resourceGroups@2019-10-01' = {
@@ -185,7 +268,7 @@ resource rg 'Microsoft.Resources/resourceGroups@2019-10-01' = {
 resource roleDefinitions 'Microsoft.Authorization/roleDefinitions@2015-07-01' = [for i in range(0, length(Roles)): {
   name: guid(Roles[i].name, subscription().id)
   properties: {
-    roleName: Roles[i].name
+    roleName: '${Roles[i].name} (${subscription().subscriptionId})'
     description: Roles[i].description
     permissions: Roles[i].permissions
     assignableScopes: [
@@ -210,7 +293,7 @@ module roleAssignments 'modules/roleAssignments.bicep' = [for i in range(0, leng
   name: 'RoleAssignments_${i}_${Timestamp}'
   scope: resourceGroup(Roles[i].resourceGroup)
   params: {
-    PrincipalId: userAssignedIdentity.outputs.userAssignedIdentityPrincipalId
+    PrincipalId: Roles[i].name == 'Image Template Build Automation' ? buildAutomation.outputs.principalId : userAssignedIdentity.outputs.userAssignedIdentityPrincipalId
     RoleDefinitionId: roleDefinitions[i].id
   }
 }]
@@ -271,6 +354,7 @@ module imageTemplate 'modules/imageTemplate.bicep' = {
     ImagePublisher: ImagePublisher
     ImageSku: ImageSku
     ImageStorageAccountType: ImageStorageAccountType
+    ImageTemplateName: ImageTemplateName
     ImageVersion: ImageVersion
     Location: Location
     LocationShortName: LocationShortName
@@ -288,4 +372,20 @@ module imageTemplate 'modules/imageTemplate.bicep' = {
     roleAssignment
     roleAssignments
   ]
+}
+
+module buildAutomation 'modules/buildAutomation.bicep' = if(EnableBuildAutomation) {
+  name: 'BuildAutomation'
+  scope: rg
+  params: {
+    AutomationAccountName: AutomationAccountName
+    ImageOffer: ImageOffer
+    ImagePublisher: ImagePublisher
+    ImageSku: ImageSku
+    ImageTemplateName: ImageTemplateName
+    Location: Location
+    LogAnalyticsWorkspaceResourceId: LogAnalyticsWorkspaceResourceId
+    LogicAppName: LogicAppName
+    TimeZone: TimeZone
+  }
 }

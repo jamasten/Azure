@@ -196,10 +196,10 @@ param SecurityPrincipalObjectIds array = []
 param SecurityPrincipalNames array = []
 
 @description('The name of the log analytics workspace used for Azure Sentinel.')
-param SentinelLogAnalyticsWorkspaceName string
+param SentinelLogAnalyticsWorkspaceName string = ''
 
 @description('The name of the resource group containing the log analytics workspace used for Azure Sentinel.')
-param SentinelLogAnalyticsWorkspaceResourceGroupName string
+param SentinelLogAnalyticsWorkspaceResourceGroupName string = ''
 
 @description('The ID of the subscription containing the log analytics workspace used for Azure Sentinel.')
 param SentinelLogAnalyticsWorkspaceSubscriptionId string = subscription().subscriptionId
@@ -381,7 +381,8 @@ var RoleDefinitionIds = {
   storageFileDataSMBShareContributor: '0c867c2a-1d8c-454a-a3db-ab2ea1bdc8bb'
   virtualMachineUserLogin: 'fb879df8-f326-4884-b1cf-06f3ad86be52'
 }
-var Sentinel = !empty(SentinelLogAnalyticsWorkspaceName) && !empty(SentinelLogAnalyticsWorkspaceResourceGroupName) ? true : false
+var Sentinel = empty(SentinelLogAnalyticsWorkspaceName) || empty(SentinelLogAnalyticsWorkspaceResourceGroupName) ? false : true
+var SentinelResourceGroup = Sentinel ? SentinelLogAnalyticsWorkspaceResourceGroupName : ResourceGroups[2]
 var StampIndexFull = padLeft(StampIndex, 2, '0')
 var StorageAccountPrefix = 'st${Identifier}${Environment}${LocationShortName}${StampIndexFull}'
 var StorageSolution = split(FslogixStorage, ' ')[0]
@@ -518,7 +519,7 @@ module validation 'modules/validation.bicep' = {
 resource startVmOnConnect 'Microsoft.Authorization/roleAssignments@2022-04-01' = if(StartVmOnConnect) {
   name: guid(AvdObjectId, RoleDefinitionIds.desktopVirtualizationPowerOnContributor, subscription().id)
   properties: {
-    roleDefinitionId: RoleDefinitionIds.desktopVirtualizationPowerOnContributor
+    roleDefinitionId: resourceId('Microsoft.Authorization/roleDefinitions', RoleDefinitionIds.desktopVirtualizationPowerOnContributor)
     principalId: AvdObjectId
   }
 }
@@ -679,10 +680,11 @@ module fslogix 'modules/fslogix/fslogix.bicep' = if(Fslogix) {
   ]
 }
 
-module sentinel 'modules/sentinel.bicep' = if(Sentinel) {
+module sentinel 'modules/sentinel.bicep' = {
   name: 'Sentinel_${Timestamp}'
-  scope: resourceGroup(SentinelLogAnalyticsWorkspaceSubscriptionId, SentinelLogAnalyticsWorkspaceResourceGroupName)
+  scope: resourceGroup(SentinelLogAnalyticsWorkspaceSubscriptionId, SentinelResourceGroup)
   params: {
+    Sentinel: Sentinel
     SentinelLogAnalyticsWorkspaceName: SentinelLogAnalyticsWorkspaceName
     SentinelLogAnalyticsWorkspaceResourceGroupName: SentinelLogAnalyticsWorkspaceResourceGroupName
   }
@@ -736,8 +738,8 @@ module sessionHosts 'modules/sessionHosts/sessionHosts.bicep' = {
     ScreenCaptureProtection: ScreenCaptureProtection
     SecurityPrincipalObjectIds: SecurityPrincipalObjectIds
     Sentinel: Sentinel
-    SentinelWorkspaceId: Sentinel ? sentinel.outputs.sentinelWorkspaceId : ''
-    SentinelWorkspaceResourceId: Sentinel ? sentinel.outputs.sentinelWorkspaceResourceId : ''
+    SentinelWorkspaceId: sentinel.outputs.sentinelWorkspaceId
+    SentinelWorkspaceResourceId: sentinel.outputs.sentinelWorkspaceResourceId
     SessionHostBatchCount: SessionHostBatchCount
     SessionHostIndex: SessionHostIndex
     StorageAccountPrefix: StorageAccountPrefix

@@ -35,12 +35,6 @@ var HostPoolLogs = [
     enabled: true
   }
 ]
-var NetworkData = [
-  {
-    category: 'NetworkData'
-    enabled: true
-  }
-]
 var WindowsEvents = [
   {
     name: 'Microsoft-FSLogix-Apps/Operational'
@@ -469,8 +463,13 @@ resource windowsPerformanceCounters 'Microsoft.OperationalInsights/workspaces/da
   ]
 }]
 
-resource workspaceDiagnostics 'Microsoft.DesktopVirtualization/workspaces/providers/diagnosticsettings@2017-05-01-preview' = {
-  name: '${WorkspaceName}/Microsoft.Insights/diag-${WorkspaceName}'
+resource workspace 'Microsoft.DesktopVirtualization/workspaces@2021-07-12' existing = {
+  name: WorkspaceName
+}
+
+resource workspaceDiagnostics 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = {
+  name: 'diag-${WorkspaceName}'
+  scope: workspace
   properties: {
     logs: [
       {
@@ -494,16 +493,26 @@ resource workspaceDiagnostics 'Microsoft.DesktopVirtualization/workspaces/provid
   }
 }
 
-resource hostPoolDiagnostics 'Microsoft.DesktopVirtualization/hostPools/providers/diagnosticsettings@2017-05-01-preview' = {
-  name: '${HostPoolName}/Microsoft.Insights/diag-${HostPoolName}'
+resource hostPool 'Microsoft.DesktopVirtualization/hostPools@2021-07-12' existing = {
+  name: HostPoolName
+}
+
+resource hostPoolDiagnostics 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = {
+  name: 'diag-${HostPoolName}'
+  scope: hostPool
   properties: {
-    logs: environment().name == 'AzureCloud' ? union(HostPoolLogs,NetworkData) : HostPoolLogs //adding NetworkData for AzureCloud, not available in AzureUSGovernment, 2/10/2022
+    logs: HostPoolLogs
     workspaceId: resourceId('Microsoft.OperationalInsights/workspaces', LogAnalyticsWorkspaceName)
   }
 }
 
-resource diagnostics 'Microsoft.Automation/automationAccounts/providers/diagnosticsettings@2017-05-01-preview' = if(PooledHostPool) {
-  name: '${AutomationAccountName}/Microsoft.Insights/diag-${AutomationAccountName}'
+resource automationAccount 'Microsoft.Automation/automationAccounts@2021-06-22' existing = if(PooledHostPool) {
+  name: AutomationAccountName
+}
+
+resource automationAccountDiagnostics 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = if(PooledHostPool) {
+  name: 'diag-${AutomationAccountName}'
+  scope: automationAccount
   properties: {
     logs: [
       {

@@ -1,0 +1,71 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "0.11.1.770",
+      "templateHash": "10358491987364060552"
+    }
+  },
+  "parameters": {
+    "Location": {
+      "type": "string"
+    },
+    "NamePrefix": {
+      "type": "string"
+    },
+    "NumberOfVms": {
+      "type": "int"
+    },
+    "ScriptUri": {
+      "type": "string"
+    },
+    "SentinelLogAnalyticsWorkspaceName": {
+      "type": "string",
+      "defaultValue": ""
+    },
+    "SentinelLogAnalyticsWorkspaceResourceGroupName": {
+      "type": "string",
+      "defaultValue": ""
+    },
+    "Timestamp": {
+      "type": "string",
+      "defaultValue": "[utcNow('yyyyMMddhhmmss')]"
+    },
+    "VirtualDesktopOptimizationToolUrl": {
+      "type": "string",
+      "defaultValue": "https://github.com/The-Virtual-Desktop-Team/Virtual-Desktop-Optimization-Tool/archive/refs/heads/main.zip"
+    },
+    "VirtualMachineIndex": {
+      "type": "int"
+    }
+  },
+  "resources": [
+    {
+      "copy": {
+        "name": "customScriptExtension",
+        "count": "[length(range(0, length(range(parameters('VirtualMachineIndex'), parameters('NumberOfVms')))))]"
+      },
+      "type": "Microsoft.Compute/virtualMachines/extensions",
+      "apiVersion": "2021-03-01",
+      "name": "[format('{0}-{1}/CustomScriptExtension', parameters('NamePrefix'), range(parameters('VirtualMachineIndex'), parameters('NumberOfVms'))[range(0, length(range(parameters('VirtualMachineIndex'), parameters('NumberOfVms'))))[copyIndex()]])]",
+      "location": "[parameters('Location')]",
+      "properties": {
+        "publisher": "Microsoft.Compute",
+        "type": "CustomScriptExtension",
+        "typeHandlerVersion": "1.10",
+        "autoUpgradeMinorVersion": true,
+        "settings": {
+          "fileUris": [
+            "[parameters('ScriptUri')]"
+          ],
+          "timestamp": "[parameters('Timestamp')]"
+        },
+        "protectedSettings": {
+          "commandToExecute": "[format('powershell -ExecutionPolicy Unrestricted -File script.ps1 -SentinelWorkspaceId {0} -SentinelWorkspaceKey {1} -VirtualDesktopOptimizationToolUrl {2}', reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('SentinelLogAnalyticsWorkspaceResourceGroupName')), 'Microsoft.OperationalInsights/workspaces', parameters('SentinelLogAnalyticsWorkspaceName')), '2021-06-01').customerId, listKeys(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('SentinelLogAnalyticsWorkspaceResourceGroupName')), 'Microsoft.OperationalInsights/workspaces', parameters('SentinelLogAnalyticsWorkspaceName')), '2021-06-01').primarySharedKey, parameters('VirtualDesktopOptimizationToolUrl'))]"
+        }
+      }
+    }
+  ]
+}

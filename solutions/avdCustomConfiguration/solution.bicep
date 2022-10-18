@@ -49,7 +49,7 @@ resource customScriptExtension 'Microsoft.Compute/virtualMachines/extensions@202
     settings: {
       fileUris: [
         '${ScriptUri}${SasToken}'
-        '${VirtualDesktopOptimizationToolUrl}${SasToken}'
+        contains(VirtualDesktopOptimizationToolUrl, environment().suffixes.storage) ? '${VirtualDesktopOptimizationToolUrl}${SasToken}' : VirtualDesktopOptimizationToolUrl
       ]
       timestamp: Timestamp
     }

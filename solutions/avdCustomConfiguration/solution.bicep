@@ -12,7 +12,7 @@ param VirtualMachineIndex int
 
 
 var MicrosoftMonitoringAgent = empty(AvdInsightsLogAnalyticsWorkspaceResourceId) ? false : true
-var SentinelWorkspaceId = empty(SentinelLogAnalyticsWorkspaceResourceId) ? 'NotApplicable' : reference(SentinelLogAnalyticsWorkspaceResourceId, '2021-06-01').properties.customerId
+var SentinelWorkspaceId = empty(SentinelLogAnalyticsWorkspaceResourceId) ? 'NotApplicable' : reference(SentinelLogAnalyticsWorkspaceResourceId, '2021-06-01').customerId
 var SentinelWorkspaceKey = empty(SentinelLogAnalyticsWorkspaceResourceId) ? 'NotApplicable' : listKeys(SentinelLogAnalyticsWorkspaceResourceId, '2021-06-01').primarySharedKey
 
 

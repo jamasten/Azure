@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.11.1.770",
-      "templateHash": "11889090613981004385"
+      "templateHash": "4308324379251229636"
     }
   },
   "parameters": {
@@ -94,7 +94,7 @@
           "timestamp": "[parameters('Timestamp')]"
         },
         "protectedSettings": {
-          "commandToExecute": "[format('powershell -ExecutionPolicy Unrestricted -File script.ps1 -MicrosoftMonitoringAgent {0} -SentinelWorkspaceId {1} -SentinelWorkspaceKey {2}', variables('MicrosoftMonitoringAgent'), if(empty(parameters('SentinelLogAnalyticsWorkspaceResourceId')), 'NotApplicable', reference(parameters('SentinelLogAnalyticsWorkspaceResourceId'), '2021-06-01').properties.customerId), if(empty(parameters('SentinelLogAnalyticsWorkspaceResourceId')), 'NotApplicable', listKeys(parameters('SentinelLogAnalyticsWorkspaceResourceId'), '2021-06-01').primarySharedKey))]"
+          "commandToExecute": "[format('powershell -ExecutionPolicy Unrestricted -File script.ps1 -MicrosoftMonitoringAgent {0} -SentinelWorkspaceId {1} -SentinelWorkspaceKey {2}', variables('MicrosoftMonitoringAgent'), if(empty(parameters('SentinelLogAnalyticsWorkspaceResourceId')), 'NotApplicable', reference(parameters('SentinelLogAnalyticsWorkspaceResourceId'), '2021-06-01').customerId), if(empty(parameters('SentinelLogAnalyticsWorkspaceResourceId')), 'NotApplicable', listKeys(parameters('SentinelLogAnalyticsWorkspaceResourceId'), '2021-06-01').primarySharedKey))]"
         }
       },
       "dependsOn": [

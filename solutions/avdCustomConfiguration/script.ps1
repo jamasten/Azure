@@ -1,6 +1,9 @@
 ﻿param(
 
     [parameter]
+    [string]$MicrosoftMonitoringAgent,
+
+    [parameter]
     [string]$SentinelWorkspaceId,
 
     [parameter]
@@ -12,7 +15,7 @@
 ##############################################################
 #  Dual-home Microsoft Monitoring Agent for Azure Sentinel
 ##############################################################
-if($SentinelWorkspaceId -and $SentinelWorkspaceKey)
+if($MicrosoftMonitoringAgent -eq 'true' -and $SentinelWorkspaceId -ne 'NotApplicable' -and $SentinelWorkspaceKey -ne 'NotApplicable')
 {
     $mma = New-Object -ComObject 'AgentConfigManager.MgmtSvcCfg'
     $mma.AddCloudWorkspace($SentinelWorkspaceId, $SentinelWorkspaceKey)
@@ -26,7 +29,7 @@ if($SentinelWorkspaceId -and $SentinelWorkspaceKey)
 # https://github.com/The-Virtual-Desktop-Team/Virtual-Desktop-Optimization-Tool
 
 # Extract VDOT from ZIP archive
-Expand-Archive -LiteralPath $ZIP -Force -ErrorAction 'Stop'
+Expand-Archive -LiteralPath 'main.zip' -Force -ErrorAction 'Stop'
     
 # Run VDOT
-& .\VDOT\Virtual-Desktop-Optimization-Tool-main\Windows_VDOT.ps1 -Optimizations All -AcceptEULA -Restart
+& .\main\Virtual-Desktop-Optimization-Tool-main\Windows_VDOT.ps1 -Optimizations All -AcceptEULA -Restart

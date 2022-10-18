@@ -5,10 +5,14 @@
     "_generator": {
       "name": "bicep",
       "version": "0.11.1.770",
-      "templateHash": "10358491987364060552"
+      "templateHash": "10429292546155895393"
     }
   },
   "parameters": {
+    "AvdInsightsLogAnalyticsWorkspaceResourceId": {
+      "type": "string",
+      "defaultValue": ""
+    },
     "Location": {
       "type": "string"
     },
@@ -18,14 +22,14 @@
     "NumberOfVms": {
       "type": "int"
     },
+    "SasToken": {
+      "type": "secureString",
+      "defaultValue": ""
+    },
     "ScriptUri": {
       "type": "string"
     },
-    "SentinelLogAnalyticsWorkspaceName": {
-      "type": "string",
-      "defaultValue": ""
-    },
-    "SentinelLogAnalyticsWorkspaceResourceGroupName": {
+    "SentinelLogAnalyticsWorkspaceResourceId": {
       "type": "string",
       "defaultValue": ""
     },
@@ -41,7 +45,35 @@
       "type": "int"
     }
   },
+  "variables": {
+    "SentinelWorkspaceName": "[split(parameters('SentinelLogAnalyticsWorkspaceResourceId'), '/')[-1]]",
+    "SentinelWorkspaceResouceGroupName": "[split(parameters('SentinelLogAnalyticsWorkspaceResourceId'), '/')[4]]",
+    "SentinelWorkspaceSubscriptionId": "[split(parameters('SentinelLogAnalyticsWorkspaceResourceId'), '/')[2]]"
+  },
   "resources": [
+    {
+      "condition": "[not(empty(parameters('AvdInsightsLogAnalyticsWorkspaceResourceId')))]",
+      "copy": {
+        "name": "microsoftMonitoringAgent",
+        "count": "[length(range(0, length(range(parameters('VirtualMachineIndex'), parameters('NumberOfVms')))))]"
+      },
+      "type": "Microsoft.Compute/virtualMachines/extensions",
+      "apiVersion": "2021-03-01",
+      "name": "[format('{0}-{1}/MicrosoftMonitoringAgent', parameters('NamePrefix'), range(parameters('VirtualMachineIndex'), parameters('NumberOfVms'))[range(0, length(range(parameters('VirtualMachineIndex'), parameters('NumberOfVms'))))[copyIndex()]])]",
+      "location": "[parameters('Location')]",
+      "properties": {
+        "publisher": "Microsoft.EnterpriseCloud.Monitoring",
+        "type": "MicrosoftMonitoringAgent",
+        "typeHandlerVersion": "1.0",
+        "autoUpgradeMinorVersion": true,
+        "settings": {
+          "workspaceId": "[reference(parameters('AvdInsightsLogAnalyticsWorkspaceResourceId'), '2015-03-20').customerId]"
+        },
+        "protectedSettings": {
+          "workspaceKey": "[listKeys(parameters('AvdInsightsLogAnalyticsWorkspaceResourceId'), '2015-03-20').primarySharedKey]"
+        }
+      }
+    },
     {
       "copy": {
         "name": "customScriptExtension",
@@ -58,14 +90,18 @@
         "autoUpgradeMinorVersion": true,
         "settings": {
           "fileUris": [
-            "[parameters('ScriptUri')]"
+            "[format('{0}{1}', parameters('ScriptUri'), parameters('SasToken'))]",
+            "[if(contains(parameters('VirtualDesktopOptimizationToolUrl'), environment().suffixes.storage), format('{0}{1}', parameters('VirtualDesktopOptimizationToolUrl'), parameters('SasToken')), parameters('VirtualDesktopOptimizationToolUrl'))]"
           ],
           "timestamp": "[parameters('Timestamp')]"
         },
         "protectedSettings": {
-          "commandToExecute": "[format('powershell -ExecutionPolicy Unrestricted -File script.ps1 -SentinelWorkspaceId {0} -SentinelWorkspaceKey {1} -VirtualDesktopOptimizationToolUrl {2}', reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('SentinelLogAnalyticsWorkspaceResourceGroupName')), 'Microsoft.OperationalInsights/workspaces', parameters('SentinelLogAnalyticsWorkspaceName')), '2021-06-01').customerId, listKeys(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('SentinelLogAnalyticsWorkspaceResourceGroupName')), 'Microsoft.OperationalInsights/workspaces', parameters('SentinelLogAnalyticsWorkspaceName')), '2021-06-01').primarySharedKey, parameters('VirtualDesktopOptimizationToolUrl'))]"
+          "commandToExecute": "[format('powershell -ExecutionPolicy Unrestricted -File script.ps1 -SentinelWorkspaceId {0} -SentinelWorkspaceKey {1}', if(and(not(empty(parameters('AvdInsightsLogAnalyticsWorkspaceResourceId'))), not(empty(parameters('SentinelLogAnalyticsWorkspaceResourceId')))), reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('SentinelWorkspaceSubscriptionId'), variables('SentinelWorkspaceResouceGroupName')), 'Microsoft.OperationalInsights/workspaces', variables('SentinelWorkspaceName')), '2021-06-01').customerId, ''), if(and(not(empty(parameters('AvdInsightsLogAnalyticsWorkspaceResourceId'))), not(empty(parameters('SentinelLogAnalyticsWorkspaceResourceId')))), listKeys(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('SentinelWorkspaceSubscriptionId'), variables('SentinelWorkspaceResouceGroupName')), 'Microsoft.OperationalInsights/workspaces', variables('SentinelWorkspaceName')), '2021-06-01').primarySharedKey, ''))]"
         }
-      }
+      },
+      "dependsOn": [
+        "microsoftMonitoringAgent"
+      ]
     }
   ]
 }

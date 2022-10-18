@@ -4,10 +4,7 @@
     [string]$SentinelWorkspaceId,
 
     [parameter]
-    [string]$SentinelWorkspaceKey,
-
-    [parameter]
-    [string]$VirtualDesktopOptimizationToolUrl
+    [string]$SentinelWorkspaceKey
 
 )
 
@@ -27,10 +24,6 @@ if($SentinelWorkspaceId -and $SentinelWorkspaceKey)
 #  Run the Virtual Desktop Optimization Tool (VDOT)
 ##############################################################
 # https://github.com/The-Virtual-Desktop-Team/Virtual-Desktop-Optimization-Tool
-
-# Download VDOT
-$ZIP = 'VDOT.zip'
-Invoke-WebRequest -Uri $VirtualDesktopOptimizationToolUrl -OutFile $ZIP -ErrorAction 'Stop'
 
 # Extract VDOT from ZIP archive
 Expand-Archive -LiteralPath $ZIP -Force -ErrorAction 'Stop'

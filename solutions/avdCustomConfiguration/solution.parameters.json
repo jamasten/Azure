@@ -3,22 +3,30 @@
     "contentVersion": "1.0.0.0",
     "parameters": {
         "AvdInsightsLogAnalyticsWorkspaceResourceId": {
-            "value": ""
+            "value": "/subscriptions/a7576b41-cb1a-4f34-9f18-0e0b0287a1a0/resourcegroups/rg-shd-svc-d-va/providers/microsoft.operationalinsights/workspaces/law-avd-d-va"
         },
         "Location": {
-            "value": ""
+            "value": "usgovvirginia"
         },
         "NamePrefix": {
-            "value": ""
+            "value": "vmavddva"
         },
         "NumberOfVms": {
             "value": 1
         },
+        "SasToken": {
+            "reference": {
+                "keyVault": {
+                    "id": "/subscriptions/a7576b41-cb1a-4f34-9f18-0e0b0287a1a0/resourceGroups/rg-shd-svc-d-va/providers/Microsoft.KeyVault/vaults/kv-shd-id-d-va"
+                },
+                "secretName": "SasToken"
+            }
+        },
         "ScriptUri": {
-            "value": ""
+            "value": "https://sashdsvcdva.blob.core.usgovcloudapi.net/custom-configuration/script.ps1"
         },
         "SentinelLogAnalyticsWorkspaceResourceId": {
-            "value": ""
+            "value": "/subscriptions/a7576b41-cb1a-4f34-9f18-0e0b0287a1a0/resourcegroups/rg-shd-svc-d-va/providers/microsoft.operationalinsights/workspaces/law-sentinel-d-va"
         },
         "VirtualDesktopOptimizationToolUrl": {
             "value": "https://github.com/The-Virtual-Desktop-Team/Virtual-Desktop-Optimization-Tool/archive/refs/heads/main.zip"

@@ -11,12 +11,12 @@ param VirtualDesktopOptimizationToolUrl string = 'https://github.com/The-Virtual
 param VirtualMachineIndex int
 
 
-var SentinelWorkspaceName = split(SentinelLogAnalyticsWorkspaceResourceId, '/')[8]
-var SentinelWorkspaceResouceGroupName = split(SentinelLogAnalyticsWorkspaceResourceId, '/')[4]
-var SentinelWorkspaceSubscriptionId = split(SentinelLogAnalyticsWorkspaceResourceId, '/')[2]
+var MicrosoftMonitoringAgent = empty(AvdInsightsLogAnalyticsWorkspaceResourceId) ? false : true
+var SentinelWorkspaceId = empty(SentinelLogAnalyticsWorkspaceResourceId) ? 'NotApplicable' : reference(SentinelLogAnalyticsWorkspaceResourceId, '2021-06-01').properties.customerId
+var SentinelWorkspaceKey = empty(SentinelLogAnalyticsWorkspaceResourceId) ? 'NotApplicable' : listKeys(SentinelLogAnalyticsWorkspaceResourceId, '2021-06-01').primarySharedKey
 
 
-resource microsoftMonitoringAgent 'Microsoft.Compute/virtualMachines/extensions@2021-03-01' = [for i in range(0, length(range(VirtualMachineIndex, NumberOfVms))): if(!empty(AvdInsightsLogAnalyticsWorkspaceResourceId)) {
+resource microsoftMonitoringAgent 'Microsoft.Compute/virtualMachines/extensions@2021-03-01' = [for i in range(0, length(range(VirtualMachineIndex, NumberOfVms))): if(MicrosoftMonitoringAgent) {
   name: '${NamePrefix}-${range(VirtualMachineIndex, NumberOfVms)[i]}/MicrosoftMonitoringAgent'
   location: Location
   properties: {
@@ -32,11 +32,6 @@ resource microsoftMonitoringAgent 'Microsoft.Compute/virtualMachines/extensions@
     }
   }
 }]
-
-resource logAnalyticsWorkspace 'Microsoft.OperationalInsights/workspaces@2021-06-01' existing = if(!empty(AvdInsightsLogAnalyticsWorkspaceResourceId) && !empty(SentinelLogAnalyticsWorkspaceResourceId)) {
-  name: SentinelWorkspaceName
-  scope: resourceGroup(SentinelWorkspaceSubscriptionId, SentinelWorkspaceResouceGroupName)
-}
 
 resource customScriptExtension 'Microsoft.Compute/virtualMachines/extensions@2021-03-01' = [for i in range(0, length(range(VirtualMachineIndex, NumberOfVms))): {
   name: '${NamePrefix}-${range(VirtualMachineIndex, NumberOfVms)[i]}/CustomScriptExtension'
@@ -54,7 +49,7 @@ resource customScriptExtension 'Microsoft.Compute/virtualMachines/extensions@202
       timestamp: Timestamp
     }
     protectedSettings: {
-      commandToExecute: 'powershell -ExecutionPolicy Unrestricted -File script.ps1 -SentinelWorkspaceId ${!empty(AvdInsightsLogAnalyticsWorkspaceResourceId) && !empty(SentinelLogAnalyticsWorkspaceResourceId) ? logAnalyticsWorkspace.properties.customerId : ''} -SentinelWorkspaceKey ${!empty(AvdInsightsLogAnalyticsWorkspaceResourceId) && !empty(SentinelLogAnalyticsWorkspaceResourceId) ? listKeys(logAnalyticsWorkspace.id, '2021-06-01').primarySharedKey : ''}'
+      commandToExecute: 'powershell -ExecutionPolicy Unrestricted -File script.ps1 -MicrosoftMonitoringAgent ${MicrosoftMonitoringAgent} -SentinelWorkspaceId ${SentinelWorkspaceId} -SentinelWorkspaceKey ${SentinelWorkspaceKey}'
     }
   }
   dependsOn: [

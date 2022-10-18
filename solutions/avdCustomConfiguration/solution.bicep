@@ -11,7 +11,7 @@ param VirtualDesktopOptimizationToolUrl string = 'https://github.com/The-Virtual
 param VirtualMachineIndex int
 
 
-var SentinelWorkspaceName = split(SentinelLogAnalyticsWorkspaceResourceId, '/')[-1]
+var SentinelWorkspaceName = split(SentinelLogAnalyticsWorkspaceResourceId, '/')[8]
 var SentinelWorkspaceResouceGroupName = split(SentinelLogAnalyticsWorkspaceResourceId, '/')[4]
 var SentinelWorkspaceSubscriptionId = split(SentinelLogAnalyticsWorkspaceResourceId, '/')[2]
 

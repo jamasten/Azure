@@ -1,14 +1,17 @@
 ﻿[Cmdletbinding()]
-param(
+Param(
 
-    [parameter]
-    [string]$MicrosoftMonitoringAgent,
+    [parameter(Mandatory)]
+    [string]
+    $MicrosoftMonitoringAgent,
 
-    [parameter]
-    [string]$SentinelWorkspaceId,
+    [parameter(Mandatory)]
+    [string]
+    $SentinelWorkspaceId,
 
-    [parameter]
-    [string]$SentinelWorkspaceKey
+    [parameter(Mandatory)]
+    [string]
+    $SentinelWorkspaceKey
 
 )
 

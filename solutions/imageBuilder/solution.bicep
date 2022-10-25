@@ -293,7 +293,7 @@ module roleAssignments 'modules/roleAssignments.bicep' = [for i in range(0, leng
   name: 'RoleAssignments_${i}_${Timestamp}'
   scope: resourceGroup(Roles[i].resourceGroup)
   params: {
-    PrincipalId: Roles[i].name == 'Image Template Build Automation' ? buildAutomation.outputs.principalId : userAssignedIdentity.outputs.userAssignedIdentityPrincipalId
+    PrincipalId: Roles[i].name == 'Image Template Build Automation' ? automationAccount.outputs.principalId : userAssignedIdentity.outputs.userAssignedIdentityPrincipalId
     RoleDefinitionId: roleDefinitions[i].id
   }
 }]
@@ -374,8 +374,8 @@ module imageTemplate 'modules/imageTemplate.bicep' = {
   ]
 }
 
-module buildAutomation 'modules/buildAutomation.bicep' = if(EnableBuildAutomation) {
-  name: 'BuildAutomation'
+module automationAccount 'modules/automationAccount.bicep' = if(EnableBuildAutomation) {
+  name: 'AutomationAccount_${Timestamp}'
   scope: rg
   params: {
     AutomationAccountName: AutomationAccountName

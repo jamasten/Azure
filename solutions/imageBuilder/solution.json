@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.11.1.770",
-      "templateHash": "3629325525258459430"
+      "templateHash": "6176773420610867565"
     }
   },
   "parameters": {
@@ -457,7 +457,7 @@
         "mode": "Incremental",
         "parameters": {
           "PrincipalId": {
-            "value": "[if(equals(variables('Roles')[range(0, length(variables('Roles')))[copyIndex()]].name, 'Image Template Build Automation'), reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroup')), 'Microsoft.Resources/deployments', 'BuildAutomation'), '2020-10-01').outputs.principalId.value, reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroup')), 'Microsoft.Resources/deployments', format('UserAssignedIdentity_{0}', parameters('Timestamp')))).outputs.userAssignedIdentityPrincipalId.value)]"
+            "value": "[if(equals(variables('Roles')[range(0, length(variables('Roles')))[copyIndex()]].name, 'Image Template Build Automation'), reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroup')), 'Microsoft.Resources/deployments', format('AutomationAccount_{0}', parameters('Timestamp'))), '2020-10-01').outputs.principalId.value, reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroup')), 'Microsoft.Resources/deployments', format('UserAssignedIdentity_{0}', parameters('Timestamp')))).outputs.userAssignedIdentityPrincipalId.value)]"
           },
           "RoleDefinitionId": {
             "value": "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', guid(variables('Roles')[range(0, length(variables('Roles')))[range(0, length(variables('Roles')))[copyIndex()]]].name, subscription().id))]"
@@ -513,7 +513,7 @@
         }
       },
       "dependsOn": [
-        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroup')), 'Microsoft.Resources/deployments', 'BuildAutomation')]",
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroup')), 'Microsoft.Resources/deployments', format('AutomationAccount_{0}', parameters('Timestamp')))]",
         "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', guid(variables('Roles')[range(0, length(variables('Roles')))[range(0, length(variables('Roles')))[copyIndex()]]].name, subscription().id))]",
         "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroup')), 'Microsoft.Resources/deployments', format('UserAssignedIdentity_{0}', parameters('Timestamp')))]"
       ]
@@ -1071,7 +1071,7 @@
       "condition": "[parameters('EnableBuildAutomation')]",
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2020-10-01",
-      "name": "BuildAutomation",
+      "name": "[format('AutomationAccount_{0}', parameters('Timestamp'))]",
       "resourceGroup": "[variables('ResourceGroup')]",
       "properties": {
         "expressionEvaluationOptions": {
@@ -1114,7 +1114,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.11.1.770",
-              "templateHash": "6108820071697774240"
+              "templateHash": "7814999174345517606"
             }
           },
           "parameters": {
@@ -1272,35 +1272,93 @@
               ]
             },
             {
-              "type": "Microsoft.Logic/workflows",
-              "apiVersion": "2016-06-01",
-              "name": "[parameters('LogicAppName')]",
-              "location": "[parameters('Location')]",
+              "type": "Microsoft.Resources/deployments",
+              "apiVersion": "2020-10-01",
+              "name": "[format('LogicApp_{0}', dateTimeAdd(parameters('Timestamp'), 'PT0H', 'yyyyMMddhhmmss'))]",
               "properties": {
-                "state": "Enabled",
-                "definition": {
-                  "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
-                  "actions": {
-                    "HTTP": {
-                      "type": "Http",
-                      "inputs": {
-                        "method": "POST",
-                        "uri": "[reference(resourceId('Microsoft.Automation/automationAccounts/webhooks', parameters('AutomationAccountName'), variables('Webhook'))).uri]",
-                        "body": "[variables('ActionSettingsBody')]"
-                      }
+                "expressionEvaluationOptions": {
+                  "scope": "inner"
+                },
+                "mode": "Incremental",
+                "parameters": {
+                  "ActionSettingsBody": {
+                    "value": "[variables('ActionSettingsBody')]"
+                  },
+                  "Location": {
+                    "value": "[parameters('Location')]"
+                  },
+                  "LogicAppName": {
+                    "value": "[parameters('LogicAppName')]"
+                  },
+                  "TimeZone": {
+                    "value": "[parameters('TimeZone')]"
+                  },
+                  "WebhookUri": {
+                    "value": "[reference(resourceId('Microsoft.Automation/automationAccounts/webhooks', parameters('AutomationAccountName'), variables('Webhook'))).uri]"
+                  }
+                },
+                "template": {
+                  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                  "contentVersion": "1.0.0.0",
+                  "metadata": {
+                    "_generator": {
+                      "name": "bicep",
+                      "version": "0.11.1.770",
+                      "templateHash": "16269604242114956361"
                     }
                   },
-                  "triggers": {
-                    "Recurrence": {
-                      "type": "Recurrence",
-                      "recurrence": {
-                        "frequency": "Day",
-                        "interval": 1,
-                        "startTime": "2022-01-01T23:00:00",
-                        "timeZone": "[parameters('TimeZone')]"
+                  "parameters": {
+                    "ActionSettingsBody": {
+                      "type": "object"
+                    },
+                    "Location": {
+                      "type": "string"
+                    },
+                    "LogicAppName": {
+                      "type": "string"
+                    },
+                    "TimeZone": {
+                      "type": "string"
+                    },
+                    "WebhookUri": {
+                      "type": "secureString"
+                    }
+                  },
+                  "resources": [
+                    {
+                      "type": "Microsoft.Logic/workflows",
+                      "apiVersion": "2016-06-01",
+                      "name": "[parameters('LogicAppName')]",
+                      "location": "[parameters('Location')]",
+                      "properties": {
+                        "state": "Enabled",
+                        "definition": {
+                          "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+                          "actions": {
+                            "HTTP": {
+                              "type": "Http",
+                              "inputs": {
+                                "method": "POST",
+                                "uri": "[parameters('WebhookUri')]",
+                                "body": "[parameters('ActionSettingsBody')]"
+                              }
+                            }
+                          },
+                          "triggers": {
+                            "Recurrence": {
+                              "type": "Recurrence",
+                              "recurrence": {
+                                "frequency": "Day",
+                                "interval": 1,
+                                "startTime": "2022-01-01T23:00:00",
+                                "timeZone": "[parameters('TimeZone')]"
+                              }
+                            }
+                          }
+                        }
                       }
                     }
-                  }
+                  ]
                 }
               },
               "dependsOn": [

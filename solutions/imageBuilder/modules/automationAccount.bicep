@@ -109,45 +109,16 @@ resource diagnostics 'Microsoft.Insights/diagnosticsettings@2017-05-01-preview' 
   }
 }
 
-// Gives the Automation Account the Contributor role on the resource groups containing the hosts and host pool
-/*  module roleAssignments'roleAssignments.bicep' = [for i in range(0, length(RoleAssignmentResourceGroups)): {
-  name: 'RoleAssignment_${RoleAssignmentResourceGroups[i]}'
-  scope: resourceGroup(RoleAssignmentResourceGroups[i])
+module logicApp 'logicApp.bicep' = {
+  name: 'LogicApp_${dateTimeAdd(Timestamp, 'PT0H', 'yyyyMMddhhmmss')}'
   params: {
-    AutomationAccountId: automationAccount.identity.principalId
-  }
-}] */
-
-resource logicApp 'Microsoft.Logic/workflows@2016-06-01' = {
-  name: LogicAppName
-  location: Location
-  properties: {
-    state: 'Enabled'
-    definition: {
-      '$schema': 'https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#'
-      actions: {
-        HTTP: {
-          type: 'Http'
-          inputs: {
-            method: 'POST'
-            uri: webhook.properties.uri
-            body: ActionSettingsBody
-          }
-        }
-      }
-      triggers: {
-        Recurrence: {
-          type: 'Recurrence'
-          recurrence: {
-            frequency: 'Day'
-            interval: 1
-            startTime: '2022-01-01T23:00:00'
-            timeZone: TimeZone
-          }
-        }
-      }
-    }
+    ActionSettingsBody: ActionSettingsBody
+    Location: Location
+    LogicAppName: LogicAppName
+    TimeZone: TimeZone
+    WebhookUri: webhook.properties.uri
   }
 }
+
 
 output principalId string = automationAccount.identity.principalId

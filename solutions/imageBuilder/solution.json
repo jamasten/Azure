@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.11.1.770",
-      "templateHash": "10910845489178809368"
+      "templateHash": "12527004760805421186"
     }
   },
   "parameters": {
@@ -651,7 +651,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.11.1.770",
-              "templateHash": "12779657864135911014"
+              "templateHash": "13865406877731289035"
             }
           },
           "parameters": {
@@ -706,12 +706,7 @@
                   "offer": "[parameters('ImageOffer')]",
                   "sku": "[parameters('ImageSku')]"
                 },
-                "features": [
-                  {
-                    "name": "SecurityType",
-                    "value": "[parameters('ImageDefinitionSecurityType')]"
-                  }
-                ]
+                "features": "[if(equals(parameters('ImageDefinitionSecurityType'), 'Standard'), null(), createArray(createObject('name', 'SecurityType', 'value', parameters('ImageDefinitionSecurityType'))))]"
               },
               "dependsOn": [
                 "[resourceId('Microsoft.Compute/galleries', format('cg_aib_{0}_{1}', parameters('Environment'), parameters('LocationShortName')))]"

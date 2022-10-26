@@ -28,7 +28,7 @@ resource image 'Microsoft.Compute/galleries/images@2022-01-03' = {
       offer: ImageOffer
       sku: ImageSku
     }
-    features: [
+    features: ImageDefinitionSecurityType == 'Standard' ? null : [
       {
         name: 'SecurityType'
         value: ImageDefinitionSecurityType

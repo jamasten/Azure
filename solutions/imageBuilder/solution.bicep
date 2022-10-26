@@ -16,6 +16,15 @@ param Environment string = 'd'
 @description('The name of the Image Definition for the Shared Image Gallery.')
 param ImageDefinitionName string = 'Win10-21h2-avd-g2'
 
+@allowed([
+  'ConfidentialVM'
+  'ConfidentialVMSupported'
+  'Standard'
+  'TrustedLaunch'
+])
+@description('The security type for the Image Definition.')
+param ImageDefinitionSecurityType string = 'Standard'
+
 @description('The offer of the marketplace image.')
 param ImageOffer string = 'windows-10'
 
@@ -314,6 +323,7 @@ module computeGallery 'modules/computeGallery.bicep' = {
   params: {
     Environment: Environment
     ImageDefinitionName: ImageDefinitionName
+    ImageDefinitionSecurityType: ImageDefinitionSecurityType
     ImageOffer: ImageOffer
     ImagePublisher: ImagePublisher
     ImageSku: ImageSku

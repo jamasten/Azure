@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.11.1.770",
-      "templateHash": "6176773420610867565"
+      "templateHash": "10910845489178809368"
     }
   },
   "parameters": {
@@ -35,6 +35,19 @@
       "metadata": {
         "description": "The name of the Image Definition for the Shared Image Gallery."
       }
+    },
+    "ImageDefinitionSecurityType": {
+      "type": "string",
+      "defaultValue": "Standard",
+      "metadata": {
+        "description": "The security type for the Image Definition."
+      },
+      "allowedValues": [
+        "ConfidentialVM",
+        "ConfidentialVMSupported",
+        "Standard",
+        "TrustedLaunch"
+      ]
     },
     "ImageOffer": {
       "type": "string",
@@ -609,6 +622,9 @@
           "ImageDefinitionName": {
             "value": "[parameters('ImageDefinitionName')]"
           },
+          "ImageDefinitionSecurityType": {
+            "value": "[parameters('ImageDefinitionSecurityType')]"
+          },
           "ImageOffer": {
             "value": "[parameters('ImageOffer')]"
           },
@@ -635,7 +651,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.11.1.770",
-              "templateHash": "14790455800170207102"
+              "templateHash": "12779657864135911014"
             }
           },
           "parameters": {
@@ -643,6 +659,9 @@
               "type": "string"
             },
             "ImageDefinitionName": {
+              "type": "string"
+            },
+            "ImageDefinitionSecurityType": {
               "type": "string"
             },
             "ImageOffer": {
@@ -686,7 +705,13 @@
                   "publisher": "[parameters('ImagePublisher')]",
                   "offer": "[parameters('ImageOffer')]",
                   "sku": "[parameters('ImageSku')]"
-                }
+                },
+                "features": [
+                  {
+                    "name": "SecurityType",
+                    "value": "[parameters('ImageDefinitionSecurityType')]"
+                  }
+                ]
               },
               "dependsOn": [
                 "[resourceId('Microsoft.Compute/galleries', format('cg_aib_{0}_{1}', parameters('Environment'), parameters('LocationShortName')))]"

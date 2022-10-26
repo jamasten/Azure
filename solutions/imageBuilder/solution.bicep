@@ -133,7 +133,7 @@ var LocationShortNames = {
   westus2: 'wu2'
   westus3: 'wu3'
 }
-var ImageTemplateName = 'imgt-${toLower(ImageDefinitionName)}-${Environment}-${LocationShortName}'
+var ImageTemplateName = 'it-${toLower(ImageDefinitionName)}-${Environment}-${LocationShortName}'
 var LocationShortName = LocationShortNames[Location]
 var LogicAppName = 'la-${NamingStandard}'
 var NamingStandard = 'aib-${Environment}-${LocationShortName}'

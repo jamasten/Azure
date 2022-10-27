@@ -1,6 +1,7 @@
 param Location string
 param LogicAppName string
 param Tags object
+param TimeZone string
 @secure()
 param WebhookUri string
 
@@ -32,10 +33,10 @@ resource logicApp_ScaleHostPool 'Microsoft.Logic/workflows@2016-06-01' = {
         Recurrence: {
           type: 'Recurrence'
           recurrence: {
-            frequency: 'Hour'
-            interval: 6
-            startTime: '2022-01-01T06:00:00'
-            timeZone: 'Eastern Standard Time'
+            frequency: 'Day'
+            interval: 1
+            startTime: '2022-01-01T23:00:00'
+            timeZone: TimeZone
           }
         }
       }

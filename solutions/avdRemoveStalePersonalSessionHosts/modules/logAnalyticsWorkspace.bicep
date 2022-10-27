@@ -26,3 +26,5 @@ resource logAnalyticsWorkspace 'Microsoft.OperationalInsights/workspaces@2021-06
 
 
 output resourceId string = logAnalyticsWorkspace.id
+output workspaceId string = logAnalyticsWorkspace.properties.customerId
+

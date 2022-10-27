@@ -1,9 +1,13 @@
+param HostPoolName string
+param HostPoolResourceGroupName string
 param Location string
 param LogicAppName string
+param SessionHostExpirationInDays int
 param Tags object
 param TimeZone string
 @secure()
 param WebhookUri string
+param WorkspaceId string
 
 
 // Logic App to trigger scaling runbook for the AVD host pool
@@ -22,9 +26,13 @@ resource logicApp_ScaleHostPool 'Microsoft.Logic/workflows@2016-06-01' = {
             method: 'POST'
             uri: WebhookUri
             body: {
-              TenantId: subscription().tenantId
-              SubscriptionId: subscription().subscriptionId
               EnvironmentName: environment().name
+              HostPoolName: HostPoolName
+              HostPoolResourceGroupName: HostPoolResourceGroupName
+              SessionHostExpirationInDays: SessionHostExpirationInDays
+              SubscriptionId: subscription().subscriptionId
+              TenantId: subscription().tenantId
+              WorkspaceId: WorkspaceId
             }
           }
         }

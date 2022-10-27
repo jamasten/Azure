@@ -1,13 +1,17 @@
 param AutomationAccountName string
+param HostPoolName string
+param HostPoolResourceGroupName string
 param Location string
 param LogAnalyticsWorkspaceResourceId string
 param LogicAppName string
 param RunbookName string
+param SessionHostExpirationInDays int
 param Tags object
 param Timestamp string
 @description('ISO 8601 timestamp used to determine the webhook expiration date.  The webhook is hardcoded to expire 5 years after the timestamp.')
 param Timestamp2 string = utcNow('u')
 param TimeZone string
+param WorkspaceId string
 
 
 resource automationAccount 'Microsoft.Automation/automationAccounts@2021-06-22' = {
@@ -78,6 +82,10 @@ module logicApp 'logicApp.bicep' = {
     Tags: Tags
     TimeZone: TimeZone
     WebhookUri: webhook.properties.uri
+    HostPoolName: HostPoolName
+    HostPoolResourceGroupName: HostPoolResourceGroupName
+    SessionHostExpirationInDays: SessionHostExpirationInDays
+    WorkspaceId: WorkspaceId
   }
 }
 

@@ -194,13 +194,17 @@ module automationAccount 'modules/automationAccount.bicep' = {
   scope: rg
   params: {
     AutomationAccountName: AutomationAccountName
+    HostPoolName: HostPoolName
+    HostPoolResourceGroupName: HostPoolResourceGroupName
     Location: Location
     LogAnalyticsWorkspaceResourceId: logAnalyticsWorkspace.outputs.resourceId
     LogicAppName: LogicAppName
     RunbookName: RunbookName
+    SessionHostExpirationInDays: SessionHostExpirationInDays
     Tags: Tags
     Timestamp: Timestamp
     TimeZone: TimeZone
+    WorkspaceId: logAnalyticsWorkspace.outputs.workspaceId
   }
 }
 

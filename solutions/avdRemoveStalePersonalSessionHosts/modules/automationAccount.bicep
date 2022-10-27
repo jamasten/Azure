@@ -3,7 +3,6 @@ param Location string
 param LogAnalyticsWorkspaceResourceId string
 param LogicAppName string
 param RunbookName string
-param StorageContainerUri string
 param Tags object
 param Timestamp string
 @description('ISO 8601 timestamp used to determine the webhook expiration date.  The webhook is hardcoded to expire 5 years after the timestamp.')
@@ -52,7 +51,7 @@ resource runbook 'Microsoft.Automation/automationAccounts/runbooks@2019-06-01' =
     logProgress: false
     logVerbose: false
     publishContentLink: {
-      uri: ''
+      uri: 'https://raw.githubusercontent.com/jamasten/Azure/main/solutions/avdRemoveStalePersonalSessionHosts/artifacts/Remove-StaleHosts.ps1'
       version: '1.0.0.0'
     }
   }

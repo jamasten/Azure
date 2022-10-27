@@ -26,9 +26,6 @@ param SessionHostExpirationInDays int = 3
 
 param SessionHostsResourceGroupName string
 
-@description('The subnet for the AVD session hosts.')
-param SubnetName string = 'Clients'
-
 @description('The key / value pairs of metadata for the Azure resources.')
 param Tags object = {
 }
@@ -38,17 +35,9 @@ param Timestamp string = utcNow('yyyyMMddhhmmss')
 
 param VirtualMachinePrefix string
 
-@description('The name of the virtual network for the AVD sessions hosts.')
-param VirtualNetworkName string
-
-@description('The name of the virtual network resource group for the AVD sessions hosts.')
-param VirtualNetworkResourceGroupName string
-
 
 
 var AutomationAccountName = 'aa-${NamingStandard}'
-var ContainerName =  'artifacts'
-var DeploymentScriptName = 'ds-${NamingStandard}'
 var LocationShortName = LocationShortNames[Location]
 var LocationShortNames = {
   australiacentral: 'ac'
@@ -118,34 +107,17 @@ var RoleAssignments = [
   }
 ]
 var RunbookName = 'RemoveExpiredSessionHosts'
-var StorageAccountName = 'sacasesmgmtpva${take(uniqueString(subscription().id), 10)}'
-var StorageContainerUri = 'https://${StorageAccountName}.blob.${environment().suffixes.storage}/${ContainerName}/'
 
 
-resource resourceGroup_solution 'Microsoft.Resources/resourceGroups@2020-10-01' = {
+resource rg 'Microsoft.Resources/resourceGroups@2020-10-01' = {
   name: ResourceGroupName
   location: Location
   tags: Tags
 }
 
-module storageAccount 'modules/storageAccount.bicep' = {
-  name: 'StorageAccount'
-  scope: resourceGroup_solution
-  params: {
-    ContainerName: ContainerName
-    DeploymentScriptName: DeploymentScriptName
-    Location: Location
-    StorageAccountName: StorageAccountName
-    SubnetName: SubnetName
-    Tags: Tags
-    VirtualNetworkName: VirtualNetworkName
-    VirtualNetworkResourceGroupName: VirtualNetworkResourceGroupName
-  }
-}
-
 module logAnalyticsWorkspace 'modules/logAnalyticsWorkspace.bicep' = {
   name: 'LogAnalyticsWorkspace_${Timestamp}'
-  scope: resourceGroup_solution
+  scope: rg
   params: {
     Location: Location
     LogAnalyticsWorkspaceName: LogAnalyticsWorkspaceName
@@ -161,7 +133,6 @@ module sessionHosts 'modules/sessionHosts.bicep' = {
     Location: Location
     LogAnalyticsWorkspaceResourceId: logAnalyticsWorkspace.outputs.resourceId
     MultiHomeMicrosoftMonitoringAgent: MultiHomeMicrosoftMonitoringAgent
-    StorageContainerUri: StorageContainerUri
     Tags: Tags
     Timestamp: Timestamp
     VmName: VirtualMachinePrefix
@@ -180,20 +151,16 @@ module hostPool 'modules/hostPool.bicep' = {
 
 module automationAccount 'modules/automationAccount.bicep' = {
   name: 'AutomationAccount_${Timestamp}'
-  scope: resourceGroup_solution
+  scope: rg
   params: {
     AutomationAccountName: AutomationAccountName
     Location: Location
     LogAnalyticsWorkspaceResourceId: logAnalyticsWorkspace.outputs.resourceId
     LogicAppName: LogicAppName
     RunbookName: RunbookName
-    StorageContainerUri: StorageContainerUri
     Tags: Tags
     Timestamp: Timestamp
   }
-  dependsOn: [
-    storageAccount
-  ]
 }
 
 module roleAssignments 'modules/roleAssignment.bicep' = [for i in range(0, length(RoleAssignments)): {

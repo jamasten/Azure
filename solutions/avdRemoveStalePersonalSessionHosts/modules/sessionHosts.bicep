@@ -1,7 +1,6 @@
 param Location string
 param LogAnalyticsWorkspaceResourceId string
 param MultiHomeMicrosoftMonitoringAgent bool
-param StorageContainerUri string
 param Tags object
 param Timestamp string
 param VmName string
@@ -46,7 +45,7 @@ resource extension_CustomScriptExtension 'Microsoft.Compute/virtualMachines/exte
     autoUpgradeMinorVersion: true
     settings: {
       fileUris: [
-        ''
+        'https://raw.githubusercontent.com/jamasten/Azure/main/solutions/avdRemoveStalePersonalSessionHosts/artifacts/Set-MicrosoftMonitoringAgent.ps1'
       ]
       timestamp: Timestamp
     }

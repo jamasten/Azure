@@ -164,7 +164,7 @@ module automationAccount 'modules/automationAccount.bicep' = {
 }
 
 module roleAssignments 'modules/roleAssignment.bicep' = [for i in range(0, length(RoleAssignments)): {
-  name: 'RoleAssignments ${i}_${Timestamp}'
+  name: 'RoleAssignments_${i}_${Timestamp}'
   scope: resourceGroup(RoleAssignments[i].scope)
   params: {
     RoleDefinitionId: RoleAssignments[i].roleDefinitionId

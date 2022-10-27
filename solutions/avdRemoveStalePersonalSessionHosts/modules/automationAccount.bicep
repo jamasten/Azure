@@ -7,6 +7,7 @@ param Tags object
 param Timestamp string
 @description('ISO 8601 timestamp used to determine the webhook expiration date.  The webhook is hardcoded to expire 5 years after the timestamp.')
 param Timestamp2 string = utcNow('u')
+param TimeZone string
 
 
 resource automationAccount 'Microsoft.Automation/automationAccounts@2021-06-22' = {
@@ -75,6 +76,7 @@ module logicApp 'logicApp.bicep' = {
     Location: Location
     LogicAppName: LogicAppName
     Tags: Tags
+    TimeZone: TimeZone
     WebhookUri: webhook.properties.uri
   }
 }

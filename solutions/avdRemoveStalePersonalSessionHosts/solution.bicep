@@ -10,21 +10,19 @@ targetScope = 'subscription'
 @description('The target environment for the solution.')
 param Environment string = 'd'
 
+@description('The name of the AVD host pool to manage stale session hosts.')
 param HostPoolName string
 
+@description('The name of the resource group for the AVD host pool to manage stale session hosts.')
 param HostPoolResourceGroupName string
 
 @description('Location for all the deployed resources and resource group.')
 param Location string = deployment().location
 
-param MultiHomeMicrosoftMonitoringAgent bool 
-
 @maxValue(730)
 @minValue(1)
-@description('The number of days until the expiration of an AVD session host.')
-param SessionHostExpirationInDays int = 3
-
-param SessionHostsResourceGroupName string
+@description('The number of days until an AVD session host expires.')
+param SessionHostExpirationInDays int = 1
 
 @description('The key / value pairs of metadata for the Azure resources.')
 param Tags object = {
@@ -32,9 +30,6 @@ param Tags object = {
 
 @description('DO NOT MODIFY THE DEFAULT VALUE!')
 param Timestamp string = utcNow('yyyyMMddhhmmss')
-
-param VirtualMachinePrefix string
-
 
 
 var AutomationAccountName = 'aa-${NamingStandard}'
@@ -107,6 +102,64 @@ var RoleAssignments = [
   }
 ]
 var RunbookName = 'RemoveExpiredSessionHosts'
+var TimeZone = TimeZones[Location]
+var TimeZones = {
+  australiacentral: 'AUS Eastern Standard Time'
+  australiacentral2: 'AUS Eastern Standard Time'
+  australiaeast: 'AUS Eastern Standard Time'
+  australiasoutheast: 'AUS Eastern Standard Time'
+  brazilsouth: 'E. South America Standard Time'
+  brazilsoutheast: 'E. South America Standard Time'
+  canadacentral: 'Eastern Standard Time'
+  canadaeast: 'Eastern Standard Time'
+  centralindia: 'India Standard Time'
+  centralus: 'Central Standard Time'
+  chinaeast: 'China Standard Time'
+  chinaeast2: 'China Standard Time'
+  chinanorth: 'China Standard Time'
+  chinanorth2: 'China Standard Time'
+  eastasia: 'China Standard Time'
+  eastus: 'Eastern Standard Time'
+  eastus2: 'Eastern Standard Time'
+  francecentral: 'Central Europe Standard Time'
+  francesouth: 'Central Europe Standard Time'
+  germanynorth: 'Central Europe Standard Time'
+  germanywestcentral: 'Central Europe Standard Time'
+  japaneast: 'Tokyo Standard Time'
+  japanwest: 'Tokyo Standard Time'
+  jioindiacentral: 'India Standard Time'
+  jioindiawest: 'India Standard Time'
+  koreacentral: 'Korea Standard Time'
+  koreasouth: 'Korea Standard Time'
+  northcentralus: 'Central Standard Time'
+  northeurope: 'GMT Standard Time'
+  norwayeast: 'Central Europe Standard Time'
+  norwaywest: 'Central Europe Standard Time'
+  southafricanorth: 'South Africa Standard Time'
+  southafricawest: 'South Africa Standard Time'
+  southcentralus: 'Central Standard Time'
+  southindia: 'India Standard Time'
+  southeastasia: 'Singapore Standard Time'
+  swedencentral: 'Central Europe Standard Time'
+  switzerlandnorth: 'Central Europe Standard Time'
+  switzerlandwest: 'Central Europe Standard Time'
+  uaecentral: 'Arabian Standard Time'
+  uaenorth: 'Arabian Standard Time'
+  uksouth: 'GMT Standard Time'
+  ukwest: 'GMT Standard Time'
+  usdodcentral: 'Central Standard Time'
+  usdodeast: 'Eastern Standard Time'
+  usgovarizona: 'Mountain Standard Time'
+  usgoviowa: 'Central Standard Time'
+  usgovtexas: 'Central Standard Time'
+  usgovvirginia: 'Eastern Standard Time'
+  westcentralus: 'Mountain Standard Time'
+  westeurope: 'Central Europe Standard Time'
+  westindia: 'India Standard Time'
+  westus: 'Pacific Standard Time'
+  westus2: 'Pacific Standard Time'
+  westus3: 'Mountain Standard Time'
+}
 
 
 resource rg 'Microsoft.Resources/resourceGroups@2020-10-01' = {
@@ -123,19 +176,6 @@ module logAnalyticsWorkspace 'modules/logAnalyticsWorkspace.bicep' = {
     LogAnalyticsWorkspaceName: LogAnalyticsWorkspaceName
     SessionHostExpirationInDays: SessionHostExpirationInDays
     Tags: Tags
-  }
-}
-
-module sessionHosts 'modules/sessionHosts.bicep' = {
-  name: 'SessionHosts_${Timestamp}'
-  scope: resourceGroup(SessionHostsResourceGroupName)
-  params: {
-    Location: Location
-    LogAnalyticsWorkspaceResourceId: logAnalyticsWorkspace.outputs.resourceId
-    MultiHomeMicrosoftMonitoringAgent: MultiHomeMicrosoftMonitoringAgent
-    Tags: Tags
-    Timestamp: Timestamp
-    VmName: VirtualMachinePrefix
   }
 }
 
@@ -160,6 +200,7 @@ module automationAccount 'modules/automationAccount.bicep' = {
     RunbookName: RunbookName
     Tags: Tags
     Timestamp: Timestamp
+    TimeZone: TimeZone
   }
 }
 

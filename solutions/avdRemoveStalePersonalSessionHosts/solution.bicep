@@ -89,7 +89,7 @@ var LocationShortNames = {
 }
 var LogicAppName = 'la-${NamingStandard}'
 var LogAnalyticsWorkspaceName = 'law-${NamingStandard}'
-var NamingStandard = 'avd-staleHostsMgmt-${Environment}-${LocationShortName}'
+var NamingStandard = 'avd-mgmt-${Environment}-${LocationShortName}'
 var ResourceGroupName = 'rg-${NamingStandard}'
 var RoleAssignments = [
   {

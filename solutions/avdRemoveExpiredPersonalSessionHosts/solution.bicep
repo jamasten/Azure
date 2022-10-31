@@ -10,10 +10,10 @@ targetScope = 'subscription'
 @description('The target environment for the solution.')
 param Environment string = 'd'
 
-@description('The name of the AVD host pool to manage stale session hosts.')
+@description('The name of the AVD host pool to manage expired session hosts.')
 param HostPoolName string
 
-@description('The name of the resource group for the AVD host pool to manage stale session hosts.')
+@description('The name of the resource group for the AVD host pool to manage expired session hosts.')
 param HostPoolResourceGroupName string
 
 @description('Location for all the deployed resources and resource group.')

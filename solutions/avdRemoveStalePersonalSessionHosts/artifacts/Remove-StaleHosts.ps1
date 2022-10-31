@@ -20,7 +20,7 @@ $ErrorActionPreference = 'Stop'
 try
 {
     # Import Modules
-    Import-Module -Name 'Az.Accounts','Az.Compute','Az.Resources'
+    Import-Module -Name 'Az.Accounts','Az.Compute','Az.DesktopVirtualization','Az.Network','Az.OperationalInsights'
     Write-Output "Imported required modules"
 
     # Connect to Azure using the Managed Identity

@@ -22,7 +22,7 @@ param Location string = deployment().location
 @maxValue(730)
 @minValue(1)
 @description('The number of days until an AVD session host expires.')
-param SessionHostExpirationInDays int = 1
+param SessionHostExpirationInDays int = 90
 
 @description('The key / value pairs of metadata for the Azure resources.')
 param Tags object = {

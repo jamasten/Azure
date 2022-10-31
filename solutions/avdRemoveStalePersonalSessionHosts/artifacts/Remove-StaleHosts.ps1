@@ -28,6 +28,7 @@ try
     Write-Output "Connected to Azure"
 
     # Get the resource IDs for the AVD session hosts in the target host pool
+    $Counter = 0
     $SessionHosts = (Get-AzWvdSessionHost -ResourceGroupName $HostPoolResourceGroupName  -HostPoolName $HostPoolName).ResourceId
     foreach($SessionHost in $SessionHosts)
     {
@@ -74,8 +75,15 @@ try
                 {
                     $Disk | Remove-AzDisk -Force
                 }
+
+                $Counter++
+                Write-Output "Removed session host: $SessionHostName"
             }
         }
+    }
+    if($Counter -eq 0)
+    {
+        Write-Output 'No session hosts were removed'
     }
 }
 catch 

@@ -29,6 +29,7 @@ try
 
     # Get the resource IDs for the AVD session hosts in the target host pool
     $Counter = 0
+	$Results = @()
     $SessionHosts = (Get-AzWvdSessionHost -ResourceGroupName $HostPoolResourceGroupName  -HostPoolName $HostPoolName).ResourceId
     foreach($SessionHost in $SessionHosts)
     {
@@ -41,23 +42,24 @@ try
         $DiskCreationDate = $Disk.TimeCreated
         
         # Get the expiration date by subtracting the expiration in days param from the current date
-        $ExpirationDate = (Get-Date).AddDays(-$SessionHostExpirationInDays)
-        if($DiskCreationDate -gt $ExpirationDate)
+        $TodaysDate = Get-Date
+		$DiskDays = ($TodaysDate - $DiskCreationDate).Days
+        if($DiskDays -ge $SessionHostExpirationInDays)
         {
             $SessionHostName = $SessionHost.Split('/')[-1]
-            $Query = "WVDConnections | where State == 'Connected' | where _ResourceId has '$HostPoolName' | where SessionHostName == '$SessionHostName'"
-            $Results = (Invoke-AzOperationalInsightsQuery -WorkspaceId $WorkspaceId -Query $Query -Timespan (New-TimeSpan -Days $SessionHostExpirationInDays)).Results
-            if(!$Results)
+            $Query = "WVDConnections | where State == 'Connected' | where _ResourceId endswith '$HostPoolName' | where SessionHostName startswith '$SessionHostName'"
+			$Results += (Invoke-AzOperationalInsightsQuery -WorkspaceId $WorkspaceId -Query $Query -Timespan (New-TimeSpan -Days $SessionHostExpirationInDays)).Results
+			if($Results.Count -eq 0)
             {
                 # Remove the session host from the host pool
                 Remove-AzWvdSessionHost `
-                    -ResourceGroupName $HostPoolResourceGroup `
+                    -ResourceGroupName $HostPoolResourceGroupName `
                     -HostPoolName $HostPoolName `
                     -Name $SessionHostName `
                     | Out-Null
 
                 # Remove the virtual machine
-                $VirtualMachine | Remove-AzVM -Force
+                $VirtualMachine | Remove-AzVM -Force | Out-Null
 
                 # Delay to ensure NIC and disk can be removed automatically if using the newer VM API
                 Start-Sleep -Seconds 60
@@ -66,14 +68,14 @@ try
                 $NetworkInterface = Get-AzNetworkInterface -ResourceGroupName $VirtualMachine.ResourceGroupName -Name $VirtualMachine.NetworkProfile.NetworkInterfaces[0].Id.Split('/')[-1] -ErrorAction 'SilentlyContinue'
                 if($NetworkInterface)
                 {
-                    $NetworkInterface | Remove-AzNetworkInterface -Force
+                    $NetworkInterface | Remove-AzNetworkInterface -Force | Out-Null
                 }
 
                 # Remove the disk
                 $Disk = Get-AzDisk -ResourceGroupName $SessionHostDisk.Split('/')[4] -DiskName $SessionHostDisk.Split('/')[-1] -ErrorAction 'SilentlyContinue'
                 if($Disk)
                 {
-                    $Disk | Remove-AzDisk -Force
+                    $Disk | Remove-AzDisk -Force | Out-Null
                 }
 
                 $Counter++

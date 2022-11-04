@@ -30,15 +30,15 @@ try
     # Get the resource IDs for the AVD session hosts in the target host pool
     $Counter = 0
 	$Results = @()
-    $SessionHosts = (Get-AzWvdSessionHost -ResourceGroupName $HostPoolResourceGroupName  -HostPoolName $HostPoolName).ResourceId
+    $SessionHosts = Get-AzWvdSessionHost -ResourceGroupName $HostPoolResourceGroupName  -HostPoolName $HostPoolName
     foreach($SessionHost in $SessionHosts)
     {
         # Get the resource ID of the managed disk used for the operating system on the session host
-        $VirtualMachine = Get-AzVM -ResourceId $SessionHost
-        $SessionHostDisk = $VirtualMachine.StorageProfile.OsDisk.ManagedDisk.Id
+        $VirtualMachine = Get-AzVM -ResourceId $SessionHost.ResourceId
+        $VirtualMachineOSDisk = $VirtualMachine.StorageProfile.OsDisk.ManagedDisk.Id
         
         # Get the creation date / time of the session host disk to determine if the session host has existed during the expriation time frame
-        $Disk = Get-AzDisk -ResourceGroupName $SessionHostDisk.Split('/')[4] -DiskName $SessionHostDisk.Split('/')[-1]
+        $Disk = Get-AzDisk -ResourceGroupName $VirtualMachineOSDisk.Split('/')[4] -DiskName $VirtualMachineOSDisk.Split('/')[-1]
         $DiskCreationDate = $Disk.TimeCreated
         
         # Get the expiration date by subtracting the expiration in days param from the current date
@@ -46,8 +46,7 @@ try
 		$DiskDays = ($TodaysDate - $DiskCreationDate).Days
         if($DiskDays -ge $SessionHostExpirationInDays)
         {
-            $SessionHostName = $SessionHost.Split('/')[-1]
-            $Query = "WVDConnections | where State == 'Connected' | where _ResourceId endswith '$HostPoolName' | where SessionHostName startswith '$SessionHostName'"
+            $Query = "WVDConnections | where State == 'Connected' | where _ResourceId endswith '$HostPoolName' | where SessionHostName == '$($SessionHost.Name)'"
 			$Results += (Invoke-AzOperationalInsightsQuery -WorkspaceId $WorkspaceId -Query $Query -Timespan (New-TimeSpan -Days $SessionHostExpirationInDays)).Results
 			if($Results.Count -eq 0)
             {
@@ -55,7 +54,7 @@ try
                 Remove-AzWvdSessionHost `
                     -ResourceGroupName $HostPoolResourceGroupName `
                     -HostPoolName $HostPoolName `
-                    -Name $SessionHostName `
+                    -Name $SessionHost.Name `
                     | Out-Null
 
                 # Remove the virtual machine

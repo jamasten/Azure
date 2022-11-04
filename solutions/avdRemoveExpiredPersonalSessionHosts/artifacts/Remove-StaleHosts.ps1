@@ -51,11 +51,7 @@ try
 			if($Results.Count -eq 0)
             {
                 # Remove the session host from the host pool
-                Remove-AzWvdSessionHost `
-                    -ResourceGroupName $HostPoolResourceGroupName `
-                    -HostPoolName $HostPoolName `
-                    -Name $SessionHost.Name `
-                    | Out-Null
+                $SessionHost | Remove-AzWvdSessionHost | Out-Null
 
                 # Remove the virtual machine
                 $VirtualMachine | Remove-AzVM -Force | Out-Null

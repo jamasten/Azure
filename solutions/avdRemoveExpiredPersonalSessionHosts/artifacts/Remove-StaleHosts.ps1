@@ -46,18 +46,20 @@ try
 		$DiskDays = ($TodaysDate - $DiskCreationDate).Days
         if($DiskDays -ge $SessionHostExpirationInDays)
         {
-            $Query = "WVDConnections | where State == 'Connected' | where _ResourceId endswith '$HostPoolName' | where SessionHostName == '$($SessionHost.Name)'"
+			$SessionHostName = $SessionHost.Name.Split('/')[1]
+            $Query = "WVDConnections | where State == 'Connected' | where _ResourceId endswith '$HostPoolName' | where SessionHostName == '$SessionHostName'"
 			$Results += (Invoke-AzOperationalInsightsQuery -WorkspaceId $WorkspaceId -Query $Query -Timespan (New-TimeSpan -Days $SessionHostExpirationInDays)).Results
 			if($Results.Count -eq 0)
             {
                 # Remove the session host from the host pool
-                $SessionHost | Remove-AzWvdSessionHost | Out-Null
+            	Remove-AzWvdSessionHost `
+					-ResourceGroupName $HostPoolResourceGroupName `
+					-HostPoolName $HostPoolName `
+					-Name $SessionHostName `
+					-Force | Out-Null
 
                 # Remove the virtual machine
                 $VirtualMachine | Remove-AzVM -Force | Out-Null
-
-                # Delay to ensure NIC and disk can be removed automatically if using the newer VM API
-                Start-Sleep -Seconds 60
 
                 # Remove the network interface
                 $NetworkInterface = Get-AzNetworkInterface -ResourceGroupName $VirtualMachine.ResourceGroupName -Name $VirtualMachine.NetworkProfile.NetworkInterfaces[0].Id.Split('/')[-1] -ErrorAction 'SilentlyContinue'

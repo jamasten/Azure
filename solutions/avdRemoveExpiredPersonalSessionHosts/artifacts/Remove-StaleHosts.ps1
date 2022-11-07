@@ -69,7 +69,7 @@ try
                 }
 
                 # Remove the disk
-                $Disk = Get-AzDisk -ResourceGroupName $SessionHostDisk.Split('/')[4] -DiskName $SessionHostDisk.Split('/')[-1] -ErrorAction 'SilentlyContinue'
+                $Disk = Get-AzDisk -ResourceGroupName $VirtualMachineOSDisk.Split('/')[4] -DiskName $VirtualMachineOSDisk.Split('/')[-1] -ErrorAction 'SilentlyContinue'
                 if($Disk)
                 {
                     $Disk | Remove-AzDisk -Force | Out-Null

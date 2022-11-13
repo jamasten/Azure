@@ -68,18 +68,25 @@ $ErrorActionPreference = 'Stop'
 $DiskName = "disk-$($ComputeGalleryDefinitionName)"
 $Location = (Get-AzResourceGroup -Name $ComputeGalleryResourceGroupName).Location
 
-# Gets the Image Gallery information
+# Gets the Image Version ID
 $ImageVersion = Get-AzGalleryImageVersion `
     -GalleryImageDefinitionName $ComputeGalleryDefinitionName `
     -GalleryName $ComputeGalleryName `
     -ResourceGroupName $ComputeGalleryResourceGroupName `
     -Name $ComputeGalleryVersion
 
+# Gets the OS Type
+$OsType = (Get-AzGalleryImageDefinition `
+    -GalleryImageDefinitionName $ComputeGalleryDefinitionName `
+    -GalleryName $ComputeGalleryName `
+    -ResourceGroupName $ComputeGalleryResourceGroupName).OsType
+
 # Creates a Disk Configuration for a Managed Disk using the Image Version in the Compute Gallery
 $DiskConfig = New-AzDiskConfig `
     -Location $Location `
     -CreateOption FromImage `
-    -GalleryImageReference @{Id = $ImageVersion.Id}
+    -GalleryImageReference @{Id = $ImageVersion.Id} `
+    -OsType $OsType
 
 # Creates a Managed Disk using the Image Version in the Compute Gallery
 $Disk = New-AzDisk `

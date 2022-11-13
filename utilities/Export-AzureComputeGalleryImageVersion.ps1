@@ -34,9 +34,10 @@ The name of the Resource Group that contains the Azure Compute Gallery.
 .PARAMETER ComputeGalleryVersion
 The name of the Image Version in the Azure Compute Gallery.
 .NOTES
-  Version:        1.0
-  Author:         Jason Masten
-  Creation Date:  2022-05-11
+  Version:              1.1
+  Author:               Jason Masten
+  Creation Date:        2022-05-11
+  Last Modified Date:   2022-11-12
 .EXAMPLE
 .\Export-AzureComputeGalleryImageVersion.ps1 `
     -ComputeGalleryDefinitionName 'WindowsServer2019Datacenter' `

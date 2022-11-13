@@ -46,9 +46,10 @@ The type of operating system on the source Image Version.
 .PARAMETER VhdFilePath
 The file path to the VHD on the filesystem.
 .NOTES
-  Version:        1.0
-  Author:         Jason Masten
-  Creation Date:  2022-05-11
+  Version:              1.1
+  Author:               Jason Masten
+  Creation Date:        2022-05-11
+  Last Modified Date:   2022-11-12
 .EXAMPLE
 .\Import-AzureComputeGalleryImageVersion.ps1 `
     -ComputeGalleryDefinitionName 'WindowsServer2019Datacenter' `

@@ -41,6 +41,8 @@ The publisher of the image to create a new Image Defintion if needed.
 The SKU of the image to create a new Image Defintion if needed.
 .PARAMETER ImageState
 The state of the image to create a new Image Defintion if needed.
+.PARAMETER OsType
+The type of operating system on the source Image Version.
 .PARAMETER VhdFilePath
 The file path to the VHD on the filesystem.
 .NOTES
@@ -57,6 +59,7 @@ The file path to the VHD on the filesystem.
     -ImagePublisher 'MicrosoftWindowsServer' `
     -ImageSku '2019-datacenter' `
     -ImageState 'generalized' `
+    -OsType 'Windows'
     -VhdFilePath $HOME\Downloads\disk-WindowsServer2019Datacenter.vhd
 
 This example imports the VHD as a Managed Disk, creates a new Image Defintion, and imports the Managed Disk as a new Image Version into the new Image Defintion.
@@ -98,6 +101,10 @@ param(
     [ValidateSet('generalized','specialized')]
     [string]$ImageState,
 
+    [parameter(Mandatory=$false)]
+    [ValidateSet('Windows','Linux')]
+    [string]$OsType = 'Windows', 
+
     [parameter(Mandatory)]
     [string]$VhdFilePath
 
@@ -114,6 +121,7 @@ Add-AzVhd `
     -ResourceGroupName $ComputeGalleryResourceGroupName `
     -Location $Location `
     -DiskName $DiskName `
+    -DiskOsType $OsType `
     -NumberOfUploaderThreads 32
 
 # Gets the information for the Managed Disk

@@ -688,6 +688,9 @@ module sentinel 'modules/sentinel.bicep' = {
     SentinelLogAnalyticsWorkspaceName: SentinelLogAnalyticsWorkspaceName
     SentinelLogAnalyticsWorkspaceResourceGroupName: SentinelLogAnalyticsWorkspaceResourceGroupName
   }
+  dependsOn: [
+    resourceGroups
+  ]
 }
 
 module sessionHosts 'modules/sessionHosts/sessionHosts.bicep' = {

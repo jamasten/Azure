@@ -11,17 +11,6 @@ param Timestamp string = utcNow('u')
 param TimeZone string
 
 
-var ActionSettingsBody = {
-  EnvironmentName: environment().name
-  ImagePublisher: ImagePublisher
-  ImageOffer: ImageOffer
-  ImageSku: ImageSku
-  Location: Location
-  SubscriptionId: subscription().subscriptionId
-  TemplateName: ImageTemplateName
-  TemplateResourceGroupName: resourceGroup().name
-  TenantId: subscription().tenantId
-}
 var Modules = [
   {
     name: 'Az.Accounts'
@@ -109,14 +98,45 @@ resource diagnostics 'Microsoft.Insights/diagnosticsettings@2017-05-01-preview' 
   }
 }
 
-module logicApp 'logicApp.bicep' = {
-  name: 'LogicApp_${dateTimeAdd(Timestamp, 'PT0H', 'yyyyMMddhhmmss')}'
-  params: {
-    ActionSettingsBody: ActionSettingsBody
-    Location: Location
-    LogicAppName: LogicAppName
-    TimeZone: TimeZone
-    WebhookUri: webhook.properties.uri
+resource logicApp 'Microsoft.Logic/workflows@2016-06-01' = {
+  name: LogicAppName
+  location: Location
+  properties: {
+    state: 'Enabled'
+    definition: {
+      '$schema': 'https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#'
+      actions: {
+        HTTP: {
+          type: 'Http'
+          inputs: {
+            method: 'POST'
+            uri: webhook.properties.uri
+            body: {
+              EnvironmentName: environment().name
+              ImagePublisher: ImagePublisher
+              ImageOffer: ImageOffer
+              ImageSku: ImageSku
+              Location: Location
+              SubscriptionId: subscription().subscriptionId
+              TemplateName: ImageTemplateName
+              TemplateResourceGroupName: resourceGroup().name
+              TenantId: subscription().tenantId
+            }
+          }
+        }
+      }
+      triggers: {
+        Recurrence: {
+          type: 'Recurrence'
+          recurrence: {
+            frequency: 'Day'
+            interval: 1
+            startTime: '2022-01-01T23:00:00'
+            timeZone: TimeZone
+          }
+        }
+      }
+    }
   }
 }
 

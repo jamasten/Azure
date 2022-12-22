@@ -13,10 +13,18 @@ try
     Invoke-WebRequest -Uri $URL -OutFile $ZIP
     Write-Host 'Downloaded the GitHub repository for the Virtual Desktop Optimization Tool'
     
+    # Unblock ZIP archive
+    Unblock-File -Path $ZIP
+    Write-Host 'Unblocked the archive of the Virtual Desktop Optimization Tool'
+
     # Extract VDOT from ZIP archive
     Expand-Archive -LiteralPath $ZIP -DestinationPath 'C:\temp' -Force
     Write-Host 'Expanded the archive of the Virtual Desktop Optimization Tool'
     
+    # Set Exectuion Policy
+    Set-ExecutionPolicy -ExecutionPolicy 'RemoteSigned' -Scope 'Process'
+    Write-Host 'Set the Execution Policy'
+
     # Fix to disable AppX Packages
     # As of 2/8/22, all AppX Packages are enabled by default
     $Files = (Get-ChildItem -Path 'C:\temp\Virtual-Desktop-Optimization-Tool-main' -File -Recurse -Filter 'AppxPackages.json').FullName

@@ -56,7 +56,7 @@ try
     Write-Host 'Disabled the "Configuring Network Adapter Buffer Size" configuration'
 
     # Run VDOT
-    & C:\temp\Virtual-Desktop-Optimization-Tool-main\Windows_VDOT.ps1 -Optimizations 'All' -AdvancedOptimizations 'Edge','RemoveLegacyIE' -AcceptEULA
+    & C:\temp\Virtual-Desktop-Optimization-Tool-main\Windows_VDOT.ps1 -Optimizations 'AppxPackages','Autologgers','DefaultUserSettings','LGPO','NetworkOptimizations','ScheduledTasks','Services','WindowsMediaPlayer' -AdvancedOptimizations 'Edge','RemoveLegacyIE' -AcceptEULA
     Write-Host 'Optimized the operating system using the Virtual Desktop Optimization Tool'
 }
 catch 

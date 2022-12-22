@@ -14,7 +14,7 @@ param EnableBuildAutomation bool = true
 param Environment string = 'd'
 
 @description('The name of the Image Definition for the Shared Image Gallery.')
-param ImageDefinitionName string = 'Win10-21h2-avd-g2'
+param ImageDefinitionName string = 'Win10-22h2-avd-g2'
 
 @allowed([
   'ConfidentialVM'
@@ -23,7 +23,7 @@ param ImageDefinitionName string = 'Win10-21h2-avd-g2'
   'TrustedLaunch'
 ])
 @description('The security type for the Image Definition.')
-param ImageDefinitionSecurityType string = 'Standard'
+param ImageDefinitionSecurityType string = 'TrustedLaunch'
 
 @description('The offer of the marketplace image.')
 param ImageOffer string = 'windows-10'
@@ -32,7 +32,7 @@ param ImageOffer string = 'windows-10'
 param ImagePublisher string = 'microsoftwindowsdesktop'
 
 @description('The SKU of the marketplace image.')
-param ImageSku string = 'win10-21h2-avd-g2'
+param ImageSku string = 'win10-22h2-avd-g2'
 
 @description('The version of the marketplace image.')
 param ImageVersion string = 'latest'
@@ -68,7 +68,7 @@ param Tags object = {}
 param Timestamp string = utcNow('yyyyMMddhhmmss')
 
 @description('The size of the virtual machine used for creating the image.  The recommendation is to use a \'Standard_D2_v2\' size or greater for AVD. https://github.com/danielsollondon/azvmimagebuilder/tree/master/solutions/14_Building_Images_WVD')
-param VirtualMachineSize string = 'Standard_DS2_v2'
+param VirtualMachineSize string = 'Standard_D4s_v5'
 
 @description('The name for the custom virtual network.')
 param VirtualNetworkName string = 'vnet-shd-net-d-eu-000'
@@ -384,7 +384,7 @@ module imageTemplate 'modules/imageTemplate.bicep' = {
   ]
 }
 
-module automationAccount 'modules/automationAccount.bicep' = if(EnableBuildAutomation) {
+module automationAccount 'modules/buildAutomation.bicep' = if(EnableBuildAutomation) {
   name: 'AutomationAccount_${Timestamp}'
   scope: rg
   params: {

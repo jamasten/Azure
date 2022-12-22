@@ -4,8 +4,8 @@
   "metadata": {
     "_generator": {
       "name": "bicep",
-      "version": "0.13.1.58284",
-      "templateHash": "13234613159164208420"
+      "version": "0.11.1.770",
+      "templateHash": "774689538932877918"
     }
   },
   "parameters": {
@@ -409,8 +409,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.13.1.58284",
-              "templateHash": "3990024943289497332"
+              "version": "0.11.1.770",
+              "templateHash": "7813319977205931700"
             }
           },
           "parameters": {
@@ -439,7 +439,7 @@
           "outputs": {
             "userAssignedIdentityPrincipalId": {
               "type": "string",
-              "value": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', format('uai-aib-{0}-{1}', parameters('Environment'), parameters('LocationShortName'))), '2018-11-30').principalId]"
+              "value": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', format('uai-aib-{0}-{1}', parameters('Environment'), parameters('LocationShortName')))).principalId]"
             },
             "userAssignedIdentityResourceId": {
               "type": "string",
@@ -469,7 +469,9 @@
         },
         "mode": "Incremental",
         "parameters": {
-          "PrincipalId": "[if(equals(variables('Roles')[range(0, length(variables('Roles')))[copyIndex()]].name, 'Image Template Build Automation'), createObject('value', reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroup')), 'Microsoft.Resources/deployments', format('AutomationAccount_{0}', parameters('Timestamp'))), '2020-10-01').outputs.principalId.value), createObject('value', reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroup')), 'Microsoft.Resources/deployments', format('UserAssignedIdentity_{0}', parameters('Timestamp'))), '2020-10-01').outputs.userAssignedIdentityPrincipalId.value))]",
+          "PrincipalId": {
+            "value": "[if(equals(variables('Roles')[range(0, length(variables('Roles')))[copyIndex()]].name, 'Image Template Build Automation'), reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroup')), 'Microsoft.Resources/deployments', format('AutomationAccount_{0}', parameters('Timestamp'))), '2020-10-01').outputs.principalId.value, reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroup')), 'Microsoft.Resources/deployments', format('UserAssignedIdentity_{0}', parameters('Timestamp')))).outputs.userAssignedIdentityPrincipalId.value)]"
+          },
           "RoleDefinitionId": {
             "value": "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', guid(variables('Roles')[range(0, length(variables('Roles')))[range(0, length(variables('Roles')))[copyIndex()]]].name, subscription().id))]"
           }
@@ -480,8 +482,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.13.1.58284",
-              "templateHash": "17726642582732145677"
+              "version": "0.11.1.770",
+              "templateHash": "28736842416463721"
             }
           },
           "parameters": {
@@ -541,7 +543,7 @@
         "mode": "Incremental",
         "parameters": {
           "PrincipalId": {
-            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroup')), 'Microsoft.Resources/deployments', format('UserAssignedIdentity_{0}', parameters('Timestamp'))), '2020-10-01').outputs.userAssignedIdentityPrincipalId.value]"
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroup')), 'Microsoft.Resources/deployments', format('UserAssignedIdentity_{0}', parameters('Timestamp')))).outputs.userAssignedIdentityPrincipalId.value]"
           },
           "RoleDefinitionId": {
             "value": "[resourceId('Microsoft.Authorization/roleDefinitions', '2a2b9908-6ea1-4ae2-8e65-a410df84e7d1')]"
@@ -556,8 +558,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.13.1.58284",
-              "templateHash": "17726642582732145677"
+              "version": "0.11.1.770",
+              "templateHash": "28736842416463721"
             }
           },
           "parameters": {
@@ -648,8 +650,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.13.1.58284",
-              "templateHash": "4825771775123260029"
+              "version": "0.11.1.770",
+              "templateHash": "13865406877731289035"
             }
           },
           "parameters": {
@@ -753,7 +755,7 @@
             "value": "[parameters('Timestamp')]"
           },
           "UserAssignedIdentityResourceId": {
-            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroup')), 'Microsoft.Resources/deployments', format('UserAssignedIdentity_{0}', parameters('Timestamp'))), '2020-10-01').outputs.userAssignedIdentityResourceId.value]"
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroup')), 'Microsoft.Resources/deployments', format('UserAssignedIdentity_{0}', parameters('Timestamp')))).outputs.userAssignedIdentityResourceId.value]"
           },
           "VirtualNetworkName": {
             "value": "[parameters('VirtualNetworkName')]"
@@ -768,8 +770,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.13.1.58284",
-              "templateHash": "5585202542335046943"
+              "version": "0.11.1.770",
+              "templateHash": "2674569707574340190"
             }
           },
           "parameters": {
@@ -853,7 +855,7 @@
             "value": "[parameters('ImageDefinitionName')]"
           },
           "ImageDefinitionResourceId": {
-            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroup')), 'Microsoft.Resources/deployments', format('ComputeGallery_{0}', parameters('Timestamp'))), '2020-10-01').outputs.ImageDefinitionResourceId.value]"
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroup')), 'Microsoft.Resources/deployments', format('ComputeGallery_{0}', parameters('Timestamp')))).outputs.ImageDefinitionResourceId.value]"
           },
           "ImageOffer": {
             "value": "[parameters('ImageOffer')]"
@@ -892,7 +894,7 @@
             "value": "[parameters('Timestamp')]"
           },
           "UserAssignedIdentityResourceId": {
-            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroup')), 'Microsoft.Resources/deployments', format('UserAssignedIdentity_{0}', parameters('Timestamp'))), '2020-10-01').outputs.userAssignedIdentityResourceId.value]"
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroup')), 'Microsoft.Resources/deployments', format('UserAssignedIdentity_{0}', parameters('Timestamp')))).outputs.userAssignedIdentityResourceId.value]"
           },
           "VirtualMachineSize": {
             "value": "[parameters('VirtualMachineSize')]"
@@ -910,8 +912,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.13.1.58284",
-              "templateHash": "684775203424037768"
+              "version": "0.11.1.770",
+              "templateHash": "4672487576947353734"
             }
           },
           "parameters": {
@@ -1131,8 +1133,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.13.1.58284",
-              "templateHash": "7800548391684754578"
+              "version": "0.11.1.770",
+              "templateHash": "18091062627423765064"
             }
           },
           "parameters": {
@@ -1292,7 +1294,7 @@
                       "type": "Http",
                       "inputs": {
                         "method": "POST",
-                        "uri": "[reference(resourceId('Microsoft.Automation/automationAccounts/webhooks', parameters('AutomationAccountName'), variables('Webhook')), '2015-10-31').uri]",
+                        "uri": "[reference(resourceId('Microsoft.Automation/automationAccounts/webhooks', parameters('AutomationAccountName'), variables('Webhook'))).uri]",
                         "body": {
                           "EnvironmentName": "[environment().name]",
                           "ImagePublisher": "[parameters('ImagePublisher')]",

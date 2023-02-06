@@ -25,33 +25,30 @@ SOFTWARE.
 Exports an Image Version from an Azure Compute Gallery.
 .DESCRIPTION
 Exports a VHD of a Managed Disk created from an Image Version in an Azure Compute Gallery.  The VHD is saved to the Downloads folder in the user's profile that is running the script.
-.PARAMETER ComputeGalleryDefinitionName
-The name of the Image Definition in the Azure Compute Gallery.
 .PARAMETER ComputeGalleryName
 The name of the Azure Compute Gallery.
 .PARAMETER ComputeGalleryResourceGroupName
 The name of the Resource Group that contains the Azure Compute Gallery.
-.PARAMETER ComputeGalleryVersion
+.PARAMETER ImageDefinitionName
+The name of the Image Definition in the Azure Compute Gallery.
+.PARAMETER ImageVersionName
 The name of the Image Version in the Azure Compute Gallery.
 .NOTES
-  Version:              1.1
+  Version:              1.2
   Author:               Jason Masten
   Creation Date:        2022-05-11
-  Last Modified Date:   2022-11-12
+  Last Modified Date:   2023-02-05
 .EXAMPLE
 .\Export-AzureComputeGalleryImageVersion.ps1 `
-    -ComputeGalleryDefinitionName 'WindowsServer2019Datacenter' `
     -ComputeGalleryName 'cg_shared_d_va' `
     -ComputeGalleryResourceGroupName 'rg-images-d-va' `
-    -ComputeGalleryVersion '1.0.0'
+    -ImageDefinitionName 'WindowsServer2019Datacenter' `
+    -ImageVersionName '1.0.0'
 
 This example creates a Managed Disk from an Image Version in an Azure Compute Gallery. Downloads the VHD of the Managed Disk to the user's Downloads folder and validates the auto-generated MD5 hash.  Once the download completes, the Managed Disk is deleted. 
 #>
 [Cmdletbinding()]
 param(
-
-    [parameter(Mandatory)]
-    [string]$ComputeGalleryDefinitionName,
 
     [parameter(Mandatory)]
     [string]$ComputeGalleryName,
@@ -60,60 +57,74 @@ param(
     [string]$ComputeGalleryResourceGroupName,
 
     [parameter(Mandatory)]
-    [string]$ComputeGalleryVersion
+    [string]$ImageDefinitionName,
 
+    [parameter(Mandatory)]
+    [string]$ImageVersionName
 )
 
 $ErrorActionPreference = 'Stop'
 
-$DiskName = "disk-$($ComputeGalleryDefinitionName)"
+$DiskPrefix = "disk-$($ImageDefinitionName)-"
 $Location = (Get-AzResourceGroup -Name $ComputeGalleryResourceGroupName).Location
 
 # Gets the Image Version ID
 $ImageVersion = Get-AzGalleryImageVersion `
-    -GalleryImageDefinitionName $ComputeGalleryDefinitionName `
+    -GalleryImageDefinitionName $ImageDefinitionName `
     -GalleryName $ComputeGalleryName `
     -ResourceGroupName $ComputeGalleryResourceGroupName `
-    -Name $ComputeGalleryVersion
+    -Name $ImageVersionName
 
 # Gets the OS Type
 $OsType = (Get-AzGalleryImageDefinition `
-    -GalleryImageDefinitionName $ComputeGalleryDefinitionName `
+    -GalleryImageDefinitionName $ImageDefinitionName `
     -GalleryName $ComputeGalleryName `
     -ResourceGroupName $ComputeGalleryResourceGroupName).OsType
 
-# Creates a Disk Configuration for a Managed Disk using the Image Version in the Compute Gallery
-$DiskConfig = New-AzDiskConfig `
-    -Location $Location `
-    -CreateOption FromImage `
-    -GalleryImageReference @{Id = $ImageVersion.Id} `
-    -OsType $OsType
+$ImageDisksCount = $ImageVersion.StorageProfile.OsDiskImage.Count + $ImageVersion.StorageProfile.DataDiskImages.Count
+for($i = 0; $i -lt $ImageDisksCount; $i++)
+{    
+    $GalleryImageReference = if($i -eq 0)
+    {
+        @{Id = $ImageVersion.Id}
+    }
+    else{
+        @{Id = $ImageVersion.Id; Lun = $($i - 1)}
+    }
 
-# Creates a Managed Disk using the Image Version in the Compute Gallery
-$Disk = New-AzDisk `
-    -Disk $DiskConfig `
-    -ResourceGroupName $ComputeGalleryResourceGroupName `
-    -DiskName $DiskName
+    # Creates a Disk Configuration for a Managed Disk using the Image Version in the Compute Gallery
+    $DiskConfig = New-AzDiskConfig `
+        -Location $Location `
+        -CreateOption FromImage `
+        -GalleryImageReference $GalleryImageReference `
+        -OsType $OsType
 
-# Creates a URI with a SAS Token to download the VHD of the Managed Disk
-$DiskAccess = Grant-AzDiskAccess `
-    -ResourceGroupName $Disk.ResourceGroupName `
-    -DiskName $Disk.Name `
-    -Access 'Read' `
-    -DurationInSecond 14400
+    # Creates a Managed Disk using the Image Version in the Compute Gallery
+    $Disk = New-AzDisk `
+        -Disk $DiskConfig `
+        -ResourceGroupName $ComputeGalleryResourceGroupName `
+        -DiskName ($DiskPrefix + $i.ToString())
 
-# Downloads the VHD using 10 concurrent network calls and validates the MD5 hash
-Get-AzStorageBlobContent `
-    -AbsoluteUri $DiskAccess.AccessSAS `
-    -Destination "$($HOME)\Downloads\$($Disk.Name).vhd"
+    # Creates a URI with a SAS Token to download the VHD of the Managed Disk
+    $DiskAccess = Grant-AzDiskAccess `
+        -ResourceGroupName $Disk.ResourceGroupName `
+        -DiskName $Disk.Name `
+        -Access 'Read' `
+        -DurationInSecond 14400
 
-# Revokes the SAS Token to download the VHD
-Revoke-AzDiskAccess `
-    -ResourceGroupName $Disk.ResourceGroupName `
-    -DiskName $Disk.Name
+    # Downloads the VHD using 10 concurrent network calls and validates the MD5 hash
+    Get-AzStorageBlobContent `
+        -AbsoluteUri $DiskAccess.AccessSAS `
+        -Destination "$($HOME)\Downloads\$($Disk.Name).vhd"
 
-# Deletes the Managed Disk
-Remove-AzDisk `
-    -ResourceGroupName $Disk.ResourceGroupName `
-    -DiskName $Disk.Name `
-    -Force
+    # Revokes the SAS Token to download the VHD
+    Revoke-AzDiskAccess `
+        -ResourceGroupName $Disk.ResourceGroupName `
+        -DiskName $Disk.Name
+
+    # Deletes the Managed Disk
+    Remove-AzDisk `
+        -ResourceGroupName $Disk.ResourceGroupName `
+        -DiskName $Disk.Name `
+        -Force
+}

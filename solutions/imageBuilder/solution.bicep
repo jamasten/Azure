@@ -1,6 +1,12 @@
 targetScope = 'subscription'
 
 
+@description('Determine whether you want to install Microsoft Project & Vision in the image.')
+param DeployProjectVisio bool = false
+
+@description('Determine whether you want to run the Virtual Desktop Optimization Tool on the image.')
+param DeployVirtualDesktopOptimizationTool bool = true
+
 @description('Determine whether you want to enable build automation.  This feature will check daily if a new marketplace image exists and will initiate a build if the image date is newer than the last build date.')
 param EnableBuildAutomation bool = true
 
@@ -64,7 +70,7 @@ param SubnetName string = 'Clients'
 
 param Tags object = {}
 
-@description('')
+@description('DO NOT MODIFY THIS VALUE! The timestamp is needed to differentiate deployments for certain Azure resources and must be set using a parameter.')
 param Timestamp string = utcNow('yyyyMMddhhmmss')
 
 @description('The size of the virtual machine used for creating the image.  The recommendation is to use a \'Standard_D2_v2\' size or greater for AVD. https://github.com/danielsollondon/azvmimagebuilder/tree/master/solutions/14_Building_Images_WVD')
@@ -357,6 +363,8 @@ module imageTemplate 'modules/imageTemplate.bicep' = {
   name: 'ImageTemplate_${Timestamp}'
   scope: rg
   params: {
+    DeployProjectVisio: DeployProjectVisio
+    DeployVirtualDesktopOptimizationTool: DeployVirtualDesktopOptimizationTool
     Environment: Environment
     ImageDefinitionName: ImageDefinitionName
     ImageDefinitionResourceId: computeGallery.outputs.ImageDefinitionResourceId

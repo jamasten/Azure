@@ -99,9 +99,13 @@ $StorageSuffix = switch($Environment)
     "AzureUSGovernment" {"core.usgovcloudapi.net"}
 }
 
+
 # Get Domain information
 $Domain = Get-ADDomain `
     -Current 'LocalComputer'
+
+Write-Host "Collected domain information `n"
+
 
 # Create suffix for storage account FQDN
 $FilesSuffix = '.file.' + $StorageSuffix    
@@ -114,7 +118,10 @@ $FilesSuffix = '.file.' + $StorageSuffix
 Connect-AzAccount `
     -Environment $Environment `
     -Tenant $TenantId `
-    -Subscription $SubscriptionId
+    -Subscription $SubscriptionId | Out-Null
+
+Write-Host "Connected to the target Azure Subscription `n"
+
 
 # Create the Kerberos key for the Azure Storage Account
 $Key = (New-AzStorageAccountKey `
@@ -124,29 +131,43 @@ $Key = (New-AzStorageAccountKey `
     | Select-Object -ExpandProperty 'Keys' `
     | Where-Object {$_.Keyname -eq 'kerb1'}).Value
 
+Write-Host "Captured the Kerberos key for the Storage Account `n"
+
+
 # Creates a password for the Azure Storage Account in AD using the Kerberos key
 $ComputerPassword = ConvertTo-SecureString `
     -String $Key `
     -AsPlainText `
     -Force
 
+Write-Host "Created the computer object password for the Azure Storage Account in AD DS `n"
+
+
 # Create the SPN value for the Azure Storage Account; attribute for computer object in AD 
 $SPN = 'cifs/' + $StorageAccountName + $FilesSuffix
+
 
 # Create the Description value for the Azure Storage Account; attribute for computer object in AD 
 $Description = "Computer account object for Azure storage account $($StorageAccountName)."
 
+
 # Check for existing AD computer object for the Azure Storage Account
 $Computer = Get-ADComputer `
     -Filter {Name -eq $StorageAccountName}
+
+Write-Host "Checked for an existing computer object for the Azure Storage Account in AD DS `n"
+
 
 # Remove existing AD computer object for the Azure Storage Account
 if($Computer)
 {
     Remove-ADComputer `
         -Identity $StorageAccountName `
-        -Confirm:$false
+        -Confirm:$false | Out-Null
+
+    Write-Host "Removed an existing computer object for the Azure Storage Account in AD DS `n"
 }
+
 
 # Create AD computer object for the Azure Storage Account
 $ComputerObject = New-ADComputer `
@@ -160,6 +181,9 @@ $ComputerObject = New-ADComputer `
     -Enabled $true `
     -PassThru
 
+Write-Host "Created a new computer object for the Azure Storage Account in AD DS `n"
+
+
 # Update the Azure Storage Account with the domain join 'INFO'
 Set-AzStorageAccount `
     -ResourceGroupName $StorageAccountResourceGroupName `
@@ -172,7 +196,9 @@ Set-AzStorageAccount `
     -ActiveDirectoryDomainSid $Domain.DomainSID `
     -ActiveDirectoryAzureStorageSid $ComputerObject.SID.Value `
     -ActiveDirectorySamAccountName $ComputerObject.SamAccountName `
-    -ActiveDirectoryAccountType 'Computer'
+    -ActiveDirectoryAccountType 'Computer' | Out-Null
+
+Write-Host "Updated the Azure Storage Account with the domain and computer object properties `n"
 
 # Enable AES256 encryption if selected
 if($KerberosEncryptionType -eq 'AES256')
@@ -180,7 +206,10 @@ if($KerberosEncryptionType -eq 'AES256')
     # Set the Kerberos encryption on the computer object
     Set-ADComputer `
         -Identity $ComputerObject.DistinguishedName `
-        -KerberosEncryptionType 'AES256'
+        -KerberosEncryptionType 'AES256' | Out-Null
+
+    Write-Host "Set AES256 Kerberos encryption on the computer object for the Azure Storage Account in AD DS `n"
+
     
     # Reset the Kerberos key on the Storage Account
     $Key = (New-AzStorageAccountKey `
@@ -190,15 +219,23 @@ if($KerberosEncryptionType -eq 'AES256')
         | Select-Object -ExpandProperty 'Keys' `
         | Where-Object {$_.Keyname -eq 'kerb2'}).Value
 
+    Write-Host "Created a new Kerberos key on the Azure Storage Account to support AES256 Kerberos encryption `n"
+
+
     # Capture the Kerberos key as a secure string
     $NewPassword = ConvertTo-SecureString `
         -String $Key `
         -AsPlainText `
         -Force
 
+    Write-Host "Created the computer object password for the Azure Storage Account in AD DS to support AES256 Kerberos encryption `n"
+
+
     # Update the password on the computer object with the new Kerberos key from the Storage Account
     Set-ADAccountPassword `
         -Identity $ComputerObject.DistinguishedName `
         -Reset `
-        -NewPassword $NewPassword
+        -NewPassword $NewPassword | Out-Null
+    
+    Write-Host "Updated the password on the computer object for the Azure Storage Account in AD DS `n"
 }

@@ -5,10 +5,17 @@
     "_generator": {
       "name": "bicep",
       "version": "0.11.1.770",
-      "templateHash": "11902772867629270771"
+      "templateHash": "17209540196229115841"
     }
   },
   "parameters": {
+    "ActionGroupName": {
+      "type": "string",
+      "defaultValue": "",
+      "metadata": {
+        "description": "The name of the action group for sending emails to a distribution group."
+      }
+    },
     "_artifactsLocation": {
       "type": "string",
       "defaultValue": "https://raw.githubusercontent.com/jamasten/Azure/master/solutions/autoIncreasePremiumFileShareQuota/artifacts/",
@@ -29,6 +36,13 @@
         "description": "The name of the Azure Automation Account."
       }
     },
+    "DistributionGroup": {
+      "type": "string",
+      "defaultValue": "",
+      "metadata": {
+        "description": "The distribution group to send alerts to when the file share quota increases."
+      }
+    },
     "FileShareNames": {
       "type": "array",
       "metadata": {
@@ -40,6 +54,13 @@
       "defaultValue": "[resourceGroup().location]",
       "metadata": {
         "description": "The Azure deployment location for the Azure resources."
+      }
+    },
+    "LogAnalyticsWorkspaceResourceId": {
+      "type": "string",
+      "defaultValue": "",
+      "metadata": {
+        "description": "The resource ID for the Log Analytics Workspace to collect runbook logs for alerting and dashboards."
       }
     },
     "LogicAppPrefix": {
@@ -58,6 +79,13 @@
       "type": "string",
       "metadata": {
         "description": "The resource group name of the Azure Storage Account with Azure Files Premium."
+      }
+    },
+    "Tags": {
+      "type": "object",
+      "defaultValue": {},
+      "metadata": {
+        "description": "The tags are metadata that will be appended to each Azure resource."
       }
     },
     "Timestamp": {
@@ -79,6 +107,7 @@
       "apiVersion": "2021-06-22",
       "name": "[parameters('AutomationAccountName')]",
       "location": "[parameters('Location')]",
+      "tags": "[parameters('Tags')]",
       "identity": {
         "type": "SystemAssigned"
       },
@@ -89,10 +118,104 @@
       }
     },
     {
+      "condition": "[not(empty(parameters('LogAnalyticsWorkspaceResourceId')))]",
+      "type": "Microsoft.Insights/diagnosticSettings",
+      "apiVersion": "2017-05-01-preview",
+      "scope": "[format('Microsoft.Automation/automationAccounts/{0}', parameters('AutomationAccountName'))]",
+      "name": "[format('diag-{0}', parameters('AutomationAccountName'))]",
+      "properties": {
+        "logs": [
+          {
+            "category": "JobLogs",
+            "enabled": true
+          },
+          {
+            "category": "JobStreams",
+            "enabled": true
+          }
+        ],
+        "workspaceId": "[parameters('LogAnalyticsWorkspaceResourceId')]"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('AutomationAccountName'))]"
+      ]
+    },
+    {
+      "condition": "[not(empty(parameters('LogAnalyticsWorkspaceResourceId')))]",
+      "type": "microsoft.insights/actionGroups",
+      "apiVersion": "2019-06-01",
+      "name": "[parameters('ActionGroupName')]",
+      "tags": "[parameters('Tags')]",
+      "location": "global",
+      "properties": {
+        "groupShortName": "EmailAlerts",
+        "enabled": true,
+        "emailReceivers": [
+          {
+            "name": "[parameters('DistributionGroup')]",
+            "emailAddress": "[parameters('DistributionGroup')]",
+            "useCommonAlertSchema": true
+          }
+        ]
+      }
+    },
+    {
+      "condition": "[not(empty(parameters('LogAnalyticsWorkspaceResourceId')))]",
+      "type": "Microsoft.Insights/scheduledQueryRules",
+      "apiVersion": "2021-08-01",
+      "name": "Premium File Share Quota Increased",
+      "location": "[parameters('Location')]",
+      "tags": "[parameters('Tags')]",
+      "properties": {
+        "actions": {
+          "actionGroups": [
+            "[resourceId('microsoft.insights/actionGroups', parameters('ActionGroupName'))]"
+          ],
+          "customProperties": {}
+        },
+        "criteria": {
+          "allOf": [
+            {
+              "query": "AzureDiagnostics\n| where ResourceProvider == \"MICROSOFT.AUTOMATION\"\n| where Category  == \"JobStreams\"\n| where ResultDescription has \"Increasing the file share quota\"",
+              "timeAggregation": "Count",
+              "dimensions": [
+                {
+                  "name": "ResultDescription",
+                  "operator": "Include",
+                  "values": [
+                    "*"
+                  ]
+                }
+              ],
+              "operator": "GreaterThanOrEqual",
+              "threshold": 1,
+              "failingPeriods": {
+                "numberOfEvaluationPeriods": 1,
+                "minFailingPeriodsToAlert": 1
+              }
+            }
+          ]
+        },
+        "displayName": "Premium File Share Quota Increased",
+        "description": "Sends an informational alert when the Runbook in the Automation Account increases the quota on a file share in Azure Files Premium.",
+        "enabled": true,
+        "evaluationFrequency": "PT5M",
+        "scopes": [
+          "[parameters('LogAnalyticsWorkspaceResourceId')]"
+        ],
+        "severity": 3,
+        "windowSize": "PT5M"
+      },
+      "dependsOn": [
+        "[resourceId('microsoft.insights/actionGroups', parameters('ActionGroupName'))]"
+      ]
+    },
+    {
       "type": "Microsoft.Automation/automationAccounts/runbooks",
       "apiVersion": "2019-06-01",
       "name": "[format('{0}/{1}', parameters('AutomationAccountName'), 'AvdScaleFileShareQuota')]",
       "location": "[parameters('Location')]",
+      "tags": "[parameters('Tags')]",
       "properties": {
         "runbookType": "PowerShell",
         "logProgress": false,
@@ -131,6 +254,7 @@
       "apiVersion": "2016-06-01",
       "name": "[format('{0}-{1}-{2}', parameters('LogicAppPrefix'), parameters('StorageAccountName'), parameters('FileShareNames')[range(0, length(parameters('FileShareNames')))[copyIndex()]])]",
       "location": "[parameters('Location')]",
+      "tags": "[parameters('Tags')]",
       "properties": {
         "state": "Enabled",
         "definition": {

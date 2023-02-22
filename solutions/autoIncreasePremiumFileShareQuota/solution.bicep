@@ -12,7 +12,7 @@ param AutomationAccountName string
 param FileShareNames array
 
 @description('The Azure deployment location for the Azure resources.')
-param Location string
+param Location string = resourceGroup().location
 
 @description('The name prefix of the Logic App used to trigger the runbook in the Automation Account.')
 param LogicAppPrefix string

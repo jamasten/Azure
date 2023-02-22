@@ -1,0 +1,220 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "0.11.1.770",
+      "templateHash": "3484681898039372824"
+    }
+  },
+  "parameters": {
+    "_artifactsLocation": {
+      "type": "string",
+      "defaultValue": "https://raw.githubusercontent.com/jamasten/Azure/master/solutions/autoIncreasePremiumFileShareQuota/artifacts/",
+      "metadata": {
+        "description": "The URL prefix for linked resources."
+      }
+    },
+    "_artifactsLocationSasToken": {
+      "type": "secureString",
+      "defaultValue": "",
+      "metadata": {
+        "description": "The SAS Token for the scripts if they are stored on an Azure Storage Account."
+      }
+    },
+    "AutomationAccountName": {
+      "type": "string",
+      "metadata": {
+        "description": "The name of the Azure Automation Account."
+      }
+    },
+    "FileShareNames": {
+      "type": "array",
+      "metadata": {
+        "description": "The names of the files shares on Azure Files Premium."
+      }
+    },
+    "Location": {
+      "type": "string",
+      "metadata": {
+        "description": "The Azure deployment location for the Azure resources."
+      }
+    },
+    "LogicAppPrefix": {
+      "type": "string",
+      "metadata": {
+        "description": "The name prefix of the Logic App used to trigger the runbook in the Automation Account."
+      }
+    },
+    "StorageAccountName": {
+      "type": "string",
+      "metadata": {
+        "description": "The name of the Azure Storage Account with Azure Files Premium."
+      }
+    },
+    "StorageResourceGroupName": {
+      "type": "string",
+      "metadata": {
+        "description": "The resource group name of the Azure Storage Account with Azure Files Premium."
+      }
+    },
+    "Timestamp": {
+      "type": "string",
+      "defaultValue": "[utcNow('u')]",
+      "metadata": {
+        "description": "ISO 8601 timestamp used to determine the webhook expiration date.  The webhook is hardcoded to expire 5 years after the timestamp."
+      }
+    }
+  },
+  "variables": {
+    "Environment": "[environment().name]",
+    "StorageAccountContributor": "17d1049b-9a84-46fb-8f53-869881c3d3ab",
+    "SubscriptionId": "[subscription().subscriptionId]"
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Automation/automationAccounts",
+      "apiVersion": "2021-06-22",
+      "name": "[parameters('AutomationAccountName')]",
+      "location": "[parameters('Location')]",
+      "identity": {
+        "type": "SystemAssigned"
+      },
+      "properties": {
+        "sku": {
+          "name": "Free"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/runbooks",
+      "apiVersion": "2019-06-01",
+      "name": "[format('{0}/{1}', parameters('AutomationAccountName'), 'AvdScaleFileShareQuota')]",
+      "location": "[parameters('Location')]",
+      "properties": {
+        "runbookType": "PowerShell",
+        "logProgress": false,
+        "logVerbose": false,
+        "publishContentLink": {
+          "uri": "[format('{0}Set-FileShareScaling.ps1{1}', parameters('_artifactsLocation'), parameters('_artifactsLocationSasToken'))]",
+          "version": "1.0.0.0"
+        }
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('AutomationAccountName'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/webhooks",
+      "apiVersion": "2015-10-31",
+      "name": "[format('{0}/{1}', parameters('AutomationAccountName'), format('{0}_{1}', 'AvdScaleFileShareQuota', dateTimeAdd(parameters('Timestamp'), 'PT0H', 'yyyyMMddhhmmss')))]",
+      "properties": {
+        "isEnabled": true,
+        "expiryTime": "[dateTimeAdd(parameters('Timestamp'), 'P5Y')]",
+        "runbook": {
+          "name": "AvdScaleFileShareQuota"
+        }
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('AutomationAccountName'))]",
+        "[resourceId('Microsoft.Automation/automationAccounts/runbooks', parameters('AutomationAccountName'), 'AvdScaleFileShareQuota')]"
+      ]
+    },
+    {
+      "copy": {
+        "name": "logicApps",
+        "count": "[length(range(0, length(parameters('FileShareNames'))))]"
+      },
+      "type": "Microsoft.Logic/workflows",
+      "apiVersion": "2016-06-01",
+      "name": "[format('{0}-{1}-{2}', parameters('LogicAppPrefix'), parameters('StorageAccountName'), parameters('FileShareNames')[range(0, length(parameters('FileShareNames')))[copyIndex()]])]",
+      "location": "[parameters('Location')]",
+      "properties": {
+        "state": "Enabled",
+        "definition": {
+          "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+          "actions": {
+            "HTTP": {
+              "type": "Http",
+              "inputs": {
+                "method": "POST",
+                "uri": "[reference(resourceId('Microsoft.Automation/automationAccounts/webhooks', parameters('AutomationAccountName'), format('{0}_{1}', 'AvdScaleFileShareQuota', dateTimeAdd(parameters('Timestamp'), 'PT0H', 'yyyyMMddhhmmss')))).uri]",
+                "body": {
+                  "Environment": "[variables('Environment')]",
+                  "FileShareName": "[parameters('FileShareNames')[range(0, length(parameters('FileShareNames')))[copyIndex()]]]",
+                  "ResourceGroupName": "[parameters('StorageResourceGroupName')]",
+                  "StorageAccountName": "[parameters('StorageAccountName')]",
+                  "SubscriptionId": "[variables('SubscriptionId')]"
+                }
+              }
+            }
+          },
+          "triggers": {
+            "Recurrence": {
+              "type": "Recurrence",
+              "recurrence": {
+                "frequency": "Minute",
+                "interval": 15
+              }
+            }
+          }
+        }
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts/webhooks', parameters('AutomationAccountName'), format('{0}_{1}', 'AvdScaleFileShareQuota', dateTimeAdd(parameters('Timestamp'), 'PT0H', 'yyyyMMddhhmmss')))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2020-10-01",
+      "name": "[format('RoleAssignment_{0}', parameters('StorageResourceGroupName'))]",
+      "resourceGroup": "[parameters('StorageResourceGroupName')]",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "AutomationAccountId": {
+            "value": "[reference(resourceId('Microsoft.Automation/automationAccounts', parameters('AutomationAccountName')), '2021-06-22', 'Full').identity.principalId]"
+          },
+          "RoleDefinitionId": {
+            "value": "[variables('StorageAccountContributor')]"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "0.11.1.770",
+              "templateHash": "7968870233891727192"
+            }
+          },
+          "parameters": {
+            "AutomationAccountId": {
+              "type": "string"
+            },
+            "RoleDefinitionId": {
+              "type": "string"
+            }
+          },
+          "resources": [
+            {
+              "type": "Microsoft.Authorization/roleAssignments",
+              "apiVersion": "2022-04-01",
+              "name": "[guid(parameters('AutomationAccountId'), parameters('RoleDefinitionId'), resourceGroup().id)]",
+              "properties": {
+                "roleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', parameters('RoleDefinitionId'))]",
+                "principalId": "[parameters('AutomationAccountId')]",
+                "principalType": "ServicePrincipal"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

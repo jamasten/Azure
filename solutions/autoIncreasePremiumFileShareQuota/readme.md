@@ -11,12 +11,16 @@ The following resources are deployed with this solution:
 - Automation Account
   - Runbook
   - Webhook
+  - Diagnostic Setting (Optional)
 - Logic App
 - Role Assignments
+- Action Group (Optional)
+- Alerts (Optional)
 
 ## Prerequisites
 
 - To deploy this solution, the principal must have Owner privileges on the Azure subscription.
+- To setup the monitoring capabilities with this solution, you must have an existing Log Analytics Workspace.
 
 ## Deployment Options
 

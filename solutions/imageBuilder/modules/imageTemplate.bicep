@@ -1,7 +1,5 @@
 param DeployProjectVisio bool
 param DeployVirtualDesktopOptimizationTool bool
-param Environment string
-param ImageDefinitionName string
 param ImageDefinitionResourceId string
 param ImageOffer string
 param ImagePublisher string
@@ -10,7 +8,7 @@ param ImageStorageAccountType string
 param ImageTemplateName string
 param ImageVersion string
 param Location string
-param LocationShortName string
+param StagingResourceGroupName string
 param StorageUri string
 param SubnetName string
 param Tags object
@@ -103,9 +101,12 @@ resource imageTemplate 'Microsoft.VirtualMachineImages/imageTemplates@2022-02-14
     }
   }
   properties: {
-    stagingResourceGroup: '/subscriptions/${subscription().subscriptionId}/resourceGroups/rg-aib-staging-${toLower(ImageDefinitionName)}-${Environment}-${LocationShortName}'
+    stagingResourceGroup: '/subscriptions/${subscription().subscriptionId}/resourceGroups/${StagingResourceGroupName}'
     buildTimeoutInMinutes: 300
     vmProfile: {
+      userAssignedIdentities: [
+        UserAssignedIdentityResourceId
+      ]
       vmSize: VirtualMachineSize
       vnetConfig: !empty(SubnetName) ? {
         subnetId: resourceId(VirtualNetworkResourceGroupName, 'Microsoft.Network/virtualNetworks/subnets', VirtualNetworkName, SubnetName)

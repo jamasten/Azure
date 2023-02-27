@@ -1,0 +1,988 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "0.10.13.619",
+      "templateHash": "10261754829976547666"
+    }
+  },
+  "parameters": {
+    "Availability": {
+      "type": "string",
+      "defaultValue": "None",
+      "allowedValues": [
+        "AvailabilitySet",
+        "AvailabilityZones",
+        "None"
+      ]
+    },
+    "AvailabilitySetNamePrefix": {
+      "type": "string",
+      "defaultValue": ""
+    },
+    "AvailabilityZones": {
+      "type": "array",
+      "defaultValue": [
+        "1"
+      ]
+    },
+    "DomainServices": {
+      "type": "string",
+      "defaultValue": "ActiveDirectory",
+      "allowedValues": [
+        "ActiveDirectory",
+        "None",
+        "NoneWithIntune"
+      ]
+    },
+    "HostPoolName": {
+      "type": "string",
+      "defaultValue": ""
+    },
+    "HostPoolResourceGroupName": {
+      "type": "string",
+      "defaultValue": ""
+    },
+    "KeyVaultResourceId": {
+      "type": "string",
+      "defaultValue": ""
+    },
+    "SessionHostCount": {
+      "type": "int",
+      "defaultValue": 1
+    },
+    "SessionHostIndex": {
+      "type": "int",
+      "defaultValue": 0
+    },
+    "SessionHostOuPath": {
+      "type": "string",
+      "defaultValue": ""
+    },
+    "SubnetResourceId": {
+      "type": "string",
+      "defaultValue": ""
+    },
+    "Timestamp": {
+      "type": "string",
+      "defaultValue": "[utcNow('yyyyMMddhhmmss')]"
+    },
+    "VirtualMachineLocation": {
+      "type": "string",
+      "defaultValue": "[deployment().location]"
+    },
+    "VirtualMachineResourceGroupName": {
+      "type": "string",
+      "defaultValue": ""
+    }
+  },
+  "variables": {
+    "MaxResourcesPerTemplateDeployment": 133,
+    "DivisionValue": "[div(parameters('SessionHostCount'), variables('MaxResourcesPerTemplateDeployment'))]",
+    "DivisionRemainderValue": "[mod(parameters('SessionHostCount'), variables('MaxResourcesPerTemplateDeployment'))]",
+    "SessionHostBatchCount": "[if(greater(variables('DivisionRemainderValue'), 0), add(variables('DivisionValue'), 1), variables('DivisionValue'))]",
+    "MaxAvSetCount": 200,
+    "DivisionAvSetValue": "[div(parameters('SessionHostCount'), variables('MaxAvSetCount'))]",
+    "DivisionAvSetRemainderValue": "[mod(parameters('SessionHostCount'), variables('MaxAvSetCount'))]",
+    "AvailabilitySetCount": "[if(greater(variables('DivisionAvSetRemainderValue'), 0), add(variables('DivisionAvSetValue'), 1), variables('DivisionAvSetValue'))]",
+    "KeyVaultName": "[split(parameters('KeyVaultResourceId'), '/')[8]]",
+    "KeyVaultResourceGroupName": "[split(parameters('KeyVaultResourceId'), '/')[4]]",
+    "KeyVaultSubscriptionId": "[split(parameters('KeyVaultResourceId'), '/')[2]]"
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2020-10-01",
+      "name": "[format('ExistingHostPool_{0}', parameters('Timestamp'))]",
+      "resourceGroup": "[parameters('HostPoolResourceGroupName')]",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "HostPoolName": {
+            "value": "[parameters('HostPoolName')]"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "0.10.13.619",
+              "templateHash": "10536739605386557567"
+            }
+          },
+          "parameters": {
+            "HostPoolName": {
+              "type": "string"
+            }
+          },
+          "resources": [],
+          "outputs": {
+            "Location": {
+              "type": "string",
+              "value": "[reference(resourceId('Microsoft.DesktopVirtualization/hostPools', parameters('HostPoolName')), '2022-09-09', 'full').location]"
+            },
+            "Properties": {
+              "type": "object",
+              "value": "[reference(resourceId('Microsoft.DesktopVirtualization/hostPools', parameters('HostPoolName')), '2022-09-09')]"
+            },
+            "Tags": {
+              "type": "object",
+              "value": "[reference(resourceId('Microsoft.DesktopVirtualization/hostPools', parameters('HostPoolName')), '2022-09-09', 'full').tags]"
+            },
+            "VMTemplate": {
+              "type": "object",
+              "value": "[json(reference(resourceId('Microsoft.DesktopVirtualization/hostPools', parameters('HostPoolName')), '2022-09-09').vmTemplate)]"
+            }
+          }
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2020-10-01",
+      "name": "[format('HostPoolRegistrationToken_{0}', parameters('Timestamp'))]",
+      "resourceGroup": "[parameters('HostPoolResourceGroupName')]",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "HostPoolName": {
+            "value": "[parameters('HostPoolName')]"
+          },
+          "HostPoolType": {
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('HostPoolResourceGroupName')), 'Microsoft.Resources/deployments', format('ExistingHostPool_{0}', parameters('Timestamp')))).outputs.Properties.value.HostPoolType]"
+          },
+          "LoadBalancerType": {
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('HostPoolResourceGroupName')), 'Microsoft.Resources/deployments', format('ExistingHostPool_{0}', parameters('Timestamp')))).outputs.Properties.value.LoadBalancerType]"
+          },
+          "Location": {
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('HostPoolResourceGroupName')), 'Microsoft.Resources/deployments', format('ExistingHostPool_{0}', parameters('Timestamp')))).outputs.Location.value]"
+          },
+          "PreferredAppGroupType": {
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('HostPoolResourceGroupName')), 'Microsoft.Resources/deployments', format('ExistingHostPool_{0}', parameters('Timestamp')))).outputs.Properties.value.PreferredAppGroupType]"
+          },
+          "Tags": {
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('HostPoolResourceGroupName')), 'Microsoft.Resources/deployments', format('ExistingHostPool_{0}', parameters('Timestamp')))).outputs.Tags.value]"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "0.10.13.619",
+              "templateHash": "12716473410376045562"
+            }
+          },
+          "parameters": {
+            "HostPoolName": {
+              "type": "string"
+            },
+            "HostPoolType": {
+              "type": "string"
+            },
+            "LoadBalancerType": {
+              "type": "string"
+            },
+            "Location": {
+              "type": "string"
+            },
+            "PreferredAppGroupType": {
+              "type": "string"
+            },
+            "Tags": {
+              "type": "object"
+            },
+            "Timestamp": {
+              "type": "string",
+              "defaultValue": "[utcNow('u')]"
+            }
+          },
+          "resources": [
+            {
+              "type": "Microsoft.DesktopVirtualization/hostPools",
+              "apiVersion": "2022-09-09",
+              "name": "[parameters('HostPoolName')]",
+              "location": "[parameters('Location')]",
+              "tags": "[parameters('Tags')]",
+              "properties": {
+                "hostPoolType": "[parameters('HostPoolType')]",
+                "loadBalancerType": "[parameters('LoadBalancerType')]",
+                "preferredAppGroupType": "[parameters('PreferredAppGroupType')]",
+                "registrationInfo": {
+                  "expirationTime": "[dateTimeAdd(parameters('Timestamp'), 'PT2H')]",
+                  "registrationTokenOperation": "Update"
+                }
+              }
+            }
+          ]
+        }
+      },
+      "dependsOn": [
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('HostPoolResourceGroupName')), 'Microsoft.Resources/deployments', format('ExistingHostPool_{0}', parameters('Timestamp')))]"
+      ]
+    },
+    {
+      "copy": {
+        "name": "sessionHosts",
+        "count": "[length(range(1, variables('SessionHostBatchCount')))]",
+        "mode": "serial",
+        "batchSize": 1
+      },
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2020-10-01",
+      "name": "[format('SessionHosts_{0}_{1}', range(1, variables('SessionHostBatchCount'))[copyIndex()], parameters('Timestamp'))]",
+      "resourceGroup": "[parameters('VirtualMachineResourceGroupName')]",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "Availability": {
+            "value": "[parameters('Availability')]"
+          },
+          "AvailabilitySetNamePrefix": {
+            "value": "[parameters('AvailabilitySetNamePrefix')]"
+          },
+          "AvailabilitySetCount": {
+            "value": "[variables('AvailabilitySetCount')]"
+          },
+          "AvailabilityZones": {
+            "value": "[parameters('AvailabilityZones')]"
+          },
+          "DiskSku": {
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('HostPoolResourceGroupName')), 'Microsoft.Resources/deployments', format('ExistingHostPool_{0}', parameters('Timestamp')))).outputs.VMTemplate.value.osDiskType]"
+          },
+          "DomainName": {
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('HostPoolResourceGroupName')), 'Microsoft.Resources/deployments', format('ExistingHostPool_{0}', parameters('Timestamp')))).outputs.VMTemplate.value.domain]"
+          },
+          "DomainServices": {
+            "value": "[parameters('DomainServices')]"
+          },
+          "HostPoolName": {
+            "value": "[parameters('HostPoolName')]"
+          },
+          "HostPoolResourceGroupName": {
+            "value": "[parameters('HostPoolResourceGroupName')]"
+          },
+          "ImageId": {
+            "value": "[if(empty(reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('HostPoolResourceGroupName')), 'Microsoft.Resources/deployments', format('ExistingHostPool_{0}', parameters('Timestamp')))).outputs.VMTemplate.value.customImageId), '', reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('HostPoolResourceGroupName')), 'Microsoft.Resources/deployments', format('ExistingHostPool_{0}', parameters('Timestamp')))).outputs.VMTemplate.value.customImageId)]"
+          },
+          "ImageOffer": {
+            "value": "[if(empty(reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('HostPoolResourceGroupName')), 'Microsoft.Resources/deployments', format('ExistingHostPool_{0}', parameters('Timestamp')))).outputs.VMTemplate.value.galleryImageOffer), '', reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('HostPoolResourceGroupName')), 'Microsoft.Resources/deployments', format('ExistingHostPool_{0}', parameters('Timestamp')))).outputs.VMTemplate.value.galleryImageOffer)]"
+          },
+          "ImagePublisher": {
+            "value": "[if(empty(reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('HostPoolResourceGroupName')), 'Microsoft.Resources/deployments', format('ExistingHostPool_{0}', parameters('Timestamp')))).outputs.VMTemplate.value.galleryImagePublisher), '', reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('HostPoolResourceGroupName')), 'Microsoft.Resources/deployments', format('ExistingHostPool_{0}', parameters('Timestamp')))).outputs.VMTemplate.value.galleryImagePublisher)]"
+          },
+          "ImageSku": {
+            "value": "[if(empty(reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('HostPoolResourceGroupName')), 'Microsoft.Resources/deployments', format('ExistingHostPool_{0}', parameters('Timestamp')))).outputs.VMTemplate.value.galleryImageSku), '', reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('HostPoolResourceGroupName')), 'Microsoft.Resources/deployments', format('ExistingHostPool_{0}', parameters('Timestamp')))).outputs.VMTemplate.value.galleryImageSku)]"
+          },
+          "ImageType": {
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('HostPoolResourceGroupName')), 'Microsoft.Resources/deployments', format('ExistingHostPool_{0}', parameters('Timestamp')))).outputs.VMTemplate.value.imageType]"
+          },
+          "ImageVersion": {
+            "value": "latest"
+          },
+          "KeyVaultName": {
+            "value": "[variables('KeyVaultName')]"
+          },
+          "KeyVaultResourceGroupName": {
+            "value": "[variables('KeyVaultResourceGroupName')]"
+          },
+          "KeyVaultSubscriptionId": {
+            "value": "[variables('KeyVaultSubscriptionId')]"
+          },
+          "Location": {
+            "value": "[parameters('VirtualMachineLocation')]"
+          },
+          "SessionHostOuPath": {
+            "value": "[parameters('SessionHostOuPath')]"
+          },
+          "SessionHostCount": {
+            "value": "[if(and(equals(range(1, variables('SessionHostBatchCount'))[copyIndex()], variables('SessionHostBatchCount')), greater(variables('DivisionRemainderValue'), 0)), variables('DivisionRemainderValue'), variables('MaxResourcesPerTemplateDeployment'))]"
+          },
+          "SessionHostIndex": {
+            "value": "[if(equals(range(1, variables('SessionHostBatchCount'))[copyIndex()], 1), parameters('SessionHostIndex'), add(mul(sub(range(1, variables('SessionHostBatchCount'))[copyIndex()], 1), variables('MaxResourcesPerTemplateDeployment')), parameters('SessionHostIndex')))]"
+          },
+          "SubnetResourceId": {
+            "value": "[parameters('SubnetResourceId')]"
+          },
+          "Timestamp": {
+            "value": "[parameters('Timestamp')]"
+          },
+          "TrustedLaunch": {
+            "value": "[if(equals(reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('HostPoolResourceGroupName')), 'Microsoft.Resources/deployments', format('ExistingHostPool_{0}', parameters('Timestamp')))).outputs.VMTemplate.value.securityType, 'TrustedLaunch'), true(), false())]"
+          },
+          "VirtualMachineNamePrefix": {
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('HostPoolResourceGroupName')), 'Microsoft.Resources/deployments', format('ExistingHostPool_{0}', parameters('Timestamp')))).outputs.VMTemplate.value.namePrefix]"
+          },
+          "VirtualMachineSize": {
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('HostPoolResourceGroupName')), 'Microsoft.Resources/deployments', format('ExistingHostPool_{0}', parameters('Timestamp')))).outputs.VMTemplate.value.vmSize.id]"
+          },
+          "VirtualMachineTags": {
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('HostPoolResourceGroupName')), 'Microsoft.Resources/deployments', format('ExistingHostPool_{0}', parameters('Timestamp')))).outputs.Tags.value]"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "0.10.13.619",
+              "templateHash": "2124765264690833282"
+            }
+          },
+          "parameters": {
+            "Availability": {
+              "type": "string"
+            },
+            "AvailabilitySetCount": {
+              "type": "int"
+            },
+            "AvailabilitySetNamePrefix": {
+              "type": "string"
+            },
+            "AvailabilityZones": {
+              "type": "array"
+            },
+            "DiskSku": {
+              "type": "string"
+            },
+            "DomainName": {
+              "type": "string"
+            },
+            "DomainServices": {
+              "type": "string"
+            },
+            "HostPoolName": {
+              "type": "string"
+            },
+            "HostPoolResourceGroupName": {
+              "type": "string"
+            },
+            "ImageId": {
+              "type": "string"
+            },
+            "ImageOffer": {
+              "type": "string"
+            },
+            "ImagePublisher": {
+              "type": "string"
+            },
+            "ImageSku": {
+              "type": "string"
+            },
+            "ImageType": {
+              "type": "string"
+            },
+            "ImageVersion": {
+              "type": "string"
+            },
+            "KeyVaultName": {
+              "type": "string"
+            },
+            "KeyVaultResourceGroupName": {
+              "type": "string"
+            },
+            "KeyVaultSubscriptionId": {
+              "type": "string"
+            },
+            "Location": {
+              "type": "string"
+            },
+            "SessionHostCount": {
+              "type": "int"
+            },
+            "SessionHostIndex": {
+              "type": "int"
+            },
+            "SessionHostOuPath": {
+              "type": "string"
+            },
+            "SubnetResourceId": {
+              "type": "string"
+            },
+            "Timestamp": {
+              "type": "string"
+            },
+            "TrustedLaunch": {
+              "type": "bool"
+            },
+            "UserAssignedIdentity": {
+              "type": "string",
+              "defaultValue": ""
+            },
+            "VirtualMachineNamePrefix": {
+              "type": "string"
+            },
+            "VirtualMachineSize": {
+              "type": "string"
+            },
+            "VirtualMachineTags": {
+              "type": "object"
+            }
+          },
+          "variables": {
+            "Intune": "[if(equals(parameters('DomainServices'), 'NoneWithIntune'), true(), false())]",
+            "NetworkInterfaceNamePrefix": "[format('nic-{0}-', parameters('VirtualMachineNamePrefix'))]",
+            "VmIdentityType": "[if(contains(parameters('DomainServices'), 'None'), if(not(empty(parameters('UserAssignedIdentity'))), 'SystemAssigned, UserAssigned', 'SystemAssigned'), if(not(empty(parameters('UserAssignedIdentity'))), 'UserAssigned', 'None'))]",
+            "VmIdentityTypeProperty": {
+              "type": "[variables('VmIdentityType')]"
+            },
+            "VmUserAssignedIdentityProperty": {
+              "userAssignedIdentities": {
+                "[format('{0}', resourceId('Microsoft.ManagedIdentity/userAssignedIdentities/', parameters('UserAssignedIdentity')))]": {}
+              }
+            },
+            "VirtualMachineIdentity": "[if(not(empty(parameters('UserAssignedIdentity'))), union(variables('VmIdentityTypeProperty'), variables('VmUserAssignedIdentityProperty')), variables('VmIdentityTypeProperty'))]"
+          },
+          "resources": [
+            {
+              "copy": {
+                "name": "networkInterfaces",
+                "count": "[length(range(0, parameters('SessionHostCount')))]"
+              },
+              "type": "Microsoft.Network/networkInterfaces",
+              "apiVersion": "2020-05-01",
+              "name": "[format('{0}{1}', variables('NetworkInterfaceNamePrefix'), padLeft(add(range(0, parameters('SessionHostCount'))[copyIndex()], parameters('SessionHostIndex')), 3, '0'))]",
+              "location": "[parameters('Location')]",
+              "tags": "[parameters('VirtualMachineTags')]",
+              "properties": {
+                "ipConfigurations": [
+                  {
+                    "name": "ipconfig",
+                    "properties": {
+                      "privateIPAllocationMethod": "Dynamic",
+                      "subnet": {
+                        "id": "[parameters('SubnetResourceId')]"
+                      },
+                      "primary": true,
+                      "privateIPAddressVersion": "IPv4"
+                    }
+                  }
+                ],
+                "enableAcceleratedNetworking": true,
+                "enableIPForwarding": false
+              }
+            },
+            {
+              "copy": {
+                "name": "customScriptExtension",
+                "count": "[length(range(0, parameters('SessionHostCount')))]"
+              },
+              "type": "Microsoft.Compute/virtualMachines/extensions",
+              "apiVersion": "2021-03-01",
+              "name": "[format('{0}{1}/CustomScriptExtension', parameters('VirtualMachineNamePrefix'), padLeft(add(range(0, parameters('SessionHostCount'))[copyIndex()], parameters('SessionHostIndex')), 3, '0'))]",
+              "location": "[parameters('Location')]",
+              "tags": "[parameters('VirtualMachineTags')]",
+              "properties": {
+                "publisher": "Microsoft.Compute",
+                "type": "CustomScriptExtension",
+                "typeHandlerVersion": "1.10",
+                "autoUpgradeMinorVersion": true,
+                "settings": {
+                  "fileUris": [
+                    "https://raw.githubusercontent.com/mikedzikowski/AVDRipAndReplace/main/templateSpec/scripts/Set-SessionHostConfiguration.ps1"
+                  ],
+                  "timestamp": "[parameters('Timestamp')]"
+                },
+                "protectedSettings": {
+                  "commandToExecute": "[format('powershell -ExecutionPolicy Unrestricted -File Set-SessionHostConfiguration.ps1 -HostPoolRegistrationToken \"{0}\"', reference(resourceId(parameters('HostPoolResourceGroupName'), 'Microsoft.DesktopVirtualization/hostpools', parameters('HostPoolName')), '2019-12-10-preview').registrationInfo.token)]"
+                }
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Resources/deployments', format('VirtualMachines_{0}', parameters('Timestamp')))]"
+              ]
+            },
+            {
+              "condition": "[contains(parameters('DomainServices'), 'None')]",
+              "copy": {
+                "name": "aadLoginForWindows",
+                "count": "[length(range(0, parameters('SessionHostCount')))]"
+              },
+              "type": "Microsoft.Compute/virtualMachines/extensions",
+              "apiVersion": "2021-03-01",
+              "name": "[format('{0}{1}/AADLoginForWindows', parameters('VirtualMachineNamePrefix'), padLeft(add(range(0, parameters('SessionHostCount'))[copyIndex()], parameters('SessionHostIndex')), 3, '0'))]",
+              "location": "[parameters('Location')]",
+              "tags": "[parameters('VirtualMachineTags')]",
+              "properties": {
+                "publisher": "Microsoft.Azure.ActiveDirectory",
+                "type": "AADLoginForWindows",
+                "typeHandlerVersion": "1.0",
+                "autoUpgradeMinorVersion": true,
+                "settings": "[if(variables('Intune'), createObject('mdmId', '0000000a-0000-0000-c000-000000000000'), json('null'))]"
+              },
+              "dependsOn": [
+                "customScriptExtension",
+                "[resourceId('Microsoft.Resources/deployments', format('VirtualMachines_{0}', parameters('Timestamp')))]"
+              ]
+            },
+            {
+              "condition": "[equals(parameters('Availability'), 'AvailabilitySet')]",
+              "type": "Microsoft.Resources/deployments",
+              "apiVersion": "2020-10-01",
+              "name": "[format('AvailabilitySets_{0}', parameters('Timestamp'))]",
+              "properties": {
+                "expressionEvaluationOptions": {
+                  "scope": "inner"
+                },
+                "mode": "Incremental",
+                "parameters": {
+                  "AvailabilitySetCount": {
+                    "value": "[parameters('AvailabilitySetCount')]"
+                  },
+                  "AvailabilitySetNamePrefix": {
+                    "value": "[parameters('AvailabilitySetNamePrefix')]"
+                  },
+                  "Location": {
+                    "value": "[parameters('Location')]"
+                  },
+                  "Tags": {
+                    "value": "[parameters('VirtualMachineTags')]"
+                  }
+                },
+                "template": {
+                  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                  "contentVersion": "1.0.0.0",
+                  "metadata": {
+                    "_generator": {
+                      "name": "bicep",
+                      "version": "0.10.13.619",
+                      "templateHash": "13787391942353127970"
+                    }
+                  },
+                  "parameters": {
+                    "AvailabilitySetCount": {
+                      "type": "int"
+                    },
+                    "AvailabilitySetNamePrefix": {
+                      "type": "string"
+                    },
+                    "Location": {
+                      "type": "string"
+                    },
+                    "Tags": {
+                      "type": "object"
+                    }
+                  },
+                  "resources": [
+                    {
+                      "copy": {
+                        "name": "availabilitySet",
+                        "count": "[length(range(0, parameters('AvailabilitySetCount')))]"
+                      },
+                      "type": "Microsoft.Compute/availabilitySets",
+                      "apiVersion": "2019-07-01",
+                      "name": "[format('{0}{1}', parameters('AvailabilitySetNamePrefix'), range(0, parameters('AvailabilitySetCount'))[copyIndex()])]",
+                      "location": "[parameters('Location')]",
+                      "tags": "[parameters('Tags')]",
+                      "sku": {
+                        "name": "Aligned"
+                      },
+                      "properties": {
+                        "platformUpdateDomainCount": 5,
+                        "platformFaultDomainCount": 2
+                      }
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "type": "Microsoft.Resources/deployments",
+              "apiVersion": "2020-10-01",
+              "name": "[format('VirtualMachines_{0}', parameters('Timestamp'))]",
+              "properties": {
+                "expressionEvaluationOptions": {
+                  "scope": "inner"
+                },
+                "mode": "Incremental",
+                "parameters": {
+                  "Availability": {
+                    "value": "[parameters('Availability')]"
+                  },
+                  "AvailabilitySetNamePrefix": {
+                    "value": "[parameters('AvailabilitySetNamePrefix')]"
+                  },
+                  "AvailabilityZones": {
+                    "value": "[parameters('AvailabilityZones')]"
+                  },
+                  "DiskSku": {
+                    "value": "[parameters('DiskSku')]"
+                  },
+                  "ImageId": {
+                    "value": "[parameters('ImageId')]"
+                  },
+                  "ImageOffer": {
+                    "value": "[parameters('ImageOffer')]"
+                  },
+                  "ImagePublisher": {
+                    "value": "[parameters('ImagePublisher')]"
+                  },
+                  "ImageSku": {
+                    "value": "[parameters('ImageSku')]"
+                  },
+                  "ImageType": {
+                    "value": "[parameters('ImageType')]"
+                  },
+                  "ImageVersion": {
+                    "value": "[parameters('ImageVersion')]"
+                  },
+                  "Location": {
+                    "value": "[parameters('Location')]"
+                  },
+                  "NetworkInterfaceNamePrefix": {
+                    "value": "[variables('NetworkInterfaceNamePrefix')]"
+                  },
+                  "SessionHostCount": {
+                    "value": "[parameters('SessionHostCount')]"
+                  },
+                  "SessionHostIndex": {
+                    "value": "[parameters('SessionHostIndex')]"
+                  },
+                  "Tags": {
+                    "value": "[parameters('VirtualMachineTags')]"
+                  },
+                  "TrustedLaunch": {
+                    "value": "[parameters('TrustedLaunch')]"
+                  },
+                  "VirtualMachineIdentity": {
+                    "value": "[variables('VirtualMachineIdentity')]"
+                  },
+                  "VirtualMachineNamePrefix": {
+                    "value": "[parameters('VirtualMachineNamePrefix')]"
+                  },
+                  "VirtualMachinePassword": {
+                    "reference": {
+                      "keyVault": {
+                        "id": "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('KeyVaultSubscriptionId'), parameters('KeyVaultResourceGroupName')), 'Microsoft.KeyVault/vaults', parameters('KeyVaultName'))]"
+                      },
+                      "secretName": "LocalAdminPassword"
+                    }
+                  },
+                  "VirtualMachineSize": {
+                    "value": "[parameters('VirtualMachineSize')]"
+                  },
+                  "VirtualMachineUsername": {
+                    "reference": {
+                      "keyVault": {
+                        "id": "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('KeyVaultSubscriptionId'), parameters('KeyVaultResourceGroupName')), 'Microsoft.KeyVault/vaults', parameters('KeyVaultName'))]"
+                      },
+                      "secretName": "LocalAdminUsername"
+                    }
+                  }
+                },
+                "template": {
+                  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                  "contentVersion": "1.0.0.0",
+                  "metadata": {
+                    "_generator": {
+                      "name": "bicep",
+                      "version": "0.10.13.619",
+                      "templateHash": "4790076691786577874"
+                    }
+                  },
+                  "parameters": {
+                    "Availability": {
+                      "type": "string"
+                    },
+                    "AvailabilitySetNamePrefix": {
+                      "type": "string"
+                    },
+                    "AvailabilityZones": {
+                      "type": "array"
+                    },
+                    "DiskSku": {
+                      "type": "string"
+                    },
+                    "ImageId": {
+                      "type": "string"
+                    },
+                    "ImageOffer": {
+                      "type": "string"
+                    },
+                    "ImagePublisher": {
+                      "type": "string"
+                    },
+                    "ImageSku": {
+                      "type": "string"
+                    },
+                    "ImageType": {
+                      "type": "string"
+                    },
+                    "ImageVersion": {
+                      "type": "string"
+                    },
+                    "Location": {
+                      "type": "string"
+                    },
+                    "NetworkInterfaceNamePrefix": {
+                      "type": "string"
+                    },
+                    "SessionHostCount": {
+                      "type": "int"
+                    },
+                    "SessionHostIndex": {
+                      "type": "int"
+                    },
+                    "Tags": {
+                      "type": "object"
+                    },
+                    "TrustedLaunch": {
+                      "type": "bool"
+                    },
+                    "VirtualMachineIdentity": {
+                      "type": "object"
+                    },
+                    "VirtualMachineNamePrefix": {
+                      "type": "string"
+                    },
+                    "VirtualMachinePassword": {
+                      "type": "secureString"
+                    },
+                    "VirtualMachineSize": {
+                      "type": "string"
+                    },
+                    "VirtualMachineUsername": {
+                      "type": "secureString"
+                    }
+                  },
+                  "variables": {
+                    "DiskNamePrefix": "[format('disk-{0}-', parameters('VirtualMachineNamePrefix'))]",
+                    "ImageReferences": {
+                      "Custom": {
+                        "id": "[parameters('ImageId')]"
+                      },
+                      "Gallery": {
+                        "publisher": "[parameters('ImagePublisher')]",
+                        "offer": "[parameters('ImageOffer')]",
+                        "sku": "[parameters('ImageSku')]",
+                        "version": "[parameters('ImageVersion')]"
+                      }
+                    }
+                  },
+                  "resources": [
+                    {
+                      "copy": {
+                        "name": "virtualMachines",
+                        "count": "[length(range(0, parameters('SessionHostCount')))]"
+                      },
+                      "type": "Microsoft.Compute/virtualMachines",
+                      "apiVersion": "2021-11-01",
+                      "name": "[format('{0}{1}', parameters('VirtualMachineNamePrefix'), padLeft(add(range(0, parameters('SessionHostCount'))[copyIndex()], parameters('SessionHostIndex')), 3, '0'))]",
+                      "location": "[parameters('Location')]",
+                      "tags": "[parameters('Tags')]",
+                      "identity": "[parameters('VirtualMachineIdentity')]",
+                      "zones": "[if(equals(parameters('Availability'), 'AvailabilityZones'), createArray(string(parameters('AvailabilityZones')[mod(range(0, parameters('SessionHostCount'))[copyIndex()], length(parameters('AvailabilityZones')))])), null())]",
+                      "properties": {
+                        "availabilitySet": "[if(equals(parameters('Availability'), 'AvailabilitySet'), createObject('id', resourceId('Microsoft.Compute/availabilitySets', format('{0}{1}', parameters('AvailabilitySetNamePrefix'), div(add(range(0, parameters('SessionHostCount'))[copyIndex()], parameters('SessionHostIndex')), 200)))), null())]",
+                        "hardwareProfile": {
+                          "vmSize": "[parameters('VirtualMachineSize')]"
+                        },
+                        "storageProfile": {
+                          "imageReference": "[if(equals(parameters('ImageType'), 'Gallery'), variables('ImageReferences').Gallery, variables('ImageReferences').Custom)]",
+                          "osDisk": {
+                            "deleteOption": "Delete",
+                            "createOption": "FromImage",
+                            "caching": "None",
+                            "managedDisk": {
+                              "storageAccountType": "[parameters('DiskSku')]"
+                            },
+                            "name": "[format('{0}{1}', variables('DiskNamePrefix'), padLeft(add(range(0, parameters('SessionHostCount'))[copyIndex()], parameters('SessionHostIndex')), 3, '0'))]",
+                            "osType": "Windows"
+                          },
+                          "dataDisks": []
+                        },
+                        "osProfile": {
+                          "computerName": "[format('{0}{1}', parameters('VirtualMachineNamePrefix'), padLeft(add(range(0, parameters('SessionHostCount'))[copyIndex()], parameters('SessionHostIndex')), 3, '0'))]",
+                          "adminUsername": "[parameters('VirtualMachineUsername')]",
+                          "adminPassword": "[parameters('VirtualMachinePassword')]",
+                          "windowsConfiguration": {
+                            "provisionVMAgent": true,
+                            "enableAutomaticUpdates": false
+                          },
+                          "secrets": [],
+                          "allowExtensionOperations": true
+                        },
+                        "networkProfile": {
+                          "networkInterfaces": [
+                            {
+                              "id": "[resourceId('Microsoft.Network/networkInterfaces', format('{0}{1}', parameters('NetworkInterfaceNamePrefix'), padLeft(add(range(0, parameters('SessionHostCount'))[copyIndex()], parameters('SessionHostIndex')), 3, '0')))]",
+                              "properties": {
+                                "deleteOption": "Delete"
+                              }
+                            }
+                          ]
+                        },
+                        "securityProfile": {
+                          "uefiSettings": "[if(parameters('TrustedLaunch'), createObject('secureBootEnabled', true(), 'vTpmEnabled', true()), null())]",
+                          "securityType": "[if(parameters('TrustedLaunch'), 'TrustedLaunch', null())]"
+                        },
+                        "diagnosticsProfile": {
+                          "bootDiagnostics": {
+                            "enabled": false
+                          }
+                        },
+                        "licenseType": "[if(equals(parameters('ImagePublisher'), 'MicrosoftWindowsServer'), 'Windows_Server', 'Windows_Client')]"
+                      }
+                    }
+                  ]
+                }
+              },
+              "dependsOn": [
+                "networkInterfaces"
+              ]
+            },
+            {
+              "condition": "[contains(parameters('DomainServices'), 'ActiveDirectory')]",
+              "type": "Microsoft.Resources/deployments",
+              "apiVersion": "2020-10-01",
+              "name": "[format('JsonADDomainExtension_{0}', parameters('Timestamp'))]",
+              "properties": {
+                "expressionEvaluationOptions": {
+                  "scope": "inner"
+                },
+                "mode": "Incremental",
+                "parameters": {
+                  "DomainJoinPassword": {
+                    "reference": {
+                      "keyVault": {
+                        "id": "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('KeyVaultSubscriptionId'), parameters('KeyVaultResourceGroupName')), 'Microsoft.KeyVault/vaults', parameters('KeyVaultName'))]"
+                      },
+                      "secretName": "DomainPassword"
+                    }
+                  },
+                  "DomainJoinUserPrincipalName": {
+                    "reference": {
+                      "keyVault": {
+                        "id": "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('KeyVaultSubscriptionId'), parameters('KeyVaultResourceGroupName')), 'Microsoft.KeyVault/vaults', parameters('KeyVaultName'))]"
+                      },
+                      "secretName": "DomainUserPrincipalName"
+                    }
+                  },
+                  "DomainName": {
+                    "value": "[parameters('DomainName')]"
+                  },
+                  "Location": {
+                    "value": "[parameters('Location')]"
+                  },
+                  "SessionHostCount": {
+                    "value": "[parameters('SessionHostCount')]"
+                  },
+                  "SessionHostIndex": {
+                    "value": "[parameters('SessionHostIndex')]"
+                  },
+                  "SessionHostOuPath": {
+                    "value": "[parameters('SessionHostOuPath')]"
+                  },
+                  "Tags": {
+                    "value": "[parameters('VirtualMachineTags')]"
+                  },
+                  "Timestamp": {
+                    "value": "[parameters('Timestamp')]"
+                  },
+                  "VirtualMachineNamePrefix": {
+                    "value": "[parameters('VirtualMachineNamePrefix')]"
+                  }
+                },
+                "template": {
+                  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                  "contentVersion": "1.0.0.0",
+                  "metadata": {
+                    "_generator": {
+                      "name": "bicep",
+                      "version": "0.10.13.619",
+                      "templateHash": "5984906624893315304"
+                    }
+                  },
+                  "parameters": {
+                    "DomainJoinPassword": {
+                      "type": "secureString"
+                    },
+                    "DomainJoinUserPrincipalName": {
+                      "type": "secureString"
+                    },
+                    "DomainName": {
+                      "type": "string"
+                    },
+                    "Location": {
+                      "type": "string"
+                    },
+                    "SessionHostCount": {
+                      "type": "int"
+                    },
+                    "SessionHostIndex": {
+                      "type": "int"
+                    },
+                    "SessionHostOuPath": {
+                      "type": "string"
+                    },
+                    "Tags": {
+                      "type": "object"
+                    },
+                    "Timestamp": {
+                      "type": "string"
+                    },
+                    "VirtualMachineNamePrefix": {
+                      "type": "string"
+                    }
+                  },
+                  "resources": [
+                    {
+                      "copy": {
+                        "name": "jsonADDomainExtension",
+                        "count": "[length(range(0, parameters('SessionHostCount')))]"
+                      },
+                      "type": "Microsoft.Compute/virtualMachines/extensions",
+                      "apiVersion": "2021-03-01",
+                      "name": "[format('{0}{1}/JsonADDomainExtension', parameters('VirtualMachineNamePrefix'), padLeft(add(range(0, parameters('SessionHostCount'))[copyIndex()], parameters('SessionHostIndex')), 3, '0'))]",
+                      "location": "[parameters('Location')]",
+                      "tags": "[parameters('Tags')]",
+                      "properties": {
+                        "forceUpdateTag": "[parameters('Timestamp')]",
+                        "publisher": "Microsoft.Compute",
+                        "type": "JsonADDomainExtension",
+                        "typeHandlerVersion": "1.3",
+                        "autoUpgradeMinorVersion": true,
+                        "settings": {
+                          "Name": "[parameters('DomainName')]",
+                          "User": "[parameters('DomainJoinUserPrincipalName')]",
+                          "Restart": "true",
+                          "Options": "3",
+                          "OUPath": "[parameters('SessionHostOuPath')]"
+                        },
+                        "protectedSettings": {
+                          "Password": "[parameters('DomainJoinPassword')]"
+                        }
+                      }
+                    }
+                  ]
+                }
+              },
+              "dependsOn": [
+                "customScriptExtension",
+                "[resourceId('Microsoft.Resources/deployments', format('VirtualMachines_{0}', parameters('Timestamp')))]"
+              ]
+            }
+          ]
+        }
+      },
+      "dependsOn": [
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('HostPoolResourceGroupName')), 'Microsoft.Resources/deployments', format('ExistingHostPool_{0}', parameters('Timestamp')))]",
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('HostPoolResourceGroupName')), 'Microsoft.Resources/deployments', format('HostPoolRegistrationToken_{0}', parameters('Timestamp')))]"
+      ]
+    }
+  ]
+}

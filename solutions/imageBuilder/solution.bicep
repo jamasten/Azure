@@ -1,7 +1,7 @@
 targetScope = 'subscription'
 
 
-@description('Determine whether you want to install Microsoft Project & Vision in the image.')
+@description('Determine whether you want to install Microsoft Project & Visio in the image.')
 param DeployProjectVisio bool = false
 
 @description('Determine whether you want to run the Virtual Desktop Optimization Tool on the image.')
@@ -18,6 +18,9 @@ param EnableBuildAutomation bool = true
 ])
 @description('The target environment for the solution.')
 param Environment string = 'd'
+
+@description('Any Azure polices that would affect the AIB build VM should have an exemption for the AIB staging resource group. Common examples are policies that push the Guest Configuration agent or the Microsoft Defender for Endpoint agent. Reference: https://learn.microsoft.com/en-us/azure/virtual-machines/linux/image-builder-troubleshoot#prerequisites')
+param ExemptPolicyAssignmentIds array = []
 
 @description('The name of the Image Definition for the Shared Image Gallery.')
 param ImageDefinitionName string = 'Win10-22h2-avd-g2'
@@ -212,6 +215,7 @@ var Roles = [
     ]
   }
 ]
+var StagingResourceGroupName = 'rg-aib-staging-${toLower(ImageDefinitionName)}-${Environment}-${LocationShortName}'
 var StorageUri = 'https://${StorageAccountName}.blob.${environment().suffixes.storage}/${StorageContainerName}/'
 var TimeZone = TimeZones[Location]
 var TimeZones = {
@@ -365,8 +369,6 @@ module imageTemplate 'modules/imageTemplate.bicep' = {
   params: {
     DeployProjectVisio: DeployProjectVisio
     DeployVirtualDesktopOptimizationTool: DeployVirtualDesktopOptimizationTool
-    Environment: Environment
-    ImageDefinitionName: ImageDefinitionName
     ImageDefinitionResourceId: computeGallery.outputs.ImageDefinitionResourceId
     ImageOffer: ImageOffer
     ImagePublisher: ImagePublisher
@@ -375,7 +377,7 @@ module imageTemplate 'modules/imageTemplate.bicep' = {
     ImageTemplateName: ImageTemplateName
     ImageVersion: ImageVersion
     Location: Location
-    LocationShortName: LocationShortName
+    StagingResourceGroupName: StagingResourceGroupName
     StorageUri: StorageUri
     SubnetName: SubnetName
     Tags: Tags
@@ -407,3 +409,11 @@ module automationAccount 'modules/buildAutomation.bicep' = if(EnableBuildAutomat
     TimeZone: TimeZone
   }
 }
+
+module policyExemptions 'modules/exemption.bicep' = [for i in range(0, length(ExemptPolicyAssignmentIds)): if(length(ExemptPolicyAssignmentIds) > 0) {
+  name: 'PolicyExemption_${ExemptPolicyAssignmentIds[i]}'
+  scope: resourceGroup(StagingResourceGroupName)
+  params: {
+    PolicyAssignmentId: ExemptPolicyAssignmentIds[i]
+  }
+}]

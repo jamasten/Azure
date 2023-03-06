@@ -35,9 +35,6 @@ param(
     [string]$SubnetResourceId,
 
     [parameter(Mandatory)]
-    [string]$SubscriptionId,
-
-    [parameter(Mandatory)]
     [string]$TemplateSpecName,
 
     [parameter(Mandatory)]
@@ -47,14 +44,14 @@ param(
     [string]$TenantId,
 
     [parameter(Mandatory)]
-    [string]$VirtualMachineLocation,
-
-    [parameter(Mandatory)]
     [string]$VirtualMachineResourceGroupName
 )
 
 $ErrorActionPreference = 'Stop'
 $WarningPreference = 'SilentlyContinue'
+
+$SubscriptionId = $SubnetResourceId.Split('/')[2]
+$VirtualMachineLocation = (Get-AzVirtualNetwork -ResourceGroupName $SubnetResourceId.Split('/')[4] -Name $SubnetResourceId.Split('/')[8]).Location
 
 try
 {

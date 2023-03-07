@@ -147,7 +147,8 @@ var LocationShortName = LocationShortNames[Location]
 var LogicAppName = 'la-${NamingStandard}'
 var NamingStandard = 'aib-${Environment}-${LocationShortName}'
 var ResourceGroup = 'rg-${NamingStandard}'
-var Roles = [
+var Roles = union(Roles_Default, Role_AzureCloud)
+var Roles_Default = [
   {
     resourceGroup: VirtualNetworkResourceGroupName
     name: 'Virtual Network Join'
@@ -197,6 +198,8 @@ var Roles = [
       }
     ]
   }
+]
+var Role_AzureCloud = environment().name == 'AzureCloud' ? [
   {
     resourceGroup: ResourceGroup
     name: 'Image Template Build Automation'
@@ -214,7 +217,7 @@ var Roles = [
       }
     ]
   }
-]
+] : []
 var StagingResourceGroupName = 'rg-aib-staging-${toLower(ImageDefinitionName)}-${Environment}-${LocationShortName}'
 var StorageUri = 'https://${StorageAccountName}.blob.${environment().suffixes.storage}/${StorageContainerName}/'
 var TimeZone = TimeZones[Location]
@@ -317,13 +320,23 @@ module roleAssignments 'modules/roleAssignments.bicep' = [for i in range(0, leng
   }
 }]
 
-module roleAssignment 'modules/roleAssignments.bicep' = {
+module roleAssignment_Storage 'modules/roleAssignments.bicep' = {
   name: 'RoleAssignment_${StorageAccountName}_${Timestamp}'
   scope: resourceGroup(StorageAccountResourceGroupName)
   params: {
     PrincipalId: userAssignedIdentity.outputs.userAssignedIdentityPrincipalId
     RoleDefinitionId: resourceId('Microsoft.Authorization/roleDefinitions', '2a2b9908-6ea1-4ae2-8e65-a410df84e7d1') // Storage Blob Data Reader
     StorageAccountName: StorageAccountName
+  }
+}
+
+// Azure US Government requires the Contributor role for the build automation identity until permissions for Microsoft.VirtualMachineImages are supported
+module roleAssignment_AzureUSGovernment 'modules/roleAssignments.bicep' = if(environment().name == 'AzureUSGovernment') {
+  name: 'RoleAssignment_${rg.name}_${Timestamp}'
+  scope: rg
+  params: {
+    PrincipalId: userAssignedIdentity.outputs.userAssignedIdentityPrincipalId
+    RoleDefinitionId: resourceId('Microsoft.Authorization/roleDefinitions', 'b24988ac-6180-42a0-ab88-20f7382dd24c') // Contributor
   }
 }
 
@@ -358,7 +371,8 @@ module networkPolicy 'modules/networkPolicy.bicep' = {
     VirtualNetworkResourceGroupName: VirtualNetworkResourceGroupName
   }
   dependsOn: [
-    roleAssignment
+    roleAssignment_AzureUSGovernment
+    roleAssignment_Storage
     roleAssignments
   ]
 }
@@ -389,7 +403,8 @@ module imageTemplate 'modules/imageTemplate.bicep' = {
   }
   dependsOn: [
     networkPolicy
-    roleAssignment
+    roleAssignment_AzureUSGovernment
+    roleAssignment_Storage
     roleAssignments
   ]
 }

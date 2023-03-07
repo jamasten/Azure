@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.11.1.770",
-      "templateHash": "2867487475944054558"
+      "templateHash": "1080620141917633656"
     }
   },
   "parameters": {
@@ -13,7 +13,7 @@
       "type": "bool",
       "defaultValue": false,
       "metadata": {
-        "description": "Determine whether you want to install Microsoft Project & Vision in the image."
+        "description": "Determine whether you want to install Microsoft Project & Visio in the image."
       }
     },
     "DeployVirtualDesktopOptimizationTool": {
@@ -42,6 +42,13 @@
         "s",
         "t"
       ]
+    },
+    "ExemptPolicyAssignmentIds": {
+      "type": "array",
+      "defaultValue": [],
+      "metadata": {
+        "description": "Any Azure polices that would affect the AIB build VM should have an exemption for the AIB staging resource group. Common examples are policies that push the Guest Configuration agent or the Microsoft Defender for Endpoint agent. Reference: https://learn.microsoft.com/en-us/azure/virtual-machines/linux/image-builder-troubleshoot#prerequisites"
+      }
     },
     "ImageDefinitionName": {
       "type": "string",
@@ -152,7 +159,7 @@
       "type": "string",
       "defaultValue": "[utcNow('yyyyMMddhhmmss')]",
       "metadata": {
-        "description": ""
+        "description": "DO NOT MODIFY THIS VALUE! The timestamp is needed to differentiate deployments for certain Azure resources and must be set using a parameter."
       }
     },
     "VirtualMachineSize": {
@@ -239,7 +246,8 @@
     "LogicAppName": "[format('la-{0}', variables('NamingStandard'))]",
     "NamingStandard": "[format('aib-{0}-{1}', parameters('Environment'), variables('LocationShortName'))]",
     "ResourceGroup": "[format('rg-{0}', variables('NamingStandard'))]",
-    "Roles": [
+    "Roles": "[union(variables('Roles_Default'), variables('Role_AzureCloud'))]",
+    "Roles_Default": [
       {
         "resourceGroup": "[parameters('VirtualNetworkResourceGroupName')]",
         "name": "Virtual Network Join",
@@ -288,25 +296,10 @@
             ]
           }
         ]
-      },
-      {
-        "resourceGroup": "[variables('ResourceGroup')]",
-        "name": "Image Template Build Automation",
-        "description": "Allow Image Template build automation using a Managed Identity on an Automation Account.",
-        "permissions": [
-          {
-            "actions": [
-              "Microsoft.VirtualMachineImages/imageTemplates/run/action",
-              "Microsoft.VirtualMachineImages/imageTemplates/read",
-              "Microsoft.Compute/locations/publishers/artifacttypes/offers/skus/versions/read",
-              "Microsoft.Compute/locations/publishers/artifacttypes/offers/skus/read",
-              "Microsoft.Compute/locations/publishers/artifacttypes/offers/read",
-              "Microsoft.Compute/locations/publishers/read"
-            ]
-          }
-        ]
       }
     ],
+    "Role_AzureCloud": "[if(equals(environment().name, 'AzureCloud'), createArray(createObject('resourceGroup', variables('ResourceGroup'), 'name', 'Image Template Build Automation', 'description', 'Allow Image Template build automation using a Managed Identity on an Automation Account.', 'permissions', createArray(createObject('actions', createArray('Microsoft.VirtualMachineImages/imageTemplates/run/action', 'Microsoft.VirtualMachineImages/imageTemplates/read', 'Microsoft.Compute/locations/publishers/artifacttypes/offers/skus/versions/read', 'Microsoft.Compute/locations/publishers/artifacttypes/offers/skus/read', 'Microsoft.Compute/locations/publishers/artifacttypes/offers/read', 'Microsoft.Compute/locations/publishers/read'))))), createArray())]",
+    "StagingResourceGroupName": "[format('rg-aib-staging-{0}-{1}-{2}', toLower(parameters('ImageDefinitionName')), parameters('Environment'), variables('LocationShortName'))]",
     "StorageUri": "[format('https://{0}.blob.{1}/{2}/', parameters('StorageAccountName'), environment().suffixes.storage, parameters('StorageContainerName'))]",
     "TimeZone": "[variables('TimeZones')[parameters('Location')]]",
     "TimeZones": {
@@ -620,6 +613,79 @@
       ]
     },
     {
+      "condition": "[equals(environment().name, 'AzureUSGovernment')]",
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2020-10-01",
+      "name": "[format('RoleAssignment_{0}_{1}', variables('ResourceGroup'), parameters('Timestamp'))]",
+      "resourceGroup": "[variables('ResourceGroup')]",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "PrincipalId": {
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroup')), 'Microsoft.Resources/deployments', format('UserAssignedIdentity_{0}', parameters('Timestamp')))).outputs.userAssignedIdentityPrincipalId.value]"
+          },
+          "RoleDefinitionId": {
+            "value": "[resourceId('Microsoft.Authorization/roleDefinitions', 'b24988ac-6180-42a0-ab88-20f7382dd24c')]"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "0.11.1.770",
+              "templateHash": "28736842416463721"
+            }
+          },
+          "parameters": {
+            "PrincipalId": {
+              "type": "string"
+            },
+            "RoleDefinitionId": {
+              "type": "string"
+            },
+            "StorageAccountName": {
+              "type": "string",
+              "defaultValue": ""
+            }
+          },
+          "resources": [
+            {
+              "condition": "[not(empty(parameters('StorageAccountName')))]",
+              "type": "Microsoft.Authorization/roleAssignments",
+              "apiVersion": "2020-10-01-preview",
+              "scope": "[format('Microsoft.Storage/storageAccounts/{0}', parameters('StorageAccountName'))]",
+              "name": "[guid(parameters('PrincipalId'), parameters('RoleDefinitionId'), resourceGroup().id)]",
+              "properties": {
+                "roleDefinitionId": "[parameters('RoleDefinitionId')]",
+                "principalId": "[parameters('PrincipalId')]",
+                "principalType": "ServicePrincipal"
+              }
+            },
+            {
+              "condition": "[empty(parameters('StorageAccountName'))]",
+              "type": "Microsoft.Authorization/roleAssignments",
+              "apiVersion": "2020-10-01-preview",
+              "name": "[guid(parameters('PrincipalId'), parameters('RoleDefinitionId'), resourceGroup().id)]",
+              "properties": {
+                "roleDefinitionId": "[parameters('RoleDefinitionId')]",
+                "principalId": "[parameters('PrincipalId')]",
+                "principalType": "ServicePrincipal"
+              }
+            }
+          ]
+        }
+      },
+      "dependsOn": [
+        "[subscriptionResourceId('Microsoft.Resources/resourceGroups', variables('ResourceGroup'))]",
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroup')), 'Microsoft.Resources/deployments', format('UserAssignedIdentity_{0}', parameters('Timestamp')))]"
+      ]
+    },
+    {
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2020-10-01",
       "name": "[format('ComputeGallery_{0}', parameters('Timestamp'))]",
@@ -846,6 +912,7 @@
       },
       "dependsOn": [
         "[subscriptionResourceId('Microsoft.Resources/resourceGroups', variables('ResourceGroup'))]",
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroup')), 'Microsoft.Resources/deployments', format('RoleAssignment_{0}_{1}', variables('ResourceGroup'), parameters('Timestamp')))]",
         "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('StorageAccountResourceGroupName')), 'Microsoft.Resources/deployments', format('RoleAssignment_{0}_{1}', parameters('StorageAccountName'), parameters('Timestamp')))]",
         "roleAssignments",
         "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroup')), 'Microsoft.Resources/deployments', format('UserAssignedIdentity_{0}', parameters('Timestamp')))]"
@@ -867,12 +934,6 @@
           },
           "DeployVirtualDesktopOptimizationTool": {
             "value": "[parameters('DeployVirtualDesktopOptimizationTool')]"
-          },
-          "Environment": {
-            "value": "[parameters('Environment')]"
-          },
-          "ImageDefinitionName": {
-            "value": "[parameters('ImageDefinitionName')]"
           },
           "ImageDefinitionResourceId": {
             "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroup')), 'Microsoft.Resources/deployments', format('ComputeGallery_{0}', parameters('Timestamp')))).outputs.ImageDefinitionResourceId.value]"
@@ -898,8 +959,8 @@
           "Location": {
             "value": "[parameters('Location')]"
           },
-          "LocationShortName": {
-            "value": "[variables('LocationShortName')]"
+          "StagingResourceGroupName": {
+            "value": "[variables('StagingResourceGroupName')]"
           },
           "StorageUri": {
             "value": "[variables('StorageUri')]"
@@ -933,7 +994,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.11.1.770",
-              "templateHash": "9020263926767091018"
+              "templateHash": "3573174777778214924"
             }
           },
           "parameters": {
@@ -942,12 +1003,6 @@
             },
             "DeployVirtualDesktopOptimizationTool": {
               "type": "bool"
-            },
-            "Environment": {
-              "type": "string"
-            },
-            "ImageDefinitionName": {
-              "type": "string"
             },
             "ImageDefinitionResourceId": {
               "type": "string"
@@ -973,7 +1028,7 @@
             "Location": {
               "type": "string"
             },
-            "LocationShortName": {
+            "StagingResourceGroupName": {
               "type": "string"
             },
             "StorageUri": {
@@ -1057,9 +1112,12 @@
                 }
               },
               "properties": {
-                "stagingResourceGroup": "[format('/subscriptions/{0}/resourceGroups/rg-aib-staging-{1}-{2}-{3}', subscription().subscriptionId, toLower(parameters('ImageDefinitionName')), parameters('Environment'), parameters('LocationShortName'))]",
+                "stagingResourceGroup": "[format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('StagingResourceGroupName'))]",
                 "buildTimeoutInMinutes": 300,
                 "vmProfile": {
+                  "userAssignedIdentities": [
+                    "[parameters('UserAssignedIdentityResourceId')]"
+                  ],
                   "vmSize": "[parameters('VirtualMachineSize')]",
                   "vnetConfig": "[if(not(empty(parameters('SubnetName'))), createObject('subnetId', resourceId(parameters('VirtualNetworkResourceGroupName'), 'Microsoft.Network/virtualNetworks/subnets', parameters('VirtualNetworkName'), parameters('SubnetName'))), null())]"
                 },
@@ -1092,6 +1150,7 @@
         "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroup')), 'Microsoft.Resources/deployments', format('ComputeGallery_{0}', parameters('Timestamp')))]",
         "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroup')), 'Microsoft.Resources/deployments', format('NetworkPolicy_{0}', parameters('Timestamp')))]",
         "[subscriptionResourceId('Microsoft.Resources/resourceGroups', variables('ResourceGroup'))]",
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroup')), 'Microsoft.Resources/deployments', format('RoleAssignment_{0}_{1}', variables('ResourceGroup'), parameters('Timestamp')))]",
         "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('StorageAccountResourceGroupName')), 'Microsoft.Resources/deployments', format('RoleAssignment_{0}_{1}', parameters('StorageAccountName'), parameters('Timestamp')))]",
         "roleAssignments",
         "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroup')), 'Microsoft.Resources/deployments', format('UserAssignedIdentity_{0}', parameters('Timestamp')))]"
@@ -1348,6 +1407,62 @@
       "dependsOn": [
         "[subscriptionResourceId('Microsoft.Resources/resourceGroups', variables('ResourceGroup'))]"
       ]
+    },
+    {
+      "condition": "[greater(length(parameters('ExemptPolicyAssignmentIds')), 0)]",
+      "copy": {
+        "name": "policyExemptions",
+        "count": "[length(range(0, length(parameters('ExemptPolicyAssignmentIds'))))]"
+      },
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2020-10-01",
+      "name": "[format('PolicyExemption_{0}', parameters('ExemptPolicyAssignmentIds')[range(0, length(parameters('ExemptPolicyAssignmentIds')))[copyIndex()]])]",
+      "resourceGroup": "[variables('StagingResourceGroupName')]",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "PolicyAssignmentId": {
+            "value": "[parameters('ExemptPolicyAssignmentIds')[range(0, length(parameters('ExemptPolicyAssignmentIds')))[copyIndex()]]]"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "0.11.1.770",
+              "templateHash": "1521081023590163051"
+            }
+          },
+          "parameters": {
+            "PolicyAssignmentId": {
+              "type": "string"
+            }
+          },
+          "resources": [
+            {
+              "type": "Microsoft.Authorization/policyExemptions",
+              "apiVersion": "2022-07-01-preview",
+              "name": "exempt-aib-staging-resource-group",
+              "properties": {
+                "assignmentScopeValidation": "Default",
+                "description": "Exempts the AIB staging resource group to prevent issues with building images.",
+                "displayName": "AIB staging resource group",
+                "exemptionCategory": "Mitigated",
+                "expiresOn": null,
+                "metadata": null,
+                "policyAssignmentId": "[parameters('PolicyAssignmentId')]",
+                "policyDefinitionReferenceIds": [],
+                "resourceSelectors": []
+              }
+            }
+          ]
+        }
+      }
     }
   ]
 }

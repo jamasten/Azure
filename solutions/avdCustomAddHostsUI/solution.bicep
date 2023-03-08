@@ -86,10 +86,10 @@ module sessionHosts 'modules/sessionHosts.bicep' = [for i in range(1, SessionHos
     DomainServices: DomainServices
     HostPoolName: HostPoolName
     HostPoolResourceGroupName: HostPoolResourceGroupName
-    ImageId : empty(hostPool.outputs.VMTemplate.customImageId) ? '' : hostPool.outputs.VMTemplate.customImageId
-    ImageOffer: empty(hostPool.outputs.VMTemplate.galleryImageOffer) ? '' : hostPool.outputs.VMTemplate.galleryImageOffer
-    ImagePublisher: empty(hostPool.outputs.VMTemplate.galleryImagePublisher) ? '' : hostPool.outputs.VMTemplate.galleryImagePublisher
-    ImageSku: empty(hostPool.outputs.VMTemplate.galleryImageSku) ? '' : hostPool.outputs.VMTemplate.galleryImageSku
+    ImageId : hostPool.outputs.VMTemplate.customImageId == null ? '' : hostPool.outputs.VMTemplate.customImageId
+    ImageOffer: hostPool.outputs.VMTemplate.galleryImageOffer == null ? '' : hostPool.outputs.VMTemplate.galleryImageOffer
+    ImagePublisher: hostPool.outputs.VMTemplate.galleryImagePublisher == null ? '' : hostPool.outputs.VMTemplate.galleryImagePublisher
+    ImageSku: hostPool.outputs.VMTemplate.galleryImageSku == null ? '' : hostPool.outputs.VMTemplate.galleryImageSku
     ImageType: hostPool.outputs.VMTemplate.imageType
     ImageVersion: 'latest'
     KeyVaultName: KeyVaultName

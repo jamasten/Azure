@@ -4,8 +4,8 @@
   "metadata": {
     "_generator": {
       "name": "bicep",
-      "version": "0.10.13.619",
-      "templateHash": "10261754829976547666"
+      "version": "0.11.1.770",
+      "templateHash": "7745891550141431366"
     }
   },
   "parameters": {
@@ -113,8 +113,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.10.13.619",
-              "templateHash": "10536739605386557567"
+              "version": "0.11.1.770",
+              "templateHash": "1075246951156859441"
             }
           },
           "parameters": {
@@ -180,8 +180,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.10.13.619",
-              "templateHash": "12716473410376045562"
+              "version": "0.11.1.770",
+              "templateHash": "8207617854533184936"
             }
           },
           "parameters": {
@@ -277,16 +277,16 @@
             "value": "[parameters('HostPoolResourceGroupName')]"
           },
           "ImageId": {
-            "value": "[if(empty(reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('HostPoolResourceGroupName')), 'Microsoft.Resources/deployments', format('ExistingHostPool_{0}', parameters('Timestamp')))).outputs.VMTemplate.value.customImageId), '', reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('HostPoolResourceGroupName')), 'Microsoft.Resources/deployments', format('ExistingHostPool_{0}', parameters('Timestamp')))).outputs.VMTemplate.value.customImageId)]"
+            "value": "[if(equals(reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('HostPoolResourceGroupName')), 'Microsoft.Resources/deployments', format('ExistingHostPool_{0}', parameters('Timestamp')))).outputs.VMTemplate.value.customImageId, null()), '', reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('HostPoolResourceGroupName')), 'Microsoft.Resources/deployments', format('ExistingHostPool_{0}', parameters('Timestamp')))).outputs.VMTemplate.value.customImageId)]"
           },
           "ImageOffer": {
-            "value": "[if(empty(reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('HostPoolResourceGroupName')), 'Microsoft.Resources/deployments', format('ExistingHostPool_{0}', parameters('Timestamp')))).outputs.VMTemplate.value.galleryImageOffer), '', reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('HostPoolResourceGroupName')), 'Microsoft.Resources/deployments', format('ExistingHostPool_{0}', parameters('Timestamp')))).outputs.VMTemplate.value.galleryImageOffer)]"
+            "value": "[if(equals(reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('HostPoolResourceGroupName')), 'Microsoft.Resources/deployments', format('ExistingHostPool_{0}', parameters('Timestamp')))).outputs.VMTemplate.value.galleryImageOffer, null()), '', reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('HostPoolResourceGroupName')), 'Microsoft.Resources/deployments', format('ExistingHostPool_{0}', parameters('Timestamp')))).outputs.VMTemplate.value.galleryImageOffer)]"
           },
           "ImagePublisher": {
-            "value": "[if(empty(reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('HostPoolResourceGroupName')), 'Microsoft.Resources/deployments', format('ExistingHostPool_{0}', parameters('Timestamp')))).outputs.VMTemplate.value.galleryImagePublisher), '', reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('HostPoolResourceGroupName')), 'Microsoft.Resources/deployments', format('ExistingHostPool_{0}', parameters('Timestamp')))).outputs.VMTemplate.value.galleryImagePublisher)]"
+            "value": "[if(equals(reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('HostPoolResourceGroupName')), 'Microsoft.Resources/deployments', format('ExistingHostPool_{0}', parameters('Timestamp')))).outputs.VMTemplate.value.galleryImagePublisher, null()), '', reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('HostPoolResourceGroupName')), 'Microsoft.Resources/deployments', format('ExistingHostPool_{0}', parameters('Timestamp')))).outputs.VMTemplate.value.galleryImagePublisher)]"
           },
           "ImageSku": {
-            "value": "[if(empty(reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('HostPoolResourceGroupName')), 'Microsoft.Resources/deployments', format('ExistingHostPool_{0}', parameters('Timestamp')))).outputs.VMTemplate.value.galleryImageSku), '', reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('HostPoolResourceGroupName')), 'Microsoft.Resources/deployments', format('ExistingHostPool_{0}', parameters('Timestamp')))).outputs.VMTemplate.value.galleryImageSku)]"
+            "value": "[if(equals(reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('HostPoolResourceGroupName')), 'Microsoft.Resources/deployments', format('ExistingHostPool_{0}', parameters('Timestamp')))).outputs.VMTemplate.value.galleryImageSku, null()), '', reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('HostPoolResourceGroupName')), 'Microsoft.Resources/deployments', format('ExistingHostPool_{0}', parameters('Timestamp')))).outputs.VMTemplate.value.galleryImageSku)]"
           },
           "ImageType": {
             "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('HostPoolResourceGroupName')), 'Microsoft.Resources/deployments', format('ExistingHostPool_{0}', parameters('Timestamp')))).outputs.VMTemplate.value.imageType]"
@@ -340,8 +340,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.10.13.619",
-              "templateHash": "2124765264690833282"
+              "version": "0.11.1.770",
+              "templateHash": "10246977186199494640"
             }
           },
           "parameters": {
@@ -559,8 +559,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.10.13.619",
-                      "templateHash": "13787391942353127970"
+                      "version": "0.11.1.770",
+                      "templateHash": "9961162150527439070"
                     }
                   },
                   "parameters": {
@@ -690,8 +690,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.10.13.619",
-                      "templateHash": "4790076691786577874"
+                      "version": "0.11.1.770",
+                      "templateHash": "5858836461483902584"
                     }
                   },
                   "parameters": {
@@ -903,8 +903,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.10.13.619",
-                      "templateHash": "5984906624893315304"
+                      "version": "0.11.1.770",
+                      "templateHash": "12576076708251029699"
                     }
                   },
                   "parameters": {

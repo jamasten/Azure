@@ -249,7 +249,7 @@ try
                         -ActiveDirectoryDomainGuid $Domain.ObjectGUID `
                         -ActiveDirectoryDomainsid $Domain.DomainSID `
                         -ActiveDirectoryAzureStorageSid $ComputerObject.SID.Value `
-                        -ActiveDirectorySamAccountName $ComputerObject.SamAccountName `
+                        -ActiveDirectorySamAccountName $StorageAccountName `
                         -ActiveDirectoryAccountType 'Computer'
                     Write-Log -Message "Storage Account update with domain join info succeeded" -Type 'INFO'
                 

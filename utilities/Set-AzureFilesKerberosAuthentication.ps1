@@ -40,10 +40,10 @@ The ID of the Azure Subscription.
 .PARAMETER TenantId
 The ID of the Azure Active Directory tenant.
 .NOTES
-  Version:              1.0
+  Version:              1.3
   Author:               Jason Masten
   Creation Date:        2023-02-16
-  Last Modified Date:   2023-02-16
+  Last Modified Date:   2023-03-14
 .EXAMPLE
 .\Set-AzureFilesKerberosAuthentication.ps1 `
     -Environment 'AzureCloud' `
@@ -195,7 +195,7 @@ Set-AzStorageAccount `
     -ActiveDirectoryDomainGuid $Domain.ObjectGUID `
     -ActiveDirectoryDomainSid $Domain.DomainSID `
     -ActiveDirectoryAzureStorageSid $ComputerObject.SID.Value `
-    -ActiveDirectorySamAccountName $ComputerObject.SamAccountName `
+    -ActiveDirectorySamAccountName $StorageAccountName `
     -ActiveDirectoryAccountType 'Computer' | Out-Null
 
 Write-Host "Updated the Azure Storage Account with the domain and computer object properties `n"
@@ -215,9 +215,9 @@ if($KerberosEncryptionType -eq 'AES256')
     $Key = (New-AzStorageAccountKey `
         -ResourceGroupName $StorageAccountResourceGroupName `
         -Name $StorageAccountName `
-        -KeyName 'kerb2' `
+        -KeyName 'kerb1' `
         | Select-Object -ExpandProperty 'Keys' `
-        | Where-Object {$_.Keyname -eq 'kerb2'}).Value
+        | Where-Object {$_.Keyname -eq 'kerb1'}).Value
 
     Write-Host "Created a new Kerberos key on the Azure Storage Account to support AES256 Kerberos encryption `n"
 

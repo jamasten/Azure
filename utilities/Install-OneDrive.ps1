@@ -1,4 +1,5 @@
-# This script will install OneDrive on a Windows multi-session operating system
+# Install OneDrive on a Windows multi-session operating system
+# This script was developed to install OneDrive using Azure Image Builder
 
 [Cmdletbinding()]
 Param(
@@ -95,7 +96,6 @@ try
 
     # Set "Redirect & move known folders" registry setting
     Set-RegistrySetting -Name 'KFMSilentOptIn' -Path 'HKLM:\SOFTWARE\Policies\Microsoft\OneDrive' -PropertyType 'String' -Value $AzureADTenantID
-
 }
 catch 
 {

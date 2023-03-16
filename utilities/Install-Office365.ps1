@@ -1,4 +1,4 @@
-# Install Office 365 on a Windows x64 multi-session operating system
+# Install Office 365 in per-machine mode on a Windows x64 multi-session operating system
 # This script was developed to install Office 365 using Azure Image Builder
 
 function Write-Log
@@ -82,7 +82,7 @@ Write-Log -Type 'INFO' -Message 'Created the XML configuration file for Office 3
 $URL = 'https://download.microsoft.com/download/2/7/A/27AF1BE6-DD20-4CB4-B154-EBAB8A7D4A7E/officedeploymenttool_16130-20218.exe'
 $File = 'C:\temp\office.exe'
 Invoke-WebRequest -Uri $URL -OutFile $File
-Start-Process -FilePath 'C:\temp\office.exe' -ArgumentList "/extract:C:\temp /quiet /passive /norestart" -Wait -PassThru
+Start-Process -FilePath 'C:\temp\office.exe' -ArgumentList "/extract:C:\temp /quiet /passive /norestart" -Wait -PassThru | Out-Null
 Start-Process -FilePath 'C:\temp\setup.exe' -ArgumentList "/configure C:\temp\office365x64.xml" -Wait -PassThru | Out-Null
 Write-Log -Type 'INFO' -Message 'Installed Office 365'
 

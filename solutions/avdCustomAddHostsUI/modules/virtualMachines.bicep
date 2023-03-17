@@ -36,7 +36,7 @@ var ImageReferences = {
 }
 
 resource virtualMachines 'Microsoft.Compute/virtualMachines@2021-11-01' = [for i in range(0, SessionHostCount): {
-  name: '${VirtualMachineNamePrefix}${padLeft((i + SessionHostIndex), 3, '0')}'
+  name: '${VirtualMachineNamePrefix}${padLeft((i + SessionHostIndex), 4, '0')}'
   location: Location
   tags: Tags
   identity: VirtualMachineIdentity
@@ -59,13 +59,13 @@ resource virtualMachines 'Microsoft.Compute/virtualMachines@2021-11-01' = [for i
         managedDisk: {
           storageAccountType: DiskSku
         }
-        name: '${DiskNamePrefix}${padLeft((i + SessionHostIndex), 3, '0')}'
+        name: '${DiskNamePrefix}${padLeft((i + SessionHostIndex), 4, '0')}'
         osType: 'Windows'
       }
       dataDisks: []
     }
     osProfile: {
-      computerName: '${VirtualMachineNamePrefix}${padLeft((i + SessionHostIndex), 3, '0')}'
+      computerName: '${VirtualMachineNamePrefix}${padLeft((i + SessionHostIndex), 4, '0')}'
       adminUsername: VirtualMachineUsername
       adminPassword: VirtualMachinePassword
       windowsConfiguration: {
@@ -78,7 +78,7 @@ resource virtualMachines 'Microsoft.Compute/virtualMachines@2021-11-01' = [for i
     networkProfile: {
       networkInterfaces: [
         {
-          id: resourceId('Microsoft.Network/networkInterfaces', '${NetworkInterfaceNamePrefix}${padLeft((i + SessionHostIndex), 3, '0')}')
+          id: resourceId('Microsoft.Network/networkInterfaces', '${NetworkInterfaceNamePrefix}${padLeft((i + SessionHostIndex), 4, '0')}')
           properties: {
             deleteOption: 'Delete'
           }

@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.11.1.770",
-      "templateHash": "11907800332601637457"
+      "templateHash": "8512121059495610413"
     }
   },
   "parameters": {
@@ -341,7 +341,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.11.1.770",
-              "templateHash": "6309918524487396178"
+              "templateHash": "365436282054676080"
             }
           },
           "parameters": {
@@ -456,7 +456,7 @@
               },
               "type": "Microsoft.Network/networkInterfaces",
               "apiVersion": "2020-05-01",
-              "name": "[format('{0}{1}', variables('NetworkInterfaceNamePrefix'), padLeft(add(range(0, parameters('SessionHostCount'))[copyIndex()], parameters('SessionHostIndex')), 3, '0'))]",
+              "name": "[format('{0}{1}', variables('NetworkInterfaceNamePrefix'), padLeft(add(range(0, parameters('SessionHostCount'))[copyIndex()], parameters('SessionHostIndex')), 4, '0'))]",
               "location": "[parameters('Location')]",
               "tags": "[parameters('VirtualMachineTags')]",
               "properties": {
@@ -484,7 +484,7 @@
               },
               "type": "Microsoft.Compute/virtualMachines/extensions",
               "apiVersion": "2021-03-01",
-              "name": "[format('{0}{1}/CustomScriptExtension', parameters('VirtualMachineNamePrefix'), padLeft(add(range(0, parameters('SessionHostCount'))[copyIndex()], parameters('SessionHostIndex')), 3, '0'))]",
+              "name": "[format('{0}{1}/CustomScriptExtension', parameters('VirtualMachineNamePrefix'), padLeft(add(range(0, parameters('SessionHostCount'))[copyIndex()], parameters('SessionHostIndex')), 4, '0'))]",
               "location": "[parameters('Location')]",
               "tags": "[parameters('VirtualMachineTags')]",
               "properties": {
@@ -514,7 +514,7 @@
               },
               "type": "Microsoft.Compute/virtualMachines/extensions",
               "apiVersion": "2021-03-01",
-              "name": "[format('{0}{1}/AADLoginForWindows', parameters('VirtualMachineNamePrefix'), padLeft(add(range(0, parameters('SessionHostCount'))[copyIndex()], parameters('SessionHostIndex')), 3, '0'))]",
+              "name": "[format('{0}{1}/AADLoginForWindows', parameters('VirtualMachineNamePrefix'), padLeft(add(range(0, parameters('SessionHostCount'))[copyIndex()], parameters('SessionHostIndex')), 4, '0'))]",
               "location": "[parameters('Location')]",
               "tags": "[parameters('VirtualMachineTags')]",
               "properties": {
@@ -691,7 +691,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.11.1.770",
-                      "templateHash": "5858836461483902584"
+                      "templateHash": "15237337106180526050"
                     }
                   },
                   "parameters": {
@@ -781,7 +781,7 @@
                       },
                       "type": "Microsoft.Compute/virtualMachines",
                       "apiVersion": "2021-11-01",
-                      "name": "[format('{0}{1}', parameters('VirtualMachineNamePrefix'), padLeft(add(range(0, parameters('SessionHostCount'))[copyIndex()], parameters('SessionHostIndex')), 3, '0'))]",
+                      "name": "[format('{0}{1}', parameters('VirtualMachineNamePrefix'), padLeft(add(range(0, parameters('SessionHostCount'))[copyIndex()], parameters('SessionHostIndex')), 4, '0'))]",
                       "location": "[parameters('Location')]",
                       "tags": "[parameters('Tags')]",
                       "identity": "[parameters('VirtualMachineIdentity')]",
@@ -800,13 +800,13 @@
                             "managedDisk": {
                               "storageAccountType": "[parameters('DiskSku')]"
                             },
-                            "name": "[format('{0}{1}', variables('DiskNamePrefix'), padLeft(add(range(0, parameters('SessionHostCount'))[copyIndex()], parameters('SessionHostIndex')), 3, '0'))]",
+                            "name": "[format('{0}{1}', variables('DiskNamePrefix'), padLeft(add(range(0, parameters('SessionHostCount'))[copyIndex()], parameters('SessionHostIndex')), 4, '0'))]",
                             "osType": "Windows"
                           },
                           "dataDisks": []
                         },
                         "osProfile": {
-                          "computerName": "[format('{0}{1}', parameters('VirtualMachineNamePrefix'), padLeft(add(range(0, parameters('SessionHostCount'))[copyIndex()], parameters('SessionHostIndex')), 3, '0'))]",
+                          "computerName": "[format('{0}{1}', parameters('VirtualMachineNamePrefix'), padLeft(add(range(0, parameters('SessionHostCount'))[copyIndex()], parameters('SessionHostIndex')), 4, '0'))]",
                           "adminUsername": "[parameters('VirtualMachineUsername')]",
                           "adminPassword": "[parameters('VirtualMachinePassword')]",
                           "windowsConfiguration": {
@@ -819,7 +819,7 @@
                         "networkProfile": {
                           "networkInterfaces": [
                             {
-                              "id": "[resourceId('Microsoft.Network/networkInterfaces', format('{0}{1}', parameters('NetworkInterfaceNamePrefix'), padLeft(add(range(0, parameters('SessionHostCount'))[copyIndex()], parameters('SessionHostIndex')), 3, '0')))]",
+                              "id": "[resourceId('Microsoft.Network/networkInterfaces', format('{0}{1}', parameters('NetworkInterfaceNamePrefix'), padLeft(add(range(0, parameters('SessionHostCount'))[copyIndex()], parameters('SessionHostIndex')), 4, '0')))]",
                               "properties": {
                                 "deleteOption": "Delete"
                               }
@@ -904,7 +904,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.11.1.770",
-                      "templateHash": "12576076708251029699"
+                      "templateHash": "6443044070318157643"
                     }
                   },
                   "parameters": {
@@ -947,7 +947,7 @@
                       },
                       "type": "Microsoft.Compute/virtualMachines/extensions",
                       "apiVersion": "2021-03-01",
-                      "name": "[format('{0}{1}/JsonADDomainExtension', parameters('VirtualMachineNamePrefix'), padLeft(add(range(0, parameters('SessionHostCount'))[copyIndex()], parameters('SessionHostIndex')), 3, '0'))]",
+                      "name": "[format('{0}{1}/JsonADDomainExtension', parameters('VirtualMachineNamePrefix'), padLeft(add(range(0, parameters('SessionHostCount'))[copyIndex()], parameters('SessionHostIndex')), 4, '0'))]",
                       "location": "[parameters('Location')]",
                       "tags": "[parameters('Tags')]",
                       "properties": {

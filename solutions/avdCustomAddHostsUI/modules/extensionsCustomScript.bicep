@@ -23,7 +23,7 @@ param VmName string
 
 
 resource customScriptExtension 'Microsoft.Compute/virtualMachines/extensions@2021-03-01' = [for i in range(0, SessionHostCount): {
-  name: '${VmName}${padLeft((i + SessionHostIndex), 3, '0')}/CustomScriptExtension'
+  name: '${VmName}${padLeft((i + SessionHostIndex), 4, '0')}/CustomScriptExtension'
   location: Location
   tags: Tags
   properties: {

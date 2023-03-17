@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.11.1.770",
-      "templateHash": "7745891550141431366"
+      "templateHash": "11907800332601637457"
     }
   },
   "parameters": {
@@ -341,7 +341,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.11.1.770",
-              "templateHash": "10246977186199494640"
+              "templateHash": "6309918524487396178"
             }
           },
           "parameters": {
@@ -522,7 +522,7 @@
                 "type": "AADLoginForWindows",
                 "typeHandlerVersion": "1.0",
                 "autoUpgradeMinorVersion": true,
-                "settings": "[if(variables('Intune'), createObject('mdmId', '0000000a-0000-0000-c000-000000000000'), json('null'))]"
+                "settings": "[if(variables('Intune'), createObject('mdmId', '0000000a-0000-0000-c000-000000000000'), null())]"
               },
               "dependsOn": [
                 "customScriptExtension",

@@ -166,7 +166,7 @@ resource aadLoginForWindows 'Microsoft.Compute/virtualMachines/extensions@2021-0
     autoUpgradeMinorVersion: true
     settings: Intune ? {
       mdmId: '0000000a-0000-0000-c000-000000000000'
-    } : json('null')
+    } : null
   }
   dependsOn: [
     virtualMachines

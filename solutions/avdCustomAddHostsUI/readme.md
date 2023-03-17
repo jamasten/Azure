@@ -2,7 +2,14 @@
 
 This solution will deploy a Template Spec with a custom UI definition to simplify session host deployments for AVD host pools. When a host pool is deployed in the portal, it includes a "VMTemplate" property. This property is used to determine many details for the deployment.
 
-If a host pool was created using code and does not include a value for the "VMTemplate" property, it can be easily created by manually adding a session host to your host pool in the Azure Portal.
+If a host pool was created using code and does not include a value for the "VMTemplate" property, it can be easily created by manually adding a session host to your host pool in the Azure Portal. Use the following PowerShell command to validate the value of the VMTemplate property on your host pool:
+
+```powershell
+Get-AzWvdHostPool `
+    -Name '<Host Pool Name>' `
+    -ResourceGroupName '<Resource Group Name>' `
+    | Select-Object -ExpandProperty 'vmtemplate'
+```
 
 ## Resources
 
@@ -19,6 +26,9 @@ To deploy this solution, the following items need to be configured before runnin
   - "DomainUserPrincipalName" - user principal name to domain join the session hosts
   - "LocalAdminPassword" - password for the local administrator account
   - "LocalAdminUsername" - username for the local administrator account
+- Outbound network connectivity to download the following resources:
+  - Script for Custom Script Extension
+  - AVD Agents
 
 > **NOTE:** The domain credentials are only required when domain joining your AVD session hosts.
 

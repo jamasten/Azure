@@ -3,6 +3,7 @@ param _artifactsLocation string
 param _artifactsLocationSasToken string
 param AcceleratedNetworking string
 param AvailabilitySetCount int
+param AvailabilitySetIndex int
 param AvailabilitySetPrefix string
 param AutomationAccountName string
 param Availability string
@@ -69,6 +70,7 @@ module availabilitySets 'availabilitySets.bicep' = if (PooledHostPool && Availab
   scope: resourceGroup(ResourceGroups[1]) // Hosts Resource Group
   params: {
     AvailabilitySetCount: AvailabilitySetCount
+    AvailabilitySetIndex: AvailabilitySetIndex
     AvailabilitySetPrefix: AvailabilitySetPrefix
     Location: Location
     Tags: Tags

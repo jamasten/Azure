@@ -39,10 +39,10 @@ var SessionHostBatchCount = DivisionRemainderValue > 0 ? DivisionValue + 1 : Div
 
 /*  BEGIN AVAILABILITY SET COUNT */
 // The following variables are used to determine the number of availability sets.
-var MaxAvSetCount = 200 // This is the max number of session hosts that can be deployed in an availability set.
-var DivisionAvSetValue = SessionHostCount / MaxAvSetCount // This determines if any full availability sets are required.
-var DivisionAvSetRemainderValue = SessionHostCount % MaxAvSetCount // This determines if any partial availability sets are required.
-var AvailabilitySetCount = DivisionAvSetRemainderValue > 0 ? DivisionAvSetValue + 1 : DivisionAvSetValue // This determines the total number of availability sets needed, whether full and / or partial.
+var MaxAvSetMembers = 200 // This is the max number of session hosts that can be deployed in an availability set.
+var BeginAvSetRange = SessionHostIndex / MaxAvSetMembers // This determines the availability set to start with.
+var EndAvSetRange = (SessionHostCount + SessionHostIndex) / MaxAvSetMembers // This determines the availability set to end with.
+var AvailabilitySetCount = length(range(BeginAvSetRange, (EndAvSetRange - BeginAvSetRange) + 1))
 /*  END AVAILABILITY SET COUNT */
 
 
@@ -80,6 +80,7 @@ module sessionHosts 'modules/sessionHosts.bicep' = [for i in range(1, SessionHos
     Availability: Availability
     AvailabilitySetNamePrefix: AvailabilitySetNamePrefix
     AvailabilitySetCount: AvailabilitySetCount
+    AvailabilitySetIndex: BeginAvSetRange
     AvailabilityZones: AvailabilityZones
     DiskSku: hostPool.outputs.VMTemplate.osDiskType
     DomainName: hostPool.outputs.VMTemplate.domain

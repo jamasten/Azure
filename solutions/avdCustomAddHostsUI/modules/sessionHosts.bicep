@@ -1,5 +1,6 @@
 param Availability string
 param AvailabilitySetCount int
+param AvailabilitySetIndex int
 param AvailabilitySetNamePrefix string
 param AvailabilityZones array
 param DiskSku string
@@ -51,6 +52,7 @@ module availabilitySets 'availabilitySets.bicep' = if (Availability == 'Availabi
   name: 'AvailabilitySets_${Timestamp}'
   params: {
     AvailabilitySetCount: AvailabilitySetCount
+    AvailabilitySetIndex: AvailabilitySetIndex
     AvailabilitySetNamePrefix: AvailabilitySetNamePrefix
     Location: Location
     Tags: VirtualMachineTags

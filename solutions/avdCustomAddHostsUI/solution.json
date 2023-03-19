@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.11.1.770",
-      "templateHash": "8512121059495610413"
+      "templateHash": "15707802366189893283"
     }
   },
   "parameters": {
@@ -83,10 +83,10 @@
     "DivisionValue": "[div(parameters('SessionHostCount'), variables('MaxResourcesPerTemplateDeployment'))]",
     "DivisionRemainderValue": "[mod(parameters('SessionHostCount'), variables('MaxResourcesPerTemplateDeployment'))]",
     "SessionHostBatchCount": "[if(greater(variables('DivisionRemainderValue'), 0), add(variables('DivisionValue'), 1), variables('DivisionValue'))]",
-    "MaxAvSetCount": 200,
-    "DivisionAvSetValue": "[div(parameters('SessionHostCount'), variables('MaxAvSetCount'))]",
-    "DivisionAvSetRemainderValue": "[mod(parameters('SessionHostCount'), variables('MaxAvSetCount'))]",
-    "AvailabilitySetCount": "[if(greater(variables('DivisionAvSetRemainderValue'), 0), add(variables('DivisionAvSetValue'), 1), variables('DivisionAvSetValue'))]",
+    "MaxAvSetMembers": 200,
+    "BeginAvSetRange": "[div(parameters('SessionHostIndex'), variables('MaxAvSetMembers'))]",
+    "EndAvSetRange": "[div(add(parameters('SessionHostCount'), parameters('SessionHostIndex')), variables('MaxAvSetMembers'))]",
+    "AvailabilitySetCount": "[length(range(variables('BeginAvSetRange'), add(sub(variables('EndAvSetRange'), variables('BeginAvSetRange')), 1)))]",
     "KeyVaultName": "[split(parameters('KeyVaultResourceId'), '/')[8]]",
     "KeyVaultResourceGroupName": "[split(parameters('KeyVaultResourceId'), '/')[4]]",
     "KeyVaultSubscriptionId": "[split(parameters('KeyVaultResourceId'), '/')[2]]"
@@ -258,6 +258,9 @@
           "AvailabilitySetCount": {
             "value": "[variables('AvailabilitySetCount')]"
           },
+          "AvailabilitySetIndex": {
+            "value": "[variables('BeginAvSetRange')]"
+          },
           "AvailabilityZones": {
             "value": "[parameters('AvailabilityZones')]"
           },
@@ -341,7 +344,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.11.1.770",
-              "templateHash": "365436282054676080"
+              "templateHash": "1863021242842123929"
             }
           },
           "parameters": {
@@ -349,6 +352,9 @@
               "type": "string"
             },
             "AvailabilitySetCount": {
+              "type": "int"
+            },
+            "AvailabilitySetIndex": {
               "type": "int"
             },
             "AvailabilitySetNamePrefix": {
@@ -543,6 +549,9 @@
                   "AvailabilitySetCount": {
                     "value": "[parameters('AvailabilitySetCount')]"
                   },
+                  "AvailabilitySetIndex": {
+                    "value": "[parameters('AvailabilitySetIndex')]"
+                  },
                   "AvailabilitySetNamePrefix": {
                     "value": "[parameters('AvailabilitySetNamePrefix')]"
                   },
@@ -560,11 +569,14 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.11.1.770",
-                      "templateHash": "9961162150527439070"
+                      "templateHash": "3765765839411865423"
                     }
                   },
                   "parameters": {
                     "AvailabilitySetCount": {
+                      "type": "int"
+                    },
+                    "AvailabilitySetIndex": {
                       "type": "int"
                     },
                     "AvailabilitySetNamePrefix": {
@@ -585,7 +597,7 @@
                       },
                       "type": "Microsoft.Compute/availabilitySets",
                       "apiVersion": "2019-07-01",
-                      "name": "[format('{0}{1}', parameters('AvailabilitySetNamePrefix'), range(0, parameters('AvailabilitySetCount'))[copyIndex()])]",
+                      "name": "[format('{0}{1}', parameters('AvailabilitySetNamePrefix'), padLeft(add(range(0, parameters('AvailabilitySetCount'))[copyIndex()], parameters('AvailabilitySetIndex')), 2, '0'))]",
                       "location": "[parameters('Location')]",
                       "tags": "[parameters('Tags')]",
                       "sku": {

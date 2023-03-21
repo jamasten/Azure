@@ -132,7 +132,7 @@ param(
 
 $ErrorActionPreference = 'Stop'
 
-$DiskPrefix = "disk-$($ImageDefinitionName)-"
+$DiskPrefix = "disk-$($ImageDefinitionName)-$($ImageVersionName)-"
 $Location = (Get-AzResourceGroup -Name $ComputeGalleryResourceGroupName).Location
 
 # Checks if the Compute Gallery exists
@@ -180,7 +180,7 @@ if(!$ImageDefinition)
 }
 
 # Get the downloaded disks / VHDs from the Downloads folder
-$Vhds = Get-ChildItem -Path "$($HOME)\Downloads\disk-$($ImageDefinitionName)-*.vhd"
+$Vhds = Get-ChildItem -Path "$($HOME)\Downloads\$($DiskPrefix)*.vhd"
 
 # Throw an error if the disks are not found
 if($Vhds.Count -eq 0)

@@ -65,7 +65,7 @@ param(
 
 $ErrorActionPreference = 'Stop'
 
-$DiskPrefix = "disk-$($ImageDefinitionName)-"
+$DiskPrefix = "disk-$($ImageDefinitionName)-$($ImageVersionName)-"
 $Location = (Get-AzResourceGroup -Name $ComputeGalleryResourceGroupName).Location
 
 # Gets the Image Version ID

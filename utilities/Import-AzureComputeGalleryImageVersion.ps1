@@ -44,7 +44,7 @@ The operating system type for the Image Definition.
 .PARAMETER ImageDefinitionPublisher
 The publisher for the Image Defintion.
 .PARAMETER ImageDefinitionSecurityType
-The security type for the Image Definition.
+The security type for the Image Definition. Note: What Azure calls "Standard" is defined as "None" when using the Powershell Module.
 .PARAMETER ImageDefinitionSku
 The SKU for the Image Defintion.
 .PARAMETER ImageDefinitionState
@@ -52,10 +52,11 @@ The state for the Image Defintion.
 .PARAMETER ImageVersionName
 The name for the Image Version.
 .NOTES
-  Version:              1.2
+  Version:              1.3
   Author:               Jason Masten
+  Contributors:         Philip Mallegol-Hansen
   Creation Date:        2022-05-11
-  Last Modified Date:   2023-02-05
+  Last Modified Date:   2023-03-28
 .EXAMPLE
 .\Import-AzureComputeGalleryImageVersion.ps1 `
     -ComputeGalleryName 'cg_shared_d_eu' `
@@ -67,7 +68,7 @@ The name for the Image Version.
     -ImageDefinitionOffer 'WindowsServer' `
     -ImageDefinitionOsType 'Windows' `
     -ImageDefinitionPublisher 'MicrosoftWindowsServer' `
-    -ImageDefinitionSecurityType 'Standard' `
+    -ImageDefinitionSecurityType 'None' `
     -ImageDefinitionSku '2019-datacenter' `
     -ImageDefinitionState 'generalized' `
     -ImageVersionName '1.0.0'
@@ -78,6 +79,7 @@ This example imports the VHD as a Managed Disk, creates a new Image Defintion, a
     -ComputeGalleryName 'cg_shared_d_eu' `
     -ComputeGalleryResourceGroupName 'rg-images-d-eu' `
     -ImageDefinitionName 'WindowsServer2019Datacenter' `
+    -ImageDefinitionOffer 'WindowsServer' `
     -ImageVersionName '1.0.0'
 
 This example imports the VHD as a Managed Disk and imports the Managed Disk as a new Image Version into an existing Image Defintion.

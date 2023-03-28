@@ -105,7 +105,7 @@ param(
     [parameter(Mandatory)]
     [string]$ImageDefinitionName,
 
-    [parameter(Mandatory=$false)]
+    [parameter(Mandatory)]
     [string]$ImageDefinitionOffer,
 
     [parameter(Mandatory=$false)]
@@ -116,8 +116,8 @@ param(
     [string]$ImageDefinitionPublisher,
 
     [parameter(Mandatory=$false)]
-    [ValidateSet('ConfidentialVM','ConfidentialVMSupported','Standard','TrustedLaunch')]
-    [string]$ImageDefinitionSecurityType = 'Standard',
+    [ValidateSet('ConfidentialVM','ConfidentialVMSupported','None','TrustedLaunch')]
+    [string]$ImageDefinitionSecurityType = 'None',
 
     [parameter(Mandatory=$false)]
     [string]$ImageDefinitionSku,
@@ -170,7 +170,7 @@ if(!$ImageDefinition)
         -ResourceGroupName $ComputeGalleryResourceGroupName `
         -Feature $Features `
         -HyperVGeneration $ImageDefinitionHyperVGeneration `
-        -ImageDefinitionOsType $ImageDefinitionOsType `
+        -OsType $ImageDefinitionOsType `
         -Location $Location `
         -Name $ImageDefinitionName `
         -Offer $ImageDefinitionOffer `
@@ -198,7 +198,7 @@ for($i = 0; $i -lt $Vhds.Count; $i++)
         -ResourceGroupName $ComputeGalleryResourceGroupName `
         -Location $Location `
         -DiskName ($DiskPrefix + $i.ToString()) `
-        -DiskImageDefinitionOsType $ImageDefinitionOsType `
+        -DiskOsType $ImageDefinitionOsType `
         -NumberOfUploaderThreads 32
 
     # Gets the information for the Managed Disk

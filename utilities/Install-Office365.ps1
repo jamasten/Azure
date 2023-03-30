@@ -91,14 +91,14 @@ Start-Process 'reg' -ArgumentList 'load HKU\TempDefault C:\Users\Default\NTUSER.
 Write-Log -Type 'INFO' -Message 'Mounted the default user registry hive'
 
 # Must be executed with the default registry hive mounted.
-Set-RegistrySetting -Name 'InsiderSlabBehavior' -Path 'HKU:\TempDefault\SOFTWARE\Policies\Microsoft\office\16.0\common' -PropertyType 'DWord' -Value 2
+Set-RegistrySetting -Name 'InsiderSlabBehavior' -Path 'HKU\TempDefault\SOFTWARE\Policies\Microsoft\office\16.0\common' -PropertyType 'DWord' -Value 2
 
 # Set Outlook's Cached Exchange Mode behavior
 # Must be executed with default registry hive mounted.
-Set-RegistrySetting -Name 'enable' -Path 'HKU:\TempDefault\software\policies\microsoft\office\16.0\outlook\cached mode' -PropertyType 'DWord' -Value 1
-Set-RegistrySetting -Name 'syncwindowsetting' -Path 'HKU:\TempDefault\software\policies\microsoft\office\16.0\outlook\cached mode' -PropertyType 'DWord' -Value 1
-Set-RegistrySetting -Name 'CalendarSyncWindowSetting' -Path 'HKU:\TempDefault\software\policies\microsoft\office\16.0\outlook\cached mode' -PropertyType 'DWord' -Value 1
-Set-RegistrySetting -Name 'CalendarSyncWindowSettingMonths' -Path 'HKU:\TempDefault\software\policies\microsoft\office\16.0\outlook\cached mode' -PropertyType 'DWord' -Value 1
+Set-RegistrySetting -Name 'enable' -Path 'HKU\TempDefault\software\policies\microsoft\office\16.0\outlook\cached mode' -PropertyType 'DWord' -Value 1
+Set-RegistrySetting -Name 'syncwindowsetting' -Path 'HKU\TempDefault\software\policies\microsoft\office\16.0\outlook\cached mode' -PropertyType 'DWord' -Value 1
+Set-RegistrySetting -Name 'CalendarSyncWindowSetting' -Path 'HKU\TempDefault\software\policies\microsoft\office\16.0\outlook\cached mode' -PropertyType 'DWord' -Value 1
+Set-RegistrySetting -Name 'CalendarSyncWindowSettingMonths' -Path 'HKU\TempDefault\software\policies\microsoft\office\16.0\outlook\cached mode' -PropertyType 'DWord' -Value 1
 
 #Unmount the default user registry hive
 Start-Process 'reg' -ArgumentList 'unload HKU\TempDefault' -Wait -PassThru

@@ -37,19 +37,11 @@ function Get-WebFile
 ##############################################################
 #  Install AVD Agent
 ##############################################################
-try
-{
-    $BootInstaller = 'AVD-Bootloader.msi'
-    Get-WebFile -FileName $BootInstaller -URL 'https://query.prod.cms.rt.microsoft.com/cms/api/am/binary/RWrxrH'
-    Start-Process -FilePath 'msiexec.exe' -ArgumentList "/i $BootInstaller /quiet /qn /norestart /passive" -Wait -Passthru
-    Start-Sleep -Seconds 5
+$BootInstaller = 'AVD-Bootloader.msi'
+Get-WebFile -FileName $BootInstaller -URL 'https://query.prod.cms.rt.microsoft.com/cms/api/am/binary/RWrxrH'
+Start-Process -FilePath 'msiexec.exe' -ArgumentList "/i $BootInstaller /quiet /qn /norestart /passive" -Wait -Passthru
+Start-Sleep -Seconds 5
 
-    $AgentInstaller = 'AVD-Agent.msi'
-    Get-WebFile -FileName $AgentInstaller -URL 'https://query.prod.cms.rt.microsoft.com/cms/api/am/binary/RWrmXv'
-    Start-Process -FilePath 'msiexec.exe' -ArgumentList "/i $AgentInstaller /quiet /qn /norestart /passive REGISTRATIONTOKEN=$HostPoolRegistrationToken" -Wait -PassThru
-}
-catch
-{
-    Write-Log -Message $_ -Type 'ERROR'
-    throw
-}
+$AgentInstaller = 'AVD-Agent.msi'
+Get-WebFile -FileName $AgentInstaller -URL 'https://query.prod.cms.rt.microsoft.com/cms/api/am/binary/RWrmXv'
+Start-Process -FilePath 'msiexec.exe' -ArgumentList "/i $AgentInstaller /quiet /qn /norestart /passive REGISTRATIONTOKEN=$HostPoolRegistrationToken" -Wait -PassThru

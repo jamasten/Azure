@@ -41,6 +41,7 @@ New-AvdTemplateSpec.ps1 `
     -Availability '<Availability Option>' `
     -AvailabilitySetNamePrefix '<Availability Set Name Prefix>' `
     -AvailabilityZones @('1') `
+    -DiskEncryptionSetResourceId '<Resource ID for the Disk Encryption Set>' `
     -DomainServices '<Domain Services Option>' `
     -Environment '<Azure Environment Name>' `
     -HostPoolName '<Name of the AVD Host Pool>' `

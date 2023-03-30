@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.15.31.15270",
-      "templateHash": "16915357431038803527"
+      "templateHash": "6253789194330268608"
     }
   },
   "parameters": {
@@ -337,7 +337,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.15.31.15270",
-              "templateHash": "14255857357531020969"
+              "templateHash": "2423448757054805487"
             }
           },
           "parameters": {
@@ -702,7 +702,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.15.31.15270",
-                      "templateHash": "8415617715748490978"
+                      "templateHash": "14398955055106000107"
                     }
                   },
                   "parameters": {
@@ -775,8 +775,8 @@
                   },
                   "variables": {
                     "DiskNamePrefix": "[format('disk-{0}-', parameters('VirtualMachineNamePrefix'))]",
-                    "DiskEncryptionSetName": "[split(parameters('DiskEncryptionSetResourceId'), '/')[8]]",
-                    "DiskEncryptionSetResourceGroupName": "[split(parameters('DiskEncryptionSetResourceId'), '/')[4]]",
+                    "DiskEncryptionSetName": "[if(empty(parameters('DiskEncryptionSetResourceId')), '', split(parameters('DiskEncryptionSetResourceId'), '/')[8])]",
+                    "DiskEncryptionSetResourceGroupName": "[if(empty(parameters('DiskEncryptionSetResourceId')), '', split(parameters('DiskEncryptionSetResourceId'), '/')[4])]",
                     "ImageReferences": {
                       "Custom": {
                         "id": "[parameters('ImageId')]"

@@ -25,8 +25,8 @@ param VirtualMachineUsername string
 
 
 var DiskNamePrefix = 'disk-${VirtualMachineNamePrefix}-'
-var DiskEncryptionSetName = split(DiskEncryptionSetResourceId, '/')[8]
-var DiskEncryptionSetResourceGroupName = split(DiskEncryptionSetResourceId, '/')[4]
+var DiskEncryptionSetName = empty(DiskEncryptionSetResourceId) ? '' : split(DiskEncryptionSetResourceId, '/')[8]
+var DiskEncryptionSetResourceGroupName = empty(DiskEncryptionSetResourceId) ? '' : split(DiskEncryptionSetResourceId, '/')[4]
 var ImageReferences = {
   Custom: {
     id: ImageId

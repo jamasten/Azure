@@ -87,7 +87,7 @@ Start-Process -FilePath 'C:\temp\setup.exe' -ArgumentList "/configure C:\temp\of
 Write-Log -Type 'INFO' -Message 'Installed Office 365'
 
 # Mount the default user registry hive
-New-PSDrive -Name 'HKU:\TempDefault' -PSProvider 'Registry' -root 'C:\Users\Default\NTUSER.DAT'
+Start-Process 'reg' -ArgumentList 'load HKU\TempDefault C:\Users\Default\NTUSER.DAT' -Wait -PassThru
 Write-Log -Type 'INFO' -Message 'Mounted the default user registry hive'
 
 # Must be executed with the default registry hive mounted.
@@ -101,7 +101,7 @@ Set-RegistrySetting -Name 'CalendarSyncWindowSetting' -Path 'HKU:\TempDefault\so
 Set-RegistrySetting -Name 'CalendarSyncWindowSettingMonths' -Path 'HKU:\TempDefault\software\policies\microsoft\office\16.0\outlook\cached mode' -PropertyType 'DWord' -Value 1
 
 #Unmount the default user registry hive
-Remove-PSDrive 'HKU:\TempDefault'
+Start-Process 'reg' -ArgumentList 'unload HKU\TempDefault' -Wait -PassThru
 Write-Log -Type 'INFO' -Message 'Unmounted the default user registry hive'
 
 # Set the Office Update UI behavior.

@@ -11,6 +11,7 @@ param AvailabilitySetNamePrefix string = ''
 param AvailabilityZones array = [
   '1'
 ]
+param DiskEncryptionSetResourceId string = ''
 @allowed([
   'ActiveDirectory' // Active Directory Domain Services or Azure Active Directory Domain Services
   'None' // Azure AD Join
@@ -82,6 +83,7 @@ module sessionHosts 'modules/sessionHosts.bicep' = [for i in range(1, SessionHos
     AvailabilitySetCount: AvailabilitySetCount
     AvailabilitySetIndex: BeginAvSetRange
     AvailabilityZones: AvailabilityZones
+    DiskEncryptionSetResourceId: DiskEncryptionSetResourceId
     DiskSku: hostPool.outputs.VMTemplate.osDiskType
     DomainName: hostPool.outputs.VMTemplate.domain
     DomainServices: DomainServices

@@ -11,6 +11,9 @@ param(
     [ValidateSet('1', '2', '3')]
     [array]$AvailabilityZones = @('1'), 
 
+    [parameter(Mandatory=$false)]
+    [string]$DiskEncryptionSetResourceId,
+
     [parameter(Mandatory)]
     [ValidateSet('ActiveDirectory','None','NoneWithIntune')]
     [string]$DomainServices,
@@ -67,6 +70,7 @@ try
     $Template.parameters.Availability.defaultValue = $Availability
     $Template.parameters.AvailabilitySetNamePrefix.defaultValue = if($AvailabilitySetNamePrefix){$AvailabilitySetNamePrefix}else{''}
     $Template.parameters.AvailabilityZones.defaultValue = $AvailabilityZones
+    $Template.parameters.DiskEncryptionSetResourceId.defaultValue = if($DiskEncryptionSetResourceId){$DiskEncryptionSetResourceId}else{''}
     $Template.parameters.DomainServices.defaultValue = $DomainServices
     $Template.parameters.HostPoolName.defaultValue = $HostPoolName
     $Template.parameters.HostPoolResourceGroupName.defaultValue = $HostPoolResourceGroupName

@@ -2,11 +2,12 @@ param Availability string
 param AvailabilitySetNamePrefix string
 param AvailabilityZones array
 param DiskSku string
-param ImageId string 
+param DiskEncryptionSetResourceId string
+param ImageId string
 param ImageOffer string
 param ImagePublisher string
 param ImageSku string
-param ImageType string 
+param ImageType string
 param ImageVersion string
 param Location string
 param NetworkInterfaceNamePrefix string
@@ -22,7 +23,10 @@ param VirtualMachineSize string
 @secure()
 param VirtualMachineUsername string
 
+
 var DiskNamePrefix = 'disk-${VirtualMachineNamePrefix}-'
+var DiskEncryptionSetName = split(DiskEncryptionSetResourceId, '/')[8]
+var DiskEncryptionSetResourceGroupName = split(DiskEncryptionSetResourceId, '/')[4]
 var ImageReferences = {
   Custom: {
     id: ImageId
@@ -58,6 +62,9 @@ resource virtualMachines 'Microsoft.Compute/virtualMachines@2021-11-01' = [for i
         caching: 'None'
         managedDisk: {
           storageAccountType: DiskSku
+          diskEncryptionSet: !(empty(DiskEncryptionSetResourceId)) ? {
+            id: resourceId(DiskEncryptionSetResourceGroupName, 'Microsoft.Compute/diskEncryptionSets', DiskEncryptionSetName)
+          } : null
         }
         name: '${DiskNamePrefix}${padLeft((i + SessionHostIndex), 4, '0')}'
         osType: 'Windows'

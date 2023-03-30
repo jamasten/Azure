@@ -3,6 +3,7 @@ param AvailabilitySetCount int
 param AvailabilitySetIndex int
 param AvailabilitySetNamePrefix string
 param AvailabilityZones array
+param DiskEncryptionSetResourceId string
 param DiskSku string
 param DomainName string
 param DomainServices string
@@ -88,6 +89,7 @@ module virtualMachines 'virtualMachines.bicep' = {
     Availability: Availability
     AvailabilitySetNamePrefix: AvailabilitySetNamePrefix
     AvailabilityZones: AvailabilityZones
+    DiskEncryptionSetResourceId: DiskEncryptionSetResourceId
     DiskSku: DiskSku
     ImageId  : ImageId
     ImageOffer: ImageOffer
@@ -106,7 +108,6 @@ module virtualMachines 'virtualMachines.bicep' = {
     VirtualMachinePassword: keyVault.getSecret('LocalAdminPassword')
     VirtualMachineSize: VirtualMachineSize
     VirtualMachineUsername: keyVault.getSecret('LocalAdminUsername')
-
   }
   dependsOn: [
     networkInterfaces

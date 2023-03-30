@@ -4,8 +4,8 @@
   "metadata": {
     "_generator": {
       "name": "bicep",
-      "version": "0.11.1.770",
-      "templateHash": "15707802366189893283"
+      "version": "0.15.31.15270",
+      "templateHash": "16915357431038803527"
     }
   },
   "parameters": {
@@ -27,6 +27,10 @@
       "defaultValue": [
         "1"
       ]
+    },
+    "DiskEncryptionSetResourceId": {
+      "type": "string",
+      "defaultValue": ""
     },
     "DomainServices": {
       "type": "string",
@@ -113,8 +117,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.11.1.770",
-              "templateHash": "1075246951156859441"
+              "version": "0.15.31.15270",
+              "templateHash": "17074208032611777883"
             }
           },
           "parameters": {
@@ -159,19 +163,19 @@
             "value": "[parameters('HostPoolName')]"
           },
           "HostPoolType": {
-            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('HostPoolResourceGroupName')), 'Microsoft.Resources/deployments', format('ExistingHostPool_{0}', parameters('Timestamp')))).outputs.Properties.value.HostPoolType]"
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('HostPoolResourceGroupName')), 'Microsoft.Resources/deployments', format('ExistingHostPool_{0}', parameters('Timestamp'))), '2020-10-01').outputs.Properties.value.HostPoolType]"
           },
           "LoadBalancerType": {
-            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('HostPoolResourceGroupName')), 'Microsoft.Resources/deployments', format('ExistingHostPool_{0}', parameters('Timestamp')))).outputs.Properties.value.LoadBalancerType]"
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('HostPoolResourceGroupName')), 'Microsoft.Resources/deployments', format('ExistingHostPool_{0}', parameters('Timestamp'))), '2020-10-01').outputs.Properties.value.LoadBalancerType]"
           },
           "Location": {
-            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('HostPoolResourceGroupName')), 'Microsoft.Resources/deployments', format('ExistingHostPool_{0}', parameters('Timestamp')))).outputs.Location.value]"
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('HostPoolResourceGroupName')), 'Microsoft.Resources/deployments', format('ExistingHostPool_{0}', parameters('Timestamp'))), '2020-10-01').outputs.Location.value]"
           },
           "PreferredAppGroupType": {
-            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('HostPoolResourceGroupName')), 'Microsoft.Resources/deployments', format('ExistingHostPool_{0}', parameters('Timestamp')))).outputs.Properties.value.PreferredAppGroupType]"
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('HostPoolResourceGroupName')), 'Microsoft.Resources/deployments', format('ExistingHostPool_{0}', parameters('Timestamp'))), '2020-10-01').outputs.Properties.value.PreferredAppGroupType]"
           },
           "Tags": {
-            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('HostPoolResourceGroupName')), 'Microsoft.Resources/deployments', format('ExistingHostPool_{0}', parameters('Timestamp')))).outputs.Tags.value]"
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('HostPoolResourceGroupName')), 'Microsoft.Resources/deployments', format('ExistingHostPool_{0}', parameters('Timestamp'))), '2020-10-01').outputs.Tags.value]"
           }
         },
         "template": {
@@ -180,8 +184,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.11.1.770",
-              "templateHash": "8207617854533184936"
+              "version": "0.15.31.15270",
+              "templateHash": "8488898303353106721"
             }
           },
           "parameters": {
@@ -264,11 +268,14 @@
           "AvailabilityZones": {
             "value": "[parameters('AvailabilityZones')]"
           },
+          "DiskEncryptionSetResourceId": {
+            "value": "[parameters('DiskEncryptionSetResourceId')]"
+          },
           "DiskSku": {
-            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('HostPoolResourceGroupName')), 'Microsoft.Resources/deployments', format('ExistingHostPool_{0}', parameters('Timestamp')))).outputs.VMTemplate.value.osDiskType]"
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('HostPoolResourceGroupName')), 'Microsoft.Resources/deployments', format('ExistingHostPool_{0}', parameters('Timestamp'))), '2020-10-01').outputs.VMTemplate.value.osDiskType]"
           },
           "DomainName": {
-            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('HostPoolResourceGroupName')), 'Microsoft.Resources/deployments', format('ExistingHostPool_{0}', parameters('Timestamp')))).outputs.VMTemplate.value.domain]"
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('HostPoolResourceGroupName')), 'Microsoft.Resources/deployments', format('ExistingHostPool_{0}', parameters('Timestamp'))), '2020-10-01').outputs.VMTemplate.value.domain]"
           },
           "DomainServices": {
             "value": "[parameters('DomainServices')]"
@@ -279,20 +286,12 @@
           "HostPoolResourceGroupName": {
             "value": "[parameters('HostPoolResourceGroupName')]"
           },
-          "ImageId": {
-            "value": "[if(equals(reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('HostPoolResourceGroupName')), 'Microsoft.Resources/deployments', format('ExistingHostPool_{0}', parameters('Timestamp')))).outputs.VMTemplate.value.customImageId, null()), '', reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('HostPoolResourceGroupName')), 'Microsoft.Resources/deployments', format('ExistingHostPool_{0}', parameters('Timestamp')))).outputs.VMTemplate.value.customImageId)]"
-          },
-          "ImageOffer": {
-            "value": "[if(equals(reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('HostPoolResourceGroupName')), 'Microsoft.Resources/deployments', format('ExistingHostPool_{0}', parameters('Timestamp')))).outputs.VMTemplate.value.galleryImageOffer, null()), '', reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('HostPoolResourceGroupName')), 'Microsoft.Resources/deployments', format('ExistingHostPool_{0}', parameters('Timestamp')))).outputs.VMTemplate.value.galleryImageOffer)]"
-          },
-          "ImagePublisher": {
-            "value": "[if(equals(reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('HostPoolResourceGroupName')), 'Microsoft.Resources/deployments', format('ExistingHostPool_{0}', parameters('Timestamp')))).outputs.VMTemplate.value.galleryImagePublisher, null()), '', reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('HostPoolResourceGroupName')), 'Microsoft.Resources/deployments', format('ExistingHostPool_{0}', parameters('Timestamp')))).outputs.VMTemplate.value.galleryImagePublisher)]"
-          },
-          "ImageSku": {
-            "value": "[if(equals(reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('HostPoolResourceGroupName')), 'Microsoft.Resources/deployments', format('ExistingHostPool_{0}', parameters('Timestamp')))).outputs.VMTemplate.value.galleryImageSku, null()), '', reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('HostPoolResourceGroupName')), 'Microsoft.Resources/deployments', format('ExistingHostPool_{0}', parameters('Timestamp')))).outputs.VMTemplate.value.galleryImageSku)]"
-          },
+          "ImageId": "[if(equals(reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('HostPoolResourceGroupName')), 'Microsoft.Resources/deployments', format('ExistingHostPool_{0}', parameters('Timestamp'))), '2020-10-01').outputs.VMTemplate.value.customImageId, null()), createObject('value', ''), createObject('value', reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('HostPoolResourceGroupName')), 'Microsoft.Resources/deployments', format('ExistingHostPool_{0}', parameters('Timestamp'))), '2020-10-01').outputs.VMTemplate.value.customImageId))]",
+          "ImageOffer": "[if(equals(reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('HostPoolResourceGroupName')), 'Microsoft.Resources/deployments', format('ExistingHostPool_{0}', parameters('Timestamp'))), '2020-10-01').outputs.VMTemplate.value.galleryImageOffer, null()), createObject('value', ''), createObject('value', reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('HostPoolResourceGroupName')), 'Microsoft.Resources/deployments', format('ExistingHostPool_{0}', parameters('Timestamp'))), '2020-10-01').outputs.VMTemplate.value.galleryImageOffer))]",
+          "ImagePublisher": "[if(equals(reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('HostPoolResourceGroupName')), 'Microsoft.Resources/deployments', format('ExistingHostPool_{0}', parameters('Timestamp'))), '2020-10-01').outputs.VMTemplate.value.galleryImagePublisher, null()), createObject('value', ''), createObject('value', reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('HostPoolResourceGroupName')), 'Microsoft.Resources/deployments', format('ExistingHostPool_{0}', parameters('Timestamp'))), '2020-10-01').outputs.VMTemplate.value.galleryImagePublisher))]",
+          "ImageSku": "[if(equals(reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('HostPoolResourceGroupName')), 'Microsoft.Resources/deployments', format('ExistingHostPool_{0}', parameters('Timestamp'))), '2020-10-01').outputs.VMTemplate.value.galleryImageSku, null()), createObject('value', ''), createObject('value', reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('HostPoolResourceGroupName')), 'Microsoft.Resources/deployments', format('ExistingHostPool_{0}', parameters('Timestamp'))), '2020-10-01').outputs.VMTemplate.value.galleryImageSku))]",
           "ImageType": {
-            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('HostPoolResourceGroupName')), 'Microsoft.Resources/deployments', format('ExistingHostPool_{0}', parameters('Timestamp')))).outputs.VMTemplate.value.imageType]"
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('HostPoolResourceGroupName')), 'Microsoft.Resources/deployments', format('ExistingHostPool_{0}', parameters('Timestamp'))), '2020-10-01').outputs.VMTemplate.value.imageType]"
           },
           "ImageVersion": {
             "value": "latest"
@@ -312,29 +311,23 @@
           "SessionHostOuPath": {
             "value": "[parameters('SessionHostOuPath')]"
           },
-          "SessionHostCount": {
-            "value": "[if(and(equals(range(1, variables('SessionHostBatchCount'))[copyIndex()], variables('SessionHostBatchCount')), greater(variables('DivisionRemainderValue'), 0)), variables('DivisionRemainderValue'), variables('MaxResourcesPerTemplateDeployment'))]"
-          },
-          "SessionHostIndex": {
-            "value": "[if(equals(range(1, variables('SessionHostBatchCount'))[copyIndex()], 1), parameters('SessionHostIndex'), add(mul(sub(range(1, variables('SessionHostBatchCount'))[copyIndex()], 1), variables('MaxResourcesPerTemplateDeployment')), parameters('SessionHostIndex')))]"
-          },
+          "SessionHostCount": "[if(and(equals(range(1, variables('SessionHostBatchCount'))[copyIndex()], variables('SessionHostBatchCount')), greater(variables('DivisionRemainderValue'), 0)), createObject('value', variables('DivisionRemainderValue')), createObject('value', variables('MaxResourcesPerTemplateDeployment')))]",
+          "SessionHostIndex": "[if(equals(range(1, variables('SessionHostBatchCount'))[copyIndex()], 1), createObject('value', parameters('SessionHostIndex')), createObject('value', add(mul(sub(range(1, variables('SessionHostBatchCount'))[copyIndex()], 1), variables('MaxResourcesPerTemplateDeployment')), parameters('SessionHostIndex'))))]",
           "SubnetResourceId": {
             "value": "[parameters('SubnetResourceId')]"
           },
           "Timestamp": {
             "value": "[parameters('Timestamp')]"
           },
-          "TrustedLaunch": {
-            "value": "[if(equals(reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('HostPoolResourceGroupName')), 'Microsoft.Resources/deployments', format('ExistingHostPool_{0}', parameters('Timestamp')))).outputs.VMTemplate.value.securityType, 'TrustedLaunch'), true(), false())]"
-          },
+          "TrustedLaunch": "[if(equals(reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('HostPoolResourceGroupName')), 'Microsoft.Resources/deployments', format('ExistingHostPool_{0}', parameters('Timestamp'))), '2020-10-01').outputs.VMTemplate.value.securityType, 'TrustedLaunch'), createObject('value', true()), createObject('value', false()))]",
           "VirtualMachineNamePrefix": {
-            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('HostPoolResourceGroupName')), 'Microsoft.Resources/deployments', format('ExistingHostPool_{0}', parameters('Timestamp')))).outputs.VMTemplate.value.namePrefix]"
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('HostPoolResourceGroupName')), 'Microsoft.Resources/deployments', format('ExistingHostPool_{0}', parameters('Timestamp'))), '2020-10-01').outputs.VMTemplate.value.namePrefix]"
           },
           "VirtualMachineSize": {
-            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('HostPoolResourceGroupName')), 'Microsoft.Resources/deployments', format('ExistingHostPool_{0}', parameters('Timestamp')))).outputs.VMTemplate.value.vmSize.id]"
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('HostPoolResourceGroupName')), 'Microsoft.Resources/deployments', format('ExistingHostPool_{0}', parameters('Timestamp'))), '2020-10-01').outputs.VMTemplate.value.vmSize.id]"
           },
           "VirtualMachineTags": {
-            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('HostPoolResourceGroupName')), 'Microsoft.Resources/deployments', format('ExistingHostPool_{0}', parameters('Timestamp')))).outputs.Tags.value]"
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('HostPoolResourceGroupName')), 'Microsoft.Resources/deployments', format('ExistingHostPool_{0}', parameters('Timestamp'))), '2020-10-01').outputs.Tags.value]"
           }
         },
         "template": {
@@ -343,8 +336,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.11.1.770",
-              "templateHash": "1863021242842123929"
+              "version": "0.15.31.15270",
+              "templateHash": "14255857357531020969"
             }
           },
           "parameters": {
@@ -362,6 +355,9 @@
             },
             "AvailabilityZones": {
               "type": "array"
+            },
+            "DiskEncryptionSetResourceId": {
+              "type": "string"
             },
             "DiskSku": {
               "type": "string"
@@ -513,11 +509,11 @@
               ]
             },
             {
-              "condition": "[contains(parameters('DomainServices'), 'None')]",
               "copy": {
                 "name": "aadLoginForWindows",
                 "count": "[length(range(0, parameters('SessionHostCount')))]"
               },
+              "condition": "[contains(parameters('DomainServices'), 'None')]",
               "type": "Microsoft.Compute/virtualMachines/extensions",
               "apiVersion": "2021-03-01",
               "name": "[format('{0}{1}/AADLoginForWindows', parameters('VirtualMachineNamePrefix'), padLeft(add(range(0, parameters('SessionHostCount'))[copyIndex()], parameters('SessionHostIndex')), 4, '0'))]",
@@ -568,8 +564,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.11.1.770",
-                      "templateHash": "3765765839411865423"
+                      "version": "0.15.31.15270",
+                      "templateHash": "15210118459886937047"
                     }
                   },
                   "parameters": {
@@ -630,6 +626,9 @@
                   },
                   "AvailabilityZones": {
                     "value": "[parameters('AvailabilityZones')]"
+                  },
+                  "DiskEncryptionSetResourceId": {
+                    "value": "[parameters('DiskEncryptionSetResourceId')]"
                   },
                   "DiskSku": {
                     "value": "[parameters('DiskSku')]"
@@ -702,8 +701,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.11.1.770",
-                      "templateHash": "15237337106180526050"
+                      "version": "0.15.31.15270",
+                      "templateHash": "8415617715748490978"
                     }
                   },
                   "parameters": {
@@ -717,6 +716,9 @@
                       "type": "array"
                     },
                     "DiskSku": {
+                      "type": "string"
+                    },
+                    "DiskEncryptionSetResourceId": {
                       "type": "string"
                     },
                     "ImageId": {
@@ -762,17 +764,19 @@
                       "type": "string"
                     },
                     "VirtualMachinePassword": {
-                      "type": "secureString"
+                      "type": "securestring"
                     },
                     "VirtualMachineSize": {
                       "type": "string"
                     },
                     "VirtualMachineUsername": {
-                      "type": "secureString"
+                      "type": "securestring"
                     }
                   },
                   "variables": {
                     "DiskNamePrefix": "[format('disk-{0}-', parameters('VirtualMachineNamePrefix'))]",
+                    "DiskEncryptionSetName": "[split(parameters('DiskEncryptionSetResourceId'), '/')[8]]",
+                    "DiskEncryptionSetResourceGroupName": "[split(parameters('DiskEncryptionSetResourceId'), '/')[4]]",
                     "ImageReferences": {
                       "Custom": {
                         "id": "[parameters('ImageId')]"
@@ -810,7 +814,8 @@
                             "createOption": "FromImage",
                             "caching": "None",
                             "managedDisk": {
-                              "storageAccountType": "[parameters('DiskSku')]"
+                              "storageAccountType": "[parameters('DiskSku')]",
+                              "diskEncryptionSet": "[if(not(empty(parameters('DiskEncryptionSetResourceId'))), createObject('id', resourceId(variables('DiskEncryptionSetResourceGroupName'), 'Microsoft.Compute/diskEncryptionSets', variables('DiskEncryptionSetName'))), null())]"
                             },
                             "name": "[format('{0}{1}', variables('DiskNamePrefix'), padLeft(add(range(0, parameters('SessionHostCount'))[copyIndex()], parameters('SessionHostIndex')), 4, '0'))]",
                             "osType": "Windows"
@@ -915,16 +920,16 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.11.1.770",
-                      "templateHash": "6443044070318157643"
+                      "version": "0.15.31.15270",
+                      "templateHash": "4044093323311856948"
                     }
                   },
                   "parameters": {
                     "DomainJoinPassword": {
-                      "type": "secureString"
+                      "type": "securestring"
                     },
                     "DomainJoinUserPrincipalName": {
-                      "type": "secureString"
+                      "type": "securestring"
                     },
                     "DomainName": {
                       "type": "string"

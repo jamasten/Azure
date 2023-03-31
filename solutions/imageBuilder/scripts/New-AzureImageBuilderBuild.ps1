@@ -1,19 +1,32 @@
 [CmdletBinding(SupportsShouldProcess)]
 param(
 	[Parameter(Mandatory)]
-	$WebHookData
-)
+	[string]$EnvironmentName,
 
-$Parameters = ConvertFrom-Json -InputObject $WebHookData.RequestBody
-$EnvironmentName = $Parameters.PSObject.Properties['EnvironmentName'].Value
-$ImagePublisher = $Parameters.PSObject.Properties['ImagePublisher'].Value
-$ImageOffer = $Parameters.PSObject.Properties['ImageOffer'].Value
-$ImageSku = $Parameters.PSObject.Properties['ImageSku'].Value
-$Location = $Parameters.PSObject.Properties['Location'].Value
-$SubscriptionId = $Parameters.PSObject.Properties['SubscriptionId'].Value
-$TemplateName = $Parameters.PSObject.Properties['TemplateName'].Value
-$TemplateResourceGroupName = $Parameters.PSObject.Properties['TemplateResourceGroupName'].Value
-$TenantId = $Parameters.PSObject.Properties['TenantId'].Value
+	[Parameter(Mandatory)]
+	[string]$ImagePublisher,
+	
+	[Parameter(Mandatory)]
+	[string]$ImageOffer,
+
+	[Parameter(Mandatory)]
+	[string]$ImageSku,
+
+	[Parameter(Mandatory)]
+	[string]$Location,
+
+	[Parameter(Mandatory)]
+	[string]$SubscriptionId,
+
+	[Parameter(Mandatory)]
+	[string]$TemplateName,
+
+	[Parameter(Mandatory)]
+	[string]$TemplateResourceGroupName,
+
+	[Parameter(Mandatory)]
+	[string]$TenantId
+)
 
 $ErrorActionPreference = 'Stop'
 

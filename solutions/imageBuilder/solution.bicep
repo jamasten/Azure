@@ -144,7 +144,6 @@ var LocationShortNames = {
 }
 var ImageTemplateName = 'it-${toLower(ImageDefinitionName)}-${Environment}-${LocationShortName}'
 var LocationShortName = LocationShortNames[Location]
-var LogicAppName = 'la-${NamingStandard}'
 var NamingStandard = 'aib-${Environment}-${LocationShortName}'
 var ResourceGroup = 'rg-${NamingStandard}'
 var Roles = union(Roles_Default, Role_AzureCloud)
@@ -420,7 +419,6 @@ module automationAccount 'modules/buildAutomation.bicep' = if(EnableBuildAutomat
     ImageTemplateName: ImageTemplateName
     Location: Location
     LogAnalyticsWorkspaceResourceId: LogAnalyticsWorkspaceResourceId
-    LogicAppName: LogicAppName
     TimeZone: TimeZone
   }
 }

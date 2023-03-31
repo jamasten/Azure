@@ -5,12 +5,13 @@ param ImageSku string
 param ImageTemplateName string
 param Location string
 param LogAnalyticsWorkspaceResourceId string
-param LogicAppName string
 @description('ISO 8601 timestamp used to help determine the webhook expiration date.  The webhook is hardcoded to expire 5 years after the timestamp.')
-param Timestamp string = utcNow('u')
+param Time string = utcNow()
 param TimeZone string
 
 
+var EnvironmentName = environment().name
+var ImageTemplateResourceGroupName = resourceGroup().name
 var Modules = [
   {
     name: 'Az.Accounts'
@@ -22,7 +23,8 @@ var Modules = [
   }
 ]
 var Runbook = 'AIB-BuildAutomation'
-var Webhook = '${Runbook}_${dateTimeAdd(Timestamp, 'PT0H', 'yyyyMMddhhmmss')}'
+var SubscriptionId = subscription().subscriptionId
+var TenantId = subscription().tenantId
 
 
 resource automationAccount 'Microsoft.Automation/automationAccounts@2021-06-22' = {
@@ -68,14 +70,37 @@ resource runbook 'Microsoft.Automation/automationAccounts/runbooks@2019-06-01' =
   ]
 }
 
-resource webhook 'Microsoft.Automation/automationAccounts/webhooks@2015-10-31' = {
+resource schedule 'Microsoft.Automation/automationAccounts/schedules@2022-08-08' = {
   parent: automationAccount
-  name: Webhook
+  name: ImageTemplateName
   properties: {
-    isEnabled: true
-    expiryTime: dateTimeAdd(Timestamp, 'P5Y')
+    frequency: 'Day'
+    interval: 1
+    startTime: dateTimeAdd(Time, 'PT15M')
+    timeZone: TimeZone
+  }
+}
+
+resource jobSchedule 'Microsoft.Automation/automationAccounts/jobSchedules@2022-08-08' = {
+  parent: automationAccount
+  name: guid(runbook.name, schedule.name)
+  properties: {
+    parameters: {
+      EnvironmentName: EnvironmentName
+      ImagePublisher: ImagePublisher
+      ImageOffer: ImageOffer
+      ImageSku: ImageSku
+      Location: Location
+      SubscriptionId: SubscriptionId
+      TemplateName: ImageTemplateName
+      TemplateResourceGroupName: ImageTemplateResourceGroupName
+      TenantId: TenantId
+    }
     runbook: {
       name: runbook.name
+    }
+    schedule: {
+      name: schedule.name
     }
   }
 }
@@ -95,48 +120,6 @@ resource diagnostics 'Microsoft.Insights/diagnosticsettings@2017-05-01-preview' 
       }
     ]
     workspaceId: LogAnalyticsWorkspaceResourceId
-  }
-}
-
-resource logicApp 'Microsoft.Logic/workflows@2016-06-01' = {
-  name: LogicAppName
-  location: Location
-  properties: {
-    state: 'Enabled'
-    definition: {
-      '$schema': 'https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#'
-      actions: {
-        HTTP: {
-          type: 'Http'
-          inputs: {
-            method: 'POST'
-            uri: webhook.properties.uri
-            body: {
-              EnvironmentName: environment().name
-              ImagePublisher: ImagePublisher
-              ImageOffer: ImageOffer
-              ImageSku: ImageSku
-              Location: Location
-              SubscriptionId: subscription().subscriptionId
-              TemplateName: ImageTemplateName
-              TemplateResourceGroupName: resourceGroup().name
-              TenantId: subscription().tenantId
-            }
-          }
-        }
-      }
-      triggers: {
-        Recurrence: {
-          type: 'Recurrence'
-          recurrence: {
-            frequency: 'Day'
-            interval: 1
-            startTime: '2022-01-01T23:00:00'
-            timeZone: TimeZone
-          }
-        }
-      }
-    }
   }
 }
 

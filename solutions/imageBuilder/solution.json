@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.11.1.770",
-      "templateHash": "1102765195936735264"
+      "templateHash": "631602557513755495"
     }
   },
   "parameters": {
@@ -243,7 +243,6 @@
     },
     "ImageTemplateName": "[format('it-{0}-{1}-{2}', toLower(parameters('ImageDefinitionName')), parameters('Environment'), variables('LocationShortName'))]",
     "LocationShortName": "[variables('LocationShortNames')[parameters('Location')]]",
-    "LogicAppName": "[format('la-{0}', variables('NamingStandard'))]",
     "NamingStandard": "[format('aib-{0}-{1}', parameters('Environment'), variables('LocationShortName'))]",
     "ResourceGroup": "[format('rg-{0}', variables('NamingStandard'))]",
     "Roles": "[union(variables('Roles_Default'), variables('Role_AzureCloud'))]",
@@ -1188,9 +1187,6 @@
           "LogAnalyticsWorkspaceResourceId": {
             "value": "[parameters('LogAnalyticsWorkspaceResourceId')]"
           },
-          "LogicAppName": {
-            "value": "[variables('LogicAppName')]"
-          },
           "TimeZone": {
             "value": "[variables('TimeZone')]"
           }
@@ -1202,7 +1198,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.11.1.770",
-              "templateHash": "18091062627423765064"
+              "templateHash": "15650035049124667998"
             }
           },
           "parameters": {
@@ -1227,12 +1223,9 @@
             "LogAnalyticsWorkspaceResourceId": {
               "type": "string"
             },
-            "LogicAppName": {
-              "type": "string"
-            },
-            "Timestamp": {
+            "Time": {
               "type": "string",
-              "defaultValue": "[utcNow('u')]",
+              "defaultValue": "[utcNow()]",
               "metadata": {
                 "description": "ISO 8601 timestamp used to help determine the webhook expiration date.  The webhook is hardcoded to expire 5 years after the timestamp."
               }
@@ -1242,6 +1235,8 @@
             }
           },
           "variables": {
+            "EnvironmentName": "[environment().name]",
+            "ImageTemplateResourceGroupName": "[resourceGroup().name]",
             "Modules": [
               {
                 "name": "Az.Accounts",
@@ -1253,7 +1248,8 @@
               }
             ],
             "Runbook": "AIB-BuildAutomation",
-            "Webhook": "[format('{0}_{1}', variables('Runbook'), dateTimeAdd(parameters('Timestamp'), 'PT0H', 'yyyyMMddhhmmss'))]"
+            "SubscriptionId": "[subscription().subscriptionId]",
+            "TenantId": "[subscription().tenantId]"
           },
           "resources": [
             {
@@ -1310,19 +1306,46 @@
               ]
             },
             {
-              "type": "Microsoft.Automation/automationAccounts/webhooks",
-              "apiVersion": "2015-10-31",
-              "name": "[format('{0}/{1}', parameters('AutomationAccountName'), variables('Webhook'))]",
+              "type": "Microsoft.Automation/automationAccounts/schedules",
+              "apiVersion": "2022-08-08",
+              "name": "[format('{0}/{1}', parameters('AutomationAccountName'), parameters('ImageTemplateName'))]",
               "properties": {
-                "isEnabled": true,
-                "expiryTime": "[dateTimeAdd(parameters('Timestamp'), 'P5Y')]",
+                "frequency": "Day",
+                "interval": 1,
+                "startTime": "[dateTimeAdd(parameters('Time'), 'PT15M')]",
+                "timeZone": "[parameters('TimeZone')]"
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Automation/automationAccounts', parameters('AutomationAccountName'))]"
+              ]
+            },
+            {
+              "type": "Microsoft.Automation/automationAccounts/jobSchedules",
+              "apiVersion": "2022-08-08",
+              "name": "[format('{0}/{1}', parameters('AutomationAccountName'), guid(variables('Runbook'), parameters('ImageTemplateName')))]",
+              "properties": {
+                "parameters": {
+                  "EnvironmentName": "[variables('EnvironmentName')]",
+                  "ImagePublisher": "[parameters('ImagePublisher')]",
+                  "ImageOffer": "[parameters('ImageOffer')]",
+                  "ImageSku": "[parameters('ImageSku')]",
+                  "Location": "[parameters('Location')]",
+                  "SubscriptionId": "[variables('SubscriptionId')]",
+                  "TemplateName": "[parameters('ImageTemplateName')]",
+                  "TemplateResourceGroupName": "[variables('ImageTemplateResourceGroupName')]",
+                  "TenantId": "[variables('TenantId')]"
+                },
                 "runbook": {
                   "name": "[variables('Runbook')]"
+                },
+                "schedule": {
+                  "name": "[parameters('ImageTemplateName')]"
                 }
               },
               "dependsOn": [
                 "[resourceId('Microsoft.Automation/automationAccounts', parameters('AutomationAccountName'))]",
-                "[resourceId('Microsoft.Automation/automationAccounts/runbooks', parameters('AutomationAccountName'), variables('Runbook'))]"
+                "[resourceId('Microsoft.Automation/automationAccounts/runbooks', parameters('AutomationAccountName'), variables('Runbook'))]",
+                "[resourceId('Microsoft.Automation/automationAccounts/schedules', parameters('AutomationAccountName'), parameters('ImageTemplateName'))]"
               ]
             },
             {
@@ -1346,52 +1369,6 @@
               },
               "dependsOn": [
                 "[resourceId('Microsoft.Automation/automationAccounts', parameters('AutomationAccountName'))]"
-              ]
-            },
-            {
-              "type": "Microsoft.Logic/workflows",
-              "apiVersion": "2016-06-01",
-              "name": "[parameters('LogicAppName')]",
-              "location": "[parameters('Location')]",
-              "properties": {
-                "state": "Enabled",
-                "definition": {
-                  "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
-                  "actions": {
-                    "HTTP": {
-                      "type": "Http",
-                      "inputs": {
-                        "method": "POST",
-                        "uri": "[reference(resourceId('Microsoft.Automation/automationAccounts/webhooks', parameters('AutomationAccountName'), variables('Webhook'))).uri]",
-                        "body": {
-                          "EnvironmentName": "[environment().name]",
-                          "ImagePublisher": "[parameters('ImagePublisher')]",
-                          "ImageOffer": "[parameters('ImageOffer')]",
-                          "ImageSku": "[parameters('ImageSku')]",
-                          "Location": "[parameters('Location')]",
-                          "SubscriptionId": "[subscription().subscriptionId]",
-                          "TemplateName": "[parameters('ImageTemplateName')]",
-                          "TemplateResourceGroupName": "[resourceGroup().name]",
-                          "TenantId": "[subscription().tenantId]"
-                        }
-                      }
-                    }
-                  },
-                  "triggers": {
-                    "Recurrence": {
-                      "type": "Recurrence",
-                      "recurrence": {
-                        "frequency": "Day",
-                        "interval": 1,
-                        "startTime": "2022-01-01T23:00:00",
-                        "timeZone": "[parameters('TimeZone')]"
-                      }
-                    }
-                  }
-                }
-              },
-              "dependsOn": [
-                "[resourceId('Microsoft.Automation/automationAccounts/webhooks', parameters('AutomationAccountName'), variables('Webhook'))]"
               ]
             }
           ],

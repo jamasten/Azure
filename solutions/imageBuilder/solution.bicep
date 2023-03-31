@@ -7,8 +7,14 @@ param DeployProjectVisio bool = false
 @description('Determine whether you want to run the Virtual Desktop Optimization Tool on the image.')
 param DeployVirtualDesktopOptimizationTool bool = true
 
+@description('The distribution group that will recieve email alerts when an AIB image build either succeeds or fails.')
+param DistributionGroup string
+
 @description('Determine whether you want to enable build automation.  This feature will check daily if a new marketplace image exists and will initiate a build if the image date is newer than the last build date.')
 param EnableBuildAutomation bool = true
+
+@description('Determine whether you want to enable monitoring and alerting for the AIB image builds.')
+param EnableMonitoringAndAlerting bool = true
 
 @allowed([
   'd' // Development
@@ -56,9 +62,6 @@ param ImageStorageAccountType string = 'Standard_LRS'
 @description('The location for the resources deployed in this solution.')
 param Location string = deployment().location
 
-@description('The resource ID for the Log Analytics Workspace to store runbook events for bulid automation.')
-param LogAnalyticsWorkspaceResourceId string = '/subscriptions/3764b123-4849-4395-8e6e-ca6d68d8d4b4/resourcegroups/rg-shd-svc-d-eu-000/providers/microsoft.operationalinsights/workspaces/law-shd-net-d-eu-000'
-
 @description('The name for the storage account containing the scripts & application installers.')
 param StorageAccountName string = 'stshdsvcdeu000'
 
@@ -86,7 +89,10 @@ param VirtualNetworkName string = 'vnet-shd-net-d-eu-000'
 param VirtualNetworkResourceGroupName string = 'rg-shd-net-d-eu-000'
 
 
+var ActionGroupName = 'ag-${NamingStandard}'
 var AutomationAccountName = 'aa-${NamingStandard}'
+var ImageTemplateName = 'it-${toLower(ImageDefinitionName)}-${Environment}-${LocationShortName}'
+var LocationShortName = LocationShortNames[Location]
 var LocationShortNames = {
   australiacentral: 'ac'
   australiacentral2: 'ac2'
@@ -142,8 +148,7 @@ var LocationShortNames = {
   westus2: 'wu2'
   westus3: 'wu3'
 }
-var ImageTemplateName = 'it-${toLower(ImageDefinitionName)}-${Environment}-${LocationShortName}'
-var LocationShortName = LocationShortNames[Location]
+var LogAnalyticsWorkspaceName = 'law-${NamingStandard}'
 var NamingStandard = 'aib-${Environment}-${LocationShortName}'
 var ResourceGroup = 'rg-${NamingStandard}'
 var Roles = union(Roles_Default, Role_AzureCloud)
@@ -408,6 +413,18 @@ module imageTemplate 'modules/imageTemplate.bicep' = {
   ]
 }
 
+module monitoring 'modules/monitoring.bicep' = if(EnableMonitoringAndAlerting) {
+  name: 'Monitoring_${Timestamp}'
+  scope: rg
+  params: {
+    ActionGroupName: ActionGroupName
+    DistributionGroup: DistributionGroup
+    Location: Location
+    LogAnalyticsWorkspaceName: LogAnalyticsWorkspaceName
+    Tags: Tags
+  }
+}
+
 module automationAccount 'modules/buildAutomation.bicep' = if(EnableBuildAutomation) {
   name: 'AutomationAccount_${Timestamp}'
   scope: rg
@@ -418,7 +435,7 @@ module automationAccount 'modules/buildAutomation.bicep' = if(EnableBuildAutomat
     ImageSku: ImageSku
     ImageTemplateName: ImageTemplateName
     Location: Location
-    LogAnalyticsWorkspaceResourceId: LogAnalyticsWorkspaceResourceId
+    LogAnalyticsWorkspaceResourceId: monitoring.outputs.LogAnalyticsWorkspaceResourceId
     TimeZone: TimeZone
   }
 }

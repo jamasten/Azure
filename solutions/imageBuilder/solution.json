@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.11.1.770",
-      "templateHash": "631602557513755495"
+      "templateHash": "10441303139012869503"
     }
   },
   "parameters": {
@@ -23,11 +23,24 @@
         "description": "Determine whether you want to run the Virtual Desktop Optimization Tool on the image."
       }
     },
+    "DistributionGroup": {
+      "type": "string",
+      "metadata": {
+        "description": "The distribution group that will recieve email alerts when an AIB image build either succeeds or fails."
+      }
+    },
     "EnableBuildAutomation": {
       "type": "bool",
       "defaultValue": true,
       "metadata": {
         "description": "Determine whether you want to enable build automation.  This feature will check daily if a new marketplace image exists and will initiate a build if the image date is newer than the last build date."
+      }
+    },
+    "EnableMonitoringAndAlerting": {
+      "type": "bool",
+      "defaultValue": true,
+      "metadata": {
+        "description": "Determine whether you want to enable monitoring and alerting for the AIB image builds."
       }
     },
     "Environment": {
@@ -116,13 +129,6 @@
         "description": "The location for the resources deployed in this solution."
       }
     },
-    "LogAnalyticsWorkspaceResourceId": {
-      "type": "string",
-      "defaultValue": "/subscriptions/3764b123-4849-4395-8e6e-ca6d68d8d4b4/resourcegroups/rg-shd-svc-d-eu-000/providers/microsoft.operationalinsights/workspaces/law-shd-net-d-eu-000",
-      "metadata": {
-        "description": "The resource ID for the Log Analytics Workspace to store runbook events for bulid automation."
-      }
-    },
     "StorageAccountName": {
       "type": "string",
       "defaultValue": "stshdsvcdeu000",
@@ -185,7 +191,10 @@
     }
   },
   "variables": {
+    "ActionGroupName": "[format('ag-{0}', variables('NamingStandard'))]",
     "AutomationAccountName": "[format('aa-{0}', variables('NamingStandard'))]",
+    "ImageTemplateName": "[format('it-{0}-{1}-{2}', toLower(parameters('ImageDefinitionName')), parameters('Environment'), variables('LocationShortName'))]",
+    "LocationShortName": "[variables('LocationShortNames')[parameters('Location')]]",
     "LocationShortNames": {
       "australiacentral": "ac",
       "australiacentral2": "ac2",
@@ -241,8 +250,7 @@
       "westus2": "wu2",
       "westus3": "wu3"
     },
-    "ImageTemplateName": "[format('it-{0}-{1}-{2}', toLower(parameters('ImageDefinitionName')), parameters('Environment'), variables('LocationShortName'))]",
-    "LocationShortName": "[variables('LocationShortNames')[parameters('Location')]]",
+    "LogAnalyticsWorkspaceName": "[format('law-{0}', variables('NamingStandard'))]",
     "NamingStandard": "[format('aib-{0}-{1}', parameters('Environment'), variables('LocationShortName'))]",
     "ResourceGroup": "[format('rg-{0}', variables('NamingStandard'))]",
     "Roles": "[union(variables('Roles_Default'), variables('Role_AzureCloud'))]",
@@ -1155,6 +1163,210 @@
       ]
     },
     {
+      "condition": "[parameters('EnableMonitoringAndAlerting')]",
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2020-10-01",
+      "name": "[format('Monitoring_{0}', parameters('Timestamp'))]",
+      "resourceGroup": "[variables('ResourceGroup')]",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "ActionGroupName": {
+            "value": "[variables('ActionGroupName')]"
+          },
+          "DistributionGroup": {
+            "value": "[parameters('DistributionGroup')]"
+          },
+          "Location": {
+            "value": "[parameters('Location')]"
+          },
+          "LogAnalyticsWorkspaceName": {
+            "value": "[variables('LogAnalyticsWorkspaceName')]"
+          },
+          "Tags": {
+            "value": "[parameters('Tags')]"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "0.11.1.770",
+              "templateHash": "4989782168510364759"
+            }
+          },
+          "parameters": {
+            "ActionGroupName": {
+              "type": "string"
+            },
+            "DistributionGroup": {
+              "type": "string"
+            },
+            "Location": {
+              "type": "string"
+            },
+            "LogAnalyticsWorkspaceName": {
+              "type": "string"
+            },
+            "Tags": {
+              "type": "object"
+            }
+          },
+          "variables": {
+            "Alerts": [
+              {
+                "name": "Azure Image Builder - Build Failure",
+                "description": "Sends an error alert when a build fails on an image template for Azure Image Builder.",
+                "severity": 0,
+                "evaluationFrequency": "PT5M",
+                "windowSize": "PT5M",
+                "criteria": {
+                  "allOf": [
+                    {
+                      "query": "AzureDiagnostics\n| where ResourceProvider == \"MICROSOFT.AUTOMATION\"\n| where Category  == \"JobStreams\"\n| where ResultDescription has \"Image Template build failed\"",
+                      "timeAggregation": "Count",
+                      "dimensions": [
+                        {
+                          "name": "ResultDescription",
+                          "operator": "Include",
+                          "values": [
+                            "*"
+                          ]
+                        }
+                      ],
+                      "operator": "GreaterThanOrEqual",
+                      "threshold": 1,
+                      "failingPeriods": {
+                        "numberOfEvaluationPeriods": 1,
+                        "minFailingPeriodsToAlert": 1
+                      }
+                    }
+                  ]
+                }
+              },
+              {
+                "name": "Azure Image Builder - Build Success",
+                "description": "Sends an informational alert when a build succeeds on an image template for Azure Image Builder.",
+                "severity": 3,
+                "evaluationFrequency": "PT5M",
+                "windowSize": "PT5M",
+                "criteria": {
+                  "allOf": [
+                    {
+                      "query": "AzureDiagnostics\n| where ResourceProvider == \"MICROSOFT.AUTOMATION\"\n| where Category  == \"JobStreams\"\n| where ResultDescription has \"Image Template build succeeded\"",
+                      "timeAggregation": "Count",
+                      "dimensions": [
+                        {
+                          "name": "ResultDescription",
+                          "operator": "Include",
+                          "values": [
+                            "*"
+                          ]
+                        }
+                      ],
+                      "operator": "GreaterThanOrEqual",
+                      "threshold": 1,
+                      "failingPeriods": {
+                        "numberOfEvaluationPeriods": 1,
+                        "minFailingPeriodsToAlert": 1
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          },
+          "resources": [
+            {
+              "type": "Microsoft.OperationalInsights/workspaces",
+              "apiVersion": "2021-06-01",
+              "name": "[parameters('LogAnalyticsWorkspaceName')]",
+              "location": "[parameters('Location')]",
+              "tags": "[parameters('Tags')]",
+              "properties": {
+                "sku": {
+                  "name": "PerGB2018"
+                },
+                "retentionInDays": 30,
+                "workspaceCapping": {
+                  "dailyQuotaGb": -1
+                },
+                "publicNetworkAccessForIngestion": "Enabled",
+                "publicNetworkAccessForQuery": "Enabled"
+              }
+            },
+            {
+              "type": "Microsoft.Insights/actionGroups",
+              "apiVersion": "2022-06-01",
+              "name": "[parameters('ActionGroupName')]",
+              "location": "global",
+              "tags": "[parameters('Tags')]",
+              "properties": {
+                "emailReceivers": [
+                  {
+                    "emailAddress": "[parameters('DistributionGroup')]",
+                    "name": "[parameters('DistributionGroup')]",
+                    "useCommonAlertSchema": true
+                  }
+                ],
+                "enabled": true,
+                "groupShortName": "AIB Builds"
+              }
+            },
+            {
+              "copy": {
+                "name": "scheduledQueryRules",
+                "count": "[length(range(0, length(variables('Alerts'))))]"
+              },
+              "type": "Microsoft.Insights/scheduledQueryRules",
+              "apiVersion": "2022-06-15",
+              "name": "[variables('Alerts')[range(0, length(variables('Alerts')))[copyIndex()]].name]",
+              "location": "[parameters('Location')]",
+              "tags": "[parameters('Tags')]",
+              "kind": "LogAlert",
+              "properties": {
+                "actions": {
+                  "actionGroups": [
+                    "[resourceId('Microsoft.Insights/actionGroups', parameters('ActionGroupName'))]"
+                  ]
+                },
+                "autoMitigate": false,
+                "skipQueryValidation": false,
+                "criteria": "[variables('Alerts')[range(0, length(variables('Alerts')))[copyIndex()]].criteria]",
+                "description": "[variables('Alerts')[range(0, length(variables('Alerts')))[copyIndex()]].description]",
+                "displayName": "[variables('Alerts')[range(0, length(variables('Alerts')))[copyIndex()]].name]",
+                "enabled": true,
+                "evaluationFrequency": "[variables('Alerts')[range(0, length(variables('Alerts')))[copyIndex()]].evaluationFrequency]",
+                "severity": "[variables('Alerts')[range(0, length(variables('Alerts')))[copyIndex()]].severity]",
+                "windowSize": "[variables('Alerts')[range(0, length(variables('Alerts')))[copyIndex()]].windowSize]",
+                "scopes": [
+                  "[resourceId('Microsoft.OperationalInsights/workspaces', parameters('LogAnalyticsWorkspaceName'))]"
+                ]
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Insights/actionGroups', parameters('ActionGroupName'))]",
+                "[resourceId('Microsoft.OperationalInsights/workspaces', parameters('LogAnalyticsWorkspaceName'))]"
+              ]
+            }
+          ],
+          "outputs": {
+            "LogAnalyticsWorkspaceResourceId": {
+              "type": "string",
+              "value": "[resourceId('Microsoft.OperationalInsights/workspaces', parameters('LogAnalyticsWorkspaceName'))]"
+            }
+          }
+        }
+      },
+      "dependsOn": [
+        "[subscriptionResourceId('Microsoft.Resources/resourceGroups', variables('ResourceGroup'))]"
+      ]
+    },
+    {
       "condition": "[parameters('EnableBuildAutomation')]",
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2020-10-01",
@@ -1185,7 +1397,7 @@
             "value": "[parameters('Location')]"
           },
           "LogAnalyticsWorkspaceResourceId": {
-            "value": "[parameters('LogAnalyticsWorkspaceResourceId')]"
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroup')), 'Microsoft.Resources/deployments', format('Monitoring_{0}', parameters('Timestamp'))), '2020-10-01').outputs.LogAnalyticsWorkspaceResourceId.value]"
           },
           "TimeZone": {
             "value": "[variables('TimeZone')]"
@@ -1381,6 +1593,7 @@
         }
       },
       "dependsOn": [
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroup')), 'Microsoft.Resources/deployments', format('Monitoring_{0}', parameters('Timestamp')))]",
         "[subscriptionResourceId('Microsoft.Resources/resourceGroups', variables('ResourceGroup'))]"
       ]
     },

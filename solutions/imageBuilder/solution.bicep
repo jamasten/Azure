@@ -435,7 +435,7 @@ module automationAccount 'modules/buildAutomation.bicep' = if(EnableBuildAutomat
     ImageSku: ImageSku
     ImageTemplateName: ImageTemplateName
     Location: Location
-    LogAnalyticsWorkspaceResourceId: monitoring.outputs.LogAnalyticsWorkspaceResourceId
+    LogAnalyticsWorkspaceResourceId: EnableMonitoringAndAlerting ? monitoring.outputs.LogAnalyticsWorkspaceResourceId : ''
     TimeZone: TimeZone
   }
 }

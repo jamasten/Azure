@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.11.1.770",
-      "templateHash": "10441303139012869503"
+      "templateHash": "18180645941862531969"
     }
   },
   "parameters": {
@@ -1397,7 +1397,7 @@
             "value": "[parameters('Location')]"
           },
           "LogAnalyticsWorkspaceResourceId": {
-            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroup')), 'Microsoft.Resources/deployments', format('Monitoring_{0}', parameters('Timestamp'))), '2020-10-01').outputs.LogAnalyticsWorkspaceResourceId.value]"
+            "value": "[if(parameters('EnableMonitoringAndAlerting'), reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroup')), 'Microsoft.Resources/deployments', format('Monitoring_{0}', parameters('Timestamp'))), '2020-10-01').outputs.LogAnalyticsWorkspaceResourceId.value, '')]"
           },
           "TimeZone": {
             "value": "[variables('TimeZone')]"

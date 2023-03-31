@@ -14,10 +14,13 @@ If a resource ID for a Log Analytics Workspace is specified during deployment, t
 
 The following resources are deployed with this solution:
 
+- Action Group
 - Automation Account
   - Diagnostic Setting
+  - Job Schedule
   - Modules
   - Runbook
+  - Schedule
   - Webhook
 - Compute Gallery
   - Image Definition
@@ -25,14 +28,14 @@ The following resources are deployed with this solution:
   - Container Instance (temporary)
   - Storage Account (temporary)
 - Image Template
-- Logic App
+- Log Analytics Workspace
 - Role Definitions
 - Role Assignments
+- Schedule Query Rules
 - User Assigned Identity
 
 ## Prerequisites
 
-- Log Analytics Workspace (Optional): this is needed to capture the log data for the Automation Runbook jobs and setup alerts if desired.
 - Virtual Network (Required): ensure a virtual network has been deployed and the target subnet has an assigned Network Security Group with the required rule configured: [PowerShell for NSG Rule](https://learn.microsoft.com/azure/virtual-machines/windows/image-builder-vnet#add-an-nsg-rule)
 
 ## Deployment Options

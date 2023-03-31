@@ -56,7 +56,6 @@ var VDOT = DeployVirtualDesktopOptimizationTool ? [
   }
   {
     type: 'WindowsRestart'
-    restartCheckCommand: 'Write-Host "Restarting Windows after running the Virtual Desktop Optimization Tool"'
     restartTimeout: '5m'
   }
 ] : []
@@ -82,7 +81,6 @@ var WindowsUpdate = [
   }
   {
     type: 'WindowsRestart'
-    restartCheckCommand: 'Write-Host "Restarting Windows after running the Virtual Desktop Optimization Tool"'
     restartTimeout: '5m'
   }
 ]

@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.11.1.770",
-      "templateHash": "1080620141917633656"
+      "templateHash": "1102765195936735264"
     }
   },
   "parameters": {
@@ -994,7 +994,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.11.1.770",
-              "templateHash": "3573174777778214924"
+              "templateHash": "12889807069334733579"
             }
           },
           "parameters": {
@@ -1069,7 +1069,7 @@
               }
             ],
             "ProjectOffice": "[if(parameters('DeployProjectVisio'), createArray(createObject('type', 'File', 'name', 'Download the Office Deployment Tool with custom XML', 'sourceUri', format('{0}office.zip', parameters('StorageUri')), 'destination', 'C:\\temp\\office.zip', 'sha256Checksum', toLower('37d222cdf71e9519872e6c24fbc7c30fbd230419710c5a1d7ef3c227c261e41b')), createObject('type', 'PowerShell', 'name', 'Install Microsoft Project & Visio', 'runElevated', true(), 'runAsSystem', true(), 'scriptUri', format('{0}projectVisio.ps1', parameters('StorageUri')))), createArray())]",
-            "VDOT": "[if(parameters('DeployVirtualDesktopOptimizationTool'), createArray(createObject('type', 'PowerShell', 'name', 'Download & Run the Virtual Desktop Optimization Tool', 'runElevated', true(), 'runAsSystem', true(), 'scriptUri', format('{0}vdot.ps1', parameters('StorageUri'))), createObject('type', 'WindowsRestart', 'restartCheckCommand', 'Write-Host \"Restarting Windows after running the Virtual Desktop Optimization Tool\"', 'restartTimeout', '5m')), createArray())]",
+            "VDOT": "[if(parameters('DeployVirtualDesktopOptimizationTool'), createArray(createObject('type', 'PowerShell', 'name', 'Download & Run the Virtual Desktop Optimization Tool', 'runElevated', true(), 'runAsSystem', true(), 'scriptUri', format('{0}vdot.ps1', parameters('StorageUri'))), createObject('type', 'WindowsRestart', 'restartTimeout', '5m')), createArray())]",
             "RemoveTempDir": [
               {
                 "type": "PowerShell",
@@ -1092,7 +1092,6 @@
               },
               {
                 "type": "WindowsRestart",
-                "restartCheckCommand": "Write-Host \"Restarting Windows after running the Virtual Desktop Optimization Tool\"",
                 "restartTimeout": "5m"
               }
             ],

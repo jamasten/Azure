@@ -113,7 +113,7 @@ resource dsc 'Microsoft.Compute/virtualMachines/extensions@2019-07-01' = if(Doma
     }
     settings: {
       wmfVersion: 'latest'
-      modulesUrl: 'https://github.com/jamasten/Azure/blob/master/landingZone/dsc/ActiveDirectoryForest.zip?raw=true'
+      modulesUrl: 'https://github.com/jamasten/Azure/raw/main/landingZone/dsc/ActiveDirectoryForest.zip'
       configurationFunction: 'ActiveDirectoryForest.ps1\\ActiveDirectoryForest'
       properties: [
         {

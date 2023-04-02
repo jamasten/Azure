@@ -4,17 +4,22 @@
   "metadata": {
     "_generator": {
       "name": "bicep",
-      "version": "0.4.613.9944",
-      "templateHash": "7518083809249940585"
+      "version": "0.11.1.770",
+      "templateHash": "8447447046443571051"
     }
   },
   "parameters": {
     "DomainName": {
       "type": "string",
-      "defaultValue": "jasonmasten.us"
+      "metadata": {
+        "description": "The domain name that will be used used for Active Directory. If choosing \"None\" for DomainServices, use the default value."
+      }
     },
     "DomainServices": {
       "type": "string",
+      "metadata": {
+        "description": "The domain services that will be used for kerberos authentication."
+      },
       "allowedValues": [
         "ActiveDirectory",
         "AzureActiveDirectory",
@@ -23,31 +28,41 @@
     },
     "Environment": {
       "type": "string",
-      "defaultValue": "d"
+      "defaultValue": "d",
+      "metadata": {
+        "description": "The environment in which the landing zone will be deployed."
+      },
+      "allowedValues": [
+        "d",
+        "p",
+        "s",
+        "t"
+      ]
     },
     "Location": {
       "type": "string",
-      "defaultValue": "usgovvirginia"
+      "defaultValue": "[deployment().location]",
+      "metadata": {
+        "description": "The location where all the resources will be deployed."
+      }
     },
-    "LocationAbbr": {
-      "type": "string",
-      "defaultValue": "va"
-    },
-    "ProjAppSvc": {
+    "Component": {
       "type": "array",
       "defaultValue": [
         "id",
         "net",
-        "svc"
-      ]
+        "core"
+      ],
+      "metadata": {
+        "description": "Identifier for the deployed infrastructure component."
+      }
     },
     "Timestamp": {
       "type": "string",
-      "defaultValue": "[utcNow('yyyyMMddhhmmss')]"
-    },
-    "UnitDept": {
-      "type": "string",
-      "defaultValue": "shd"
+      "defaultValue": "[utcNow('yyyyMMddhhmmss')]",
+      "metadata": {
+        "description": "WARNING: Do not change the default value!"
+      }
     },
     "UserObjectId": {
       "type": "string",
@@ -58,34 +73,87 @@
     "VmPassword": {
       "type": "secureString",
       "metadata": {
-        "description": "Azure VM password"
+        "description": "Local VM password"
       }
     },
     "VmUsername": {
-      "type": "string",
+      "type": "secureString",
       "metadata": {
-        "description": "Azure VM username"
+        "description": "Local VM username"
       }
     }
   },
-  "functions": [],
   "variables": {
-    "BastionName": "[format('bastion-{0}-{1}-{2}-{3}', parameters('UnitDept'), parameters('ProjAppSvc')[1], parameters('Environment'), parameters('LocationAbbr'))]",
-    "DomainControllerName": "[format('vm{0}{1}{2}{3}dc', parameters('UnitDept'), parameters('ProjAppSvc')[0], parameters('Environment'), parameters('LocationAbbr'))]",
-    "DomainControllerDiskName": "[format('disk-{0}-{1}-{2}-{3}-dc', parameters('UnitDept'), parameters('ProjAppSvc')[0], parameters('Environment'), parameters('LocationAbbr'))]",
-    "DomainControllerNicName": "[format('nic-{0}-{1}-{2}-{3}-dc', parameters('UnitDept'), parameters('ProjAppSvc')[0], parameters('Environment'), parameters('LocationAbbr'))]",
-    "KeyVaultName": "[format('kv-{0}-{1}-{2}-{3}', parameters('UnitDept'), parameters('ProjAppSvc')[0], parameters('Environment'), parameters('LocationAbbr'))]",
-    "LogAnalyticsWorkspaceName": "[format('law-{0}-{1}-{2}-{3}', parameters('UnitDept'), parameters('ProjAppSvc')[1], parameters('Environment'), parameters('LocationAbbr'))]",
-    "ManagedIdentityName": "[format('uami-{0}-{1}-{2}-{3}', parameters('UnitDept'), parameters('ProjAppSvc')[1], parameters('Environment'), parameters('LocationAbbr'))]",
+    "BastionName": "[format('bastion-{0}-{1}-{2}', parameters('Component')[1], parameters('Environment'), variables('LocationShortName'))]",
+    "DomainControllerName": "[format('vm{0}{1}{2}dc', parameters('Component')[0], parameters('Environment'), variables('LocationShortName'))]",
+    "DomainControllerDiskName": "[format('disk-{0}-{1}-{2}-dc', parameters('Component')[0], parameters('Environment'), variables('LocationShortName'))]",
+    "DomainControllerNicName": "[format('nic-{0}-{1}-{2}-dc', parameters('Component')[0], parameters('Environment'), variables('LocationShortName'))]",
+    "KeyVaultName": "[format('kv-{0}-{1}-{2}', parameters('Component')[2], parameters('Environment'), variables('LocationShortName'))]",
+    "LocationShortName": "[variables('LocationShortNames')[parameters('Location')]]",
+    "LocationShortNames": {
+      "australiacentral": "ac",
+      "australiacentral2": "ac2",
+      "australiaeast": "ae",
+      "australiasoutheast": "as",
+      "brazilsouth": "bs2",
+      "brazilsoutheast": "bs",
+      "canadacentral": "cc",
+      "canadaeast": "ce",
+      "centralindia": "ci",
+      "centralus": "cu",
+      "eastasia": "ea",
+      "eastus": "eu",
+      "eastus2": "eu2",
+      "francecentral": "fc",
+      "francesouth": "fs",
+      "germanynorth": "gn",
+      "germanywestcentral": "gwc",
+      "japaneast": "je",
+      "japanwest": "jw",
+      "jioindiacentral": "jic",
+      "jioindiawest": "jiw",
+      "koreacentral": "kc",
+      "koreasouth": "ks",
+      "northcentralus": "ncu",
+      "northeurope": "ne",
+      "norwayeast": "ne2",
+      "norwaywest": "nw",
+      "southafricanorth": "san",
+      "southafricawest": "saw",
+      "southcentralus": "scu",
+      "southeastasia": "sa",
+      "southindia": "si",
+      "swedencentral": "sc",
+      "switzerlandnorth": "sn",
+      "switzerlandwest": "sw",
+      "uaecentral": "uc",
+      "uaenorth": "un",
+      "uksouth": "us",
+      "ukwest": "uw",
+      "usdodcentral": "uc",
+      "usdodeast": "ue",
+      "usgovarizona": "az",
+      "usgoviowa": "ia",
+      "usgovtexas": "tx",
+      "usgovvirginia": "va",
+      "westcentralus": "wcu",
+      "westeurope": "we",
+      "westindia": "wi",
+      "westus": "wu",
+      "westus2": "wu2",
+      "westus3": "wu3"
+    },
+    "LogAnalyticsWorkspaceName": "[format('law-{0}-{1}-{2}', parameters('Component')[2], parameters('Environment'), variables('LocationShortName'))]",
+    "ManagedIdentityName": "[format('uami-{0}-{1}-{2}', parameters('Component')[2], parameters('Environment'), variables('LocationShortName'))]",
     "NetworkContributorId": "4d97b98b-1d4f-4787-a291-c67834d212e7",
-    "NetworkWatcherName": "[format('nw-{0}-{1}-{2}-{3}', parameters('UnitDept'), parameters('ProjAppSvc')[1], parameters('Environment'), parameters('LocationAbbr'))]",
-    "PublicIpAddressName": "[format('pip-bastion-{0}-{1}{2}-{3}', parameters('UnitDept'), parameters('ProjAppSvc')[1], parameters('Environment'), parameters('LocationAbbr'))]",
+    "NetworkWatcherName": "[format('nw-{0}-{1}-{2}', parameters('Component')[1], parameters('Environment'), variables('LocationShortName'))]",
+    "PublicIpAddressName": "[format('pip-bastion-{0}{1}-{2}', parameters('Component')[1], parameters('Environment'), variables('LocationShortName'))]",
     "ResourceGroupNames": [
-      "[format('rg-{0}-{1}-{2}-{3}', parameters('UnitDept'), parameters('ProjAppSvc')[0], parameters('Environment'), parameters('LocationAbbr'))]",
-      "[format('rg-{0}-{1}-{2}-{3}', parameters('UnitDept'), parameters('ProjAppSvc')[1], parameters('Environment'), parameters('LocationAbbr'))]",
-      "[format('rg-{0}-{1}-{2}-{3}', parameters('UnitDept'), parameters('ProjAppSvc')[2], parameters('Environment'), parameters('LocationAbbr'))]"
+      "[format('rg-{0}-{1}-{2}', parameters('Component')[0], parameters('Environment'), variables('LocationShortName'))]",
+      "[format('rg-{0}-{1}-{2}', parameters('Component')[1], parameters('Environment'), variables('LocationShortName'))]",
+      "[format('rg-{0}-{1}-{2}', parameters('Component')[2], parameters('Environment'), variables('LocationShortName'))]"
     ],
-    "VnetName": "[format('vnet-{0}-{1}-{2}-{3}', parameters('UnitDept'), parameters('ProjAppSvc')[1], parameters('Environment'), parameters('LocationAbbr'))]"
+    "VnetName": "[format('vnet-{0}-{1}-{2}', parameters('Component')[1], parameters('Environment'), variables('LocationShortName'))]"
   },
   "resources": [
     {
@@ -101,7 +169,7 @@
     },
     {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2019-10-01",
+      "apiVersion": "2020-10-01",
       "name": "ManagedIdentityTemplate",
       "resourceGroup": "[variables('ResourceGroupNames')[0]]",
       "properties": {
@@ -126,8 +194,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.4.613.9944",
-              "templateHash": "1454396572193676687"
+              "version": "0.11.1.770",
+              "templateHash": "16568776643846698365"
             }
           },
           "parameters": {
@@ -141,7 +209,6 @@
               "type": "string"
             }
           },
-          "functions": [],
           "variables": {
             "RoleAssignmentName": "[guid(resourceGroup().name, parameters('ManagedIdentityName'), parameters('NetworkContributorId'))]"
           },
@@ -154,7 +221,7 @@
             },
             {
               "type": "Microsoft.Authorization/roleAssignments",
-              "apiVersion": "2020-04-01-preview",
+              "apiVersion": "2022-04-01",
               "name": "[variables('RoleAssignmentName')]",
               "properties": {
                 "roleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', parameters('NetworkContributorId'))]",
@@ -180,7 +247,7 @@
     },
     {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2019-10-01",
+      "apiVersion": "2020-10-01",
       "name": "NetworkingTemplate",
       "resourceGroup": "[variables('ResourceGroupNames')[1]]",
       "properties": {
@@ -205,7 +272,7 @@
             "value": "[variables('NetworkWatcherName')]"
           },
           "PrincipalId": {
-            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroupNames')[0]), 'Microsoft.Resources/deployments', 'ManagedIdentityTemplate'), '2019-10-01').outputs.principalId.value]"
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroupNames')[0]), 'Microsoft.Resources/deployments', 'ManagedIdentityTemplate')).outputs.principalId.value]"
           },
           "PublicIpAddressName": {
             "value": "[variables('PublicIpAddressName')]"
@@ -220,8 +287,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.4.613.9944",
-              "templateHash": "14567778532167046391"
+              "version": "0.11.1.770",
+              "templateHash": "5485499353172507284"
             }
           },
           "parameters": {
@@ -250,14 +317,13 @@
               "type": "string"
             }
           },
-          "functions": [],
           "variables": {
             "RoleAssignmentName": "[guid(resourceGroup().name, parameters('ManagedIdentityName'), parameters('NetworkContributorId'))]"
           },
           "resources": [
             {
               "type": "Microsoft.Authorization/roleAssignments",
-              "apiVersion": "2020-04-01-preview",
+              "apiVersion": "2022-04-01",
               "name": "[variables('RoleAssignmentName')]",
               "properties": {
                 "roleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', '4d97b98b-1d4f-4787-a291-c67834d212e7')]",
@@ -473,7 +539,7 @@
     },
     {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2019-10-01",
+      "apiVersion": "2020-10-01",
       "name": "DomainServicesTemplate",
       "resourceGroup": "[variables('ResourceGroupNames')[0]]",
       "properties": {
@@ -519,8 +585,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.4.613.9944",
-              "templateHash": "12676179936297345304"
+              "version": "0.11.1.770",
+              "templateHash": "6650533619157880762"
             }
           },
           "parameters": {
@@ -555,7 +621,6 @@
               "type": "string"
             }
           },
-          "functions": [],
           "resources": [
             {
               "condition": "[equals(parameters('DomainServices'), 'AzureActiveDirectory')]",
@@ -669,7 +734,7 @@
                 },
                 "settings": {
                   "wmfVersion": "latest",
-                  "modulesUrl": "https://github.com/jamasten/Azure/blob/master/landingZone/dsc/ActiveDirectoryForest.zip?raw=true",
+                  "modulesUrl": "https://github.com/jamasten/Azure/raw/main/landingZone/dsc/ActiveDirectoryForest.zip",
                   "configurationFunction": "ActiveDirectoryForest.ps1\\ActiveDirectoryForest",
                   "properties": [
                     {
@@ -701,7 +766,7 @@
     },
     {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2019-10-01",
+      "apiVersion": "2020-10-01",
       "name": "DnsFixTemplate",
       "resourceGroup": "[variables('ResourceGroupNames')[0]]",
       "properties": {
@@ -735,8 +800,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.4.613.9944",
-              "templateHash": "10689713883033427770"
+              "version": "0.11.1.770",
+              "templateHash": "2909235999305936147"
             }
           },
           "parameters": {
@@ -759,7 +824,6 @@
               "type": "string"
             }
           },
-          "functions": [],
           "resources": [
             {
               "condition": "[equals(parameters('DomainServices'), 'ActiveDirectory')]",
@@ -771,7 +835,7 @@
               "identity": {
                 "type": "UserAssigned",
                 "userAssignedIdentities": {
-                  "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', parameters('ManagedIdentityName'))]": {}
+                  "[format('{0}', resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', parameters('ManagedIdentityName')))]": {}
                 }
               },
               "properties": {
@@ -794,7 +858,7 @@
               "identity": {
                 "type": "UserAssigned",
                 "userAssignedIdentities": {
-                  "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', parameters('ManagedIdentityName'))]": {}
+                  "[format('{0}', resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', parameters('ManagedIdentityName')))]": {}
                 }
               },
               "properties": {
@@ -818,7 +882,7 @@
     },
     {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2019-10-01",
+      "apiVersion": "2020-10-01",
       "name": "SharedServicesTemplate",
       "resourceGroup": "[variables('ResourceGroupNames')[2]]",
       "properties": {
@@ -840,7 +904,7 @@
             "value": "[variables('LogAnalyticsWorkspaceName')]"
           },
           "ManagedIdentityPrincipalId": {
-            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroupNames')[0]), 'Microsoft.Resources/deployments', 'ManagedIdentityTemplate'), '2019-10-01').outputs.principalId.value]"
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroupNames')[0]), 'Microsoft.Resources/deployments', 'ManagedIdentityTemplate')).outputs.principalId.value]"
           },
           "UserObjectId": {
             "value": "[parameters('UserObjectId')]"
@@ -858,8 +922,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.4.613.9944",
-              "templateHash": "657418999688382498"
+              "version": "0.11.1.770",
+              "templateHash": "7064683669703435841"
             }
           },
           "parameters": {
@@ -888,7 +952,6 @@
               "type": "string"
             }
           },
-          "functions": [],
           "resources": [
             {
               "type": "Microsoft.KeyVault/vaults",

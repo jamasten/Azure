@@ -5,15 +5,36 @@
     "_generator": {
       "name": "bicep",
       "version": "0.11.1.770",
-      "templateHash": "18180645941862531969"
+      "templateHash": "16531058637036350168"
     }
   },
   "parameters": {
-    "DeployProjectVisio": {
+    "DeployFSLogix": {
       "type": "bool",
-      "defaultValue": false,
+      "defaultValue": true,
       "metadata": {
-        "description": "Determine whether you want to install Microsoft Project & Visio in the image."
+        "description": "Determine whether you want to install FSLogix in the image."
+      }
+    },
+    "DeployOffice": {
+      "type": "bool",
+      "defaultValue": true,
+      "metadata": {
+        "description": "Determine whether you want to install Microsoft Office 365 in the image."
+      }
+    },
+    "DeployOneDrive": {
+      "type": "bool",
+      "defaultValue": true,
+      "metadata": {
+        "description": "Determine whether you want to install One Drive in the image."
+      }
+    },
+    "DeployTeams": {
+      "type": "bool",
+      "defaultValue": true,
+      "metadata": {
+        "description": "Determine whether you want to install Teams in the image."
       }
     },
     "DeployVirtualDesktopOptimizationTool": {
@@ -65,7 +86,7 @@
     },
     "ImageDefinitionName": {
       "type": "string",
-      "defaultValue": "Win10-22h2-avd-g2",
+      "defaultValue": "Win11-22h2-avd",
       "metadata": {
         "description": "The name of the Image Definition for the Shared Image Gallery."
       }
@@ -85,7 +106,7 @@
     },
     "ImageOffer": {
       "type": "string",
-      "defaultValue": "windows-10",
+      "defaultValue": "windows-11",
       "metadata": {
         "description": "The offer of the marketplace image."
       }
@@ -99,7 +120,7 @@
     },
     "ImageSku": {
       "type": "string",
-      "defaultValue": "win10-22h2-avd-g2",
+      "defaultValue": "win11-22h2-avd",
       "metadata": {
         "description": "The SKU of the marketplace image."
       }
@@ -131,14 +152,14 @@
     },
     "StorageAccountName": {
       "type": "string",
-      "defaultValue": "stshdsvcdeu000",
+      "defaultValue": "sacoredeu",
       "metadata": {
         "description": "The name for the storage account containing the scripts & application installers."
       }
     },
     "StorageAccountResourceGroupName": {
       "type": "string",
-      "defaultValue": "rg-shd-svc-d-eu-000",
+      "defaultValue": "rg-core-d-eu",
       "metadata": {
         "description": "The resource group name for the storage account containing the scripts & application installers."
       }
@@ -170,21 +191,21 @@
     },
     "VirtualMachineSize": {
       "type": "string",
-      "defaultValue": "Standard_D4s_v5",
+      "defaultValue": "Standard_D4ds_v5",
       "metadata": {
         "description": "The size of the virtual machine used for creating the image.  The recommendation is to use a 'Standard_D2_v2' size or greater for AVD. https://github.com/danielsollondon/azvmimagebuilder/tree/master/solutions/14_Building_Images_WVD"
       }
     },
     "VirtualNetworkName": {
       "type": "string",
-      "defaultValue": "vnet-shd-net-d-eu-000",
+      "defaultValue": "vnet-net-d-eu",
       "metadata": {
         "description": "The name for the custom virtual network."
       }
     },
     "VirtualNetworkResourceGroupName": {
       "type": "string",
-      "defaultValue": "rg-shd-net-d-eu-000",
+      "defaultValue": "rg-net-d-eu",
       "metadata": {
         "description": "The resource group name for the custom virtual network."
       }
@@ -936,8 +957,17 @@
         },
         "mode": "Incremental",
         "parameters": {
-          "DeployProjectVisio": {
-            "value": "[parameters('DeployProjectVisio')]"
+          "DeployFSLogix": {
+            "value": "[parameters('DeployFSLogix')]"
+          },
+          "DeployOffice": {
+            "value": "[parameters('DeployOffice')]"
+          },
+          "DeployOneDrive": {
+            "value": "[parameters('DeployOneDrive')]"
+          },
+          "DeployTeams": {
+            "value": "[parameters('DeployTeams')]"
           },
           "DeployVirtualDesktopOptimizationTool": {
             "value": "[parameters('DeployVirtualDesktopOptimizationTool')]"
@@ -1001,11 +1031,20 @@
             "_generator": {
               "name": "bicep",
               "version": "0.11.1.770",
-              "templateHash": "12889807069334733579"
+              "templateHash": "15601212084424302215"
             }
           },
           "parameters": {
-            "DeployProjectVisio": {
+            "DeployFSLogix": {
+              "type": "bool"
+            },
+            "DeployOffice": {
+              "type": "bool"
+            },
+            "DeployOneDrive": {
+              "type": "bool"
+            },
+            "DeployTeams": {
               "type": "bool"
             },
             "DeployVirtualDesktopOptimizationTool": {
@@ -1071,11 +1110,14 @@
                 "runElevated": true,
                 "runAsSystem": true,
                 "inline": [
-                  "New-Item -Path \"C:\\\" -Name \"temp\" -ItemType \"Directory\""
+                  "New-Item -Path \"C:\\\" -Name \"temp\" -ItemType \"Directory\" -Force"
                 ]
               }
             ],
-            "ProjectOffice": "[if(parameters('DeployProjectVisio'), createArray(createObject('type', 'File', 'name', 'Download the Office Deployment Tool with custom XML', 'sourceUri', format('{0}office.zip', parameters('StorageUri')), 'destination', 'C:\\temp\\office.zip', 'sha256Checksum', toLower('37d222cdf71e9519872e6c24fbc7c30fbd230419710c5a1d7ef3c227c261e41b')), createObject('type', 'PowerShell', 'name', 'Install Microsoft Project & Visio', 'runElevated', true(), 'runAsSystem', true(), 'scriptUri', format('{0}projectVisio.ps1', parameters('StorageUri')))), createArray())]",
+            "FSLogix": "[if(parameters('DeployFSLogix'), createArray(createObject('type', 'PowerShell', 'name', 'Install FSLogix', 'runElevated', true(), 'runAsSystem', true(), 'scriptUri', format('{0}fslogix.ps1', parameters('StorageUri')))), createArray())]",
+            "Office": "[if(parameters('DeployOffice'), createArray(createObject('type', 'PowerShell', 'name', 'Output Azure AD Tenant ID to a text file', 'runElevated', true(), 'runAsSystem', true(), 'inline', format('{0} | Out-File -Path \"C:\\temp\\AzureADTenantID.txt\"', subscription().tenantId)), createObject('type', 'PowerShell', 'name', 'Install Microsoft Office 365', 'runElevated', true(), 'runAsSystem', true(), 'scriptUri', format('{0}o365.ps1', parameters('StorageUri')))), createArray())]",
+            "OneDrive": "[if(parameters('DeployOneDrive'), createArray(createObject('type', 'PowerShell', 'name', 'Install One Drive', 'runElevated', true(), 'runAsSystem', true(), 'scriptUri', format('{0}onedrive.ps1', parameters('StorageUri')))), createArray())]",
+            "Teams": "[if(parameters('DeployTeams'), createArray(createObject('type', 'PowerShell', 'name', 'Install Teams', 'runElevated', true(), 'runAsSystem', true(), 'scriptUri', format('{0}teams.ps1', parameters('StorageUri')))), createArray())]",
             "VDOT": "[if(parameters('DeployVirtualDesktopOptimizationTool'), createArray(createObject('type', 'PowerShell', 'name', 'Download & Run the Virtual Desktop Optimization Tool', 'runElevated', true(), 'runAsSystem', true(), 'scriptUri', format('{0}vdot.ps1', parameters('StorageUri'))), createObject('type', 'WindowsRestart', 'restartTimeout', '5m')), createArray())]",
             "RemoveTempDir": [
               {
@@ -1102,7 +1144,7 @@
                 "restartTimeout": "5m"
               }
             ],
-            "Customizers": "[union(variables('CreateTempDir'), variables('ProjectOffice'), variables('VDOT'), variables('RemoveTempDir'), variables('WindowsUpdate'))]"
+            "Customizers": "[union(variables('CreateTempDir'), variables('VDOT'), variables('FSLogix'), variables('Office'), variables('OneDrive'), variables('Teams'), variables('RemoveTempDir'), variables('WindowsUpdate'))]"
           },
           "resources": [
             {

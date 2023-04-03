@@ -100,6 +100,7 @@ param VirtualNetworkResourceGroupName string = 'rg-net-d-eu'
 
 var ActionGroupName = 'ag-${NamingStandard}'
 var AutomationAccountName = 'aa-${NamingStandard}'
+var DeploymentScriptName = 'ds-${NamingStandard}'
 var ImageTemplateName = 'it-${toLower(ImageDefinitionName)}-${Environment}-${LocationShortName}'
 var LocationShortName = LocationShortNames[Location]
 var LocationShortNames = {
@@ -430,6 +431,7 @@ module monitoring 'modules/monitoring.bicep' = if(EnableMonitoringAndAlerting) {
   scope: rg
   params: {
     ActionGroupName: ActionGroupName
+    DeploymentScriptName: DeploymentScriptName
     DistributionGroup: DistributionGroup
     Location: Location
     LogAnalyticsWorkspaceName: LogAnalyticsWorkspaceName

@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.11.1.770",
-      "templateHash": "16531058637036350168"
+      "templateHash": "11301449692068712553"
     }
   },
   "parameters": {
@@ -214,6 +214,7 @@
   "variables": {
     "ActionGroupName": "[format('ag-{0}', variables('NamingStandard'))]",
     "AutomationAccountName": "[format('aa-{0}', variables('NamingStandard'))]",
+    "DeploymentScriptName": "[format('ds-{0}', variables('NamingStandard'))]",
     "ImageTemplateName": "[format('it-{0}-{1}-{2}', toLower(parameters('ImageDefinitionName')), parameters('Environment'), variables('LocationShortName'))]",
     "LocationShortName": "[variables('LocationShortNames')[parameters('Location')]]",
     "LocationShortNames": {
@@ -1219,6 +1220,9 @@
           "ActionGroupName": {
             "value": "[variables('ActionGroupName')]"
           },
+          "DeploymentScriptName": {
+            "value": "[variables('DeploymentScriptName')]"
+          },
           "DistributionGroup": {
             "value": "[parameters('DistributionGroup')]"
           },
@@ -1239,11 +1243,14 @@
             "_generator": {
               "name": "bicep",
               "version": "0.11.1.770",
-              "templateHash": "4989782168510364759"
+              "templateHash": "7935423607655512150"
             }
           },
           "parameters": {
             "ActionGroupName": {
+              "type": "string"
+            },
+            "DeploymentScriptName": {
               "type": "string"
             },
             "DistributionGroup": {
@@ -1257,6 +1264,10 @@
             },
             "Tags": {
               "type": "object"
+            },
+            "Time": {
+              "type": "string",
+              "defaultValue": "[utcNow('yyyy-MM-dd-HH-mm-ss')]"
             }
           },
           "variables": {
@@ -1361,6 +1372,22 @@
               }
             },
             {
+              "type": "Microsoft.Resources/deploymentScripts",
+              "apiVersion": "2020-10-01",
+              "name": "[parameters('DeploymentScriptName')]",
+              "location": "[parameters('Location')]",
+              "tags": "[parameters('Tags')]",
+              "kind": "AzurePowerShell",
+              "properties": {
+                "azPowerShellVersion": "6.2",
+                "scriptContent": "    Write-Host \"Start\"\r\n    Get-Date\r\n    Start-Sleep -Seconds 120\r\n    Write-Host \"Stop\"\r\n    Get-Date\r\n    ",
+                "cleanupPreference": "Always",
+                "forceUpdateTag": "[parameters('Time')]",
+                "retentionInterval": "P1D",
+                "timeout": "PT10M"
+              }
+            },
+            {
               "copy": {
                 "name": "scheduledQueryRules",
                 "count": "[length(range(0, length(variables('Alerts'))))]"
@@ -1392,6 +1419,7 @@
               },
               "dependsOn": [
                 "[resourceId('Microsoft.Insights/actionGroups', parameters('ActionGroupName'))]",
+                "[resourceId('Microsoft.Resources/deploymentScripts', parameters('DeploymentScriptName'))]",
                 "[resourceId('Microsoft.OperationalInsights/workspaces', parameters('LogAnalyticsWorkspaceName'))]"
               ]
             }

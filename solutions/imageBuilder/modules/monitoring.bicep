@@ -1,8 +1,10 @@
 param ActionGroupName string
+param DeploymentScriptName string
 param DistributionGroup string
 param Location string
 param LogAnalyticsWorkspaceName string
 param Tags object
+param Time string = utcNow('yyyy-MM-dd-HH-mm-ss')
 
 var Alerts = [
   {
@@ -101,6 +103,28 @@ resource actionGroup 'Microsoft.Insights/actionGroups@2022-06-01' = {
   }
 }
 
+// wait for Log Analytics Workspace
+resource deploymentScript 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
+  name: DeploymentScriptName
+  location: Location
+  tags: Tags
+  kind: 'AzurePowerShell'
+  properties: {
+    azPowerShellVersion: '6.2'
+    scriptContent: '''
+    Write-Host "Start"
+    Get-Date
+    Start-Sleep -Seconds 120
+    Write-Host "Stop"
+    Get-Date
+    '''
+    cleanupPreference: 'Always'
+    forceUpdateTag: Time
+    retentionInterval: 'P1D'
+    timeout: 'PT10M'
+  }
+}
+
 resource scheduledQueryRules 'Microsoft.Insights/scheduledQueryRules@2022-06-15' = [for i in range(0, length(Alerts)): {
   name: Alerts[i].name
   location: Location
@@ -125,6 +149,9 @@ resource scheduledQueryRules 'Microsoft.Insights/scheduledQueryRules@2022-06-15'
       logAnalyticsWorkspace.id
     ]
   }
+  dependsOn: [
+    deploymentScript
+  ]
 }]
 
 

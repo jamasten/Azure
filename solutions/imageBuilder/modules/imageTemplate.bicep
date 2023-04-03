@@ -1,4 +1,7 @@
-param DeployProjectVisio bool
+param DeployFSLogix bool
+param DeployOffice bool
+param DeployOneDrive bool
+param DeployTeams bool
 param DeployVirtualDesktopOptimizationTool bool
 param ImageDefinitionResourceId string
 param ImageOffer string
@@ -26,24 +29,44 @@ var CreateTempDir = [
     runElevated: true
     runAsSystem: true
     inline: [
-      'New-Item -Path "C:\\" -Name "temp" -ItemType "Directory"'
+      'New-Item -Path "C:\\" -Name "temp" -ItemType "Directory" -Force'
     ]
   }
 ]
-var ProjectOffice = DeployProjectVisio ? [
-  {
-    type: 'File'
-    name: 'Download the Office Deployment Tool with custom XML'
-    sourceUri: '${StorageUri}office.zip'
-    destination: 'C:\\temp\\office.zip'
-    sha256Checksum: toLower('37d222cdf71e9519872e6c24fbc7c30fbd230419710c5a1d7ef3c227c261e41b') // value must be lowercase
-  }
+var FSLogix = DeployFSLogix ? [
   {
     type: 'PowerShell'
-    name: 'Install Microsoft Project & Visio'
+    name: 'Install FSLogix'
     runElevated: true
     runAsSystem: true
-    scriptUri: '${StorageUri}projectVisio.ps1'
+    scriptUri: '${StorageUri}fslogix.ps1'
+  }
+] : []
+var Office = DeployOffice ? [
+  {
+    type: 'PowerShell'
+    name: 'Install Microsoft Office 365'
+    runElevated: true
+    runAsSystem: true
+    scriptUri: '${StorageUri}o365.ps1'
+  }
+] : []
+var OneDrive = DeployOneDrive ? [
+  {
+    type: 'PowerShell'
+    name: 'Install One Drive'
+    runElevated: true
+    runAsSystem: true
+    scriptUri: '${StorageUri}onedrive.ps1'
+  }
+] : []
+var Teams = DeployTeams ? [
+  {
+    type: 'PowerShell'
+    name: 'Install Teams'
+    runElevated: true
+    runAsSystem: true
+    scriptUri: '${StorageUri}teams.ps1'
   }
 ] : []
 var VDOT = DeployVirtualDesktopOptimizationTool ? [
@@ -84,7 +107,7 @@ var WindowsUpdate = [
     restartTimeout: '5m'
   }
 ]
-var Customizers = union(CreateTempDir, ProjectOffice, VDOT, RemoveTempDir, WindowsUpdate)
+var Customizers = union(CreateTempDir, VDOT, FSLogix, Office, OneDrive, Teams, RemoveTempDir, WindowsUpdate)
 
 
 resource imageTemplate 'Microsoft.VirtualMachineImages/imageTemplates@2022-02-14' = {

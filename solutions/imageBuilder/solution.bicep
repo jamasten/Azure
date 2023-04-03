@@ -1,8 +1,17 @@
 targetScope = 'subscription'
 
 
-@description('Determine whether you want to install Microsoft Project & Visio in the image.')
-param DeployProjectVisio bool = false
+@description('Determine whether you want to install FSLogix in the image.')
+param DeployFSLogix bool = true
+
+@description('Determine whether you want to install Microsoft Office 365 in the image.')
+param DeployOffice bool = true
+
+@description('Determine whether you want to install One Drive in the image.')
+param DeployOneDrive bool = true
+
+@description('Determine whether you want to install Teams in the image.')
+param DeployTeams bool = true
 
 @description('Determine whether you want to run the Virtual Desktop Optimization Tool on the image.')
 param DeployVirtualDesktopOptimizationTool bool = true
@@ -29,7 +38,7 @@ param Environment string = 'd'
 param ExemptPolicyAssignmentIds array = []
 
 @description('The name of the Image Definition for the Shared Image Gallery.')
-param ImageDefinitionName string = 'Win10-22h2-avd-g2'
+param ImageDefinitionName string = 'Win11-22h2-avd'
 
 @allowed([
   'ConfidentialVM'
@@ -41,13 +50,13 @@ param ImageDefinitionName string = 'Win10-22h2-avd-g2'
 param ImageDefinitionSecurityType string = 'TrustedLaunch'
 
 @description('The offer of the marketplace image.')
-param ImageOffer string = 'windows-10'
+param ImageOffer string = 'windows-11'
 
 @description('The publisher of the marketplace image.')
 param ImagePublisher string = 'microsoftwindowsdesktop'
 
 @description('The SKU of the marketplace image.')
-param ImageSku string = 'win10-22h2-avd-g2'
+param ImageSku string = 'win11-22h2-avd'
 
 @description('The version of the marketplace image.')
 param ImageVersion string = 'latest'
@@ -63,10 +72,10 @@ param ImageStorageAccountType string = 'Standard_LRS'
 param Location string = deployment().location
 
 @description('The name for the storage account containing the scripts & application installers.')
-param StorageAccountName string = 'stshdsvcdeu000'
+param StorageAccountName string = 'sacoredeu'
 
 @description('The resource group name for the storage account containing the scripts & application installers.')
-param StorageAccountResourceGroupName string = 'rg-shd-svc-d-eu-000'
+param StorageAccountResourceGroupName string = 'rg-core-d-eu'
 
 @description('The name of the container in the storage account containing the scripts & application installers.')
 param StorageContainerName string = 'artifacts'
@@ -80,13 +89,13 @@ param Tags object = {}
 param Timestamp string = utcNow('yyyyMMddhhmmss')
 
 @description('The size of the virtual machine used for creating the image.  The recommendation is to use a \'Standard_D2_v2\' size or greater for AVD. https://github.com/danielsollondon/azvmimagebuilder/tree/master/solutions/14_Building_Images_WVD')
-param VirtualMachineSize string = 'Standard_D4s_v5'
+param VirtualMachineSize string = 'Standard_D4ds_v5'
 
 @description('The name for the custom virtual network.')
-param VirtualNetworkName string = 'vnet-shd-net-d-eu-000'
+param VirtualNetworkName string = 'vnet-net-d-eu'
 
 @description('The resource group name for the custom virtual network.')
-param VirtualNetworkResourceGroupName string = 'rg-shd-net-d-eu-000'
+param VirtualNetworkResourceGroupName string = 'rg-net-d-eu'
 
 
 var ActionGroupName = 'ag-${NamingStandard}'
@@ -385,7 +394,10 @@ module imageTemplate 'modules/imageTemplate.bicep' = {
   name: 'ImageTemplate_${Timestamp}'
   scope: rg
   params: {
-    DeployProjectVisio: DeployProjectVisio
+    DeployFSLogix: DeployFSLogix
+    DeployOffice: DeployOffice
+    DeployOneDrive: DeployOneDrive
+    DeployTeams: DeployTeams
     DeployVirtualDesktopOptimizationTool: DeployVirtualDesktopOptimizationTool
     ImageDefinitionResourceId: computeGallery.outputs.ImageDefinitionResourceId
     ImageOffer: ImageOffer

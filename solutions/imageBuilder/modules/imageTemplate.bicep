@@ -45,6 +45,13 @@ var FSLogix = DeployFSLogix ? [
 var Office = DeployOffice ? [
   {
     type: 'PowerShell'
+    name: 'Output Azure AD Tenant ID to a text file'
+    runElevated: true
+    runAsSystem: true
+    inline: '${subscription().tenantId} | Out-File -Path "C:\\temp\\AzureADTenantID.txt"'
+  }
+  {
+    type: 'PowerShell'
     name: 'Install Microsoft Office 365'
     runElevated: true
     runAsSystem: true

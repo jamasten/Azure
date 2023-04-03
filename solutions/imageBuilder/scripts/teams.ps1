@@ -1,19 +1,7 @@
 # Install Teams in per-machine mode for Windows multi-session operating systems
 # This script was developed to install Teams using Azure Image Builder
 
-function Write-Log
-{
-    param(
-        [parameter(Mandatory)]
-        [string]$Message,
-        
-        [parameter(Mandatory)]
-        [string]$Type
-    )
-    $Timestamp = Get-Date -Format 'MM/dd/yyyy HH:mm:ss.ff'
-    $Entry = '[' + $Timestamp + '] [' + $Type + '] ' + $Message
-    Write-Host $Entry
-}
+$ErrorActionPreference = 'Stop'
 
 function Set-RegistrySetting 
 {
@@ -45,18 +33,18 @@ function Set-RegistrySetting
     if(!$Value)
     {
         New-ItemProperty -Path $Path -Name $Name -PropertyType $PropertyType -Value $Value -Force
-        Write-Log -Message "Added registry setting: $LogOutputValue" -Type 'INFO'
+        Write-Host "Added registry setting: $LogOutputValue"
     }
     # Updates the registry setting when it already exists
     elseif($Value.$($Name) -ne $Value)
     {
         Set-ItemProperty -Path $Path -Name $Name -Value $Value -Force
-        Write-Log -Message "Updated registry setting: $LogOutputValue" -Type 'INFO'
+        Write-Host "Updated registry setting: $LogOutputValue"
     }
     # Writes log output when registry setting has the correct value
     else 
     {
-        Write-Log -Message "Registry setting exists with correct value: $LogOutputValue" -Type 'INFO'    
+        Write-Host "Registry setting exists with correct value: $LogOutputValue"    
     }
     Start-Sleep -Seconds 1
 }
@@ -71,24 +59,24 @@ try
     $File = 'C:\temp\vc_redist.x64.exe'
     Invoke-WebRequest -Uri $URL -OutFile $File
     Start-Process -FilePath $File -Args "/install /quiet /norestart /log vcdist.log" -Wait
-    Write-Log -Type 'INFO' -Message 'Installed Visual C++'
+    Write-Host 'Installed Visual C++'
 
     # Install Teams WebSocket Service
     $URL = 'https://query.prod.cms.rt.microsoft.com/cms/api/am/binary/RE4AQBt'
     $File = 'C:\temp\webSocketSvc.msi'
     Invoke-WebRequest -Uri $URL -OutFile $File
     Start-Process -FilePath msiexec.exe -Args "/i $File /quiet /qn /norestart /passive /log webSocket.log" -Wait
-    Write-Log -Type 'INFO' -Message 'Installed the Teams WebSocket service'
+    Write-Host 'Installed the Teams WebSocket service'
 
     # Install Teams
     $URL = 'https://teams.microsoft.com/downloads/desktopurl?env=production&plat=windows&arch=x64&managedInstaller=true&download=true'
     $File = 'C:\temp\teams.msi'
     Invoke-WebRequest -Uri $URL -OutFile $File
     Start-Process -FilePath msiexec.exe -Args "/i $File /quiet /qn /norestart /passive /log teams.log ALLUSER=1 ALLUSERS=1" -Wait
-    Write-Log -Type 'INFO' -Message 'Installed Teams'
+    Write-Host 'Installed Teams'
 }
 catch 
 {
-    Write-Log -Message $_ -Type 'ERROR'
+    Write-Host $_
     throw
 }

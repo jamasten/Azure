@@ -471,9 +471,12 @@ module automationAccount 'modules/buildAutomation.bicep' = if(EnableBuildAutomat
 }
 
 module policyExemptions 'modules/exemption.bicep' = [for i in range(0, length(ExemptPolicyAssignmentIds)): if(length(ExemptPolicyAssignmentIds) > 0) {
-  name: 'PolicyExemption_${ExemptPolicyAssignmentIds[i]}'
+  name: 'PolicyExemption_${i}'
   scope: resourceGroup(StagingResourceGroupName)
   params: {
     PolicyAssignmentId: ExemptPolicyAssignmentIds[i]
   }
+  dependsOn: [
+    imageTemplate
+  ]
 }]

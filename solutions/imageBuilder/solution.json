@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.11.1.770",
-      "templateHash": "8308125293775569236"
+      "templateHash": "12903956276695721003"
     }
   },
   "parameters": {
@@ -1777,7 +1777,7 @@
       },
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2020-10-01",
-      "name": "[format('PolicyExemption_{0}', parameters('ExemptPolicyAssignmentIds')[range(0, length(parameters('ExemptPolicyAssignmentIds')))[copyIndex()]])]",
+      "name": "[format('PolicyExemption_{0}', range(0, length(parameters('ExemptPolicyAssignmentIds')))[copyIndex()])]",
       "resourceGroup": "[variables('StagingResourceGroupName')]",
       "properties": {
         "expressionEvaluationOptions": {
@@ -1823,7 +1823,10 @@
             }
           ]
         }
-      }
+      },
+      "dependsOn": [
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroup')), 'Microsoft.Resources/deployments', format('ImageTemplate_{0}', parameters('Timestamp')))]"
+      ]
     }
   ]
 }

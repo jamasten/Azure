@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.11.1.770",
-      "templateHash": "11301449692068712553"
+      "templateHash": "13847516130870310274"
     }
   },
   "parameters": {
@@ -950,6 +950,96 @@
     {
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2020-10-01",
+      "name": "[format('OneDrive_{0}', parameters('Timestamp'))]",
+      "resourceGroup": "[parameters('StorageAccountResourceGroupName')]",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "DeploymentScriptName": {
+            "value": "[variables('DeploymentScriptName')]"
+          },
+          "Location": {
+            "value": "[parameters('Location')]"
+          },
+          "StorageAccountName": {
+            "value": "[parameters('StorageAccountName')]"
+          },
+          "StorageContainerName": {
+            "value": "[parameters('StorageContainerName')]"
+          },
+          "Tags": {
+            "value": "[parameters('Tags')]"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "0.11.1.770",
+              "templateHash": "4183532008165970054"
+            }
+          },
+          "parameters": {
+            "DeploymentScriptName": {
+              "type": "string"
+            },
+            "Location": {
+              "type": "string"
+            },
+            "StorageAccountName": {
+              "type": "string"
+            },
+            "StorageContainerName": {
+              "type": "string"
+            },
+            "Tags": {
+              "type": "object"
+            }
+          },
+          "variables": {
+            "FileName": "tenantId.txt"
+          },
+          "resources": [
+            {
+              "type": "Microsoft.Resources/deploymentScripts",
+              "apiVersion": "2020-10-01",
+              "name": "[format('{0}-onedrive', parameters('DeploymentScriptName'))]",
+              "location": "[parameters('Location')]",
+              "tags": "[parameters('Tags')]",
+              "kind": "AzureCLI",
+              "properties": {
+                "azCliVersion": "2.26.1",
+                "timeout": "PT5M",
+                "retentionInterval": "PT1H",
+                "environmentVariables": [
+                  {
+                    "name": "AZURE_STORAGE_ACCOUNT",
+                    "value": "[parameters('StorageAccountName')]"
+                  },
+                  {
+                    "name": "AZURE_STORAGE_KEY",
+                    "secureValue": "[listKeys(resourceId('Microsoft.Storage/storageAccounts', parameters('StorageAccountName')), '2021-01-01').keys[0].value]"
+                  },
+                  {
+                    "name": "CONTENT",
+                    "value": "[subscription().tenantId]"
+                  }
+                ],
+                "scriptContent": "[format('echo \"$CONTENT\" > {0} && az storage blob upload -f {1} -c {2} -n {3}', variables('FileName'), variables('FileName'), parameters('StorageContainerName'), variables('FileName'))]"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2020-10-01",
       "name": "[format('ImageTemplate_{0}', parameters('Timestamp'))]",
       "resourceGroup": "[variables('ResourceGroup')]",
       "properties": {
@@ -1032,7 +1122,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.11.1.770",
-              "templateHash": "15601212084424302215"
+              "templateHash": "15714378290141138587"
             }
           },
           "parameters": {
@@ -1116,8 +1206,8 @@
               }
             ],
             "FSLogix": "[if(parameters('DeployFSLogix'), createArray(createObject('type', 'PowerShell', 'name', 'Install FSLogix', 'runElevated', true(), 'runAsSystem', true(), 'scriptUri', format('{0}fslogix.ps1', parameters('StorageUri')))), createArray())]",
-            "Office": "[if(parameters('DeployOffice'), createArray(createObject('type', 'PowerShell', 'name', 'Output Azure AD Tenant ID to a text file', 'runElevated', true(), 'runAsSystem', true(), 'inline', format('{0} | Out-File -Path \"C:\\temp\\AzureADTenantID.txt\"', subscription().tenantId)), createObject('type', 'PowerShell', 'name', 'Install Microsoft Office 365', 'runElevated', true(), 'runAsSystem', true(), 'scriptUri', format('{0}o365.ps1', parameters('StorageUri')))), createArray())]",
-            "OneDrive": "[if(parameters('DeployOneDrive'), createArray(createObject('type', 'PowerShell', 'name', 'Install One Drive', 'runElevated', true(), 'runAsSystem', true(), 'scriptUri', format('{0}onedrive.ps1', parameters('StorageUri')))), createArray())]",
+            "Office": "[if(parameters('DeployOffice'), createArray(createObject('type', 'PowerShell', 'name', 'Install Microsoft Office 365', 'runElevated', true(), 'runAsSystem', true(), 'scriptUri', format('{0}o365.ps1', parameters('StorageUri')))), createArray())]",
+            "OneDrive": "[if(parameters('DeployOneDrive'), createArray(createObject('type', 'File', 'name', 'Tenant ID', 'sourceUri', format('{0}tenantId.txt', parameters('StorageUri')), 'destination', 'C:\\temp\\tenantId.txt'), createObject('type', 'PowerShell', 'name', 'Install One Drive', 'runElevated', true(), 'runAsSystem', true(), 'scriptUri', format('{0}onedrive.ps1', parameters('StorageUri')))), createArray())]",
             "Teams": "[if(parameters('DeployTeams'), createArray(createObject('type', 'PowerShell', 'name', 'Install Teams', 'runElevated', true(), 'runAsSystem', true(), 'scriptUri', format('{0}teams.ps1', parameters('StorageUri')))), createArray())]",
             "VDOT": "[if(parameters('DeployVirtualDesktopOptimizationTool'), createArray(createObject('type', 'PowerShell', 'name', 'Download & Run the Virtual Desktop Optimization Tool', 'runElevated', true(), 'runAsSystem', true(), 'scriptUri', format('{0}vdot.ps1', parameters('StorageUri'))), createObject('type', 'WindowsRestart', 'restartTimeout', '5m')), createArray())]",
             "RemoveTempDir": [
@@ -1198,6 +1288,7 @@
       "dependsOn": [
         "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroup')), 'Microsoft.Resources/deployments', format('ComputeGallery_{0}', parameters('Timestamp')))]",
         "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroup')), 'Microsoft.Resources/deployments', format('NetworkPolicy_{0}', parameters('Timestamp')))]",
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('StorageAccountResourceGroupName')), 'Microsoft.Resources/deployments', format('OneDrive_{0}', parameters('Timestamp')))]",
         "[subscriptionResourceId('Microsoft.Resources/resourceGroups', variables('ResourceGroup'))]",
         "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroup')), 'Microsoft.Resources/deployments', format('RoleAssignment_{0}_{1}', variables('ResourceGroup'), parameters('Timestamp')))]",
         "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('StorageAccountResourceGroupName')), 'Microsoft.Resources/deployments', format('RoleAssignment_{0}_{1}', parameters('StorageAccountName'), parameters('Timestamp')))]",

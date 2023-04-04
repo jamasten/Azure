@@ -391,6 +391,18 @@ module networkPolicy 'modules/networkPolicy.bicep' = {
   ]
 }
 
+module oneDrive 'modules/oneDrive.bicep' = {
+  scope: resourceGroup(StorageAccountResourceGroupName)
+  name: 'OneDrive_${Timestamp}'
+  params: {
+    DeploymentScriptName: DeploymentScriptName
+    Location: Location
+    StorageAccountName: StorageAccountName
+    StorageContainerName: StorageContainerName
+    Tags: Tags
+  }
+}
+
 module imageTemplate 'modules/imageTemplate.bicep' = {
   name: 'ImageTemplate_${Timestamp}'
   scope: rg
@@ -420,6 +432,7 @@ module imageTemplate 'modules/imageTemplate.bicep' = {
   }
   dependsOn: [
     networkPolicy
+    oneDrive
     roleAssignment_AzureUSGovernment
     roleAssignment_Storage
     roleAssignments

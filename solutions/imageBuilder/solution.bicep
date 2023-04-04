@@ -35,7 +35,10 @@ param EnableMonitoringAndAlerting bool = true
 param Environment string = 'd'
 
 @description('Any Azure polices that would affect the AIB build VM should have an exemption for the AIB staging resource group. Common examples are policies that push the Guest Configuration agent or the Microsoft Defender for Endpoint agent. Reference: https://learn.microsoft.com/en-us/azure/virtual-machines/linux/image-builder-troubleshoot#prerequisites')
-param ExemptPolicyAssignmentIds array = []
+param ExemptPolicyAssignmentIds array = [
+  '/subscriptions/3764b123-4849-4395-8e6e-ca6d68d8d4b4/providers/Microsoft.Authorization/policyAssignments/ASC provisioning Guest Configuration agent for Windows'
+
+]
 
 @description('The name of the Image Definition for the Shared Image Gallery.')
 param ImageDefinitionName string = 'Win11-22h2-avd'

@@ -77,7 +77,7 @@ try
     Set-RegistrySetting -Name 'SilentAccountConfig' -Path 'HKLM:\SOFTWARE\Policies\Microsoft\OneDrive' -PropertyType 'DWord' -Value 1
 
     # Set "Redirect & move known folders" registry setting
-    $AzureADTenantID = Get-Content -Path 'C:\temp\AzureADTenantID.txt'
+    $AzureADTenantID = Get-Content -Path 'C:\temp\tenantId.txt'
     Set-RegistrySetting -Name 'KFMSilentOptIn' -Path 'HKLM:\SOFTWARE\Policies\Microsoft\OneDrive' -PropertyType 'String' -Value $AzureADTenantID
 }
 catch 

@@ -33,14 +33,25 @@ var CreateTempDir = [
     ]
   }
 ]
+var FSLogixInstall = {
+  type: 'PowerShell'
+  name: 'Install FSLogix'
+  runElevated: true
+  runAsSystem: true
+  scriptUri: '${StorageUri}fslogix.ps1'
+}
+var FSLogixType = contains(ImageSku, 'avd') ? [
+  FSLogixInstall // This will uninstall any existing installs of FSLogix; review the script for details
+  Restart
+  FSLogixInstall
+  Restart
+] : [
+  FSLogixInstall
+  Restart
+]
 var FSLogix = DeployFSLogix ? [
-  {
-    type: 'PowerShell'
-    name: 'Install FSLogix'
-    runElevated: true
-    runAsSystem: true
-    scriptUri: '${StorageUri}fslogix.ps1'
-  }
+  FSLogixType
+  Restart
 ] : []
 var Office = DeployOffice ? [
   {
@@ -83,10 +94,7 @@ var VDOT = DeployVirtualDesktopOptimizationTool ? [
     runAsSystem: true
     scriptUri: '${StorageUri}vdot.ps1'
   }
-  {
-    type: 'WindowsRestart'
-    restartTimeout: '5m'
-  }
+  Restart
 ] : []
 var RemoveTempDir = [
   {
@@ -99,6 +107,10 @@ var RemoveTempDir = [
     ]
   }
 ]
+var Restart =   {
+  type: 'WindowsRestart'
+  restartTimeout: '5m'
+}
 var WindowsUpdate = [
   {
     type: 'WindowsUpdate'
@@ -108,10 +120,7 @@ var WindowsUpdate = [
       'include:$true'
     ]
   }
-  {
-    type: 'WindowsRestart'
-    restartTimeout: '5m'
-  }
+  Restart
 ]
 var Customizers = union(CreateTempDir, VDOT, FSLogix, Office, OneDrive, Teams, RemoveTempDir, WindowsUpdate)
 

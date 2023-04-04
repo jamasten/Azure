@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.11.1.770",
-      "templateHash": "13847516130870310274"
+      "templateHash": "8308125293775569236"
     }
   },
   "parameters": {
@@ -79,7 +79,9 @@
     },
     "ExemptPolicyAssignmentIds": {
       "type": "array",
-      "defaultValue": [],
+      "defaultValue": [
+        "/subscriptions/3764b123-4849-4395-8e6e-ca6d68d8d4b4/providers/Microsoft.Authorization/policyAssignments/ASC provisioning Guest Configuration agent for Windows"
+      ],
       "metadata": {
         "description": "Any Azure polices that would affect the AIB build VM should have an exemption for the AIB staging resource group. Common examples are policies that push the Guest Configuration agent or the Microsoft Defender for Endpoint agent. Reference: https://learn.microsoft.com/en-us/azure/virtual-machines/linux/image-builder-troubleshoot#prerequisites"
       }
@@ -1122,7 +1124,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.11.1.770",
-              "templateHash": "15714378290141138587"
+              "templateHash": "12879065451806200871"
             }
           },
           "parameters": {
@@ -1205,11 +1207,19 @@
                 ]
               }
             ],
-            "FSLogix": "[if(parameters('DeployFSLogix'), createArray(createObject('type', 'PowerShell', 'name', 'Install FSLogix', 'runElevated', true(), 'runAsSystem', true(), 'scriptUri', format('{0}fslogix.ps1', parameters('StorageUri')))), createArray())]",
+            "FSLogixInstall": {
+              "type": "PowerShell",
+              "name": "Install FSLogix",
+              "runElevated": true,
+              "runAsSystem": true,
+              "scriptUri": "[format('{0}fslogix.ps1', parameters('StorageUri'))]"
+            },
+            "FSLogixType": "[if(contains(parameters('ImageSku'), 'avd'), createArray(variables('FSLogixInstall'), variables('Restart'), variables('FSLogixInstall'), variables('Restart')), createArray(variables('FSLogixInstall'), variables('Restart')))]",
+            "FSLogix": "[if(parameters('DeployFSLogix'), createArray(variables('FSLogixType'), variables('Restart')), createArray())]",
             "Office": "[if(parameters('DeployOffice'), createArray(createObject('type', 'PowerShell', 'name', 'Install Microsoft Office 365', 'runElevated', true(), 'runAsSystem', true(), 'scriptUri', format('{0}o365.ps1', parameters('StorageUri')))), createArray())]",
             "OneDrive": "[if(parameters('DeployOneDrive'), createArray(createObject('type', 'File', 'name', 'Tenant ID', 'sourceUri', format('{0}tenantId.txt', parameters('StorageUri')), 'destination', 'C:\\temp\\tenantId.txt'), createObject('type', 'PowerShell', 'name', 'Install One Drive', 'runElevated', true(), 'runAsSystem', true(), 'scriptUri', format('{0}onedrive.ps1', parameters('StorageUri')))), createArray())]",
             "Teams": "[if(parameters('DeployTeams'), createArray(createObject('type', 'PowerShell', 'name', 'Install Teams', 'runElevated', true(), 'runAsSystem', true(), 'scriptUri', format('{0}teams.ps1', parameters('StorageUri')))), createArray())]",
-            "VDOT": "[if(parameters('DeployVirtualDesktopOptimizationTool'), createArray(createObject('type', 'PowerShell', 'name', 'Download & Run the Virtual Desktop Optimization Tool', 'runElevated', true(), 'runAsSystem', true(), 'scriptUri', format('{0}vdot.ps1', parameters('StorageUri'))), createObject('type', 'WindowsRestart', 'restartTimeout', '5m')), createArray())]",
+            "VDOT": "[if(parameters('DeployVirtualDesktopOptimizationTool'), createArray(createObject('type', 'PowerShell', 'name', 'Download & Run the Virtual Desktop Optimization Tool', 'runElevated', true(), 'runAsSystem', true(), 'scriptUri', format('{0}vdot.ps1', parameters('StorageUri'))), variables('Restart')), createArray())]",
             "RemoveTempDir": [
               {
                 "type": "PowerShell",
@@ -1221,6 +1231,10 @@
                 ]
               }
             ],
+            "Restart": {
+              "type": "WindowsRestart",
+              "restartTimeout": "5m"
+            },
             "WindowsUpdate": [
               {
                 "type": "WindowsUpdate",
@@ -1230,10 +1244,7 @@
                   "include:$true"
                 ]
               },
-              {
-                "type": "WindowsRestart",
-                "restartTimeout": "5m"
-              }
+              "[variables('Restart')]"
             ],
             "Customizers": "[union(variables('CreateTempDir'), variables('VDOT'), variables('FSLogix'), variables('Office'), variables('OneDrive'), variables('Teams'), variables('RemoveTempDir'), variables('WindowsUpdate'))]"
           },

@@ -14,10 +14,6 @@ $VNET = Get-AzVirtualNetwork `
   -Name $VirtualNetworkName `
   -ResourceGroupName $VirtualNetworkResourceGroupName
 
-$PrivateLinkNetworkPolicy = ($VNET | Select-Object -ExpandProperty 'Subnets' | Where-Object  {$_.Name -eq $SubnetName}).privateLinkServiceNetworkPolicies
+($VNET | Select-Object -ExpandProperty 'Subnets' | Where-Object  {$_.Name -eq $SubnetName}).privateLinkServiceNetworkPolicies = 'Disabled'  
 
-if($PrivateLinkNetworkPolicy -eq 'Enabled')
-{
-  ($VNET | Select-Object -ExpandProperty 'Subnets' | Where-Object  {$_.Name -eq $SubnetName}).privateLinkServiceNetworkPolicies = 'Disabled'  
-  $VNET | Set-AzVirtualNetwork
-}
+$VNET | Set-AzVirtualNetwork

@@ -31,7 +31,7 @@ try
         Write-Host 'Expanded the ZIP file containing FSLogix'
     }
 
-    if(Get-Package -Name 'Microsoft FSLogix Apps')
+    if(Get-Package -Name 'Microsoft FSLogix Apps' -ErrorAction 'SilentlyContinue')
     {
         # Uninstall FSLogix silently
         Start-Process -FilePath 'C:\temp\fslogix\x64\Release\FSLogixAppsSetup.exe' -ArgumentList "/uninstall /quiet /norestart" -Wait -PassThru | Out-Null

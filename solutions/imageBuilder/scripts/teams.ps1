@@ -58,21 +58,21 @@ try
     $URL = 'https://aka.ms/vs/16/release/vc_redist.x64.exe'
     $File = 'C:\temp\vc_redist.x64.exe'
     Invoke-WebRequest -Uri $URL -OutFile $File
-    Start-Process -FilePath $File -Args "/install /quiet /norestart /log vcdist.log" -Wait
+    Start-Process -FilePath $File -Args "/install /quiet /norestart /log vcdist.log" -Wait -PassThru | Out-Null
     Write-Host 'Installed Visual C++'
 
     # Install Teams WebSocket Service
     $URL = 'https://query.prod.cms.rt.microsoft.com/cms/api/am/binary/RE4AQBt'
     $File = 'C:\temp\webSocketSvc.msi'
     Invoke-WebRequest -Uri $URL -OutFile $File
-    Start-Process -FilePath msiexec.exe -Args "/i $File /quiet /qn /norestart /passive /log webSocket.log" -Wait
+    Start-Process -FilePath msiexec.exe -Args "/i $File /quiet /qn /norestart /passive /log webSocket.log" -Wait -PassThru | Out-Null
     Write-Host 'Installed the Teams WebSocket service'
 
     # Install Teams
     $URL = 'https://teams.microsoft.com/downloads/desktopurl?env=production&plat=windows&arch=x64&managedInstaller=true&download=true'
     $File = 'C:\temp\teams.msi'
     Invoke-WebRequest -Uri $URL -OutFile $File
-    Start-Process -FilePath msiexec.exe -Args "/i $File /quiet /qn /norestart /passive /log teams.log ALLUSER=1 ALLUSERS=1" -Wait
+    Start-Process -FilePath msiexec.exe -Args "/i $File /quiet /qn /norestart /passive /log teams.log ALLUSER=1 ALLUSERS=1" -Wait -PassThru | Out-Null
     Write-Host 'Installed Teams'
 }
 catch 

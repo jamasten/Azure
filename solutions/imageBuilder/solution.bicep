@@ -235,7 +235,7 @@ var Role_AzureCloud = environment().name == 'AzureCloud' ? [
     ]
   }
 ] : []
-var StagingResourceGroupName = 'rg-aib-staging-${toLower(ImageDefinitionName)}-${Environment}-${LocationShortName}'
+var StagingResourceGroupName = 'rg-aib-${Environment}-${LocationShortName}-staging-${toLower(ImageDefinitionName)}'
 var StorageUri = 'https://${StorageAccountName}.blob.${environment().suffixes.storage}/${StorageContainerName}/'
 var TimeZone = TimeZones[Location]
 var TimeZones = {

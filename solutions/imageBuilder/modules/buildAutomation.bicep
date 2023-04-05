@@ -3,6 +3,7 @@ param ImageOffer string
 param ImagePublisher string
 param ImageSku string
 param ImageTemplateName string
+param JobScheduleName string = newGuid()
 param Location string
 param LogAnalyticsWorkspaceResourceId string
 @description('ISO 8601 timestamp used to help determine the webhook expiration date.  The webhook is hardcoded to expire 5 years after the timestamp.')
@@ -83,7 +84,8 @@ resource schedule 'Microsoft.Automation/automationAccounts/schedules@2022-08-08'
 
 resource jobSchedule 'Microsoft.Automation/automationAccounts/jobSchedules@2022-08-08' = {
   parent: automationAccount
-  name: guid(runbook.name, schedule.name)
+  //name: guid(runbook.name, schedule.name)
+  name: JobScheduleName
   properties: {
     parameters: {
       EnvironmentName: EnvironmentName

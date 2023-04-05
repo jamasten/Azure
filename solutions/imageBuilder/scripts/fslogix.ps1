@@ -34,14 +34,14 @@ try
     if(Get-Package -Name 'Microsoft FSLogix Apps')
     {
         # Uninstall FSLogix silently
-        Start-Process -FilePath 'C:\temp\fslogix\x64\Release\FSLogixAppsSetup.exe' -ArgumentList "/uninstall /quiet /norestart" -Wait -PassThru
-        Write-Host 'Installed FSLogix'
+        Start-Process -FilePath 'C:\temp\fslogix\x64\Release\FSLogixAppsSetup.exe' -ArgumentList "/uninstall /quiet /norestart" -Wait -PassThru | Out-Null
+        Write-Host 'Uninstalled an existing installation of FSLogix'
     }
     else 
     {
         # Install FSLogix silently
-        Start-Process -FilePath 'C:\temp\fslogix\x64\Release\FSLogixAppsSetup.exe' -ArgumentList "/install /quiet /norestart" -Wait -PassThru
-        Write-Host 'Installed FSLogix'
+        Start-Process -FilePath 'C:\temp\fslogix\x64\Release\FSLogixAppsSetup.exe' -ArgumentList "/install /quiet /norestart" -Wait -PassThru | Out-Null
+        Write-Host 'Installed the latest version of FSLogix'
     }
 }
 catch 

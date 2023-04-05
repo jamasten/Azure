@@ -29,7 +29,7 @@ var CreateTempDir = [
     runElevated: true
     runAsSystem: true
     inline: [
-      'New-Item -Path "C:\\" -Name "temp" -ItemType "Directory" -Force'
+      'New-Item -Path "C:\\" -Name "temp" -ItemType "Directory" -Force | Out-Null; Write-Host "Created Temp Directory"'
     ]
   }
 ]
@@ -124,7 +124,7 @@ var RemoveTempDir = [
     runElevated: true
     runAsSystem: true
     inline: [
-      'Remove-Item -Path "C:\\temp" -Recurse -Force'
+      'Remove-Item -Path "C:\\temp" -Recurse -Force | Out-Null; Write-Host "Removed Temp Directory'
     ]
   }
 ]

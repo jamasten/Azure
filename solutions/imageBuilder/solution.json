@@ -4,8 +4,8 @@
   "metadata": {
     "_generator": {
       "name": "bicep",
-      "version": "0.10.13.619",
-      "templateHash": "9196713274741651159"
+      "version": "0.15.31.15270",
+      "templateHash": "17811958330255153436"
     }
   },
   "parameters": {
@@ -447,8 +447,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.10.13.619",
-              "templateHash": "1007212895746665168"
+              "version": "0.15.31.15270",
+              "templateHash": "10306065150261740702"
             }
           },
           "parameters": {
@@ -477,7 +477,7 @@
           "outputs": {
             "userAssignedIdentityPrincipalId": {
               "type": "string",
-              "value": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', format('uai-aib-{0}-{1}', parameters('Environment'), parameters('LocationShortName')))).principalId]"
+              "value": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', format('uai-aib-{0}-{1}', parameters('Environment'), parameters('LocationShortName'))), '2018-11-30').principalId]"
             },
             "userAssignedIdentityResourceId": {
               "type": "string",
@@ -507,9 +507,7 @@
         },
         "mode": "Incremental",
         "parameters": {
-          "PrincipalId": {
-            "value": "[if(equals(variables('Roles')[range(0, length(variables('Roles')))[copyIndex()]].name, 'Image Template Build Automation'), reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroup')), 'Microsoft.Resources/deployments', format('AutomationAccount_{0}', parameters('Timestamp'))), '2020-10-01').outputs.principalId.value, reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroup')), 'Microsoft.Resources/deployments', format('UserAssignedIdentity_{0}', parameters('Timestamp')))).outputs.userAssignedIdentityPrincipalId.value)]"
-          },
+          "PrincipalId": "[if(equals(variables('Roles')[range(0, length(variables('Roles')))[copyIndex()]].name, 'Image Template Build Automation'), createObject('value', reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroup')), 'Microsoft.Resources/deployments', format('AutomationAccount_{0}', parameters('Timestamp'))), '2020-10-01').outputs.principalId.value), createObject('value', reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroup')), 'Microsoft.Resources/deployments', format('UserAssignedIdentity_{0}', parameters('Timestamp'))), '2020-10-01').outputs.userAssignedIdentityPrincipalId.value))]",
           "RoleDefinitionId": {
             "value": "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', guid(variables('Roles')[range(0, length(variables('Roles')))[range(0, length(variables('Roles')))[copyIndex()]]].name, subscription().id))]"
           }
@@ -520,8 +518,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.10.13.619",
-              "templateHash": "7298594318617940945"
+              "version": "0.15.31.15270",
+              "templateHash": "8171734135965304185"
             }
           },
           "parameters": {
@@ -581,7 +579,7 @@
         "mode": "Incremental",
         "parameters": {
           "PrincipalId": {
-            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroup')), 'Microsoft.Resources/deployments', format('UserAssignedIdentity_{0}', parameters('Timestamp')))).outputs.userAssignedIdentityPrincipalId.value]"
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroup')), 'Microsoft.Resources/deployments', format('UserAssignedIdentity_{0}', parameters('Timestamp'))), '2020-10-01').outputs.userAssignedIdentityPrincipalId.value]"
           },
           "RoleDefinitionId": {
             "value": "[resourceId('Microsoft.Authorization/roleDefinitions', '2a2b9908-6ea1-4ae2-8e65-a410df84e7d1')]"
@@ -596,8 +594,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.10.13.619",
-              "templateHash": "7298594318617940945"
+              "version": "0.15.31.15270",
+              "templateHash": "8171734135965304185"
             }
           },
           "parameters": {
@@ -656,7 +654,7 @@
         "mode": "Incremental",
         "parameters": {
           "PrincipalId": {
-            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroup')), 'Microsoft.Resources/deployments', format('UserAssignedIdentity_{0}', parameters('Timestamp')))).outputs.userAssignedIdentityPrincipalId.value]"
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroup')), 'Microsoft.Resources/deployments', format('UserAssignedIdentity_{0}', parameters('Timestamp'))), '2020-10-01').outputs.userAssignedIdentityPrincipalId.value]"
           },
           "RoleDefinitionId": {
             "value": "[resourceId('Microsoft.Authorization/roleDefinitions', 'b24988ac-6180-42a0-ab88-20f7382dd24c')]"
@@ -668,8 +666,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.10.13.619",
-              "templateHash": "7298594318617940945"
+              "version": "0.15.31.15270",
+              "templateHash": "8171734135965304185"
             }
           },
           "parameters": {
@@ -761,8 +759,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.10.13.619",
-              "templateHash": "3360913343895825536"
+              "version": "0.15.31.15270",
+              "templateHash": "6946086299164884021"
             }
           },
           "parameters": {
@@ -866,7 +864,7 @@
             "value": "[parameters('Timestamp')]"
           },
           "UserAssignedIdentityResourceId": {
-            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroup')), 'Microsoft.Resources/deployments', format('UserAssignedIdentity_{0}', parameters('Timestamp')))).outputs.userAssignedIdentityResourceId.value]"
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroup')), 'Microsoft.Resources/deployments', format('UserAssignedIdentity_{0}', parameters('Timestamp'))), '2020-10-01').outputs.userAssignedIdentityResourceId.value]"
           },
           "VirtualNetworkName": {
             "value": "[parameters('VirtualNetworkName')]"
@@ -881,8 +879,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.10.13.619",
-              "templateHash": "12476339991810301441"
+              "version": "0.15.31.15270",
+              "templateHash": "15332207637769718026"
             }
           },
           "parameters": {
@@ -982,8 +980,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.10.13.619",
-              "templateHash": "6732958971441209112"
+              "version": "0.15.31.15270",
+              "templateHash": "16274555538781415280"
             }
           },
           "parameters": {
@@ -1066,7 +1064,7 @@
             "value": "[parameters('DeployVirtualDesktopOptimizationTool')]"
           },
           "ImageDefinitionResourceId": {
-            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroup')), 'Microsoft.Resources/deployments', format('ComputeGallery_{0}', parameters('Timestamp')))).outputs.ImageDefinitionResourceId.value]"
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroup')), 'Microsoft.Resources/deployments', format('ComputeGallery_{0}', parameters('Timestamp'))), '2020-10-01').outputs.ImageDefinitionResourceId.value]"
           },
           "ImageOffer": {
             "value": "[parameters('ImageOffer')]"
@@ -1105,7 +1103,7 @@
             "value": "[parameters('Timestamp')]"
           },
           "UserAssignedIdentityResourceId": {
-            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroup')), 'Microsoft.Resources/deployments', format('UserAssignedIdentity_{0}', parameters('Timestamp')))).outputs.userAssignedIdentityResourceId.value]"
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroup')), 'Microsoft.Resources/deployments', format('UserAssignedIdentity_{0}', parameters('Timestamp'))), '2020-10-01').outputs.userAssignedIdentityResourceId.value]"
           },
           "VirtualMachineSize": {
             "value": "[parameters('VirtualMachineSize')]"
@@ -1123,8 +1121,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.10.13.619",
-              "templateHash": "14642448690961126605"
+              "version": "0.15.31.15270",
+              "templateHash": "2408530196385909383"
             }
           },
           "parameters": {
@@ -1207,19 +1205,12 @@
                 ]
               }
             ],
-            "FSLogixInstall": {
-              "type": "PowerShell",
-              "name": "Install FSLogix",
-              "runElevated": true,
-              "runAsSystem": true,
-              "scriptUri": "[format('{0}fslogix.ps1', parameters('StorageUri'))]"
-            },
-            "FSLogixType": "[if(contains(parameters('ImageSku'), 'avd'), createArray(variables('FSLogixInstall'), variables('Restart'), variables('FSLogixInstall'), variables('Restart')), createArray(variables('FSLogixInstall'), variables('Restart')))]",
-            "FSLogix": "[if(parameters('DeployFSLogix'), createArray(variables('FSLogixType'), variables('Restart')), createArray())]",
+            "FSLogixType": "[if(contains(parameters('ImageSku'), 'avd'), createArray(createObject('type', 'PowerShell', 'name', 'Uninstall FSLogix', 'runElevated', true(), 'runAsSystem', true(), 'scriptUri', format('{0}fslogix.ps1', parameters('StorageUri'))), createObject('type', 'WindowsRestart', 'restartTimeout', '5m'), createObject('type', 'PowerShell', 'name', 'Install FSLogix', 'runElevated', true(), 'runAsSystem', true(), 'scriptUri', format('{0}fslogix.ps1', parameters('StorageUri'))), createObject('type', 'WindowsRestart', 'restartTimeout', '5m')), createArray(createObject('type', 'PowerShell', 'name', 'Install FSLogix', 'runElevated', true(), 'runAsSystem', true(), 'scriptUri', format('{0}fslogix.ps1', parameters('StorageUri'))), createObject('type', 'WindowsRestart', 'restartTimeout', '5m')))]",
+            "FSLogix": "[if(parameters('DeployFSLogix'), variables('FSLogixType'), createArray())]",
             "Office": "[if(parameters('DeployOffice'), createArray(createObject('type', 'PowerShell', 'name', 'Install Microsoft Office 365', 'runElevated', true(), 'runAsSystem', true(), 'scriptUri', format('{0}o365.ps1', parameters('StorageUri')))), createArray())]",
             "OneDrive": "[if(parameters('DeployOneDrive'), createArray(createObject('type', 'File', 'name', 'Tenant ID', 'sourceUri', format('{0}tenantId.txt', parameters('StorageUri')), 'destination', 'C:\\temp\\tenantId.txt'), createObject('type', 'PowerShell', 'name', 'Install One Drive', 'runElevated', true(), 'runAsSystem', true(), 'scriptUri', format('{0}onedrive.ps1', parameters('StorageUri')))), createArray())]",
             "Teams": "[if(parameters('DeployTeams'), createArray(createObject('type', 'PowerShell', 'name', 'Install Teams', 'runElevated', true(), 'runAsSystem', true(), 'scriptUri', format('{0}teams.ps1', parameters('StorageUri')))), createArray())]",
-            "VDOT": "[if(parameters('DeployVirtualDesktopOptimizationTool'), createArray(createObject('type', 'PowerShell', 'name', 'Download & Run the Virtual Desktop Optimization Tool', 'runElevated', true(), 'runAsSystem', true(), 'scriptUri', format('{0}vdot.ps1', parameters('StorageUri'))), variables('Restart')), createArray())]",
+            "VDOT": "[if(parameters('DeployVirtualDesktopOptimizationTool'), createArray(createObject('type', 'PowerShell', 'name', 'Download & Run the Virtual Desktop Optimization Tool', 'runElevated', true(), 'runAsSystem', true(), 'scriptUri', format('{0}vdot.ps1', parameters('StorageUri'))), createObject('type', 'WindowsRestart', 'restartTimeout', '5m')), createArray())]",
             "RemoveTempDir": [
               {
                 "type": "PowerShell",
@@ -1231,10 +1222,6 @@
                 ]
               }
             ],
-            "Restart": {
-              "type": "WindowsRestart",
-              "restartTimeout": "5m"
-            },
             "WindowsUpdate": [
               {
                 "type": "WindowsUpdate",
@@ -1244,7 +1231,10 @@
                   "include:$true"
                 ]
               },
-              "[variables('Restart')]"
+              {
+                "type": "WindowsRestart",
+                "restartTimeout": "5m"
+              }
             ],
             "Customizers": "[union(variables('CreateTempDir'), variables('VDOT'), variables('FSLogix'), variables('Office'), variables('OneDrive'), variables('Teams'), variables('RemoveTempDir'), variables('WindowsUpdate'))]"
           },
@@ -1344,8 +1334,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.10.13.619",
-              "templateHash": "11353441645323968608"
+              "version": "0.15.31.15270",
+              "templateHash": "10969750753494421771"
             }
           },
           "parameters": {
@@ -1568,9 +1558,7 @@
           "Location": {
             "value": "[parameters('Location')]"
           },
-          "LogAnalyticsWorkspaceResourceId": {
-            "value": "[if(parameters('EnableMonitoringAndAlerting'), reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroup')), 'Microsoft.Resources/deployments', format('Monitoring_{0}', parameters('Timestamp'))), '2020-10-01').outputs.LogAnalyticsWorkspaceResourceId.value, '')]"
-          },
+          "LogAnalyticsWorkspaceResourceId": "[if(parameters('EnableMonitoringAndAlerting'), createObject('value', reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroup')), 'Microsoft.Resources/deployments', format('Monitoring_{0}', parameters('Timestamp'))), '2020-10-01').outputs.LogAnalyticsWorkspaceResourceId.value), createObject('value', ''))]",
           "TimeZone": {
             "value": "[variables('TimeZone')]"
           }
@@ -1581,8 +1569,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.10.13.619",
-              "templateHash": "1506572535957129946"
+              "version": "0.15.31.15270",
+              "templateHash": "17106301561985752466"
             }
           },
           "parameters": {
@@ -1770,11 +1758,11 @@
       ]
     },
     {
-      "condition": "[greater(length(parameters('ExemptPolicyAssignmentIds')), 0)]",
       "copy": {
         "name": "policyExemptions",
         "count": "[length(range(0, length(parameters('ExemptPolicyAssignmentIds'))))]"
       },
+      "condition": "[greater(length(parameters('ExemptPolicyAssignmentIds')), 0)]",
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2020-10-01",
       "name": "[format('PolicyExemption_{0}', range(0, length(parameters('ExemptPolicyAssignmentIds')))[copyIndex()])]",
@@ -1795,8 +1783,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.10.13.619",
-              "templateHash": "10560284735684187383"
+              "version": "0.15.31.15270",
+              "templateHash": "3775146633923317697"
             }
           },
           "parameters": {

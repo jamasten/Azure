@@ -52,7 +52,7 @@
             "value": "d"
         },
         "ephemeralOsDisk": {
-            "value": true
+            "value": false
         },
         "fslogixShareSizeInGB": {
             "value": 100
@@ -61,7 +61,7 @@
             "value": "ProfileContainer"
         },
         "fslogixStorage": {
-            "value": "AzureStorageAccount Standard ServiceEndpoint"
+            "value": "None"
         },
         "hostPoolType": {
             "value": "Pooled DepthFirst"
@@ -70,7 +70,7 @@
             "value": false
         },
         "identifier": {
-            "value": "jnm"
+            "value": "tst"
         },
         "imageOffer": {
             "value": "office-365"
@@ -79,10 +79,10 @@
             "value": "MicrosoftWindowsDesktop"
         },
         "imageSku": {
-            "value": "win10-21h2-avd-m365"
+            "value": "win11-21h2-avd-m365"
         },
         "imageVersion": {
-            "value": "latest"
+            "value": "22000.1100.221018"
         },
         "kerberosEncryption": {
             "value": "RC4"
@@ -109,7 +109,7 @@
             "value": false
         },
         "recoveryServices": {
-            "value": true
+            "value": false
         },
         "scalingBeginPeakTime": {
             "value": "7:00"
@@ -158,10 +158,10 @@
             "value": 0
         },
         "startVmOnConnect": {
-            "value": true
+            "value": false
         },
         "storageCount": {
-            "value": 1
+            "value": 0
         },
         "storageIndex": {
             "value": 0

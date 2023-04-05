@@ -89,6 +89,6 @@ try
 	}
 }
 catch {
-	Write-Output "$TemplateName | $TemplateResourceGroupName | $($_.Exception)"
+	Write-Output "$TemplateName | $TemplateResourceGroupName | Latest Image Template build failed. Review the build log and correct the issue."
 	throw
 }

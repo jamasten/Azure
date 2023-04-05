@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.15.31.15270",
-      "templateHash": "14584345107178032682"
+      "templateHash": "14410111161799155586"
     }
   },
   "parameters": {
@@ -18,28 +18,28 @@
     },
     "DeployOffice": {
       "type": "bool",
-      "defaultValue": true,
+      "defaultValue": false,
       "metadata": {
         "description": "Determine whether you want to install Microsoft Office 365 in the image."
       }
     },
     "DeployOneDrive": {
       "type": "bool",
-      "defaultValue": true,
+      "defaultValue": false,
       "metadata": {
         "description": "Determine whether you want to install One Drive in the image."
       }
     },
     "DeployTeams": {
       "type": "bool",
-      "defaultValue": true,
+      "defaultValue": false,
       "metadata": {
         "description": "Determine whether you want to install Teams in the image."
       }
     },
     "DeployVirtualDesktopOptimizationTool": {
       "type": "bool",
-      "defaultValue": true,
+      "defaultValue": false,
       "metadata": {
         "description": "Determine whether you want to run the Virtual Desktop Optimization Tool on the image."
       }
@@ -835,6 +835,7 @@
       ]
     },
     {
+      "condition": "[and(and(not(empty(parameters('SubnetName'))), not(empty(parameters('VirtualNetworkName')))), not(empty(parameters('VirtualNetworkResourceGroupName'))))]",
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2020-10-01",
       "name": "[format('NetworkPolicy_{0}', parameters('Timestamp'))]",
@@ -948,6 +949,7 @@
       ]
     },
     {
+      "condition": "[parameters('DeployOneDrive')]",
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2020-10-01",
       "name": "[format('OneDrive_{0}', parameters('Timestamp'))]",

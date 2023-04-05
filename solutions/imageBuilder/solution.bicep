@@ -5,16 +5,16 @@ targetScope = 'subscription'
 param DeployFSLogix bool = true
 
 @description('Determine whether you want to install Microsoft Office 365 in the image.')
-param DeployOffice bool = true
+param DeployOffice bool = false
 
 @description('Determine whether you want to install One Drive in the image.')
-param DeployOneDrive bool = true
+param DeployOneDrive bool = false
 
 @description('Determine whether you want to install Teams in the image.')
-param DeployTeams bool = true
+param DeployTeams bool = false
 
 @description('Determine whether you want to run the Virtual Desktop Optimization Tool on the image.')
-param DeployVirtualDesktopOptimizationTool bool = true
+param DeployVirtualDesktopOptimizationTool bool = false
 
 @description('The distribution group that will recieve email alerts when an AIB image build either succeeds or fails.')
 param DistributionGroup string
@@ -373,7 +373,7 @@ module computeGallery 'modules/computeGallery.bicep' = {
   }
 }
 
-module networkPolicy 'modules/networkPolicy.bicep' = {
+module networkPolicy 'modules/networkPolicy.bicep' = if(!(empty(SubnetName)) && !(empty(VirtualNetworkName)) && !(empty(VirtualNetworkResourceGroupName))) {
   name: 'NetworkPolicy_${Timestamp}'
   scope: rg
   params: {
@@ -394,7 +394,7 @@ module networkPolicy 'modules/networkPolicy.bicep' = {
   ]
 }
 
-module oneDrive 'modules/oneDrive.bicep' = {
+module oneDrive 'modules/oneDrive.bicep' = if(DeployOneDrive) {
   scope: resourceGroup(StorageAccountResourceGroupName)
   name: 'OneDrive_${Timestamp}'
   params: {

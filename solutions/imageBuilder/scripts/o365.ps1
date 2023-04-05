@@ -77,7 +77,7 @@ try
     Write-Host 'Installed Office 365'
 
     # Mount the default user registry hive
-    Start-Process 'reg' -ArgumentList 'load HKU\TempDefault C:\Users\Default\NTUSER.DAT' -Wait -PassThru
+    Start-Process 'reg' -ArgumentList 'load HKU\TempDefault C:\Users\Default\NTUSER.DAT' -Wait -PassThru  | Out-Null
     Write-Host 'Mounted the default user registry hive'
 
     # Must be executed with the default registry hive mounted.
@@ -91,7 +91,7 @@ try
     Set-RegistrySetting -Name 'CalendarSyncWindowSettingMonths' -Path 'HKU\TempDefault\software\policies\microsoft\office\16.0\outlook\cached mode' -PropertyType 'DWord' -Value 1
 
     #Unmount the default user registry hive
-    Start-Process 'reg' -ArgumentList 'unload HKU\TempDefault' -Wait -PassThru
+    Start-Process 'reg' -ArgumentList 'unload HKU\TempDefault' -Wait -PassThru  | Out-Null
     Write-Host 'Unmounted the default user registry hive'
 
     # Set the Office Update UI behavior.

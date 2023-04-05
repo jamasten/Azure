@@ -1,5 +1,4 @@
-# Install FSLogix on a Windows x64 multi-session operating system
-# This script was developed to install FSLogix using Azure Image Builder
+# Uninstall and / or install FSLogix on a Windows x64 multi-session operating system
 
 $ErrorActionPreference = 'Stop'
 

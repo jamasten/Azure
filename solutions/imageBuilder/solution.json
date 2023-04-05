@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.15.31.15270",
-      "templateHash": "13028792216928373561"
+      "templateHash": "15427727769755414872"
     }
   },
   "parameters": {
@@ -39,7 +39,7 @@
     },
     "DeployVirtualDesktopOptimizationTool": {
       "type": "bool",
-      "defaultValue": false,
+      "defaultValue": true,
       "metadata": {
         "description": "Determine whether you want to run the Virtual Desktop Optimization Tool on the image."
       }

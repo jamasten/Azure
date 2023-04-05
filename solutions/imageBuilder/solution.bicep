@@ -14,7 +14,7 @@ param DeployOneDrive bool = false
 param DeployTeams bool = false
 
 @description('Determine whether you want to run the Virtual Desktop Optimization Tool on the image.')
-param DeployVirtualDesktopOptimizationTool bool = false
+param DeployVirtualDesktopOptimizationTool bool = true
 
 @description('The distribution group that will recieve email alerts when an AIB image build either succeeds or fails.')
 param DistributionGroup string

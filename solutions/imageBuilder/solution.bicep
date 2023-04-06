@@ -399,7 +399,7 @@ module networkPolicy 'modules/networkPolicy.bicep' = if(!(empty(SubnetName)) && 
   ]
 }
 
-module office365 'modules/o365.bicep' = if(DeployOneDrive) {
+module office365 'modules/o365.bicep' = if(DeployOffice || DeployProject || DeployVisio) {
   scope: resourceGroup(StorageAccountResourceGroupName)
   name: 'Office365_Configuration_${Timestamp}'
   params: {

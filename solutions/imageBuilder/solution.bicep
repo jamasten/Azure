@@ -5,10 +5,10 @@ targetScope = 'subscription'
 param DeployFSLogix bool = true
 
 @description('Determine whether you want to install Microsoft Office 365 in the image.')
-param DeployOffice bool = false
+param DeployOffice bool = true
 
 @description('Determine whether you want to install One Drive in the image.')
-param DeployOneDrive bool = false
+param DeployOneDrive bool = true
 
 @description('Determine whether you want to install Teams in the image.')
 param DeployTeams bool = false

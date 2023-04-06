@@ -7,14 +7,20 @@ param DeployFSLogix bool = true
 @description('Determine whether you want to install Microsoft Office 365 in the image.')
 param DeployOffice bool = true
 
-@description('Determine whether you want to install One Drive in the image.')
+@description('Determine whether you want to install Microsoft One Drive in the image.')
 param DeployOneDrive bool = true
 
-@description('Determine whether you want to install Teams in the image.')
+@description('Determine whether you want to install Microsoft Project in the image.')
+param DeployProject bool = false
+
+@description('Determine whether you want to install Microsoft Teams in the image.')
 param DeployTeams bool = false
 
-@description('Determine whether you want to run the Virtual Desktop Optimization Tool on the image.')
+@description('Determine whether you want to run the Virtual Desktop Optimization Tool on the image. https://github.com/The-Virtual-Desktop-Team/Virtual-Desktop-Optimization-Tool')
 param DeployVirtualDesktopOptimizationTool bool = true
+
+@description('Determine whether you want to install Microsoft Visio in the image.')
+param DeployVisio bool = false
 
 @description('The distribution group that will recieve email alerts when an AIB image build either succeeds or fails.')
 param DistributionGroup string
@@ -37,7 +43,6 @@ param Environment string = 'd'
 @description('Any Azure polices that would affect the AIB build VM should have an exemption for the AIB staging resource group. Common examples are policies that push the Guest Configuration agent or the Microsoft Defender for Endpoint agent. Reference: https://learn.microsoft.com/en-us/azure/virtual-machines/linux/image-builder-troubleshoot#prerequisites')
 param ExemptPolicyAssignmentIds array = [
   '/subscriptions/3764b123-4849-4395-8e6e-ca6d68d8d4b4/providers/Microsoft.Authorization/policyAssignments/ASC provisioning Guest Configuration agent for Windows'
-
 ]
 
 @description('The name of the Image Definition for the Shared Image Gallery.')
@@ -394,6 +399,21 @@ module networkPolicy 'modules/networkPolicy.bicep' = if(!(empty(SubnetName)) && 
   ]
 }
 
+module office365 'modules/o365.bicep' = if(DeployOneDrive) {
+  scope: resourceGroup(StorageAccountResourceGroupName)
+  name: 'OneDrive_${Timestamp}'
+  params: {
+    DeploymentScriptName: DeploymentScriptName
+    DeployOffice: DeployOffice
+    DeployProject: DeployProject
+    DeployVisio: DeployVisio
+    Location: Location
+    StorageAccountName: StorageAccountName
+    StorageContainerName: StorageContainerName
+    Tags: Tags
+  }
+}
+
 module oneDrive 'modules/oneDrive.bicep' = if(DeployOneDrive) {
   scope: resourceGroup(StorageAccountResourceGroupName)
   name: 'OneDrive_${Timestamp}'
@@ -413,8 +433,10 @@ module imageTemplate 'modules/imageTemplate.bicep' = {
     DeployFSLogix: DeployFSLogix
     DeployOffice: DeployOffice
     DeployOneDrive: DeployOneDrive
+    DeployProject: DeployProject
     DeployTeams: DeployTeams
     DeployVirtualDesktopOptimizationTool: DeployVirtualDesktopOptimizationTool
+    DeployVisio: DeployVisio
     ImageDefinitionResourceId: computeGallery.outputs.ImageDefinitionResourceId
     ImageOffer: ImageOffer
     ImagePublisher: ImagePublisher
@@ -435,6 +457,7 @@ module imageTemplate 'modules/imageTemplate.bicep' = {
   }
   dependsOn: [
     networkPolicy
+    office365
     oneDrive
     roleAssignment_AzureUSGovernment
     roleAssignment_Storage

@@ -1,8 +1,10 @@
 param DeployFSLogix bool
 param DeployOffice bool
 param DeployOneDrive bool
+param DeployProject bool
 param DeployTeams bool
 param DeployVirtualDesktopOptimizationTool bool
+param DeployVisio bool
 param ImageDefinitionResourceId string
 param ImageOffer string
 param ImagePublisher string
@@ -37,10 +39,17 @@ var CreateTempDir = [
 var FSLogixType = contains(ImageSku, 'avd') ? [
   {
     type: 'PowerShell'
+    name: 'Download FSLogix'
+    runElevated: true
+    runAsSystem: true
+    scriptUri: '${StorageUri}Get-FSLogix.ps1'
+  }
+  {
+    type: 'PowerShell'
     name: 'Uninstall FSLogix'
     runElevated: true
     runAsSystem: true
-    scriptUri: '${StorageUri}fslogix.ps1'
+    scriptUri: '${StorageUri}Remove-FSLogix.ps1'
   }
   {
     type: 'WindowsRestart'
@@ -51,13 +60,20 @@ var FSLogixType = contains(ImageSku, 'avd') ? [
     name: 'Install FSLogix'
     runElevated: true
     runAsSystem: true
-    scriptUri: '${StorageUri}fslogix.ps1'
+    scriptUri: '${StorageUri}Add-FSLogix.ps1'
   }
   {
     type: 'WindowsRestart'
     restartTimeout: '5m'
   }
 ] : [
+  {
+    type: 'PowerShell'
+    name: 'Download FSLogix'
+    runElevated: true
+    runAsSystem: true
+    scriptUri: '${StorageUri}Get-FSLogix.ps1'
+  }
   {
     type: 'PowerShell'
     name: 'Install FSLogix'
@@ -79,46 +95,95 @@ var Functions = [
     destination: 'C:\\temp\\Set-RegistrySetting.ps1'
   }
 ]
-var Office = DeployOffice ? [
+var Office = DeployOffice || DeployVisio || DeployProject ? [
+  {
+    type: 'PowerShell'
+    name: 'Download Microsoft Office 365'
+    runElevated: true
+    runAsSystem: true
+    scriptUri: '${StorageUri}Get-O365.ps1'
+  }
   {
     type: 'PowerShell'
     name: 'Install Microsoft Office 365'
     runElevated: true
     runAsSystem: true
-    scriptUri: '${StorageUri}o365.ps1'
+    scriptUri: '${StorageUri}Add-O365.ps1'
   }
 ] : []
-var OneDrive = DeployOneDrive ? [
+var OneDriveType = ImageSku == 'office-365' ? [
   {
-    type: 'File'
-    name: 'Tenant ID'
-    sourceUri: '${StorageUri}tenantId.txt'
-    destination: 'C:\\temp\\tenantId.txt'
+    type: 'PowerShell'
+    name: 'Download OneDrive'
+    runElevated: true
+    runAsSystem: true
+    scriptUri: '${StorageUri}Get-OneDrive.ps1'
   }
   {
     type: 'PowerShell'
-    name: 'Install One Drive'
+    name: 'Uninstall OneDrive'
     runElevated: true
     runAsSystem: true
-    scriptUri: '${StorageUri}onedrive.ps1'
+    scriptUri: '${StorageUri}Remove-OneDrive.ps1'
   }
-] : []
+  {
+    type: 'WindowsRestart'
+    restartTimeout: '5m'
+  }
+  {
+    type: 'PowerShell'
+    name: 'Install OneDrive'
+    runElevated: true
+    runAsSystem: true
+    scriptUri: '${StorageUri}Add-OneDrive.ps1'
+  }
+] : [
+  {
+    type: 'PowerShell'
+    name: 'Download OneDrive'
+    runElevated: true
+    runAsSystem: true
+    scriptUri: '${StorageUri}Get-OneDrive.ps1'
+  }
+  {
+    type: 'PowerShell'
+    name: 'Install OneDrive'
+    runElevated: true
+    runAsSystem: true
+    scriptUri: '${StorageUri}Add-OneDrive.ps1'
+  }
+]
+var OneDrive = DeployOneDrive ? OneDriveType : []
 var Teams = DeployTeams ? [
+  {
+    type: 'PowerShell'
+    name: 'Download Teams'
+    runElevated: true
+    runAsSystem: true
+    scriptUri: '${StorageUri}Get-Teams.ps1'
+  }
   {
     type: 'PowerShell'
     name: 'Install Teams'
     runElevated: true
     runAsSystem: true
-    scriptUri: '${StorageUri}teams.ps1'
+    scriptUri: '${StorageUri}Add-Teams.ps1'
   }
 ] : []
 var VDOT = DeployVirtualDesktopOptimizationTool ? [
   {
     type: 'PowerShell'
-    name: 'Download & Run the Virtual Desktop Optimization Tool'
+    name: 'Download the Virtual Desktop Optimization Tool'
     runElevated: true
     runAsSystem: true
-    scriptUri: '${StorageUri}vdot.ps1'
+    scriptUri: '${StorageUri}Get-VDOT.ps1'
+  }
+  {
+    type: 'PowerShell'
+    name: 'Execute the Virtual Desktop Optimization Tool'
+    runElevated: true
+    runAsSystem: true
+    scriptUri: '${StorageUri}Set-VDOT.ps1'
   }
   {
     type: 'WindowsRestart'

@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.15.31.15270",
-      "templateHash": "677552098956703236"
+      "templateHash": "10473476428145761415"
     }
   },
   "parameters": {
@@ -27,21 +27,35 @@
       "type": "bool",
       "defaultValue": true,
       "metadata": {
-        "description": "Determine whether you want to install One Drive in the image."
+        "description": "Determine whether you want to install Microsoft One Drive in the image."
+      }
+    },
+    "DeployProject": {
+      "type": "bool",
+      "defaultValue": false,
+      "metadata": {
+        "description": "Determine whether you want to install Microsoft Project in the image."
       }
     },
     "DeployTeams": {
       "type": "bool",
       "defaultValue": false,
       "metadata": {
-        "description": "Determine whether you want to install Teams in the image."
+        "description": "Determine whether you want to install Microsoft Teams in the image."
       }
     },
     "DeployVirtualDesktopOptimizationTool": {
       "type": "bool",
       "defaultValue": true,
       "metadata": {
-        "description": "Determine whether you want to run the Virtual Desktop Optimization Tool on the image."
+        "description": "Determine whether you want to run the Virtual Desktop Optimization Tool on the image. https://github.com/The-Virtual-Desktop-Team/Virtual-Desktop-Optimization-Tool"
+      }
+    },
+    "DeployVisio": {
+      "type": "bool",
+      "defaultValue": false,
+      "metadata": {
+        "description": "Determine whether you want to install Microsoft Visio in the image."
       }
     },
     "DistributionGroup": {
@@ -963,6 +977,121 @@
           "DeploymentScriptName": {
             "value": "[variables('DeploymentScriptName')]"
           },
+          "DeployOffice": {
+            "value": "[parameters('DeployOffice')]"
+          },
+          "DeployProject": {
+            "value": "[parameters('DeployProject')]"
+          },
+          "DeployVisio": {
+            "value": "[parameters('DeployVisio')]"
+          },
+          "Location": {
+            "value": "[parameters('Location')]"
+          },
+          "StorageAccountName": {
+            "value": "[parameters('StorageAccountName')]"
+          },
+          "StorageContainerName": {
+            "value": "[parameters('StorageContainerName')]"
+          },
+          "Tags": {
+            "value": "[parameters('Tags')]"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "0.15.31.15270",
+              "templateHash": "1567641108251515189"
+            }
+          },
+          "parameters": {
+            "DeploymentScriptName": {
+              "type": "string"
+            },
+            "DeployOffice": {
+              "type": "bool"
+            },
+            "DeployProject": {
+              "type": "bool"
+            },
+            "DeployVisio": {
+              "type": "bool"
+            },
+            "Location": {
+              "type": "string"
+            },
+            "StorageAccountName": {
+              "type": "string"
+            },
+            "StorageContainerName": {
+              "type": "string"
+            },
+            "Tags": {
+              "type": "object"
+            }
+          },
+          "variables": {
+            "FileName": "tenantId.txt",
+            "O365ConfigHeader": "<Add OfficeClientEdition=\"64\" Channel=\"Current\"><Add OfficeClientEdition=\"64\" Channel=\"Current\">",
+            "O365AddOffice": "[if(parameters('DeployOffice'), '<Product ID=\"O365ProPlusRetail\"><Language ID=\"en-us\" /></Product>', '')]",
+            "O365AddProject": "[if(parameters('DeployProject'), '<Product ID=\"ProjectProRetail\"><Language ID=\"en-us\" /></Product>', '')]",
+            "O365AddVisio": "[if(parameters('DeployVisio'), '<Product ID=\"VisioProRetail\"><Language ID=\"en-us\" /></Product>', '')]",
+            "O365ConfigFooter": "</Add><Updates Enabled=\"FALSE\" /><Display Level=\"None\" AcceptEULA=\"TRUE\" /><Property Name=\"FORCEAPPSHUTDOWN\" Value=\"TRUE\"/><Property Name=\"SharedComputerLicensing\" Value=\"1\"/></Configuration>",
+            "Content": "[format('{0}{1}{2}{3}{4}', variables('O365ConfigHeader'), variables('O365AddOffice'), variables('O365AddProject'), variables('O365AddVisio'), variables('O365ConfigFooter'))]"
+          },
+          "resources": [
+            {
+              "type": "Microsoft.Resources/deploymentScripts",
+              "apiVersion": "2020-10-01",
+              "name": "[format('{0}-onedrive', parameters('DeploymentScriptName'))]",
+              "location": "[parameters('Location')]",
+              "tags": "[parameters('Tags')]",
+              "kind": "AzureCLI",
+              "properties": {
+                "azCliVersion": "2.26.1",
+                "timeout": "PT5M",
+                "retentionInterval": "PT1H",
+                "environmentVariables": [
+                  {
+                    "name": "AZURE_STORAGE_ACCOUNT",
+                    "value": "[parameters('StorageAccountName')]"
+                  },
+                  {
+                    "name": "AZURE_STORAGE_KEY",
+                    "secureValue": "[listKeys(resourceId('Microsoft.Storage/storageAccounts', parameters('StorageAccountName')), '2021-01-01').keys[0].value]"
+                  },
+                  {
+                    "name": "CONTENT",
+                    "value": "[variables('Content')]"
+                  }
+                ],
+                "scriptContent": "[format('echo \"$CONTENT\" > {0} && az storage blob upload -f {1} -c {2} -n {3}', variables('FileName'), variables('FileName'), parameters('StorageContainerName'), variables('FileName'))]"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "condition": "[parameters('DeployOneDrive')]",
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2020-10-01",
+      "name": "[format('OneDrive_{0}', parameters('Timestamp'))]",
+      "resourceGroup": "[parameters('StorageAccountResourceGroupName')]",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "DeploymentScriptName": {
+            "value": "[variables('DeploymentScriptName')]"
+          },
           "Location": {
             "value": "[parameters('Location')]"
           },
@@ -1059,11 +1188,17 @@
           "DeployOneDrive": {
             "value": "[parameters('DeployOneDrive')]"
           },
+          "DeployProject": {
+            "value": "[parameters('DeployProject')]"
+          },
           "DeployTeams": {
             "value": "[parameters('DeployTeams')]"
           },
           "DeployVirtualDesktopOptimizationTool": {
             "value": "[parameters('DeployVirtualDesktopOptimizationTool')]"
+          },
+          "DeployVisio": {
+            "value": "[parameters('DeployVisio')]"
           },
           "ImageDefinitionResourceId": {
             "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroup')), 'Microsoft.Resources/deployments', format('ComputeGallery_{0}', parameters('Timestamp'))), '2020-10-01').outputs.ImageDefinitionResourceId.value]"
@@ -1124,7 +1259,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.15.31.15270",
-              "templateHash": "12788818638031464032"
+              "templateHash": "1802900284415710551"
             }
           },
           "parameters": {
@@ -1137,10 +1272,16 @@
             "DeployOneDrive": {
               "type": "bool"
             },
+            "DeployProject": {
+              "type": "bool"
+            },
             "DeployTeams": {
               "type": "bool"
             },
             "DeployVirtualDesktopOptimizationTool": {
+              "type": "bool"
+            },
+            "DeployVisio": {
               "type": "bool"
             },
             "ImageDefinitionResourceId": {
@@ -1207,7 +1348,7 @@
                 ]
               }
             ],
-            "FSLogixType": "[if(contains(parameters('ImageSku'), 'avd'), createArray(createObject('type', 'PowerShell', 'name', 'Uninstall FSLogix', 'runElevated', true(), 'runAsSystem', true(), 'scriptUri', format('{0}fslogix.ps1', parameters('StorageUri'))), createObject('type', 'WindowsRestart', 'restartTimeout', '5m'), createObject('type', 'PowerShell', 'name', 'Install FSLogix', 'runElevated', true(), 'runAsSystem', true(), 'scriptUri', format('{0}fslogix.ps1', parameters('StorageUri'))), createObject('type', 'WindowsRestart', 'restartTimeout', '5m')), createArray(createObject('type', 'PowerShell', 'name', 'Install FSLogix', 'runElevated', true(), 'runAsSystem', true(), 'scriptUri', format('{0}fslogix.ps1', parameters('StorageUri'))), createObject('type', 'WindowsRestart', 'restartTimeout', '5m')))]",
+            "FSLogixType": "[if(contains(parameters('ImageSku'), 'avd'), createArray(createObject('type', 'PowerShell', 'name', 'Download FSLogix', 'runElevated', true(), 'runAsSystem', true(), 'scriptUri', format('{0}Get-FSLogix.ps1', parameters('StorageUri'))), createObject('type', 'PowerShell', 'name', 'Uninstall FSLogix', 'runElevated', true(), 'runAsSystem', true(), 'scriptUri', format('{0}Remove-FSLogix.ps1', parameters('StorageUri'))), createObject('type', 'WindowsRestart', 'restartTimeout', '5m'), createObject('type', 'PowerShell', 'name', 'Install FSLogix', 'runElevated', true(), 'runAsSystem', true(), 'scriptUri', format('{0}Add-FSLogix.ps1', parameters('StorageUri'))), createObject('type', 'WindowsRestart', 'restartTimeout', '5m')), createArray(createObject('type', 'PowerShell', 'name', 'Download FSLogix', 'runElevated', true(), 'runAsSystem', true(), 'scriptUri', format('{0}Get-FSLogix.ps1', parameters('StorageUri'))), createObject('type', 'PowerShell', 'name', 'Install FSLogix', 'runElevated', true(), 'runAsSystem', true(), 'scriptUri', format('{0}fslogix.ps1', parameters('StorageUri'))), createObject('type', 'WindowsRestart', 'restartTimeout', '5m')))]",
             "FSLogix": "[if(parameters('DeployFSLogix'), variables('FSLogixType'), createArray())]",
             "Functions": [
               {
@@ -1217,10 +1358,11 @@
                 "destination": "C:\\temp\\Set-RegistrySetting.ps1"
               }
             ],
-            "Office": "[if(parameters('DeployOffice'), createArray(createObject('type', 'PowerShell', 'name', 'Install Microsoft Office 365', 'runElevated', true(), 'runAsSystem', true(), 'scriptUri', format('{0}o365.ps1', parameters('StorageUri')))), createArray())]",
-            "OneDrive": "[if(parameters('DeployOneDrive'), createArray(createObject('type', 'File', 'name', 'Tenant ID', 'sourceUri', format('{0}tenantId.txt', parameters('StorageUri')), 'destination', 'C:\\temp\\tenantId.txt'), createObject('type', 'PowerShell', 'name', 'Install One Drive', 'runElevated', true(), 'runAsSystem', true(), 'scriptUri', format('{0}onedrive.ps1', parameters('StorageUri')))), createArray())]",
-            "Teams": "[if(parameters('DeployTeams'), createArray(createObject('type', 'PowerShell', 'name', 'Install Teams', 'runElevated', true(), 'runAsSystem', true(), 'scriptUri', format('{0}teams.ps1', parameters('StorageUri')))), createArray())]",
-            "VDOT": "[if(parameters('DeployVirtualDesktopOptimizationTool'), createArray(createObject('type', 'PowerShell', 'name', 'Download & Run the Virtual Desktop Optimization Tool', 'runElevated', true(), 'runAsSystem', true(), 'scriptUri', format('{0}vdot.ps1', parameters('StorageUri'))), createObject('type', 'WindowsRestart', 'restartTimeout', '5m')), createArray())]",
+            "Office": "[if(or(or(parameters('DeployOffice'), parameters('DeployVisio')), parameters('DeployProject')), createArray(createObject('type', 'PowerShell', 'name', 'Download Microsoft Office 365', 'runElevated', true(), 'runAsSystem', true(), 'scriptUri', format('{0}Get-O365.ps1', parameters('StorageUri'))), createObject('type', 'PowerShell', 'name', 'Install Microsoft Office 365', 'runElevated', true(), 'runAsSystem', true(), 'scriptUri', format('{0}Add-O365.ps1', parameters('StorageUri')))), createArray())]",
+            "OneDriveType": "[if(equals(parameters('ImageSku'), 'office-365'), createArray(createObject('type', 'PowerShell', 'name', 'Download OneDrive', 'runElevated', true(), 'runAsSystem', true(), 'scriptUri', format('{0}Get-OneDrive.ps1', parameters('StorageUri'))), createObject('type', 'PowerShell', 'name', 'Uninstall OneDrive', 'runElevated', true(), 'runAsSystem', true(), 'scriptUri', format('{0}Remove-OneDrive.ps1', parameters('StorageUri'))), createObject('type', 'WindowsRestart', 'restartTimeout', '5m'), createObject('type', 'PowerShell', 'name', 'Install OneDrive', 'runElevated', true(), 'runAsSystem', true(), 'scriptUri', format('{0}Add-OneDrive.ps1', parameters('StorageUri')))), createArray(createObject('type', 'PowerShell', 'name', 'Download OneDrive', 'runElevated', true(), 'runAsSystem', true(), 'scriptUri', format('{0}Get-OneDrive.ps1', parameters('StorageUri'))), createObject('type', 'PowerShell', 'name', 'Install OneDrive', 'runElevated', true(), 'runAsSystem', true(), 'scriptUri', format('{0}Add-OneDrive.ps1', parameters('StorageUri')))))]",
+            "OneDrive": "[if(parameters('DeployOneDrive'), variables('OneDriveType'), createArray())]",
+            "Teams": "[if(parameters('DeployTeams'), createArray(createObject('type', 'PowerShell', 'name', 'Download Teams', 'runElevated', true(), 'runAsSystem', true(), 'scriptUri', format('{0}Get-Teams.ps1', parameters('StorageUri'))), createObject('type', 'PowerShell', 'name', 'Install Teams', 'runElevated', true(), 'runAsSystem', true(), 'scriptUri', format('{0}Add-Teams.ps1', parameters('StorageUri')))), createArray())]",
+            "VDOT": "[if(parameters('DeployVirtualDesktopOptimizationTool'), createArray(createObject('type', 'PowerShell', 'name', 'Download the Virtual Desktop Optimization Tool', 'runElevated', true(), 'runAsSystem', true(), 'scriptUri', format('{0}Get-VDOT.ps1', parameters('StorageUri'))), createObject('type', 'PowerShell', 'name', 'Execute the Virtual Desktop Optimization Tool', 'runElevated', true(), 'runAsSystem', true(), 'scriptUri', format('{0}Set-VDOT.ps1', parameters('StorageUri'))), createObject('type', 'WindowsRestart', 'restartTimeout', '5m')), createArray())]",
             "RemoveTempDir": [
               {
                 "type": "PowerShell",
@@ -1299,6 +1441,7 @@
       "dependsOn": [
         "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroup')), 'Microsoft.Resources/deployments', format('ComputeGallery_{0}', parameters('Timestamp')))]",
         "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroup')), 'Microsoft.Resources/deployments', format('NetworkPolicy_{0}', parameters('Timestamp')))]",
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('StorageAccountResourceGroupName')), 'Microsoft.Resources/deployments', format('OneDrive_{0}', parameters('Timestamp')))]",
         "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('StorageAccountResourceGroupName')), 'Microsoft.Resources/deployments', format('OneDrive_{0}', parameters('Timestamp')))]",
         "[subscriptionResourceId('Microsoft.Resources/resourceGroups', variables('ResourceGroup'))]",
         "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroup')), 'Microsoft.Resources/deployments', format('RoleAssignment_{0}_{1}', variables('ResourceGroup'), parameters('Timestamp')))]",

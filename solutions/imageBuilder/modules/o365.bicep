@@ -4,6 +4,7 @@ param DeployProject bool
 param DeployVisio bool
 param Location string
 param StorageAccountName string
+param StorageAccountResourceGroupName string
 param StorageContainerName string
 param Tags object
 
@@ -19,10 +20,11 @@ var Content = '${O365ConfigHeader}${O365AddOffice}${O365AddProject}${O365AddVisi
 
 resource storageAccount 'Microsoft.Storage/storageAccounts@2021-01-01' existing = {
   name: StorageAccountName
+  scope: resourceGroup(StorageAccountResourceGroupName)
 }
 
 resource deploymentScript 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
-  name: '${DeploymentScriptName}-onedrive'
+  name: '${DeploymentScriptName}-o365'
   location: Location
   tags: Tags
   kind: 'AzureCLI'

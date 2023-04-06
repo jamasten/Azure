@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.15.31.15270",
-      "templateHash": "9327843128677559296"
+      "templateHash": "6170807846587385620"
     }
   },
   "parameters": {
@@ -963,7 +963,7 @@
       ]
     },
     {
-      "condition": "[parameters('DeployOneDrive')]",
+      "condition": "[or(or(parameters('DeployOffice'), parameters('DeployProject')), parameters('DeployVisio'))]",
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2020-10-01",
       "name": "[format('Office365_Configuration_{0}', parameters('Timestamp'))]",
@@ -1259,7 +1259,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.15.31.15270",
-              "templateHash": "1802900284415710551"
+              "templateHash": "989022501178128900"
             }
           },
           "parameters": {
@@ -1353,13 +1353,13 @@
             "Functions": [
               {
                 "type": "File",
-                "name": "Tenant ID",
+                "name": "Download Functions Script",
                 "sourceUri": "[format('{0}Set-RegistrySetting.ps1', parameters('StorageUri'))]",
                 "destination": "C:\\temp\\Set-RegistrySetting.ps1"
               }
             ],
-            "Office": "[if(or(or(parameters('DeployOffice'), parameters('DeployVisio')), parameters('DeployProject')), createArray(createObject('type', 'PowerShell', 'name', 'Download Microsoft Office 365', 'runElevated', true(), 'runAsSystem', true(), 'scriptUri', format('{0}Get-O365.ps1', parameters('StorageUri'))), createObject('type', 'PowerShell', 'name', 'Install Microsoft Office 365', 'runElevated', true(), 'runAsSystem', true(), 'scriptUri', format('{0}Add-O365.ps1', parameters('StorageUri')))), createArray())]",
-            "OneDriveType": "[if(equals(parameters('ImageSku'), 'office-365'), createArray(createObject('type', 'PowerShell', 'name', 'Download OneDrive', 'runElevated', true(), 'runAsSystem', true(), 'scriptUri', format('{0}Get-OneDrive.ps1', parameters('StorageUri'))), createObject('type', 'PowerShell', 'name', 'Uninstall OneDrive', 'runElevated', true(), 'runAsSystem', true(), 'scriptUri', format('{0}Remove-OneDrive.ps1', parameters('StorageUri'))), createObject('type', 'WindowsRestart', 'restartTimeout', '5m'), createObject('type', 'PowerShell', 'name', 'Install OneDrive', 'runElevated', true(), 'runAsSystem', true(), 'scriptUri', format('{0}Add-OneDrive.ps1', parameters('StorageUri')))), createArray(createObject('type', 'PowerShell', 'name', 'Download OneDrive', 'runElevated', true(), 'runAsSystem', true(), 'scriptUri', format('{0}Get-OneDrive.ps1', parameters('StorageUri'))), createObject('type', 'PowerShell', 'name', 'Install OneDrive', 'runElevated', true(), 'runAsSystem', true(), 'scriptUri', format('{0}Add-OneDrive.ps1', parameters('StorageUri')))))]",
+            "Office": "[if(or(or(parameters('DeployOffice'), parameters('DeployVisio')), parameters('DeployProject')), createArray(createObject('type', 'PowerShell', 'name', 'Download Microsoft Office 365', 'runElevated', true(), 'runAsSystem', true(), 'scriptUri', format('{0}Get-O365.ps1', parameters('StorageUri'))), createObject('type', 'File', 'name', 'Download Microsoft Office 365 Configuration File', 'sourceUri', format('{0}office365x64.xml', parameters('StorageUri')), 'destination', 'C:\\temp\\office365x64.xml'), createObject('type', 'PowerShell', 'name', 'Install Microsoft Office 365', 'runElevated', true(), 'runAsSystem', true(), 'scriptUri', format('{0}Add-O365.ps1', parameters('StorageUri')))), createArray())]",
+            "OneDriveType": "[if(equals(parameters('ImageSku'), 'office-365'), createArray(createObject('type', 'PowerShell', 'name', 'Download OneDrive', 'runElevated', true(), 'runAsSystem', true(), 'scriptUri', format('{0}Get-OneDrive.ps1', parameters('StorageUri'))), createObject('type', 'File', 'name', 'Download OneDrive Configuration File', 'sourceUri', format('{0}tenantId.txt', parameters('StorageUri')), 'destination', 'C:\\temp\\tenantId.txt'), createObject('type', 'PowerShell', 'name', 'Uninstall OneDrive', 'runElevated', true(), 'runAsSystem', true(), 'scriptUri', format('{0}Remove-OneDrive.ps1', parameters('StorageUri'))), createObject('type', 'WindowsRestart', 'restartTimeout', '5m'), createObject('type', 'PowerShell', 'name', 'Install OneDrive', 'runElevated', true(), 'runAsSystem', true(), 'scriptUri', format('{0}Add-OneDrive.ps1', parameters('StorageUri')))), createArray(createObject('type', 'PowerShell', 'name', 'Download OneDrive', 'runElevated', true(), 'runAsSystem', true(), 'scriptUri', format('{0}Get-OneDrive.ps1', parameters('StorageUri'))), createObject('type', 'File', 'name', 'Download OneDrive Configuration File', 'sourceUri', format('{0}tenantId.txt', parameters('StorageUri')), 'destination', 'C:\\temp\\tenantId.txt'), createObject('type', 'PowerShell', 'name', 'Install OneDrive', 'runElevated', true(), 'runAsSystem', true(), 'scriptUri', format('{0}Add-OneDrive.ps1', parameters('StorageUri')))))]",
             "OneDrive": "[if(parameters('DeployOneDrive'), variables('OneDriveType'), createArray())]",
             "Teams": "[if(parameters('DeployTeams'), createArray(createObject('type', 'PowerShell', 'name', 'Download Teams', 'runElevated', true(), 'runAsSystem', true(), 'scriptUri', format('{0}Get-Teams.ps1', parameters('StorageUri'))), createObject('type', 'PowerShell', 'name', 'Install Teams', 'runElevated', true(), 'runAsSystem', true(), 'scriptUri', format('{0}Add-Teams.ps1', parameters('StorageUri')))), createArray())]",
             "VDOT": "[if(parameters('DeployVirtualDesktopOptimizationTool'), createArray(createObject('type', 'PowerShell', 'name', 'Download the Virtual Desktop Optimization Tool', 'runElevated', true(), 'runAsSystem', true(), 'scriptUri', format('{0}Get-VDOT.ps1', parameters('StorageUri'))), createObject('type', 'PowerShell', 'name', 'Execute the Virtual Desktop Optimization Tool', 'runElevated', true(), 'runAsSystem', true(), 'scriptUri', format('{0}Set-VDOT.ps1', parameters('StorageUri'))), createObject('type', 'WindowsRestart', 'restartTimeout', '5m')), createArray())]",

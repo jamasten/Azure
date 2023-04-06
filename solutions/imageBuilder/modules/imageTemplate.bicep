@@ -71,6 +71,14 @@ var FSLogixType = contains(ImageSku, 'avd') ? [
   }
 ]
 var FSLogix = DeployFSLogix ? FSLogixType : []
+var Functions = [
+  {
+    type: 'File'
+    name: 'Tenant ID'
+    sourceUri: '${StorageUri}Set-RegistrySetting.ps1'
+    destination: 'C:\\temp\\Set-RegistrySetting.ps1'
+  }
+]
 var Office = DeployOffice ? [
   {
     type: 'PowerShell'
@@ -124,7 +132,7 @@ var RemoveTempDir = [
     runElevated: true
     runAsSystem: true
     inline: [
-      'Remove-Item -Path "C:\\temp" -Recurse -Force | Out-Null; Write-Host "Removed Temp Directory'
+      'Remove-Item -Path "C:\\temp" -Recurse -Force | Out-Null; Write-Host "Removed Temp Directory"'
     ]
   }
 ]
@@ -142,7 +150,7 @@ var WindowsUpdate = [
     restartTimeout: '5m'
   }
 ]
-var Customizers = union(CreateTempDir, VDOT, FSLogix, Office, OneDrive, Teams, RemoveTempDir, WindowsUpdate)
+var Customizers = union(CreateTempDir, VDOT, Functions, FSLogix, Office, OneDrive, Teams, RemoveTempDir, WindowsUpdate)
 
 
 resource imageTemplate 'Microsoft.VirtualMachineImages/imageTemplates@2022-02-14' = {

@@ -401,7 +401,7 @@ module networkPolicy 'modules/networkPolicy.bicep' = if(!(empty(SubnetName)) && 
 
 module office365 'modules/o365.bicep' = if(DeployOneDrive) {
   scope: resourceGroup(StorageAccountResourceGroupName)
-  name: 'OneDrive_${Timestamp}'
+  name: 'Office365_Configuration_${Timestamp}'
   params: {
     DeploymentScriptName: DeploymentScriptName
     DeployOffice: DeployOffice
@@ -416,7 +416,7 @@ module office365 'modules/o365.bicep' = if(DeployOneDrive) {
 
 module oneDrive 'modules/oneDrive.bicep' = if(DeployOneDrive) {
   scope: resourceGroup(StorageAccountResourceGroupName)
-  name: 'OneDrive_${Timestamp}'
+  name: 'OneDrive_Configuration_${Timestamp}'
   params: {
     DeploymentScriptName: DeploymentScriptName
     Location: Location

@@ -90,7 +90,7 @@ var FSLogix = DeployFSLogix ? FSLogixType : []
 var Functions = [
   {
     type: 'File'
-    name: 'Tenant ID'
+    name: 'Download Functions Script'
     sourceUri: '${StorageUri}Set-RegistrySetting.ps1'
     destination: 'C:\\temp\\Set-RegistrySetting.ps1'
   }
@@ -102,6 +102,12 @@ var Office = DeployOffice || DeployVisio || DeployProject ? [
     runElevated: true
     runAsSystem: true
     scriptUri: '${StorageUri}Get-O365.ps1'
+  }  
+  {
+    type: 'File'
+    name: 'Download Microsoft Office 365 Configuration File'
+    sourceUri: '${StorageUri}office365x64.xml'
+    destination: 'C:\\temp\\office365x64.xml'
   }
   {
     type: 'PowerShell'
@@ -118,6 +124,12 @@ var OneDriveType = ImageSku == 'office-365' ? [
     runElevated: true
     runAsSystem: true
     scriptUri: '${StorageUri}Get-OneDrive.ps1'
+  }
+  {
+    type: 'File'
+    name: 'Download OneDrive Configuration File'
+    sourceUri: '${StorageUri}tenantId.txt'
+    destination: 'C:\\temp\\tenantId.txt'
   }
   {
     type: 'PowerShell'
@@ -144,6 +156,12 @@ var OneDriveType = ImageSku == 'office-365' ? [
     runElevated: true
     runAsSystem: true
     scriptUri: '${StorageUri}Get-OneDrive.ps1'
+  }
+  {
+    type: 'File'
+    name: 'Download OneDrive Configuration File'
+    sourceUri: '${StorageUri}tenantId.txt'
+    destination: 'C:\\temp\\tenantId.txt'
   }
   {
     type: 'PowerShell'

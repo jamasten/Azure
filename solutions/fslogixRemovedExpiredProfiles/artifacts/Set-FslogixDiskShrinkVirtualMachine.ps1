@@ -1,7 +1,39 @@
 [CmdletBinding(SupportsShouldProcess)]
 param(
+    [parameter(Mandatory)]
+    [int]
+    $DeleteOlderThanDays,
+
 	[Parameter(Mandatory)]
-	$WebHookData
+	[string]
+	$EnvironmentName,
+
+	[Parameter(Mandatory)]
+	[string]
+	$KeyVaultName,
+
+	[Parameter(Mandatory)]
+	[string]
+	$ResourceGroupName,
+
+	[Parameter(Mandatory)]
+	[string]
+	$SubscriptionId,
+
+	[Parameter(Mandatory)]
+	$Tags,
+
+	[Parameter(Mandatory)]
+	[string]
+	$TemplateSpecId,
+
+	[Parameter(Mandatory)]
+	[string]
+	$TenantId,
+
+	[Parameter(Mandatory)]
+	[string]
+	$VmName
 )
 
 $ErrorActionPreference = 'Stop'
@@ -14,17 +46,6 @@ try
 	Import-Module -Name 'Az.Resources'
 	Write-Output 'Imported modules successfully'
 
-	# Get variable & parameter values from webhook data
-	$Parameters = ConvertFrom-Json -InputObject $WebHookData.RequestBody
-	$Environment = $Parameters.PSObject.Properties['Environment'].Value
-	$KeyVaultName = $Parameters.PSObject.Properties['KeyVaultName'].Value
-	$ResourceGroupName = $Parameters.PSObject.Properties['ResourceGroupName'].Value
-	$SubscriptionId = $Parameters.PSObject.Properties['SubscriptionId'].Value
-	$Tags = $Parameters.PSObject.Properties['Tags'].Value
-	$TemplateSpecId = $Parameters.PSObject.Properties['TemplateSpecId'].Value
-	$TenantId = $Parameters.PSObject.Properties['TenantId'].Value
-	$VmName = $Parameters.PSObject.Properties['VmName'].Value
-
 	# Convert Tags from PSCustomObject to HashTable
 	$FixedTags = @{}
 	$Tags.psobject.properties | ForEach-Object { $FixedTags[$_.Name] = $_.Value }
@@ -34,6 +55,7 @@ try
 		ResourceGroupName = $ResourceGroupName
 		TemplateSpecId = $TemplateSpecId
 		_artifactsLocation = $Parameters.PSObject.Properties['_artifactsLoction'].Value
+		DeleteOlderThanDays = $Parameters.PSObject.Properties['DeleteOlderThanDays'].Value
 		DiskName = $Parameters.PSObject.Properties['DiskName'].Value
 		FileShareNames = "$($Parameters.PSObject.Properties['FileShareNames'].Value)"
 		HybridUseBenefit = $Parameters.PSObject.Properties['HybridUseBenefit'].Value
@@ -53,7 +75,7 @@ try
 	}
 
 
-	Connect-AzAccount -Environment $Environment -Tenant $TenantId -Subscription $SubscriptionId -Identity | Out-Null
+	Connect-AzAccount -Environment $EnvironmentName -Tenant $TenantId -Subscription $SubscriptionId -Identity | Out-Null
 	Write-Output 'Connected to Azure Successfully'
 
 	# Get secure strings from Key Vault and add the values using the Add method for proper deserialization
@@ -70,7 +92,7 @@ try
 
 	# Deploy the virtual machine & run the tool
 	New-AzResourceGroupDeployment @Params
-	Write-Output 'Deployed virtual machine successfully'
+	Write-Output 'Success: removed expired FSLogix profiles'
 
 	# Delete the virtual machine
 	Remove-AzVM -ResourceGroupName $ResourceGroupName -Name $VmName -Force
@@ -78,6 +100,7 @@ try
 }
 catch
 {
+	Write-Output 'Error: Failed to remove expired FSLogix profiles'
 	Write-Output $_.Exception
 	throw
 }

@@ -1,6 +1,7 @@
 param _artifactsLocation string
 @secure()
 param _artifactsLocationSasToken string = ''
+param DeleteOlderThanDays int
 param DiskName string
 param FileShareNames array
 param HybridUseBenefit bool
@@ -127,7 +128,7 @@ resource extension_CustomScriptExtension 'Microsoft.Compute/virtualMachines/exte
       timestamp: Timestamp
     }
     protectedSettings: {
-      commandToExecute: 'powershell -ExecutionPolicy Unrestricted -File Set-FslogixDiskSize.ps1 -Environment ${environment().name} -FileShareNames ${FileShareNames} -KeyVaultName ${KeyVaultName} -StorageAccountNames ${StorageAccountNames} -StorageAccountSuffix ${StorageAccountSuffix} -SubscriptionId ${subscription().subscriptionId} -TenantId ${subscription().tenantId} -UserAssignedIdentityClientId ${UserAssignedIdentityClientId}'
+      commandToExecute: 'powershell -ExecutionPolicy Unrestricted -File Set-FslogixDiskSize.ps1 -DeleteOlderThanDays ${DeleteOlderThanDays} -Environment ${environment().name} -FileShareNames ${FileShareNames} -KeyVaultName ${KeyVaultName} -StorageAccountNames ${StorageAccountNames} -StorageAccountSuffix ${StorageAccountSuffix} -SubscriptionId ${subscription().subscriptionId} -TenantId ${subscription().tenantId} -UserAssignedIdentityClientId ${UserAssignedIdentityClientId}'
     }
   }
 }

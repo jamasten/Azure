@@ -2,6 +2,10 @@
 Param(
     [parameter(Mandatory)]
     [string]
+    $DeleteOlderThanDays,
+
+    [parameter(Mandatory)]
+    [string]
     $Environment,
 
     [parameter(Mandatory)]
@@ -165,7 +169,7 @@ try
             Write-Log -Message "Mounting the Azure file share, $FileShare, succeeded" -Type 'INFO'
 
             # Run the tool
-            & .\fds\Invoke-FslShrinkDisk-master\Invoke-FslShrinkDisk.ps1 -Path $FileShare -Recurse # Add parameters
+            & .\fds\Invoke-FslShrinkDisk-master\Invoke-FslShrinkDisk.ps1 -Path $FileShare -Recurse -IgnoreLessThanGB 30 -DeleteOlderThanDays $DeleteOlderThanDays
             Write-Log -Message 'Ran the tool successfully' -Type 'INFO'
 
             # Unmount file share

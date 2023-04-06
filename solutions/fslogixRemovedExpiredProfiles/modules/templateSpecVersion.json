@@ -4,8 +4,8 @@
   "metadata": {
     "_generator": {
       "name": "bicep",
-      "version": "0.9.1.41621",
-      "templateHash": "10536930027346786977"
+      "version": "0.15.31.15270",
+      "templateHash": "11693431337822803718"
     }
   },
   "parameters": {
@@ -13,8 +13,11 @@
       "type": "string"
     },
     "_artifactsLocationSasToken": {
-      "type": "secureString",
+      "type": "securestring",
       "defaultValue": ""
+    },
+    "DeleteOlderThanDays": {
+      "type": "int"
     },
     "DiskName": {
       "type": "string"
@@ -66,13 +69,13 @@
       "type": "string"
     },
     "VmPassword": {
-      "type": "secureString"
+      "type": "securestring"
     },
     "VmSize": {
       "type": "string"
     },
     "VmUsername": {
-      "type": "secureString"
+      "type": "securestring"
     }
   },
   "resources": [
@@ -185,7 +188,7 @@
           "timestamp": "[parameters('Timestamp')]"
         },
         "protectedSettings": {
-          "commandToExecute": "[format('powershell -ExecutionPolicy Unrestricted -File Set-FslogixDiskSize.ps1 -Environment {0} -FileShareNames {1} -KeyVaultName {2} -StorageAccountNames {3} -StorageAccountSuffix {4} -SubscriptionId {5} -TenantId {6} -UserAssignedIdentityClientId {7}', environment().name, parameters('FileShareNames'), parameters('KeyVaultName'), parameters('StorageAccountNames'), parameters('StorageAccountSuffix'), subscription().subscriptionId, subscription().tenantId, parameters('UserAssignedIdentityClientId'))]"
+          "commandToExecute": "[format('powershell -ExecutionPolicy Unrestricted -File Set-FslogixDiskSize.ps1 -DeleteOlderThanDays {0} -Environment {1} -FileShareNames {2} -KeyVaultName {3} -StorageAccountNames {4} -StorageAccountSuffix {5} -SubscriptionId {6} -TenantId {7} -UserAssignedIdentityClientId {8}', parameters('DeleteOlderThanDays'), environment().name, parameters('FileShareNames'), parameters('KeyVaultName'), parameters('StorageAccountNames'), parameters('StorageAccountSuffix'), subscription().subscriptionId, subscription().tenantId, parameters('UserAssignedIdentityClientId'))]"
         }
       },
       "dependsOn": [

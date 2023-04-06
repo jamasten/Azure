@@ -1,11 +1,11 @@
-// This solution assumes the file share names are the same across all storage accounts
-
 @description('The URL prefix for linked resources.')
 param _artifactsLocation string = 'https://raw.githubusercontent.com/jamasten/Azure/master/solutions/fslogixDiskShrinkAutomation/artifacts/'
 
 @secure()
 @description('The SAS Token for the scripts if they are stored on an Azure Storage Account.')
 param _artifactsLocationSasToken string = ''
+
+param DeleteOlderThanDays int
 
 @allowed([
   'd' // Development
@@ -17,9 +17,8 @@ param _artifactsLocationSasToken string = ''
 param Environment string = 'd'
 
 @description('The names of the files shares containing the FSLogix containers.')
-param FileShareNames array = [
-  'officecontainers'
-  'profilecontainers'
+param FileShareResourceIds array = [
+  
 ]
 
 @description('Choose whether to enable the Hybrid Use Benefit on the virtual machine.  This is only valid you have appropriate licensing with Software Assurance. https://docs.microsoft.com/en-us/windows-server/get-started/azure-hybrid-benefit')
@@ -28,6 +27,8 @@ param HybridUseBenefit bool = false
 @maxLength(3)
 @description('The unique identifier between each business unit or project supporting AVD in your tenant. This is the unique naming component between each AVD stamp.')
 param Identifier string = 'avd'
+
+param JobScheduleName string = newGuid()
 
 param Location string = resourceGroup().location
 
@@ -54,6 +55,8 @@ param SubnetName string = 'Clients'
 param Tags object = {
   Purpose: 'Fslogix Disk Shrink tool'
 }
+
+param Time string = utcNow()
 
 @description('DO NOT MODIFY THIS VALUE! The timestamp is needed to differentiate deployments for certain Azure resources and must be set using a parameter.')
 param Timestamp string = utcNow('yyyyMMddhhmmss')
@@ -133,7 +136,6 @@ var LocationShortNames = {
   westus2: 'wu2'
   westus3: 'wu3'
 }
-var LogicAppName = 'la-${NamingStandard}'
 var NamingStandard = '${Identifier}-${Environment}-${LocationShortName}-${StampIndexFull}-fds'
 var NicName = 'nic-${NamingStandard}'
 var RoleAssignmentResourceGroups = union([
@@ -150,6 +152,7 @@ var RunbookScriptName = 'Set-FslogixDiskShrinkVirtualMachine.ps1'
 var StampIndexFull = padLeft(StampIndex, 2, '0')
 var StorageAccountSuffix = environment().suffixes.storage
 var TemplateSpecName = 'ts-${NamingStandard}'
+var TimeZone = TimeZones[Location]
 var TimeZones = {
   australiacentral: 'AUS Eastern Standard Time'
   australiacentral2: 'AUS Eastern Standard Time'
@@ -268,29 +271,6 @@ resource runbook 'Microsoft.Automation/automationAccounts/runbooks@2019-06-01' =
   }
 }
 
-// The Webhook is called by a Logic App to trigger the Runbook
-resource webhook 'Microsoft.Automation/automationAccounts/webhooks@2015-10-31' = {
-  parent: automationAccount
-  name: '${runbook.name}_${dateTimeAdd(WebhookTimestamp, 'PT0H', 'yyyyMMddhhmmss')}'
-  properties: {
-    isEnabled: true
-    expiryTime: dateTimeAdd(WebhookTimestamp, 'P5Y')
-    runbook: {
-      name: runbook.name
-    }
-  }
-}
-
-// The Variable stores the webhook since the value is only exposed when its created
-resource variable 'Microsoft.Automation/automationAccounts/variables@2019-06-01' = {
-  parent: automationAccount
-  name: 'WebhookURI_${runbook.name}'
-  properties: {
-    value: '"${webhook.properties.uri}"'
-    isEncrypted: false
-  }
-}
-
 // Gives the Managed Identity for the Automation Account rights to deploy the VM to shrink FSLogix disks
 @batchSize(1)
 module roleAssignments_VirtualMachineContributor 'modules/roleAssignments.bicep' = [for i in range(0, length(RoleAssignmentResourceGroups)): {
@@ -401,67 +381,68 @@ resource roleAssignment_KeyVaultSecretsUser02 'Microsoft.Authorization/roleAssig
   }
 }
 
-// Logic App to trigger scaling runbook for the AVD host pool
-resource logicApp 'Microsoft.Logic/workflows@2016-06-01' = {
-  name: LogicAppName
-  location: Location
+resource schedule 'Microsoft.Automation/automationAccounts/schedules@2022-08-08' = {
+  parent: automationAccount
+  name: '${StorageAccountName}_${FileShareName}'
   properties: {
-    state: 'Enabled'
-    definition: {
-      '$schema': 'https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#'
-      actions: {
-        HTTP: {
-          type: 'Http'
-          inputs: {
-            method: 'POST'
-            uri: replace(variable.properties.value, '"', '')
-            body: {
-              _artifactsLoction: _artifactsLocation
-              DiskName: DiskName
-              Environment: environment().name
-              FileShareNames: join(FileShareNames, ',')
-              HybridUseBenefit: HybridUseBenefit
-              KeyVaultName: keyVault.name
-              Location: Location
-              NicName: NicName
-              ResourceGroupName: resourceGroup().name
-              StorageAccountNames: join(StorageAccountNames, ',')
-              StorageAccountSuffix: StorageAccountSuffix
-              SubnetName: SubnetName
-              SubscriptionId: subscription().subscriptionId
-              Tags: Tags
-              TemplateSpecId: templateSpecVersion.id
-              TenantId: subscription().tenantId
-              UserAssignedIdentityClientId: userAssignedIdentity.properties.clientId
-              UserAssignedIdentityResourceId: userAssignedIdentity.id
-              VirtualNetworkName: VirtualNetworkName
-              VirtualNetworkResourceGroupName: VirtualNetworkResourceGroupName
-              VmName: VmName
-              VmSize: VmSize
-            }
-          }
-        }
-      }
-      triggers: {
-        Recurrence: {
-          type: 'Recurrence'
-          recurrence: {
-            frequency: 'Week'
-            interval: 1
-            startTime: RecurrenceDateTime
-            timezone: TimeZones[Location]
-          }
-          evaluatedRecurrence: {
-            frequency: 'Week'
-            interval: 1
-            startTime: RecurrenceDateTime
-            timezone: TimeZones[Location]
-          }
-        }
-      }
+    frequency: 'Day'
+    interval: 1
+    startTime: dateTimeAdd(Time, 'PT15M')
+    timeZone: TimeZone
+  }
+}
+
+resource jobSchedule 'Microsoft.Automation/automationAccounts/jobSchedules@2022-08-08' = {
+  parent: automationAccount
+  name: JobScheduleName
+  properties: {
+    parameters: {
+      _artifactsLoction: _artifactsLocation
+      DeleteOlderThanDays: DeleteOlderThanDays
+      Environment: environment().name
+      FileShareNames: join(FileShareNames, ',')
+      HybridUseBenefit: HybridUseBenefit
+      KeyVaultName: keyVault.name
+      Location: Location
+      NicName: NicName
+      ResourceGroupName: resourceGroup().name
+      StorageAccountNames: join(StorageAccountNames, ',')
+      StorageAccountSuffix: StorageAccountSuffix
+      SubnetName: SubnetName
+      SubscriptionId: subscription().subscriptionId
+      Tags: Tags
+      TemplateSpecId: templateSpecVersion.id
+      TenantId: subscription().tenantId
+      UserAssignedIdentityClientId: userAssignedIdentity.properties.clientId
+      UserAssignedIdentityResourceId: userAssignedIdentity.id
+      VirtualNetworkName: VirtualNetworkName
+      VirtualNetworkResourceGroupName: VirtualNetworkResourceGroupName
+      VmName: VmName
+      VmSize: VmSize
+    }
+    runbook: {
+      name: runbook.name
+    }
+    schedule: {
+      name: schedule.name
     }
   }
-  dependsOn: [
-    roleAssignments_VirtualMachineContributor
-  ]
+}
+
+resource diagnostics 'Microsoft.Insights/diagnosticsettings@2017-05-01-preview' = if (!empty(LogAnalyticsWorkspaceResourceId)) {
+  scope: automationAccount
+  name: 'diag-${automationAccount.name}'
+  properties: {
+    logs: [
+      {
+        category: 'JobLogs'
+        enabled: true
+      }
+      {
+        category: 'JobStreams'
+        enabled: true
+      }
+    ]
+    workspaceId: LogAnalyticsWorkspaceResourceId
+  }
 }

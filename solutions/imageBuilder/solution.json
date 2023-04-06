@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.15.31.15270",
-      "templateHash": "15427727769755414872"
+      "templateHash": "677552098956703236"
     }
   },
   "parameters": {
@@ -18,14 +18,14 @@
     },
     "DeployOffice": {
       "type": "bool",
-      "defaultValue": false,
+      "defaultValue": true,
       "metadata": {
         "description": "Determine whether you want to install Microsoft Office 365 in the image."
       }
     },
     "DeployOneDrive": {
       "type": "bool",
-      "defaultValue": false,
+      "defaultValue": true,
       "metadata": {
         "description": "Determine whether you want to install One Drive in the image."
       }
@@ -1124,7 +1124,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.15.31.15270",
-              "templateHash": "17057232276228706985"
+              "templateHash": "12788818638031464032"
             }
           },
           "parameters": {
@@ -1209,6 +1209,14 @@
             ],
             "FSLogixType": "[if(contains(parameters('ImageSku'), 'avd'), createArray(createObject('type', 'PowerShell', 'name', 'Uninstall FSLogix', 'runElevated', true(), 'runAsSystem', true(), 'scriptUri', format('{0}fslogix.ps1', parameters('StorageUri'))), createObject('type', 'WindowsRestart', 'restartTimeout', '5m'), createObject('type', 'PowerShell', 'name', 'Install FSLogix', 'runElevated', true(), 'runAsSystem', true(), 'scriptUri', format('{0}fslogix.ps1', parameters('StorageUri'))), createObject('type', 'WindowsRestart', 'restartTimeout', '5m')), createArray(createObject('type', 'PowerShell', 'name', 'Install FSLogix', 'runElevated', true(), 'runAsSystem', true(), 'scriptUri', format('{0}fslogix.ps1', parameters('StorageUri'))), createObject('type', 'WindowsRestart', 'restartTimeout', '5m')))]",
             "FSLogix": "[if(parameters('DeployFSLogix'), variables('FSLogixType'), createArray())]",
+            "Functions": [
+              {
+                "type": "File",
+                "name": "Tenant ID",
+                "sourceUri": "[format('{0}Set-RegistrySetting.ps1', parameters('StorageUri'))]",
+                "destination": "C:\\temp\\Set-RegistrySetting.ps1"
+              }
+            ],
             "Office": "[if(parameters('DeployOffice'), createArray(createObject('type', 'PowerShell', 'name', 'Install Microsoft Office 365', 'runElevated', true(), 'runAsSystem', true(), 'scriptUri', format('{0}o365.ps1', parameters('StorageUri')))), createArray())]",
             "OneDrive": "[if(parameters('DeployOneDrive'), createArray(createObject('type', 'File', 'name', 'Tenant ID', 'sourceUri', format('{0}tenantId.txt', parameters('StorageUri')), 'destination', 'C:\\temp\\tenantId.txt'), createObject('type', 'PowerShell', 'name', 'Install One Drive', 'runElevated', true(), 'runAsSystem', true(), 'scriptUri', format('{0}onedrive.ps1', parameters('StorageUri')))), createArray())]",
             "Teams": "[if(parameters('DeployTeams'), createArray(createObject('type', 'PowerShell', 'name', 'Install Teams', 'runElevated', true(), 'runAsSystem', true(), 'scriptUri', format('{0}teams.ps1', parameters('StorageUri')))), createArray())]",
@@ -1220,7 +1228,7 @@
                 "runElevated": true,
                 "runAsSystem": true,
                 "inline": [
-                  "Remove-Item -Path \"C:\\temp\" -Recurse -Force | Out-Null; Write-Host \"Removed Temp Directory"
+                  "Remove-Item -Path \"C:\\temp\" -Recurse -Force | Out-Null; Write-Host \"Removed Temp Directory\""
                 ]
               }
             ],
@@ -1238,7 +1246,7 @@
                 "restartTimeout": "5m"
               }
             ],
-            "Customizers": "[union(variables('CreateTempDir'), variables('VDOT'), variables('FSLogix'), variables('Office'), variables('OneDrive'), variables('Teams'), variables('RemoveTempDir'), variables('WindowsUpdate'))]"
+            "Customizers": "[union(variables('CreateTempDir'), variables('VDOT'), variables('Functions'), variables('FSLogix'), variables('Office'), variables('OneDrive'), variables('Teams'), variables('RemoveTempDir'), variables('WindowsUpdate'))]"
           },
           "resources": [
             {

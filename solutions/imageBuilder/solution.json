@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.15.31.15270",
-      "templateHash": "16237607419710929895"
+      "templateHash": "9327843128677559296"
     }
   },
   "parameters": {
@@ -1006,7 +1006,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.15.31.15270",
-              "templateHash": "1567641108251515189"
+              "templateHash": "4664791228513439034"
             }
           },
           "parameters": {
@@ -1036,7 +1036,7 @@
             }
           },
           "variables": {
-            "FileName": "tenantId.txt",
+            "FileName": "office365x64.xml",
             "O365ConfigHeader": "<Add OfficeClientEdition=\"64\" Channel=\"Current\"><Add OfficeClientEdition=\"64\" Channel=\"Current\">",
             "O365AddOffice": "[if(parameters('DeployOffice'), '<Product ID=\"O365ProPlusRetail\"><Language ID=\"en-us\" /></Product>', '')]",
             "O365AddProject": "[if(parameters('DeployProject'), '<Product ID=\"ProjectProRetail\"><Language ID=\"en-us\" /></Product>', '')]",

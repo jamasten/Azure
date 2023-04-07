@@ -1,6 +1,7 @@
 param DeploymentScriptName string
 param Location string
 param StorageAccountName string
+param StorageAccountResourceGroupName string
 param StorageContainerName string
 param Tags object
 
@@ -10,6 +11,7 @@ var FileName = 'tenantId.txt'
 
 resource storageAccount 'Microsoft.Storage/storageAccounts@2021-01-01' existing = {
   name: StorageAccountName
+  scope: resourceGroup(StorageAccountResourceGroupName)
 }
 
 resource deploymentScript 'Microsoft.Resources/deploymentScripts@2020-10-01' = {

@@ -400,7 +400,7 @@ module networkPolicy 'modules/networkPolicy.bicep' = if(!(empty(SubnetName)) && 
 }
 
 module office365 'modules/o365.bicep' = if(DeployOffice || DeployProject || DeployVisio) {
-  scope: resourceGroup(StorageAccountResourceGroupName)
+  scope: rg
   name: 'Office365_Configuration_${Timestamp}'
   params: {
     DeploymentScriptName: DeploymentScriptName
@@ -409,18 +409,20 @@ module office365 'modules/o365.bicep' = if(DeployOffice || DeployProject || Depl
     DeployVisio: DeployVisio
     Location: Location
     StorageAccountName: StorageAccountName
+    StorageAccountResourceGroupName: StorageAccountResourceGroupName
     StorageContainerName: StorageContainerName
     Tags: Tags
   }
 }
 
 module oneDrive 'modules/oneDrive.bicep' = if(DeployOneDrive) {
-  scope: resourceGroup(StorageAccountResourceGroupName)
+  scope: rg
   name: 'OneDrive_Configuration_${Timestamp}'
   params: {
     DeploymentScriptName: DeploymentScriptName
     Location: Location
     StorageAccountName: StorageAccountName
+    StorageAccountResourceGroupName: StorageAccountResourceGroupName
     StorageContainerName: StorageContainerName
     Tags: Tags
   }

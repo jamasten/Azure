@@ -53,6 +53,7 @@ var FSLogixType = contains(ImageSku, 'avd') ? [
   }
   {
     type: 'WindowsRestart'
+    name: 'Restart after FSLogix uninstall'
     restartTimeout: '5m'
   }
   {
@@ -64,6 +65,7 @@ var FSLogixType = contains(ImageSku, 'avd') ? [
   }
   {
     type: 'WindowsRestart'
+    name: 'Restart after FSLogix install'
     restartTimeout: '5m'
   }
 ] : [
@@ -83,6 +85,7 @@ var FSLogixType = contains(ImageSku, 'avd') ? [
   }
   {
     type: 'WindowsRestart'
+    name: 'Restart after FSLogix install'
     restartTimeout: '5m'
   }
 ]
@@ -140,6 +143,7 @@ var OneDriveType = ImageSku == 'office-365' ? [
   }
   {
     type: 'WindowsRestart'
+    name: 'Restart after OneDrive uninstall'
     restartTimeout: '5m'
   }
   {
@@ -205,6 +209,7 @@ var VDOT = DeployVirtualDesktopOptimizationTool ? [
   }
   {
     type: 'WindowsRestart'
+    name: 'Restart after VDOT execution'
     restartTimeout: '5m'
   }
 ] : []
@@ -230,6 +235,7 @@ var WindowsUpdate = [
   }
   {
     type: 'WindowsRestart'
+    name: 'Restart after Windows Updates'
     restartTimeout: '5m'
   }
 ]

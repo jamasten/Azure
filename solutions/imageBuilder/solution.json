@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.15.31.15270",
-      "templateHash": "6170807846587385620"
+      "templateHash": "10611987343832918691"
     }
   },
   "parameters": {
@@ -967,7 +967,7 @@
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2020-10-01",
       "name": "[format('Office365_Configuration_{0}', parameters('Timestamp'))]",
-      "resourceGroup": "[parameters('StorageAccountResourceGroupName')]",
+      "resourceGroup": "[variables('ResourceGroup')]",
       "properties": {
         "expressionEvaluationOptions": {
           "scope": "inner"
@@ -992,6 +992,9 @@
           "StorageAccountName": {
             "value": "[parameters('StorageAccountName')]"
           },
+          "StorageAccountResourceGroupName": {
+            "value": "[parameters('StorageAccountResourceGroupName')]"
+          },
           "StorageContainerName": {
             "value": "[parameters('StorageContainerName')]"
           },
@@ -1006,7 +1009,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.15.31.15270",
-              "templateHash": "4664791228513439034"
+              "templateHash": "15268867720048278374"
             }
           },
           "parameters": {
@@ -1026,6 +1029,9 @@
               "type": "string"
             },
             "StorageAccountName": {
+              "type": "string"
+            },
+            "StorageAccountResourceGroupName": {
               "type": "string"
             },
             "StorageContainerName": {
@@ -1048,7 +1054,7 @@
             {
               "type": "Microsoft.Resources/deploymentScripts",
               "apiVersion": "2020-10-01",
-              "name": "[format('{0}-onedrive', parameters('DeploymentScriptName'))]",
+              "name": "[format('{0}-o365', parameters('DeploymentScriptName'))]",
               "location": "[parameters('Location')]",
               "tags": "[parameters('Tags')]",
               "kind": "AzureCLI",
@@ -1063,7 +1069,7 @@
                   },
                   {
                     "name": "AZURE_STORAGE_KEY",
-                    "secureValue": "[listKeys(resourceId('Microsoft.Storage/storageAccounts', parameters('StorageAccountName')), '2021-01-01').keys[0].value]"
+                    "secureValue": "[listKeys(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('StorageAccountResourceGroupName')), 'Microsoft.Storage/storageAccounts', parameters('StorageAccountName')), '2021-01-01').keys[0].value]"
                   },
                   {
                     "name": "CONTENT",
@@ -1075,14 +1081,17 @@
             }
           ]
         }
-      }
+      },
+      "dependsOn": [
+        "[subscriptionResourceId('Microsoft.Resources/resourceGroups', variables('ResourceGroup'))]"
+      ]
     },
     {
       "condition": "[parameters('DeployOneDrive')]",
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2020-10-01",
       "name": "[format('OneDrive_Configuration_{0}', parameters('Timestamp'))]",
-      "resourceGroup": "[parameters('StorageAccountResourceGroupName')]",
+      "resourceGroup": "[variables('ResourceGroup')]",
       "properties": {
         "expressionEvaluationOptions": {
           "scope": "inner"
@@ -1098,6 +1107,9 @@
           "StorageAccountName": {
             "value": "[parameters('StorageAccountName')]"
           },
+          "StorageAccountResourceGroupName": {
+            "value": "[parameters('StorageAccountResourceGroupName')]"
+          },
           "StorageContainerName": {
             "value": "[parameters('StorageContainerName')]"
           },
@@ -1112,7 +1124,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.15.31.15270",
-              "templateHash": "16274555538781415280"
+              "templateHash": "2163371819196243030"
             }
           },
           "parameters": {
@@ -1123,6 +1135,9 @@
               "type": "string"
             },
             "StorageAccountName": {
+              "type": "string"
+            },
+            "StorageAccountResourceGroupName": {
               "type": "string"
             },
             "StorageContainerName": {
@@ -1154,7 +1169,7 @@
                   },
                   {
                     "name": "AZURE_STORAGE_KEY",
-                    "secureValue": "[listKeys(resourceId('Microsoft.Storage/storageAccounts', parameters('StorageAccountName')), '2021-01-01').keys[0].value]"
+                    "secureValue": "[listKeys(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('StorageAccountResourceGroupName')), 'Microsoft.Storage/storageAccounts', parameters('StorageAccountName')), '2021-01-01').keys[0].value]"
                   },
                   {
                     "name": "CONTENT",
@@ -1166,7 +1181,10 @@
             }
           ]
         }
-      }
+      },
+      "dependsOn": [
+        "[subscriptionResourceId('Microsoft.Resources/resourceGroups', variables('ResourceGroup'))]"
+      ]
     },
     {
       "type": "Microsoft.Resources/deployments",
@@ -1441,8 +1459,8 @@
       "dependsOn": [
         "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroup')), 'Microsoft.Resources/deployments', format('ComputeGallery_{0}', parameters('Timestamp')))]",
         "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroup')), 'Microsoft.Resources/deployments', format('NetworkPolicy_{0}', parameters('Timestamp')))]",
-        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('StorageAccountResourceGroupName')), 'Microsoft.Resources/deployments', format('Office365_Configuration_{0}', parameters('Timestamp')))]",
-        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('StorageAccountResourceGroupName')), 'Microsoft.Resources/deployments', format('OneDrive_Configuration_{0}', parameters('Timestamp')))]",
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroup')), 'Microsoft.Resources/deployments', format('Office365_Configuration_{0}', parameters('Timestamp')))]",
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroup')), 'Microsoft.Resources/deployments', format('OneDrive_Configuration_{0}', parameters('Timestamp')))]",
         "[subscriptionResourceId('Microsoft.Resources/resourceGroups', variables('ResourceGroup'))]",
         "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, variables('ResourceGroup')), 'Microsoft.Resources/deployments', format('RoleAssignment_{0}_{1}', variables('ResourceGroup'), parameters('Timestamp')))]",
         "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('StorageAccountResourceGroupName')), 'Microsoft.Resources/deployments', format('RoleAssignment_{0}_{1}', parameters('StorageAccountName'), parameters('Timestamp')))]",

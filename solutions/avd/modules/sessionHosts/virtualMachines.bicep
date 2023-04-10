@@ -176,7 +176,7 @@ resource virtualMachine 'Microsoft.Compute/virtualMachines@2021-03-01' = [for i 
         name: '${DiskName}${padLeft((i + SessionHostIndex), 3, '0')}'
         osType: 'Windows'
         createOption: 'FromImage'
-        caching: EphemeralOsDisk == 'None' ? 'None' : 'ReadOnly'
+        caching: EphemeralOsDisk == 'None' ? 'ReadWrite' : 'ReadOnly'
         deleteOption: 'Delete'
         managedDisk: EphemeralOsDisk == 'None'? {
           storageAccountType: DiskSku

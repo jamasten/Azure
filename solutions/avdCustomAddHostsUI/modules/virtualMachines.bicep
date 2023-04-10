@@ -59,7 +59,7 @@ resource virtualMachines 'Microsoft.Compute/virtualMachines@2021-11-01' = [for i
       osDisk: {
         deleteOption: 'Delete'
         createOption: 'FromImage'
-        caching: 'None'
+        caching: 'ReadWrite'
         managedDisk: {
           storageAccountType: DiskSku
           diskEncryptionSet: !(empty(DiskEncryptionSetResourceId)) ? {

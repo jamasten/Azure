@@ -185,7 +185,7 @@
                 "storageProfile": {
                     "osDisk": {
                         "osType": "[parameters('OsType')]",
-                        "caching": "None",
+                        "caching": "ReadWrite",
                         "createOption": "Attach",
                         "managedDisk": {
                             "id": "[resourceId('Microsoft.Compute/disks', concat('disk-', parameters('ResourceNameSuffix')))]"

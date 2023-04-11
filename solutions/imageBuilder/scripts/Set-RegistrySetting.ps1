@@ -8,7 +8,7 @@ Param(
     [parameter(Mandatory)]
     [String]$PropertyType,
 
-    [parameter(Mandatory=$false)]
+    [parameter(Mandatory)]
     [String]$Value
 )
 

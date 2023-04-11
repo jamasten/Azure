@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.16.1.55165",
-      "templateHash": "14659296263801469974"
+      "templateHash": "7819910950277523498"
     }
   },
   "parameters": {
@@ -1009,7 +1009,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.16.1.55165",
-              "templateHash": "11146884772912371386"
+              "templateHash": "5569007281441531081"
             }
           },
           "parameters": {
@@ -1043,7 +1043,7 @@
           },
           "variables": {
             "FileName": "office365x64.xml",
-            "O365ConfigHeader": "<Add OfficeClientEdition=\"64\" Channel=\"Current\"><Add OfficeClientEdition=\"64\" Channel=\"Current\">",
+            "O365ConfigHeader": "<Configuration><Add OfficeClientEdition=\"64\" Channel=\"Current\">",
             "O365AddOffice": "[if(parameters('DeployOffice'), '<Product ID=\"O365ProPlusRetail\"><Language ID=\"en-us\" /></Product>', '')]",
             "O365AddProject": "[if(parameters('DeployProject'), '<Product ID=\"ProjectProRetail\"><Language ID=\"en-us\" /></Product>', '')]",
             "O365AddVisio": "[if(parameters('DeployVisio'), '<Product ID=\"VisioProRetail\"><Language ID=\"en-us\" /></Product>', '')]",

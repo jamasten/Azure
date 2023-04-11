@@ -84,7 +84,7 @@ resource schedule 'Microsoft.Automation/automationAccounts/schedules@2022-08-08'
 
 resource jobSchedule 'Microsoft.Automation/automationAccounts/jobSchedules@2022-08-08' = {
   parent: automationAccount
-  //name: guid(runbook.name, schedule.name)
+  #disable-next-line use-stable-resource-identifiers
   name: JobScheduleName
   properties: {
     parameters: {

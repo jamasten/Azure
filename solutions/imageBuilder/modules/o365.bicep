@@ -10,7 +10,7 @@ param Tags object
 
 
 var FileName = 'office365x64.xml'
-var O365ConfigHeader = '<Add OfficeClientEdition="64" Channel="Current"><Add OfficeClientEdition="64" Channel="Current">'
+var O365ConfigHeader = '<Configuration><Add OfficeClientEdition="64" Channel="Current">'
 var O365AddOffice = DeployOffice ? '<Product ID="O365ProPlusRetail"><Language ID="en-us" /></Product>' : ''
 var O365AddProject = DeployProject ? '<Product ID="ProjectProRetail"><Language ID="en-us" /></Product>' : ''
 var O365AddVisio = DeployVisio ? '<Product ID="VisioProRetail"><Language ID="en-us" /></Product>' : ''

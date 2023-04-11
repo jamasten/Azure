@@ -3,7 +3,7 @@ $ErrorActionPreference = 'Stop'
 try 
 {
     # Set registry setting for AVD Media Optimization
-    & C:\temp\Set-RegistrySetting -Name 'IsWVDEnvironment' -Path 'HKLM:\SOFTWARE\Microsoft\Teams' -PropertyType 'Dword' -Value '1'
+    & C:\temp\Set-RegistrySetting.ps1 -Name 'IsWVDEnvironment' -Path 'HKLM:\SOFTWARE\Microsoft\Teams' -PropertyType 'Dword' -Value '1'
 
     # Install Visual C++
     $File = 'C:\temp\vc_redist.x64.exe'

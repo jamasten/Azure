@@ -11,16 +11,16 @@ param DeployOffice bool = true
 param DeployOneDrive bool = true
 
 @description('Determine whether you want to install Microsoft Project in the image.')
-param DeployProject bool = false
+param DeployProject bool = true
 
 @description('Determine whether you want to install Microsoft Teams in the image.')
-param DeployTeams bool = false
+param DeployTeams bool = true
 
 @description('Determine whether you want to run the Virtual Desktop Optimization Tool on the image. https://github.com/The-Virtual-Desktop-Team/Virtual-Desktop-Optimization-Tool')
 param DeployVirtualDesktopOptimizationTool bool = true
 
 @description('Determine whether you want to install Microsoft Visio in the image.')
-param DeployVisio bool = false
+param DeployVisio bool = true
 
 @description('The distribution group that will recieve email alerts when an AIB image build either succeeds or fails.')
 param DistributionGroup string

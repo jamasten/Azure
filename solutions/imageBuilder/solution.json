@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.16.1.55165",
-      "templateHash": "7819910950277523498"
+      "templateHash": "12432693594503622408"
     }
   },
   "parameters": {
@@ -32,14 +32,14 @@
     },
     "DeployProject": {
       "type": "bool",
-      "defaultValue": false,
+      "defaultValue": true,
       "metadata": {
         "description": "Determine whether you want to install Microsoft Project in the image."
       }
     },
     "DeployTeams": {
       "type": "bool",
-      "defaultValue": false,
+      "defaultValue": true,
       "metadata": {
         "description": "Determine whether you want to install Microsoft Teams in the image."
       }
@@ -53,7 +53,7 @@
     },
     "DeployVisio": {
       "type": "bool",
-      "defaultValue": false,
+      "defaultValue": true,
       "metadata": {
         "description": "Determine whether you want to install Microsoft Visio in the image."
       }

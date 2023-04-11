@@ -7,7 +7,7 @@ try
     # Download the latest version of FSLogix
     $URL = 'https://aka.ms/fslogix_download'
     $ZIP = 'C:\temp\fslogix.zip'
-    Invoke-WebRequest -Uri $URL -OutFile $File
+    Invoke-WebRequest -Uri $URL -OutFile $ZIP
     Write-Host 'Downloaded latest version of FSLogix'
 
     # Unblock the ZIP file containing FSLogix

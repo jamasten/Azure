@@ -19,17 +19,17 @@ if(!(Test-Path -Path $Path))
 }
 
 # Checks for existing registry setting
-$Value = Get-ItemProperty -Path $Path -Name $Name -ErrorAction 'SilentlyContinue'
+$Setting = Get-ItemProperty -Path $Path -Name $Name -ErrorAction 'SilentlyContinue'
 $LogOutputValue = 'Path: ' + $Path + ', Name: ' + $Name + ', PropertyType: ' + $PropertyType + ', Value: ' + $Value
 
 # Creates the registry setting when it does not exist
-if(!$Value)
+if(!$Setting)
 {
     New-ItemProperty -Path $Path -Name $Name -PropertyType $PropertyType -Value $Value -Force | Out-Null
     Write-Host "Added registry setting: $LogOutputValue"
 }
 # Updates the registry setting when it already exists
-elseif($Value.$($Name) -ne $Value)
+elseif($Setting.$($Name) -ne $Value)
 {
     Set-ItemProperty -Path $Path -Name $Name -Value $Value -Force | Out-Null
     Write-Host "Updated registry setting: $LogOutputValue"

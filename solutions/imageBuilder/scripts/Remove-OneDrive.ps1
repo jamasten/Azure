@@ -6,7 +6,8 @@ $ErrorActionPreference = 'Stop'
 try 
 {
     # Uninstall existing OneDrive install
-    Start-Process -FilePath $File -Args "/uninstall" -Wait -PassThru | Out-Null
+    $Installer = 'C:\temp\OneDrive.exe'
+    Start-Process -FilePath $Installer -Args "/uninstall" -Wait -PassThru | Out-Null
     Write-Host 'Uninstalled existing installation of OneDrive'
 }
 catch 

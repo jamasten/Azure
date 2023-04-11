@@ -1,11 +1,12 @@
-# Install OneDrive on a Windows multi-session operating system
+# Download OneDrive
+
 $ErrorActionPreference = 'Stop'
-# Set variables
-$URL = 'https://go.microsoft.com/fwlink/?linkid=844652'
-$Installer = 'C:\temp\OneDrive.exe'
+
 try 
 {
     # Download OneDrive installer to temp folder
+    $URL = 'https://go.microsoft.com/fwlink/?linkid=844652'
+    $Installer = 'C:\temp\OneDrive.exe'
     Invoke-WebRequest -Uri $URL -OutFile $Installer
     Write-Host 'Downloaded the OneDrive installer'
 }

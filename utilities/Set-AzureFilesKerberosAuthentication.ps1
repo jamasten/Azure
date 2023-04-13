@@ -175,7 +175,6 @@ $ComputerObject = New-ADComputer `
     -Path $OuPath `
     -ServicePrincipalNames $SPN `
     -AccountPassword $ComputerPassword `
-    -KerberosEncryptionType $KerberosEncryptionType `
     -Description $Description `
     -AllowReversiblePasswordEncryption $false `
     -Enabled $true `
@@ -195,7 +194,7 @@ Set-AzStorageAccount `
     -ActiveDirectoryDomainGuid $Domain.ObjectGUID `
     -ActiveDirectoryDomainSid $Domain.DomainSID `
     -ActiveDirectoryAzureStorageSid $ComputerObject.SID.Value `
-    -ActiveDirectorySamAccountName $StorageAccountName `
+    -ActiveDirectorySamAccountName $ComputerObject.SamAccountName `
     -ActiveDirectoryAccountType 'Computer' | Out-Null
 
 Write-Host "Updated the Azure Storage Account with the domain and computer object properties `n"

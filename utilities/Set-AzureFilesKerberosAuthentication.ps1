@@ -182,8 +182,13 @@ $ComputerObject = New-ADComputer `
 
 Write-Host "Created a new computer object for the Azure Storage Account in AD DS `n"
 
-
 # Update the Azure Storage Account with the domain join 'INFO'
+$SamAccountName = switch($KerberosEncryptionType)
+{
+    'AES256' {$StorageAccountName}
+    'RC4' {$ComputerObject.SamAccountName}
+}
+
 Set-AzStorageAccount `
     -ResourceGroupName $StorageAccountResourceGroupName `
     -Name $StorageAccountName `
@@ -194,7 +199,7 @@ Set-AzStorageAccount `
     -ActiveDirectoryDomainGuid $Domain.ObjectGUID `
     -ActiveDirectoryDomainSid $Domain.DomainSID `
     -ActiveDirectoryAzureStorageSid $ComputerObject.SID.Value `
-    -ActiveDirectorySamAccountName $ComputerObject.SamAccountName `
+    -ActiveDirectorySamAccountName $SamAccountName `
     -ActiveDirectoryAccountType 'Computer' | Out-Null
 
 Write-Host "Updated the Azure Storage Account with the domain and computer object properties `n"

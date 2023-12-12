@@ -5,17 +5,17 @@
     "_generator": {
       "name": "bicep",
       "version": "0.23.1.45101",
-      "templateHash": "12077497193172878581"
+      "templateHash": "11986270372887868871"
     }
   },
   "resources": [
     {
       "type": "Microsoft.Authorization/policyDefinitions",
       "apiVersion": "2021-06-01",
-      "name": "TrustedLaunchForVirtualMachines",
+      "name": "ZeroTrustSecurityProfileConfiguration",
       "properties": {
-        "description": "Enable trusted launch for virtual machines",
-        "displayName": "Enable trusted launch for virtual machines",
+        "description": "Enable zero trust security profile configuration for virtual machines",
+        "displayName": "Enable zero trust security profile configuration",
         "mode": "All",
         "parameters": {},
         "policyRule": {

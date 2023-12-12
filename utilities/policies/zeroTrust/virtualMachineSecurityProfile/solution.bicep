@@ -1,10 +1,10 @@
 targetScope = 'subscription'
 
 resource policyDefinition 'Microsoft.Authorization/policyDefinitions@2021-06-01' = {
-  name: 'TrustedLaunchForVirtualMachines'
+  name: 'ZeroTrustSecurityProfileConfiguration'
   properties: {
-    description: 'Enable trusted launch for virtual machines'
-    displayName: 'Enable trusted launch for virtual machines'
+    description: 'Enable zero trust security profile configuration for virtual machines'
+    displayName: 'Enable zero trust security profile configuration'
     mode: 'All'
     parameters: {}
     policyRule: {

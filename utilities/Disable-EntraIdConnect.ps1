@@ -2,14 +2,20 @@
 
 Param(
 
-    [Paramter(Mandatory=$true)]
+    [Parameter(Mandatory=$true)]
     [ValidateSet('Global','China','Germany','USGov','USGovDoD')]
     [string]$Environment,
 
-    [Paramter(Mandatory=$true)]
+    [Parameter(Mandatory=$true)]
     [string]$TenantId
 
 )
+
+$UriSuffix = switch($Environment)
+{
+    Global { 'com' }
+    USGov  { 'us'  }
+}
 
 if(!(Get-Module -ListAvailable | Where-Object {$_.Name -eq 'Microsoft.Graph.Identity.DirectoryManagement'}))
 {
@@ -22,6 +28,6 @@ if(!(Get-MgOrganization -ErrorAction SilentlyContinue))
 }
 
 $OrgId = (Get-MgOrganization).id
-$Uri = 'https://graph.microsoft.com/v1.0/organization/' + $OrgId
+$Uri = 'https://graph.microsoft.' + $UriSuffix + '/beta/organization/' + $OrgId
 $Body = @{onPremisesSyncEnabled = 'false'} | ConvertTo-Json
 Invoke-MgGraphRequest -Uri $Uri -Body $Body -Method 'PATCH'

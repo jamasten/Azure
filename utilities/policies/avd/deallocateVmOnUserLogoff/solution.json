@@ -1,0 +1,100 @@
+{
+  "mode": "All",
+  "policyRule": {
+    "if": {
+      "allOf": [
+        {
+          "field": "type",
+          "equals": "Microsoft.Compute/virtualMachines"
+        },
+        {
+          "value": "[requestContext().apiVersion]",
+          "greaterOrEquals": "2018-10-01"
+        }
+      ]
+    },
+    "then": {
+      "effect": "[parameters('effect')]",
+      "details": {
+        "type": "Microsoft.Authorization/roleAssignments",
+        "evaluationDelay": "AfterProvisioningSuccess",
+        "deploymentScope": "resourceGroup",
+        "existenceCondition": {
+          "field": "Microsoft.Authorization/roleAssignments/roleDefinitionId",
+          "equals": "[concat(subscription().id, '/providers/Microsoft.Authorization/roleDefinitions/40c5ff49-9181-41f8-ae61-143b0e78555e')]"
+        },
+        "roleDefinitionIds": [
+          "/providers/Microsoft.Authorization/roleDefinitions/9980e02c-c2be-4d73-94e8-173b1dc7cf3c",
+          "/providers/Microsoft.Authorization/roleDefinitions/18d7d88d-d35e-4fb5-a5c3-7773c20a72d9"
+        ],
+        "deployment": {
+          "resourceGroup": "[resourceGroup().name]",
+          "properties": {
+            "mode": "incremental",
+            "parameters": {
+              "location": {
+                "value": "[field('location')]"
+              },
+              "vmName": {
+                "value": "[field('name')]"
+              }
+            },
+            "template": {
+              "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+              "contentVersion": "1.0.0.0",
+              "parameters": {
+                "location": {
+                  "type": "string"
+                },
+                "vmName": {
+                  "type": "string"
+                }
+              },
+              "variables": {},
+              "resources": [
+                {
+                  "apiVersion": "2019-07-01",
+                  "type": "Microsoft.Compute/virtualMachines",
+                  "name": "[parameters('vmName')]",
+                  "location": "[parameters('location')]",
+                  "identity": {
+                    "type": "SystemAssigned"
+                  }
+                },
+                {
+                  "apiVersion": "2022-04-01",
+                  "type": "Microsoft.Authorization/roleAssignments",
+                  "name": "[guid(resourceId('Microsoft.Compute/virtualMachines', parameters('vmName')), 'ManagedIdentity')]",
+                  "scope": "[format('Microsoft.Compute/virtualMachines/{0}', parameters('vmName'))]",
+                  "properties": {
+                    "roleDefinitionId": "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', '40c5ff49-9181-41f8-ae61-143b0e78555e')]",
+                    "principalId": "[reference(resourceId('Microsoft.Compute/virtualMachines', parameters('vmName')), '2019-07-01', 'Full').identity.principalId]",
+                    "principalType": "ServicePrincipal"
+                  },
+                  "dependsOn": [
+                    "[parameters('vmName')]"
+                  ]
+                }
+              ]
+            }
+          }
+        }
+      }
+    }
+  },
+  "parameters": {
+    "effect": {
+      "type": "String",
+      "metadata": {
+        "displayName": "Policy Effect",
+        "description": "The effect determines what happens when the policy rule is evaluated to match."
+      },
+      "allowedValues": [
+        "AuditIfNotExists",
+        "DeployIfNotExists",
+        "Disabled"
+      ],
+      "defaultValue": "DeployIfNotExists"
+    }
+  }
+}

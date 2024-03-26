@@ -34,10 +34,11 @@ The name of the Image Definition in the Azure Compute Gallery.
 .PARAMETER ImageVersionName
 The name of the Image Version in the Azure Compute Gallery.
 .NOTES
-  Version:              1.2
+  Version:              1.3
   Author:               Jason Masten
+  Contributors:         Philip Mallegol-Hansen
   Creation Date:        2022-05-11
-  Last Modified Date:   2023-02-05
+  Last Modified Date:   2023-03-21
 .EXAMPLE
 .\Export-AzureComputeGalleryImageVersion.ps1 `
     -ComputeGalleryName 'cg_shared_d_va' `
@@ -65,7 +66,7 @@ param(
 
 $ErrorActionPreference = 'Stop'
 
-$DiskPrefix = "disk-$($ImageDefinitionName)-"
+$DiskPrefix = "disk-$($ImageDefinitionName)-$($ImageVersionName)-"
 $Location = (Get-AzResourceGroup -Name $ComputeGalleryResourceGroupName).Location
 
 # Gets the Image Version ID

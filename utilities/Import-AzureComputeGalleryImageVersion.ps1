@@ -198,7 +198,7 @@ for($i = 0; $i -lt $Vhds.Count; $i++)
         -ResourceGroupName $ComputeGalleryResourceGroupName `
         -Location $Location `
         -DiskName ($DiskPrefix + $i.ToString()) `
-        -DiskImageDefinitionOsType $ImageDefinitionOsType `
+        -DiskOsType $ImageDefinitionOsType `
         -NumberOfUploaderThreads 32
 
     # Gets the information for the Managed Disk
